@@ -3,13 +3,13 @@ Setup.py file with generic info
 """
 import os
 from setuptools import setup
-from setuptools import find_packages
-from setuptools.command.test import test as TestCommand
+from setuptools.command.test import test as testcommand
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
 # README file and 2) it's easier to type in the README file than to put a raw
 # string in below ...
+
 
 def read(fname):
     """From Wenjie Lei 2019"""
@@ -21,21 +21,24 @@ def read(fname):
 
 long_description = "%s" % read("README.md")
 
-class PyTest(TestCommand):
+
+class PyTest(testcommand):
     user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
 
     def initialize_options(self):
-        TestCommand.initialize_options(self)
+        testcommand.initialize_options(self)
         self.pytest_args = []
 
     def run_tests(self):
         import pytest
+        import sys
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
+
 setup(
     name="GCMT3D",
-    description=("Global 3D Centroid Moment Tensor Inversion"),
+    description="Global 3D Centroid Moment Tensor Inversion",
     long_description=long_description,
     version="0.0.1",
     author="Lucas Sawade",
@@ -44,7 +47,7 @@ setup(
     keywords="Global CMT, Inversion, Moment Tensor",
     url='https://github.com/lsawade/GCMT3D',
     package_dir={"": "src"},
-    packages=find_packages(),
+    packages=["gcmt3d", "gcmt3d.data_download"],
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
     include_package_data=True,
@@ -55,11 +58,10 @@ setup(
         "License :: GNU License",
     ],
     install_requires=[
-        "numpy","matplotlib"
+        "numpy", "matplotlib","obspy"
     ],
     extras_require={
-        "docs": ["sphinx","sphinx_rtd_theme","sphinxcontrib-bibtex"],
-        "tests": ["pytest","py"]
+        "docs": ["sphinx", "sphinx_rtd_theme", "sphinxcontrib-bibtex"],
+        "tests": ["pytest", "py"]
     }
 )
-
