@@ -5,9 +5,9 @@ import os
 from setuptools import setup
 from setuptools.command.test import test as testcommand
 
-# Utility function to read the README file.
+# Utility function to read the README.md file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
-# README file and 2) it's easier to type in the README file than to put a raw
+# README.md file and 2) it's easier to type in the README.md file than to put a raw
 # string in below ...
 
 
@@ -19,7 +19,7 @@ def read(fname):
         return "Can't open %s" % fname
 
 
-long_description = "%s" % read("README.md")
+long_description = "%s" % read("README.md.md")
 
 
 class PyTest(testcommand):
