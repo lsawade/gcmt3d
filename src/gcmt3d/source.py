@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+
 Source and Receiver classes of Instaseis.
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014
     Martin van Driel (Martin@vanDriel.de), 2014
