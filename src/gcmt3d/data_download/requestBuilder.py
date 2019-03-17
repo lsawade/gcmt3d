@@ -183,11 +183,11 @@ class DataRequest(object):
         # Create download log file in Earthquake directory if no other directory
         # is specified
         if download_log_file == "":
-            download_log_file = self.outputdir+"download_log.txt"
+            download_log_file = self.outputdir+"/download_log.txt"
 
         # If doesn't exist, create directory for responses and seismograms
-        seis_path = os.path.join(self.outputdir,"seismograms")
-        resp_path = os.path.join(self.outputdir,"responses")
+        seis_path = os.path.join(self.outputdir, "seismograms")
+        resp_path = os.path.join(self.outputdir, "responses")
 
         if not os.path.exists(seis_path):
             os.makedirs(seis_path)
@@ -196,8 +196,8 @@ class DataRequest(object):
 
         # Relative path to the resources directory
         path_to_this_file = os.path.abspath(os.path.dirname(__file__))
-        path_to_script = "\\ ".join(os.path.join(path_to_this_file, "resources").split())
-
+        path_to_script = "\\ ".join(os.path.join(path_to_this_file,
+                                                 "resources").split())
 
         # Invoke download command depending on the response format
         with open(download_log_file, "w") as out:
@@ -209,7 +209,7 @@ class DataRequest(object):
                                      os.path.join("\\ ".join(seis_path.split()),
                                                   self.eventname),
                                 "-rd", "%s" % "\\ ".join(resp_path.split()),
-                                "-X","%s" % "\\ ".join(self.outputdir.split())+
+                                "-X", "%s" % "\\ ".join(self.outputdir.split()) +
                                 "/"+"station.xml"]),
                       shell=True, stdout=out, stderr=out).wait()
 
@@ -222,7 +222,7 @@ class DataRequest(object):
                                              self.eventname),
                                 "-sd",
                                 "%s" % "\\ ".join(resp_path.split()),
-                                "-X","%s" % "\\ ".join(self.outputdir.split())+
+                                "-X", "%s" % "\\ ".join(self.outputdir.split()) +
                                 "/"+"station.xml"]),
                       shell=True, stdout=out, stderr=out).wait()
 

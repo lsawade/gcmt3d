@@ -2,3 +2,5 @@ data
 .idea
 .pytest_cache
 __pycache__
+*.xml
+*.ipynb_checkpoints
