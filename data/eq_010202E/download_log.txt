@@ -1,0 +1,7 @@
+Reading data selection from list file '/home/lsawade/Research/GCMT3D/data/eq_010202E/request.txt'
+Received 4.2 KB of metadata in 0.4 seconds (10.4 KB/s)
+Processed metadata for 105 channel epochs in 0.4 seconds
+Received 7.6 MB of time series data in 10.4 seconds (746.1 KB/s) - written to /home/lsawade/Research/GCMT3D/data/eq_010202E/seismograms/010202E.mseed
+Received 222.3 KB of RESP in 22.8 seconds (9.8 KB/s)
+Received 133.1 KB of StationXML in 1.5 seconds (87.4 KB/s)
+DONE at 2019-03-27 10:54:22
