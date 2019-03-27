@@ -1,3 +1,8 @@
+# TODO
+
+* check off warnings in spaceweight and pycmt3d
+
+
 1. Adios and ASDF
   ASDF is all for seismic data
   Adios is only for model file

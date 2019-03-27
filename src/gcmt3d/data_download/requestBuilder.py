@@ -7,7 +7,6 @@
 
 from gcmt3d.source import CMTSource
 import os
-from obspy import taup
 from subprocess import Popen
 import warnings
 
@@ -163,7 +162,9 @@ class DataRequest(object):
             for location in self.locations:
                 for channel in self.channels:
                     if station[0] != 'NETWORK':
-                        requestfile.write(" ".join([" ".join(station),
+                        #                                     joining just the
+                        #                                     network   & station
+                        requestfile.write(" ".join([" ".join([station[0], station[1]]),
                                                     location,
                                                     channel,
                                                     self.starttime.__str__(),
@@ -226,8 +227,6 @@ class DataRequest(object):
                                 "-X", "%s" % "\\ ".join(self.outputdir.split()) +
                                 "/"+"station.xml"]),
                       shell=True, stdout=out, stderr=out).wait()
-
-
 
 
     def __str__(self):
