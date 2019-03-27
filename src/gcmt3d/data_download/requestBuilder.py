@@ -7,6 +7,7 @@
 
 from gcmt3d.source import CMTSource
 import os
+from obspy import taup
 from subprocess import Popen
 import warnings
 
@@ -125,14 +126,14 @@ class DataRequest(object):
         # For loop to add all stations to the station list
         stationlist = []
         for line in statfile:
-            if line == "NETWORK	STATION":
+            if line == "NETWORK	STATION	LAT	LON	":
                 continue
 
             # Read stations into list of stations
             line = line.split()
 
             # Append the network o
-            stationlist.append([line[0], line[1]])
+            stationlist.append([line[0], line[1], line[2], line[3]])
 
         return cls(cmt=cmt,
                    stationlist=stationlist,
