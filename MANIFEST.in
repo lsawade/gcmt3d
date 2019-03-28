@@ -1,0 +1,3 @@
+# This will include the Perl FetchData script.
+include src/gcmt3d/data_download/resources/FetchData
+

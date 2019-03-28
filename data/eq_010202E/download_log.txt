@@ -1,1 +1,0 @@
-/bin/sh: /home/lsawade/.anaconda3/lib/python3.7/site-packages/gcmt3d/data_download/resources/FetchData: No such file or directory

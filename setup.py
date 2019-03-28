@@ -46,11 +46,11 @@ setup(
     license='GNU Lesser General Public License, Version 3',
     keywords="Global CMT, Inversion, Moment Tensor",
     url='https://github.com/lsawade/GCMT3D',
-    package_dir={"": "src"},
     packages=["gcmt3d", "gcmt3d.data_download"],
+    package_dir={"gcmt3d": "src/gcmt3d"},
+    include_package_data=True,
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
-    include_package_data=True,
     zip_safe=False,
     classifiers=[
         "Development Status :: Alpha",
