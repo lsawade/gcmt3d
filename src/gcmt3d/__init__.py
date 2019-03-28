@@ -8,6 +8,7 @@ __import__('pkg_resources').declare_namespace(__name__)
 from .source import CMTSource
 
 
+
 # The function below I found on stackoverflow. It is used to import  all
 # subpackages and modules, when gcmt3d is imported without specification of the
 # subpackages
