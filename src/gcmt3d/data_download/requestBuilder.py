@@ -7,11 +7,12 @@
 
 from gcmt3d.source import CMTSource
 import os
-from subprocess import Popen
+from subprocess import Popen, PIPE, STDOUT
 import warnings
+import sys
 
 
-# Input Errors
+# Input Error
 class Error(Exception):
     """Base class for exceptions in this module."""
     pass
@@ -41,7 +42,7 @@ class DataRequest(object):
 
     def __init__(self, cmt=None, stationlist=None, channels=['BHZ'],
                  locations=['00'], duration=0.0, starttime_offset=0,
-                 resp_format="resp", outputdir=""):
+                 resp_format="resp", outputdir="", verbose=1):
         """
         :param cmt: CMTSource object from cmt Source
         :param stationlist: list of station in format
@@ -87,6 +88,9 @@ class DataRequest(object):
         self.resp_format = resp_format
         self.outputdir = outputdir
 
+        # Verbose output
+        self.verbose = verbose
+
         # Name of the output directory:
         # Can't be also parsed input since it's dependent on the provided
         # filename
@@ -99,11 +103,13 @@ class DataRequest(object):
     @classmethod
     def from_file(cls, cmtfname,
                   stationlistfname,
-                  channels=['BHZ'],
-                  locations=['00'],
+                  channels=["BHZ"],
+                  locations=["00"],
+                  resp_format="resp",
                   duration=0.0,
                   starttime_offset=0,
-                  outputdir=""):
+                  outputdir="",
+                  verbose=1):
         """Creates a downloader class from an input file
 
         This downloader class also needs to contain the output directory for the
@@ -125,14 +131,14 @@ class DataRequest(object):
         # For loop to add all stations to the station list
         stationlist = []
         for line in statfile:
-            if line == "NETWORK	STATION	LAT	LON	":
+            if line == "NETWORK	STATION	LAT	LON	ELEVATION   ":
                 continue
 
             # Read stations into list of stations
             line = line.split()
 
-            # Append the network o
-            stationlist.append([line[0], line[1], line[2], line[3]])
+            # Append the [network station latitude longitude elevation] to the station list
+            stationlist.append(line)
 
         return cls(cmt=cmt,
                    stationlist=stationlist,
@@ -140,7 +146,9 @@ class DataRequest(object):
                    locations=locations,
                    duration=duration,
                    starttime_offset=starttime_offset,
-                   outputdir=outputdir)
+                   resp_format=resp_format,
+                   outputdir=outputdir,
+                   verbose=verbose)
 
     def request(self):
         """
@@ -205,7 +213,7 @@ class DataRequest(object):
         with open(download_log_file, "w") as out:
             if self.resp_format == "resp":
                 # RESP
-                Popen(" ".join(["%s/FetchData" % path_to_script,
+                Proc = Popen(" ".join(["%s/FetchData" % path_to_script,
                                 "-l", "%s" % selection_file,
                                 "-o", "%s.mseed" %
                                      os.path.join("\\ ".join(seis_path.split()),
@@ -213,11 +221,11 @@ class DataRequest(object):
                                 "-rd", "%s" % "\\ ".join(resp_path.split()),
                                 "-X", "%s" % "\\ ".join(self.outputdir.split()) +
                                 "/"+"station.xml"]),
-                      shell=True, stdout=out, stderr=out).wait()
+                      shell=True, stdout=PIPE, stderr=STDOUT)
 
             else:
                 # Poles and Zeros
-                Popen(" ".join(["%s/FetchData" % path_to_script,
+                Proc = Popen(" ".join(["%s/FetchData" % path_to_script,
                                 "-l", "%s" % selection_file,
                                 "-o", "%s.mseed" %
                                 os.path.join("\\ ".join(seis_path.split()),
@@ -226,7 +234,16 @@ class DataRequest(object):
                                 "%s" % "\\ ".join(resp_path.split()),
                                 "-X", "%s" % "\\ ".join(self.outputdir.split()) +
                                 "/"+"station.xml"]),
-                      shell=True, stdout=out, stderr=out).wait()
+                      shell=True, stdout=PIPE, stderr=STDOUT)
+
+            for line in Proc.stdout:
+                # write to standard out
+                if self.verbose:
+                    sys.stout.write(line)
+
+                # write to logfile
+                out.write(line)
+            Proc.wait()
 
 
     def __str__(self):
