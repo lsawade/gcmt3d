@@ -14,11 +14,11 @@ Run with pytest.
     27.02.2019
 
 """
-from __future__ import print_function, division
-import inspect
+# from __future__ import print_function, division
+# import inspect
 import os
 import gcmt3d
-from gcmt3d.data_download import dataRequest
+from gcmt3d.data_download.requestBuilder import DataRequest
 from gcmt3d.data_download import InputError
 import unittest
 
@@ -37,5 +37,6 @@ class TestDataRequest(unittest.TestCase):
         Testing what happens when no data is given to the class.
         """
         # Checking whether error is thrown if no or wrong cmt is given
-        with self.assertRaises(InputError): dataRequest()
+        with self.assertRaises(InputError):
+            DataRequest()
 
