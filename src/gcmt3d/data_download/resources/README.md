@@ -35,7 +35,7 @@ There are several download commands that I should know and add
 ### Download miniseed including response with selection file
 
 ```bash
-FetchData -l request.txt -o mydata.mseed -rd <directory>
+#
 ```
 
 ### Download SAC including response with selection file
