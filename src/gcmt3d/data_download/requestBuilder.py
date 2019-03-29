@@ -99,6 +99,8 @@ class DataRequest(object):
             warnings.warn("No output directory chosen. Seismograms will be " +
                           "saved\nin current location in subdirectory " +
                           "'seismograms/'.")
+        elif not os.path.exists(self.outputdir):
+            os.makedirs(self.outputdir)
 
     @classmethod
     def from_file(cls, cmtfname,
@@ -131,14 +133,14 @@ class DataRequest(object):
         # For loop to add all stations to the station list
         stationlist = []
         for line in statfile:
-            if line == "NETWORK	STATION	LAT	LON	ELEVATION   ":
-                continue
-
             # Read stations into list of stations
             line = line.split()
 
-            # Append the [network station latitude longitude elevation] to the station list
-            stationlist.append(line)
+            if line[0] == "NETWORK":
+                continue
+            else:
+                # Append the [network station latitude longitude elevation] to the station list
+                stationlist.append(line)
 
         return cls(cmt=cmt,
                    stationlist=stationlist,
@@ -157,7 +159,6 @@ class DataRequest(object):
 
         :returns str: Path to requestfile
         """
-        pass
 
         # Open file for writing in the earthquake directory
         path_to_file = self.outputdir+'/request.txt'
@@ -169,15 +170,14 @@ class DataRequest(object):
         for station in self.stationlist:
             for location in self.locations:
                 for channel in self.channels:
-                    if station[0] != 'NETWORK':
-                        #                                     joining just the
-                        #                                     network   & station
-                        requestfile.write(" ".join([" ".join([station[0], station[1]]),
-                                                    location,
-                                                    channel,
-                                                    self.starttime.__str__(),
-                                                    self.endtime.__str__()]))
-                        requestfile.write("\n")
+                    #                                     joining just the
+                    #                                     network   & station
+                    requestfile.write(" ".join([" ".join([station[0], station[1]]),
+                                                location,
+                                                channel,
+                                                self.starttime.__str__(),
+                                                self.endtime.__str__()]))
+                    requestfile.write("\n")
 
         return path_to_file
 
@@ -239,11 +239,51 @@ class DataRequest(object):
             for line in Proc.stdout:
                 # write to standard out
                 if self.verbose:
-                    sys.stout.write(line)
+                    sys.stdout.write(line)
 
                 # write to logfile
                 out.write(line)
             Proc.wait()
+
+    def specfem_list(self, specfemfiledir=""):
+        """This method takes the station list and its content to create a
+        Specfem Station recording location script list.
+
+        The text file should have following format but not contain a header
+
+        ::
+            -------------------------------------------------------------
+            | Station Network Latitude Longitude Elevation(m) Burial(m) |
+            -------------------------------------------------------------
+
+        That is the a sample line would be:
+
+        ::
+
+            HRV   IU   42.5064  -71.5583  200.0  0.0
+            :     :       :         :       :     :
+
+        :keyword specfemfiledir: directory where to save the STATIONS file for
+                                 specfem3d_globe
+
+        """
+
+        # Setting the Station file name and path
+        if specfemfiledir == "":
+            specfemfile = self.outputdir+"/STATIONS"
+        else:
+            specfemfile = specfemfiledir + "/STATIONS"
+
+
+        with open(specfemfile,'w') as file:
+            for k,line in enumerate(self.stationlist):
+                file.write('{0:11s}{1:4s}{2:12.4f}{3:12.4f}{4:10.1f}{5:8.1f}\n'
+                           .format(line[1], line[0], float(line[2]),
+                                   float(line[3]), float(line[4]), 0.))
+
+        if self.verbose:
+            print("\nSTATIONS FILE WRITTEN.\n")
+
 
 
     def __str__(self):
