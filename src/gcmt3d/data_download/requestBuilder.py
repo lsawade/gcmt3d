@@ -42,7 +42,7 @@ class DataRequest(object):
 
     def __init__(self, cmt=None, stationlist=None, channels=['BHZ'],
                  locations=['00'], duration=0.0, starttime_offset=0,
-                 resp_format="resp", outputdir="", verbose=1):
+                 outputdir="", verbose=1):
         """
         :param cmt: CMTSource object from cmt Source
         :param stationlist: list of station in format
@@ -85,7 +85,6 @@ class DataRequest(object):
         self.endtime = self.starttime + self.duration
         self.channels = channels
         self.locations = locations
-        self.resp_format = resp_format
         self.outputdir = outputdir
 
         # Verbose output
@@ -107,8 +106,6 @@ class DataRequest(object):
                   stationlistfname,
                   channels=["BHZ"],
                   locations=["00"],
-                  resp_format="resp",
-                  duration=0.0,
                   starttime_offset=0,
                   outputdir="",
                   verbose=1):
@@ -148,7 +145,6 @@ class DataRequest(object):
                    locations=locations,
                    duration=duration,
                    starttime_offset=starttime_offset,
-                   resp_format=resp_format,
                    outputdir=outputdir,
                    verbose=verbose)
 
@@ -196,8 +192,7 @@ class DataRequest(object):
             download_log_file = self.outputdir+"/download_log.txt"
 
         # If doesn't exist, create directory for responses and seismograms
-        seis_path = os.path.join(self.outputdir, "seismograms")
-        resp_path = os.path.join(self.outputdir, "responses")
+        seis_path = os.path.join(self.outputdir, "seismograms/obs")
 
         if not os.path.exists(seis_path):
             os.makedirs(seis_path)
@@ -211,30 +206,15 @@ class DataRequest(object):
 
         # Invoke download command depending on the response format
         with open(download_log_file, "w") as out:
-            if self.resp_format == "resp":
-                # RESP
-                Proc = Popen(" ".join(["%s/FetchData" % path_to_script,
-                                "-l", "%s" % selection_file,
-                                "-o", "%s.mseed" %
-                                     os.path.join("\\ ".join(seis_path.split()),
-                                                  self.eventname),
-                                "-rd", "%s" % "\\ ".join(resp_path.split()),
-                                "-X", "%s" % "\\ ".join(self.outputdir.split()) +
-                                "/"+"station.xml"]),
-                      shell=True, stdout=PIPE, stderr=STDOUT)
 
-            else:
-                # Poles and Zeros
-                Proc = Popen(" ".join(["%s/FetchData" % path_to_script,
-                                "-l", "%s" % selection_file,
-                                "-o", "%s.mseed" %
-                                os.path.join("\\ ".join(seis_path.split()),
-                                             self.eventname),
-                                "-sd",
-                                "%s" % "\\ ".join(resp_path.split()),
-                                "-X", "%s" % "\\ ".join(self.outputdir.split()) +
-                                "/"+"station.xml"]),
-                      shell=True, stdout=PIPE, stderr=STDOUT)
+            Proc = Popen(" ".join(["%s/FetchData" % path_to_script,
+                            "-l", "%s" % selection_file,
+                            "-o", "%s.mseed" %
+                                 os.path.join("\\ ".join(seis_path.split()),
+                                              self.eventname),
+                            "-X", "%s" % "\\ ".join(self.outputdir.split()) +
+                            "/station_data/"+"station.xml"]),
+                  shell=True, stdout=PIPE, stderr=STDOUT)
 
             for line in Proc.stdout:
                 # write to standard out
@@ -242,7 +222,7 @@ class DataRequest(object):
                     sys.stdout.write(line)
 
                 # write to logfile
-                out.write(line)
+                out.write(line.decode('utf-8'))
             Proc.wait()
 
     def specfem_list(self, specfemfiledir=""):
@@ -270,9 +250,9 @@ class DataRequest(object):
 
         # Setting the Station file name and path
         if specfemfiledir == "":
-            specfemfile = self.outputdir+"/STATIONS"
+            specfemfile = self.outputdir+"/station_data/STATIONS"
         else:
-            specfemfile = specfemfiledir + "/STATIONS"
+            specfemfile = specfemfiledir + "/station_data/STATIONS"
 
 
         with open(specfemfile,'w') as file:
