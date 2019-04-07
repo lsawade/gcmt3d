@@ -1,3 +1,6 @@
 # This will include the Perl FetchData script.
-include src/gcmt3d/data_download/resources/FetchData
+include src/gcmt3d/data/download/resources/FetchData
+
+# This will include the standard station file.
+include src/gcmt3d/data/download/resources/stations.txt
 

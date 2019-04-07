@@ -17,6 +17,7 @@ from gcmt3d.source import CMTSource
 import pytest
 
 
+
 # Most generic way to get the data folder path.
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe()))), "data")
@@ -47,3 +48,4 @@ def test_write_CMTSOLUTION_File(tmpdir, cmt):
     cmt.write_CMTSOLUTION_file(fn)
     new_cmt = CMTSource.from_CMTSOLUTION_file(fn)
     assert new_cmt == cmt
+

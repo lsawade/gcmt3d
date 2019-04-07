@@ -3,6 +3,7 @@ Setup.py file with generic info
 """
 import os
 from setuptools import setup
+from setuptools import find_packages
 from setuptools.command.test import test as testcommand
 
 # Utility function to read the README.md file.
@@ -19,7 +20,7 @@ def read(fname):
         return "Can't open %s" % fname
 
 
-long_description = "%s" % read("README.md.md")
+long_description = "%s" % read("README.md")
 
 
 class PyTest(testcommand):
@@ -46,8 +47,8 @@ setup(
     license='GNU Lesser General Public License, Version 3',
     keywords="Global CMT, Inversion, Moment Tensor",
     url='https://github.com/lsawade/GCMT3D',
-    packages=["gcmt3d", "gcmt3d.data_download"],
-    package_dir={"gcmt3d": "src/gcmt3d"},
+    packages=find_packages("src"),
+    package_dir={"": "src"},
     include_package_data=True,
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
