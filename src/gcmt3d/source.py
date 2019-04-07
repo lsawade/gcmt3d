@@ -244,7 +244,7 @@ class CMTSource(object):
                          self.m_tp])
 
     def __str__(self):
-        return_str = 'CMTS Source -- %s\n' % self.eventname
+        return_str = 'CMT Source -- %s\n' % self.eventname
         return_str += 'origin time(pde): %s\n' % self.origin_time
         return_str += 'pde location(lat, lon): %f, %f deg\n' \
             % (self.pde_latitude, self.pde_longitude)

@@ -16,10 +16,8 @@ Run with pytest.
 """
 # from __future__ import print_function, division
 # import inspect
-import os
-import gcmt3d
-from gcmt3d.data_download.requestBuilder import DataRequest
-from gcmt3d.data_download import InputError
+from gcmt3d.data.download import DataRequest
+from gcmt3d.data.download import InputError
 import unittest
 
 
