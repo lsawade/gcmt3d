@@ -196,8 +196,6 @@ class DataRequest(object):
 
         if not os.path.exists(seis_path):
             os.makedirs(seis_path)
-        if not os.path.exists(resp_path):
-            os.makedirs(resp_path)
 
         # Relative path to the resources directory
         path_to_this_file = os.path.abspath(os.path.dirname(__file__))
