@@ -3,6 +3,13 @@
 This script/set of functions is used to create a set of sources for parallel
 specfem simulations
 
+copyright:
+    Lucas Sawade (lsawade@princeton.edu)
+:license:
+    GNU General Public License, Version 3
+    (http://www.gnu.org/copyleft/gpl.html)
+
+
 '''
 
 
@@ -44,6 +51,6 @@ class SpecfemSources(object):
         if type(cmt) != CMTSource:
             raise ValueError('Given CMT parameter no a CMTSource.')
 
-        if npar not in [6,7,8,9]:
+        if npar not in [6, 7, 8, 9]:
             raise ValueError('The parameters to be inverted for must be an '
                              + 'integer between 6 and 9.')

@@ -12,8 +12,9 @@ copyright:
 
 
 import os
-from gcmt3d.data.management.specfem_sources import SpecfemSources
-import pytest
+import inspect
+from gcmt3d.data.management import SpecfemSources
+import unittest
 
 
 # Most generic way to get the data folder path.
@@ -23,7 +24,24 @@ CMTFILE = os.path.join(DATA_DIR, "CMTSOLUTION")
 
 
 
-class TestIO(object):
+class TestIO(unittest.TestCase):
     '''
     Testing the IO of the Specfemsources class.
     '''
+
+    def test_noCMTinput(self):
+        """Testing no input.
+        """
+        cmt = 3
+        npar = 2
+        with self.assertRaises(ValueError):
+            SpecfemSources(cmt,npar)
+
+
+    def test_bad_npar_input(self):
+        """Testing no input.
+        """
+        cmt = 3
+        npar = 2
+        with self.assertRaises(ValueError):
+            SpecfemSources(cmt,npar)
