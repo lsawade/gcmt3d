@@ -2,9 +2,6 @@ language: python
 python:
   - "3.6"
 # command to install dependencies
-before install:
-
-
 install:
   - pip install -r requirements.txt
   - pip install .
