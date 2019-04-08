@@ -3,6 +3,7 @@ Setup.py file with generic info
 """
 import os
 from setuptools import setup
+from setuptools import find_packages
 from setuptools.command.test import test as testcommand
 
 # Utility function to read the README.md file.
@@ -19,7 +20,7 @@ def read(fname):
         return "Can't open %s" % fname
 
 
-long_description = "%s" % read("README.md.md")
+long_description = "%s" % read("README.md")
 
 
 class PyTest(testcommand):
@@ -46,11 +47,11 @@ setup(
     license='GNU Lesser General Public License, Version 3',
     keywords="Global CMT, Inversion, Moment Tensor",
     url='https://github.com/lsawade/GCMT3D',
+    packages=find_packages("src"),
     package_dir={"": "src"},
-    packages=["gcmt3d", "gcmt3d.data_download"],
+    include_package_data=True,
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
-    include_package_data=True,
     zip_safe=False,
     classifiers=[
         "Development Status :: Alpha",
@@ -58,10 +59,11 @@ setup(
         "License :: GNU License",
     ],
     install_requires=[
-        "numpy", "matplotlib","obspy"
+        "numpy", "matplotlib", "obspy", "pyasdf", "pyflex", "pycmt3d",
+        "spaceweight", "flake8", "basemap"
     ],
     extras_require={
-        "docs": ["sphinx", "sphinx_rtd_theme", "sphinxcontrib-bibtex"],
+        "docs": ["sphinx", "sphinx_rtd_theme"],
         "tests": ["pytest", "py"]
     }
 )
