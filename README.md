@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/lsawade/GCMT3D.svg?branch=master)](https://travis-ci.com/lsawade/GCMT3D)
+
 # GCMT3D
 
 This is the initial commit for the revisited global cmt solution to allow for 3D 
