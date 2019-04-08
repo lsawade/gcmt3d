@@ -5,7 +5,22 @@
 This is the initial commit for the revisited global cmt solution to allow for 3D 
 velocity structures.
 
-## Setup
+
+## Quick install
+
+1. Create conda environment with python 3.7
+2. Run the following lines:
+```bash
+git clone --branch devel https://github.com/lsawade/GCMT3D.git
+cd GCMT3D
+pip install numpy
+conda install obspy
+conda install basemap
+pip install -r requirements.txt
+pip install .
+```
+
+## Elaborate install
 
 First, create a conda environment 
 (https://docs.conda.io/projects/conda/en/latest/index.html) where you install 
@@ -56,25 +71,10 @@ cd GCMT3D
 pip install .
 ```
 
-## Quick install
-
-
-1. Create conda environment with python 3.7
-2. Run the following lines:
-```bash
-git clone --branch devel https://github.com/lsawade/GCMT3D.git
-cd GCMT3D
-pip install numpy
-conda install obspy
-conda install basemap
-pip install -r requirements.txt
-pip install .
-```
-
 ## Travis automatic testing
 
 The Travis automatic system is setup to load the latest anaconda release for 
 Linux. Then, in a Python 3.7 environment, all required software is downloaded 
 and installed. For the installation steps, please refer to the `.travis.yml` in 
-the main directory. 
+the main directory. It mainly follows the steps in the quick install.
 
