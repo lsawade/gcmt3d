@@ -21,7 +21,6 @@ from copy import deepcopy
 
 
 
-
 class SpecfemSources(object):
     '''
     This class handles the writing of specfem sources in form of CMT solutions
@@ -115,7 +114,7 @@ class SpecfemSources(object):
                                                         "CMTSOLUTION_M"
                                                         + attr[index][-2:]))
 
-        if self.npar>6:
+        if self.npar > 6:
 
             # Attribute name
             depth_str = "depth_in_m"

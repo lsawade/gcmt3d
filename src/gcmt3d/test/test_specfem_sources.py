@@ -30,18 +30,17 @@ CMTFILE = os.path.join(DATA_DIR, "CMTSOLUTION")
 
 
 
-
-
 class Test_SpecfemSources(unittest.TestCase):
 
     def setUp(self):
         # Create a temporary directory
-        self.test_dir = tempfile.TemporaryFile()
+        self.test_dir = tempfile.TemporaryDirectory()
+        self.tmpdir = self.test_dir.name
         self.cmt = CMTSource.from_CMTSOLUTION_file(CMTFILE)
 
     def tearDown(self):
         # Close the file, the directory will be removed after the test
-        self.test_dir.close()
+        self.test_dir.cleanup()
 
 
     def test_noCMTinput(self):
@@ -69,7 +68,7 @@ class Test_SpecfemSources(unittest.TestCase):
         dm = 10.0 ** 24
         dx = 2.
         ddeg = 0.01
-        outputdir = str(self.test_dir)
+        outputdir = self.tmpdir
 
 
         sfsource = SpecfemSources(cmt, npar=npar, dm=dm, dx=dx, ddeg=ddeg,
@@ -92,7 +91,7 @@ class Test_SpecfemSources(unittest.TestCase):
         dm = 10.0 ** 24
         dx = 2000.
         ddeg = 0.01
-        outputdir = str(self.test_dir)
+        outputdir = self.tmpdir
 
         sfsource = SpecfemSources(cmt, npar=npar, dm=dm, dx=dx, ddeg=ddeg,
                                   outdir=outputdir)
@@ -139,7 +138,7 @@ class Test_SpecfemSources(unittest.TestCase):
         dm = 10.0 ** 24
         dx = 2000.
         ddeg = 0.02
-        outputdir = str(self.test_dir)
+        outputdir = self.tmpdir
 
         sfsource = SpecfemSources(cmt, npar=npar, dm=dm, dx=dx, ddeg=ddeg,
                                   outdir=outputdir)
@@ -177,3 +176,5 @@ class Test_SpecfemSources(unittest.TestCase):
                         for index, teststring in enumerate(test_line):
                             assert teststring == str(written_line[index])
 
+if __name__ == '__main__':
+    unittest.main()

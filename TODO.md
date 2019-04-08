@@ -1,6 +1,16 @@
 # TODO
 
-* check off warnings in spaceweight and pycmt3d
+
+* Fix below functions so that they can be implemented in a workflow
+* Create automatic workflow to process the data (make equal!) and the window the data using pyflex
+* Use inversion algorithm.
+
+DONE
+
+* Create Automatic Specfem CMTSOLUTION writer
+* Create DataRequest Class
+* check off warnings in spaceweight and pycmt3d -- DONE(ish) can actually not do anything about it.
+
 
 
 1. Adios and ASDF

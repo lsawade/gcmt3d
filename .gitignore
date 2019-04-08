@@ -3,3 +3,4 @@
 __pycache__
 *.xml
 *.ipynb_checkpoints
+CMTSOLUTION_*

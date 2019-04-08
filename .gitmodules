@@ -1,3 +1,0 @@
-[submodule "pycmt3d"]
-	path = submodules/pycmt3d
-	url = https://github.com/lsawade/pycmt3d.git
