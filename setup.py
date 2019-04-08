@@ -60,10 +60,10 @@ setup(
     ],
     install_requires=[
         "numpy", "matplotlib", "obspy", "pyasdf", "pyflex", "pycmt3d",
-        "spaceweight", "flake8"
+        "spaceweight", "flake8", "basemap"
     ],
     extras_require={
-        "docs": ["sphinx", "sphinx_rtd_theme", "sphinxcontrib-bibtex"],
+        "docs": ["sphinx", "sphinx_rtd_theme"],
         "tests": ["pytest", "py"]
     }
 )
