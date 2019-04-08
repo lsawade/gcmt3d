@@ -3,7 +3,7 @@
 This script/set of functions is used to create a set of sources for parallel
 specfem simulations
 
-copyright:
+:copyright:
     Lucas Sawade (lsawade@princeton.edu)
 :license:
     GNU General Public License, Version 3
@@ -12,13 +12,10 @@ copyright:
 
 '''
 
-
-
 from ...source import CMTSource
 import os
 import warnings
 from copy import deepcopy
-
 
 
 class SpecfemSources(object):
@@ -32,8 +29,8 @@ class SpecfemSources(object):
         :param cmt: The original CMT source loaded using CMTSource
         :type cmt: CMTSource
         :param npar: Number of parameters to be inverted for: 6 - only moment
-                     tensor, 7 - moment tensor and depth, 9 moment tensor, depth
-                     and geolocation.
+                     tensor, 7 - moment tensor and depth, 9 moment tensor,
+                     depth and geolocation.
         :type npar: int
         :param dm: magnitude scalar -- we only need a scalar since the
                    derivative is independent of magnitude
@@ -82,7 +79,7 @@ class SpecfemSources(object):
 
         self.ddeg = ddeg
 
-        if outdir==None:
+        if outdir is None:
             raise ValueError("The output directory needs wo be set.")
         elif not os.path.exists(outdir):
             os.makedirs(outdir)
@@ -157,9 +154,8 @@ class SpecfemSources(object):
                                                         "CMTSOLUTION_"
                                                         + "lon"))
 
-
     def __str__(self):
-        string =  "-------- CMT Source Writer --------\n"
+        string = "-------- CMT Source Writer --------\n"
         string += "Number of parameters to invert for: %d\n" % self.npar
         string += "dM: %f in Nm\n" % self.dm
 

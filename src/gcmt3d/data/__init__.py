@@ -1,2 +1,2 @@
-from .download.requestBuilder import DataRequest
-from .management.specfem_sources import SpecfemSources
+from .download.requestBuilder import DataRequest  # noqa
+from .management.specfem_sources import SpecfemSources  # noqa

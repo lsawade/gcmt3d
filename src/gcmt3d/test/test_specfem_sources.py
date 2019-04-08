@@ -14,23 +14,24 @@ copyright:
 import os
 import inspect
 import glob
-import filecmp
-
 
 from gcmt3d.data.management import SpecfemSources
 from gcmt3d.source import CMTSource
 import unittest
-import pytest
 import tempfile
 
 # Most generic way to get the data folder path.
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(
-               inspect.getfile(inspect.currentframe()))), "data/SpecFEMSources")
+DATA_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))),
+    "data/SpecFEMSources")
 CMTFILE = os.path.join(DATA_DIR, "CMTSOLUTION")
 
 
-
 class Test_SpecfemSources(unittest.TestCase):
+    """
+    Test class for specfem_sources.py. The main reason for this being necessary
+    is that the class includes a mechanism to test error raising.
+    """
 
     def setUp(self):
         # Create a temporary directory
@@ -41,7 +42,6 @@ class Test_SpecfemSources(unittest.TestCase):
     def tearDown(self):
         # Close the file, the directory will be removed after the test
         self.test_dir.cleanup()
-
 
     def test_noCMTinput(self):
         """Testing no input.
@@ -70,7 +70,6 @@ class Test_SpecfemSources(unittest.TestCase):
         ddeg = 0.01
         outputdir = self.tmpdir
 
-
         sfsource = SpecfemSources(cmt, npar=npar, dm=dm, dx=dx, ddeg=ddeg,
                                   outdir=outputdir)
 
@@ -98,9 +97,8 @@ class Test_SpecfemSources(unittest.TestCase):
 
         sfsource.write_sources()
 
-        # Get files and names of the written files
+        # Get files of the written files
         written_files = glob.glob(outputdir + "/*")
-        written_names = [os.path.basename(x) for x in written_files]
 
         # Get files and names of the test files
         test_files = glob.glob(DATA_DIR + "/*")
@@ -118,14 +116,15 @@ class Test_SpecfemSources(unittest.TestCase):
             # Opening both files and testing them string for string
             # somehow a simple file compare was not do-able.
             with open(file, 'r') as written_file:
-                with open(test_files[index],'r') as test_file:
+                with open(test_files[index], 'r') as test_file:
+
+                    # Get lines
                     for line in written_file:
                         written_line = line.split()
                         test_line = test_file.readline().split()
 
-                        for index,teststring in enumerate(test_line):
-                            print(teststring)
-                            print(written_line[index])
+                        # Get Strings
+                        for index, teststring in enumerate(test_line):
                             assert teststring == str(written_line[index])
 
     def test_write_9par(self):
@@ -147,7 +146,6 @@ class Test_SpecfemSources(unittest.TestCase):
 
         # Get files and names of the written files
         written_files = glob.glob(outputdir + "/*")
-        written_names = [os.path.basename(x) for x in written_files]
 
         # Get files and names of the test files
         test_files = glob.glob(DATA_DIR + "/*")
@@ -176,5 +174,6 @@ class Test_SpecfemSources(unittest.TestCase):
                         for index, teststring in enumerate(test_line):
                             assert teststring == str(written_line[index])
 
-if __name__ == '__main__':
+
+if __name__ == '__mpyteain__':
     unittest.main()

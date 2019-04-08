@@ -59,7 +59,8 @@ setup(
         "License :: GNU License",
     ],
     install_requires=[
-        "numpy", "matplotlib", "obspy", "pyasdf", "pyflex", "pycmt3d", "spaceweight"
+        "numpy", "matplotlib", "obspy", "pyasdf", "pyflex", "pycmt3d",
+        "spaceweight", "flake8"
     ],
     extras_require={
         "docs": ["sphinx", "sphinx_rtd_theme", "sphinxcontrib-bibtex"],

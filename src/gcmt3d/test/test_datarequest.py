@@ -21,9 +21,6 @@ from gcmt3d.data.download import InputError
 import unittest
 
 
-
-
-
 class TestDataRequest(unittest.TestCase):
     """
     Class to test the parameters of creating a time series data request.
@@ -37,4 +34,3 @@ class TestDataRequest(unittest.TestCase):
         # Checking whether error is thrown if no or wrong cmt is given
         with self.assertRaises(InputError):
             DataRequest()
-
