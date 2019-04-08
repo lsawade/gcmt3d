@@ -7,6 +7,13 @@ velocity structures.
 
 ## Setup
 
+First, create a conda environment where you install both obspy using the conda repository as well as basemap.
+
+```bash
+conda install obspy
+conda install basemap
+```
+
 As of now you know some requisites that aren't available through pip these 
 requisites can be found in my repository:
 
