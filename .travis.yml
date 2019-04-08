@@ -14,6 +14,8 @@ install:
   - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION
   - source activate test-env
   - pip install -r requirements.txt
+  - conda install obspy
+  - conda install basemap
   - pip install .
   
 # command to run tests
