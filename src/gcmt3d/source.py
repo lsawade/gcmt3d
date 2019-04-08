@@ -190,8 +190,8 @@ class CMTSource(object):
                     self.origin_time.day,
                     self.origin_time.hour,
                     self.origin_time.minute,
-                    self.origin_time.second +
-                    self.origin_time.microsecond / 1E6,
+                    self.origin_time.second
+                    + self.origin_time.microsecond / 1E6,
                     self.pde_latitude,
                     self.pde_longitude,
                     self.pde_depth_in_m / 1e3,
@@ -216,9 +216,9 @@ class CMTSource(object):
         """
         Scalar Moment M0 in Nm
         """
-        return (self.m_rr ** 2 + self.m_tt ** 2 + self.m_pp ** 2 +
-                2 * self.m_rt ** 2 + 2 * self.m_rp ** 2 +
-                2 * self.m_tp ** 2) ** 0.5 * 0.5 ** 0.5
+        return (self.m_rr ** 2 + self.m_tt ** 2 + self.m_pp ** 2
+                + 2 * self.m_rt ** 2 + 2 * self.m_rp ** 2
+                + 2 * self.m_tp ** 2) ** 0.5 * 0.5 ** 0.5
 
     @property
     def moment_magnitude(self):
@@ -263,7 +263,6 @@ class CMTSource(object):
         return_str += 'region tag: %s' % self.region_tag
 
         return return_str
-
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__

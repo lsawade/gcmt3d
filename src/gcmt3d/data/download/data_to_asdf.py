@@ -13,4 +13,4 @@ format)
 """
 
 
-from obspy import read
+from obspy import read  # noqa

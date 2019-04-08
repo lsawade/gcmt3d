@@ -1,7 +1,13 @@
 """
 
-    This Function contains functions to build an FDSN time series download
-    request from an input CMT source object and List of stations.
+This Function contains functions to build an FDSN time series download
+request from an input CMT source object and List of stations.
+
+:copyright:
+    Lucas Sawade (lsawade@princeton.edu)
+:license:
+    GNU General Public License, Version 3
+    (http://www.gnu.org/copyleft/gpl.html)
 
 """
 
@@ -95,9 +101,9 @@ class DataRequest(object):
         # filename
         if self.outputdir == "":
             self.outputdir = "."
-            warnings.warn("No output directory chosen. Seismograms will be " +
-                          "saved\nin current location in subdirectory " +
-                          "'seismograms/'.")
+            warnings.warn("No output directory chosen. Seismograms will be "
+                          + "saved\nin current location in subdirectory "
+                          + "'seismograms/'.")
         elif not os.path.exists(self.outputdir):
             os.makedirs(self.outputdir)
 
@@ -112,8 +118,8 @@ class DataRequest(object):
                   verbose=1):
         """Creates a downloader class from an input file
 
-        This downloader class also needs to contain the output directory for the
-        traces. Take CMT fname
+        This downloader class also needs to contain the output directory for
+        the traces.
         """
 
         # Name of the output directory:
@@ -137,7 +143,8 @@ class DataRequest(object):
             if line[0] == "NETWORK":
                 continue
             else:
-                # Append the [network station latitude longitude elevation] to the station list
+                # Append the [network station latitude longitude elevation]
+                # to the station list
                 stationlist.append(line)
 
         return cls(cmt=cmt,
@@ -158,22 +165,21 @@ class DataRequest(object):
         """
 
         # Open file for writing in the earthquake directory
-        path_to_file = self.outputdir+'/request.txt'
+        path_to_file = self.outputdir + '/request.txt'
         requestfile = open(path_to_file, 'w')
 
-        # Writing for each parameter overarching of all is the station parameter
-        # of course
+        # Writing for each parameter overarching of all is the station
+        # parameter, of course
 
         for station in self.stationlist:
             for location in self.locations:
                 for channel in self.channels:
                     #                                     joining just the
                     #                                     network   & station
-                    requestfile.write(" ".join([" ".join([station[0], station[1]]),
-                                                location,
-                                                channel,
-                                                self.starttime.__str__(),
-                                                self.endtime.__str__()]))
+                    requestfile.write(
+                        " ".join([" ".join([station[0], station[1]]),
+                                  location, channel, self.starttime.__str__(),
+                                  self.endtime.__str__()]))
                     requestfile.write("\n")
 
         return path_to_file
@@ -187,10 +193,10 @@ class DataRequest(object):
         if selection_file == "":
             selection_file = "\\ ".join(self.request().split())
 
-        # Create download log file in Earthquake directory if no other directory
-        # is specified
+        # Create download log file in Earthquake directory if no other
+        # directory is specified
         if download_log_file == "":
-            download_log_file = self.outputdir+"/download_log.txt"
+            download_log_file = self.outputdir + "/download_log.txt"
 
         # If doesn't exist, create directory for responses and seismograms
         seis_path = os.path.join(self.outputdir, "seismograms/obs/")
@@ -207,13 +213,14 @@ class DataRequest(object):
         with open(download_log_file, "w") as out:
 
             Proc = Popen(" ".join(["%s/FetchData" % path_to_script,
-                            "-l", "%s" % selection_file,
-                            "-o", "%s.mseed" %
-                                 os.path.join("\\ ".join(seis_path.split()),
-                                              self.eventname),
-                            "-X", "%s" % "\\ ".join(self.outputdir.split()) +
-                            "/station_data/"+"station.xml"]),
-                  shell=True, stdout=PIPE, stderr=STDOUT)
+                                   "-l", "%s" % selection_file,
+                                   "-o", "%s.mseed" %
+                                   os.path.join("\\ ".join(seis_path.split()),
+                                                self.eventname),
+                                   "-X", "%s" %
+                                   "\\ ".join(self.outputdir.split())
+                                   + "/station_data/" + "station.xml"]),
+                         shell=True, stdout=PIPE, stderr=STDOUT)
 
             for line in Proc.stdout:
                 # write to standard out
@@ -249,13 +256,12 @@ class DataRequest(object):
 
         # Setting the Station file name and path
         if specfemfiledir == "":
-            specfemfile = self.outputdir+"/station_data/STATIONS"
+            specfemfile = self.outputdir + "/station_data/STATIONS"
         else:
             specfemfile = specfemfiledir + "/station_data/STATIONS"
 
-
-        with open(specfemfile,'w') as file:
-            for k,line in enumerate(self.stationlist):
+        with open(specfemfile, 'w') as file:
+            for k, line in enumerate(self.stationlist):
                 file.write('{0:11s}{1:4s}{2:12.4f}{3:12.4f}{4:10.1f}{5:8.1f}\n'
                            .format(line[1], line[0], float(line[2]),
                                    float(line[3]), float(line[4]), 0.))
@@ -263,13 +269,11 @@ class DataRequest(object):
         if self.verbose:
             print("\nSTATIONS FILE WRITTEN.\n")
 
-
-
     def __str__(self):
         """
         String that contains key download info.
         """
-        return_str  = "\nEarthquake Parameters\n"
+        return_str = "\nEarthquake Parameters\n"
         return_str += "--------------------------------------------------\n"
         return_str += "Earthquake ID: %s\n" % self.eventname
         return_str += "Origin Time: %s\n" % self.origin_time
@@ -288,6 +292,4 @@ class DataRequest(object):
         return_str += "--------------------------------------------------\n"
         return_str += "Output Directory: %s\n" % self.outputdir
 
-
         return return_str
-

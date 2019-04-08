@@ -4,6 +4,7 @@
 * Fix below functions so that they can be implemented in a workflow
 * Create automatic workflow to process the data (make equal!) and the window the data using pyflex
 * Use inversion algorithm.
+* Add Spaceweight, to PyPi and 
 
 DONE
 
