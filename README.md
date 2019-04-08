@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/lsawade/GCMT3D.svg?branch=devel)](https://travis-ci.com/lsawade/GCMT3D)
+[![Build Status](https://travis-ci.com/lsawade/GCMT3D.svg?branch=master)](https://travis-ci.com/lsawade/GCMT3D)
 
 # GCMT3D
 
@@ -11,6 +11,8 @@ velocity structures.
 1. Create conda environment with python 3.7
 2. Run the following lines:
 ```bash
+conda activate <your_environent>
+conda config --add channels conda-forge
 git clone --branch devel https://github.com/lsawade/GCMT3D.git
 cd GCMT3D
 pip install numpy
@@ -28,6 +30,7 @@ numpy using either `$ pip install numpy` or `$ conda install numpy`. This is
 necessary for the obspy installation.
 
 ```bash
+conda config --add channels conda-forgey
 conda install obspy
 ```
 
