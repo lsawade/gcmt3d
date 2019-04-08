@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/lsawade/GCMT3D.svg?branch=devel)](https://travis-ci.com/lsawade/GCMT3D)
+[![Build Status](https://travis-ci.com/lsawade/GCMT3D.svg?branch=master)](https://travis-ci.com/lsawade/GCMT3D)
 
 # GCMT3D
 
