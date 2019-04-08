@@ -5,9 +5,9 @@ half duration:   0.0000
 latitude:      -13.8200
 longitude:     -67.2500
 depth:         647.1000
-Mrr:             0.0000
-Mtt:             0.0000
-Mpp:             0.0000
-Mrt:             0.0000
-Mrp:            42000.0
-Mtp:             0.0000
+Mrr:       0.000000e+00
+Mtt:       0.000000e+00
+Mpp:       0.000000e+00
+Mrt:       0.000000e+00
+Mrp:       1.000000e+24
+Mtp:       0.000000e+00
