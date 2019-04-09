@@ -13,7 +13,7 @@ velocity structures.
 ```bash
 conda activate <your_environent>
 conda config --add channels conda-forge
-git clone --branch devel https://github.com/lsawade/GCMT3D.git
+git clone https://github.com/lsawade/GCMT3D.git
 cd GCMT3D
 pip install numpy
 conda install obspy
@@ -69,7 +69,7 @@ At last, install the development branch of this repository
 https://github.com/lsawade/GCMT3D.git:
 
 ```bash
-git clone --branch devel https://github.com/lsawade/GCMT3D.git
+git clone https://github.com/lsawade/GCMT3D.git
 cd GCMT3D
 pip install .
 ```
