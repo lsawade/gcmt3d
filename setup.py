@@ -50,6 +50,8 @@ setup(
     packages=find_packages("."),
     package_dir={"": "."},
     include_package_data=True,
+    package_data={'gcmt3d/data/download/resources/':
+                      ['Fetchdata', 'stations.txt']},
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
     zip_safe=False,
