@@ -2,7 +2,7 @@ import os
 import inspect
 import numpy as np
 import numpy.testing as npt
-import pytomo3d.signal.rotate_utils as rotate
+import gcmt3d.signal.rotate_utils as rotate
 from obspy import read, read_inventory
 
 
