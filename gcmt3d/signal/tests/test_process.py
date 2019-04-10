@@ -3,7 +3,7 @@ import inspect
 import numpy as np
 import pytest
 import obspy
-import pytomo3d.signal.process as proc
+import gcmt3d.signal.process as proc
 from copy import deepcopy
 
 

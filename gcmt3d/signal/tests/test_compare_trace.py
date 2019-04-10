@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy.testing as npt
-import pytomo3d.signal.compare_trace as ct
+import gcmt3d.signal.compare_trace as ct
 from obspy import read
 
 
@@ -45,12 +45,12 @@ def reset_matplotlib():
 def test_least_square_error():
     d1 = np.array([1, 2, 3])
     d2 = 2 * d1
-    err = ct.least_squre_error(d1, d2)
+    err = ct.least_square_error(d1, d2)
     npt.assert_almost_equal(err, 1/np.sqrt(2))
 
     d1 = np.random.random(10)
     d2 = 2 * d1
-    err = ct.least_squre_error(d1, d2)
+    err = ct.least_square_error(d1, d2)
     npt.assert_almost_equal(err, 1/np.sqrt(2))
 
 
