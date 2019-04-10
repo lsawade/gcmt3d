@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from obspy import Trace
 
 
-def least_squre_error(data1, data2):
+def least_square_error(data1, data2):
     """
     waveform difference between data1 and data2
     :param data1:
@@ -83,7 +83,7 @@ def calculate_misfit(_tr1, _tr2, taper_flag=True, taper_percentage=0.05,
         tr2.taper(max_percentage=taper_percentage, type='hann')
 
     corr_min = cross_correlation(tr1.data, tr2.data)
-    err_max = least_squre_error(tr1.data, tr2.data)
+    err_max = least_square_error(tr1.data, tr2.data)
 
     # coverage
     tr1_cover = trace_length(tr1) / trace_length(_tr1)
