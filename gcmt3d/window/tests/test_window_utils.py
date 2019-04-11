@@ -1,6 +1,6 @@
 import os
-import pytomo3d.window.utils as wu
-from pytomo3d.utils.io import load_json
+import gcmt3d.window.utils as wu
+from gcmt3d.utils.io import load_json
 
 
 def test_sort_windows_on_channel_and_location():

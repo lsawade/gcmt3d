@@ -2,8 +2,8 @@ import os
 import inspect
 from obspy import read, read_inventory, read_events
 import pyflex
-import pytomo3d.window.window as win
-import pytomo3d.window.io as wio
+import gcmt3d.window.window as win
+import gcmt3d.window.io as wio
 
 
 def _upper_level(path, nlevel=4):

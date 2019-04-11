@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 from obspy import read, read_inventory, read_events, UTCDateTime
 from pyflex import WindowSelector
 from pyflex.window import Window
-import pytomo3d.window.window as win
-import pytomo3d.window.io as wio
+import gcmt3d.window.window as win
+import gcmt3d.window.io as wio
 import warnings
 
 
@@ -216,7 +216,7 @@ def test_update_user_levels():
     cat = read_events(quakeml)
     inv = read_inventory(staxml)
 
-    user_module = "pytomo3d.window.tests.user_module_example"
+    user_module = "gcmt3d.window.tests.user_module_example"
     config = win.update_user_levels(user_module, config, inv, cat,
                                     obs_tr, syn_tr)
 
@@ -234,14 +234,14 @@ def test_update_user_levels():
 
 
 def test_update_user_levels_raise():
-    user_module = "pytomo3d.window.tests.which_does_not_make_sense"
+    user_module = "gcmt3d.window.tests.which_does_not_make_sense"
     with pytest.raises(Exception) as errmsg:
         win.update_user_levels(user_module, None, None, None,
                                None, None)
 
     assert "Could not import the user_function module" in str(errmsg)
 
-    user_module = "pytomo3d.window.io"
+    user_module = "gcmt3d.window.io"
     with pytest.raises(Exception) as errmsg:
         win.update_user_levels(user_module, None, None, None,
                                None, None)
@@ -289,7 +289,7 @@ def test_window_on_trace_user_levels():
 
     cat = read_events(quakeml)
     inv = read_inventory(staxml)
-    user_module = "pytomo3d.window.tests.user_module_example"
+    user_module = "gcmt3d.window.tests.user_module_example"
 
     windows = win.window_on_trace(obs_tr, syn_tr, config, station=inv,
                                   event=cat, user_module=user_module,
@@ -364,7 +364,7 @@ def test_window_on_stream_user_levels():
     cat = read_events(quakeml)
     inv = read_inventory(staxml)
 
-    _mod = "pytomo3d.window.tests.user_module_example"
+    _mod = "gcmt3d.window.tests.user_module_example"
     user_modules = {"BHZ": _mod, "BHR": _mod, "BHT": _mod}
 
     windows = win.window_on_stream(obs_tr, syn_tr, config_dict, station=inv,
