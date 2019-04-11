@@ -113,7 +113,7 @@ class Test_SpecfemSources(unittest.TestCase):
             # Find corresponding file in test directory
             index = test_names.index(name)
 
-            # Opening both files and testing them string for string
+            # Opening both files and notebooks them string for string
             # somehow a simple file compare was not do-able.
             with open(file, 'r') as written_file:
                 with open(test_files[index], 'r') as test_file:
@@ -160,7 +160,7 @@ class Test_SpecfemSources(unittest.TestCase):
             # Find corresponding file in test directory
             index = test_names.index(name)
 
-            # Opening both files and testing them string for string
+            # Opening both files and notebooks them string for string
             # somehow a simple file compare was not do-able.
             with open(file, 'r') as written_file:
                 with open(test_files[index], 'r') as test_file:
