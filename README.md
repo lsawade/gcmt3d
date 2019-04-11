@@ -6,72 +6,42 @@ This is the initial commit for the revisited global cmt solution to allow for 3D
 velocity structures.
 
 
-## Quick install
+## Installation
 
-1. Create conda environment with python 3.7
-2. Run the following lines:
+In order to install GCMT3D we first need to create a new conda environment. Then we install the dependencies, and finally GCMT3D itself. The required steps are the following
+
+#### 1. Create and activate a new conda environment with python 3.7
+
 ```bash
-conda activate <your_environent>
+conda create -n <your_environment> python=3.7
+conda activate <your_environment>
+```
+
+#### 2. Install dependencies:
+
+```bash
+# Install basemap using conda
 conda config --add channels conda-forge
-git clone https://github.com/lsawade/GCMT3D.git
-cd GCMT3D
-pip install numpy
-conda install obspy
 conda install basemap
+
+# Install other requirements using pip
 pip install -r requirements.txt
-pip install .
 ```
 
-## Elaborate install
-
-First, create a conda environment 
-(https://docs.conda.io/projects/conda/en/latest/index.html) where you install 
-numpy using either `$ pip install numpy` or `$ conda install numpy`. This is 
-necessary for the obspy installation.
+#### 3. Download and Install GCMT3D
 
 ```bash
-conda config --add channels conda-forgey
-conda install obspy
-```
-
-You will also need to install `basemap` via `conda install basemap`. Sometimes,
-this is done automatically when obspy is installed, but that is not always the
-case.
-
-As of now, you will need some requisites that aren't available through pip these 
-requisites can be found in my repository:
-
-* https://github.com/lsawade/spaceweight.git
-* https://github.com/lsawade/pycmt3d.git
-
-These can be installed using
-
-```bash
-git clone https://github.com/lsawade/spaceweight.git
-cd spaceweight
-pip install .
-```
-
-for space weight and
-
-```bash
-git clone --branch devel https://github.com/lsawade/pycmt3d.git
-cd pycmt3d
-pip install .
-```
-
-for pycmt3d. Note that these are different from Wenjie's repository as these are
-fixed to accommodate Also make sure your obspy is up-to-date. I have encountered
-some issues with basemap and an environment variable called `PROJ_LIB`, but I 
-haven't been able to reproduce the error.
-
-At last, install the development branch of this repository 
-https://github.com/lsawade/GCMT3D.git:
-
-```bash
+# Download GCMT3D
 git clone https://github.com/lsawade/GCMT3D.git
-cd GCMT3D
-pip install .
+
+# Install GCMT3D in the current conda environment
+cd GCMT3D/ && pip install .
+```
+
+Test that GCMT3D was successfully installed by running the following command
+
+```bash
+python -c "import gcmt3d"
 ```
 
 ## Travis automatic testing
