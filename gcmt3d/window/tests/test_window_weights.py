@@ -5,7 +5,7 @@ import numpy.testing as npt
 import pytest
 
 from spaceweight import SpherePoint
-import pytomo3d.window.window_weights as ww
+import gcmt3d.window.window_weights as ww
 
 
 def _upper_level(path, nlevel=4):

@@ -6,8 +6,8 @@ import copy
 import numpy as np
 import numpy.testing as npt
 
-import pytomo3d.window.filter_windows as fw
-from pytomo3d.utils.io import load_json
+import gcmt3d.window.filter_windows as fw
+from gcmt3d.utils.io import load_json
 
 
 def _upper_level(path, nlevel=4):
