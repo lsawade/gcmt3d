@@ -1,4 +1,4 @@
-numpy==1.15.4
+numpy==1.16.2
 obspy==1.1.1
 PyYAML==5.1
 git+git://github.com/lsawade/spaceweight.git@master

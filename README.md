@@ -17,25 +17,32 @@ conda create -n <your_environment> python=3.7
 conda activate <your_environment>
 ```
 
-#### 2. Install dependencies:
+#### 2. Install separate dependencies:
 
 ```bash
 # Install basemap using conda
 conda config --add channels conda-forge
 conda install basemap
-
-# Install other requirements using pip
-pip install -r requirements.txt
 ```
 
-#### 3. Download and Install GCMT3D
+#### 3. Download GCMT3D
 
 ```bash
 # Download GCMT3D
 git clone https://github.com/lsawade/GCMT3D.git
+cd GCMT3D/
+```
 
+#### 4. Install other requirements using pip
+```bash
+pip install -r requirements.txt
+```
+
+
+#### 5. Install GCMT3D
+```bash
 # Install GCMT3D in the current conda environment
-cd GCMT3D/ && pip install .
+pip install .
 ```
 
 Test that GCMT3D was successfully installed by running the following command
