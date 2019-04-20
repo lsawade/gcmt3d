@@ -1,4 +1,4 @@
-#!/usr/bin/env pythoiin
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Calculate the adjoint source weighting based on the station and source
