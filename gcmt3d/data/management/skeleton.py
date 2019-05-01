@@ -15,7 +15,9 @@ Last Update: April 2019
 
 
 from gcmt3d.source import CMTSource
-import glob, os, shutil
+import glob
+import os
+import shutil
 import warnings
 
 
@@ -25,7 +27,7 @@ class DataBaseSkeleton(object):
     the class copies the necessary data from the specfem folder."""
 
     def __init__(self, basedir=None, cmt_fn=None, specfem_dir=None,
-                 verbose=False, overwrite=False):
+                 verbose=False, overwrite=False, npar=9):
         """
         Args:
             basedir: str with path to database directory, e.g
@@ -39,68 +41,82 @@ class DataBaseSkeleton(object):
 
 
         self.basedir = basedir
-
-        # Check if things exists
-        self.cmt_fn = cmt_fn
         self.specfem_dir = specfem_dir
+        self.npar = npar
 
         # Modifiers
         self.v = verbose
         self.ow = overwrite
 
-    def create_all(self):
-        """ Writes complete database structure."""
-
-        # Create earthquake directory
-        self.create_eq_dir()
-
-        # Create
-        self.create_CMT_SIM_dir()
-
-    def create_base(self):
-        """Creates Base directory if it doesn't exist."""
-
-        self._create_dir(self.basedir)
-
-
-    def create_eq_dir(self):
-        """Creates response subdirectory"""
+        # Check if things exists
+        self.cmt_fn = cmt_fn
 
         # Check if cmt file name exists and if there are more than one
-        cmtfile_list = glob.glob(self.cmt_fn)
-        print(cmtfile_list)
+        self.cmtfile_list = glob.glob(self.cmt_fn)
 
         # Throw error if list empty
-        if cmtfile_list is []:
+        if self.cmtfile_list is []:
             raise ValueError("No CMTSOLUTION file exists of that name.")
 
         # Create empty earthquake directory list
         self.eq_dirs = []
         self.eq_ids = []
 
-        # Go through list of CMT solutions
-        for cmtfile in cmtfile_list:
 
-            # create CMT
-            cmt = CMTSource.from_CMTSOLUTION_file(cmtfile)
 
-            # Create CMTSource to extract the file name
-            eq_id = cmt.eventname
-            self.eq_ids.append(eq_id)
+    def create_all(self):
+        """ Writes complete database structure."""
 
-            # Earthquake directory
-            eq_dir = os.path.join(self.basedir, "eq_" + eq_id)
+        # Create earthquake directory
+        self.create_eq_dirs()
+
+        # Create Response directory
+        self.create_response_dir()
+
+        # Create Seismogram directory
+        self.create_seismogram_dir()
+
+        if self.specfem_dir is not None:
+            # Create
+            self.create_CMT_SIM_dir()
+
+    def create_base(self):
+        """Creates Base directory if it doesn't exist."""
+
+        self._create_dir(self.basedir)
+
+    def create_eq_dirs(self):
+        """ If more than one earthquake exist with regex, call all of them"""
+
+        for cmtfile in self.cmtfile_list:
 
             # Create directory
-            self._create_dir(eq_dir)
+            self.create_1_eq_dir(cmtfile)
 
-            self.eq_dirs.append(eq_dir)
 
-            # Create new CMT path
-            cmt_path = os.path.join(eq_dir, "eq_" + eq_id + ".cmt")
+    def create_1_eq_dir(self, cmtfile):
+        """Creates 1 Earthquake directory"""
 
-            # Copy the Earthquake file into the directory with eq_<ID>.cmt
-            self._copy_cmt(cmtfile, cmt_path)
+        # create CMT
+        cmt = CMTSource.from_CMTSOLUTION_file(cmtfile)
+
+        # Create CMTSource to extract the file name
+        eq_id = cmt.eventname
+        self.eq_ids.append(eq_id)
+
+        # Earthquake directory
+        eq_dir = os.path.join(self.basedir, "eq_" + eq_id)
+
+        # Create directory
+        self._create_dir(eq_dir)
+
+        self.eq_dirs.append(eq_dir)
+
+        # Create new CMT path
+        cmt_path = os.path.join(eq_dir, "eq_" + eq_id + ".cmt")
+
+        # Copy the Earthquake file into the directory with eq_<ID>.cmt
+        self._copy_cmt(cmtfile, cmt_path)
 
     def create_CMT_SIM_dir(self):
         """
@@ -109,12 +125,39 @@ class DataBaseSkeleton(object):
         compiled already and there is no way of testing that prior to running
         GCMT.
         """
+        # Parameters
+        attr = ["CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp", "CMT_tp",
+                "CMT_depth", "CMT_lat", "CMT_lon"]
 
-        # First create main directory
+        for _i, _eq in enumerate(self.eq_dirs):
 
+            # First create main directory
+            sim_path = os.path.join(_eq, "CMT_SIMs")
+            self._create_dir(sim_path)
 
-        # Throw error if specfem path
-        # os.symlink(os.path.join(self.specfem_dir, "bin"))
+            # Second create subdirectories of CMT specfem directories
+            for _j, _attr in enumerate(attr[:self.npar+1]):
+
+                # Create subdirectory for simulation packages.
+                cmt_der_path = os.path.join(sim_path, _attr)
+                self._create_dir(cmt_der_path)
+
+                # Copy specfem directory into cmt_der_path
+                subdirs = ["DATA", "DATABASES_MPI", "OUTPUT_FILES"]
+
+                for _k, _subdir in enumerate(subdirs):
+                    # Path to specfem subdirectory
+                    src_path = os.path.join(self.specfem_dir, _subdir)
+
+                    # Path to destination directory
+                    dst_path = os.path.join(cmt_der_path, _subdir)
+                    self._copy_dir(src_path, dst_path)
+
+                # Create symbolic link to destination folders
+                os.symlink(os.path.join(self.specfem_dir, "bin"),
+                           os.path.join(cmt_der_path, "bin"),
+                           target_is_directory=True)
+
 
     def create_response_dir(self):
         """Creates response subdirectory"""
@@ -137,31 +180,54 @@ class DataBaseSkeleton(object):
             # Create new directory
             self._create_dir(seismogram_dir)
 
+    def _copy_dir(self, source, destination):
+        """ Copies a directory source to destination. It checks also for
+        potential duplicates in the same place."""
+
+        if os.path.isdir(destination) and self.ow:
+            if self.v:
+                print("Directory %s exists already. It will "
+                      "be overwritten." % destination)
+            self._replace_dir(source, destination)
+
+        elif os.path.isdir(destination) and self.ow == False:
+            if self.v:
+                print("Directory %s exists already. It will "
+                      "NOT be overwritten." % destination)
+
+        else:
+            if self.v:
+                print("Copying directory %s file to %s" % (source, destination))
+            shutil.copytree(source, destination)
+
     def _copy_cmt(self, source, destination):
         """ Copies CMT solution from source to destination. It checks also
         for potential duplicates in the same place, warns whether they are
         different but have the name."""
 
-        if os.path.exists(destination) and self.ow:
+
+        if os.path.isfile(destination) and self.ow:
             if self.v:
                 print("Earthquake file %s exists already. It will "
                       "be overwritten." % destination)
-                self._replace_file(source, destination)
+            self._replace_file(source, destination)
 
-            elif os.path.exists(eq_dir) and self.ow == False:
+        elif os.path.isfile(destination) and self.ow == False:
+            if self.v:
                 print("Earthquake file %s exists already. It will "
                       "NOT be overwritten." % destination)
 
             # Warn if destination eq is not equal to new eq
-            if CMTSource.from_CMTSOLUTION_file(source) \
-            is not CMTSource.from_CMTSOLUTION_file(destination):
+            if not CMTSource.from_CMTSOLUTION_file(source) \
+                    == CMTSource.from_CMTSOLUTION_file(destination):
                 warnings.warn("CMT solution in the database is not "
                               "the same as the file with the same ID.")
 
         else:
             if self.v:
-                print("Copying earthquake %s file to database." % destination)
-        shutil.copy2(source, destination)
+                print("Copying earthquake %s file to %s." % (source,
+                                                             destination))
+            shutil.copy2(source, destination)
 
     def _create_dir(self, directory):
         """Create subdirectory"""
@@ -182,11 +248,13 @@ class DataBaseSkeleton(object):
             os.makedirs(directory)
 
     @staticmethod
-    def _replace_dir(directory):
+    def _replace_dir(destination, source=None):
         """Mini function that replaces a directory"""
-        if os.path.exists(directory) and os.path.isdir(directory):
-            shutil.rmtree(directory)
-        os.makedirs(directory)
+        if os.path.exists(destination) and os.path.isdir(destination):
+            shutil.rmtree(destination)
+        if source==None:
+            os.makedirs(destination)
+
 
     @staticmethod
     def _replace_file(source, destination):
