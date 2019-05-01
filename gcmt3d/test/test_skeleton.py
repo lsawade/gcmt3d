@@ -105,7 +105,7 @@ class TestSkeleton(unittest.TestCase):
                                   verbose=True)
 
             # Create eq directory
-            DB.create_eq_dir()
+            DB.create_eq_dirs()
 
             # check if new path exists
             new_cmt_path = os.path.join(eq_dir, "eq_" + eq_id + ".cmt")
@@ -144,7 +144,7 @@ class TestSkeleton(unittest.TestCase):
                                   verbose=True)
 
             # Create eq directory
-            DB.create_eq_dir()
+            DB.create_eq_dirs()
 
             # check if new path exists
             new_cmt_path1 = os.path.join(eq_dir1, "eq_" + eq_id1 + ".cmt")
@@ -197,6 +197,88 @@ class TestSkeleton(unittest.TestCase):
 
             self.assertTrue(CMTSource.from_CMTSOLUTION_file(new_cmt_path) ==
                             CMTSource.from_CMTSOLUTION_file(cmtfile))
+
+
+    def test_create_SIM_dir(self):
+        """Tests the function that creates the Simulation directories and the
+        copies the necessary files from the specfem directory."""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+
+            # Cmtfile path
+            cmtfile = "./data/CMTSOLUTION"
+
+            # create CMT
+            cmt = CMTSource.from_CMTSOLUTION_file(cmtfile)
+
+            # Create CMTSource to extract the file name
+            eq_id = cmt.eventname
+
+            # Earthquake directory
+            eq_dir = os.path.join(tmp_dir, "eq_" + eq_id)
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir,
+                                  verbose=True)
+
+            # Create earthquake solution directory
+            DB.create_eq_dirs()
+
+            # Create CMT simulation directory
+            DB.create_CMT_SIM_dir()
+
+            # Parameters
+            attr = ["CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp", "CMT_tp",
+                    "CMT_depth", "CMT_lat", "CMT_lon"]
+
+            # Subdirectories
+            subdirs = ["DATA", "DATABASES_MPI", "OUTPUT_FILES"]
+
+            # Check for all directories
+            for at in attr:
+
+                # Attribute path
+                test_dir = os.path.join(eq_dir, "CMT_SIMs", at)
+
+                self.assertTrue(os.path.isdir(test_dir))
+
+                # Now check if subdirectories are created
+                for _k, _subdir in enumerate(subdirs):
+                    test_dir2 = os.path.join(test_dir, _subdir)
+
+                    self.assertTrue(os.path.isdir(test_dir2))
+
+                # Check if link is created
+                self.assertTrue(os.path.islink(os.path.join(test_dir, "bin")))
+
+
+
+
+    def test__copy_dir(self):
+        """Tests the copy dir function in skeleton."""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+
+            # Create on directory in temporary directory
+            test_dir1 = os.path.join(tmp_dir, "test1")
+            test_dir2 = os.path.join(tmp_dir, "test2")
+            os.makedirs(test_dir1)
+
+            # Cmtfile path
+            cmtfile = "./data/CMTSOLUTION"
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir,
+                                  verbose=True)
+
+            DB._copy_dir(test_dir1, test_dir2)
+
+            self.assertTrue(os.path.isdir(test_dir2))
+
 
 
 if __name__ == "__main__":
