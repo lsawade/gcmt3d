@@ -13,13 +13,11 @@ Last Update: April 2019
 
 """
 
-
 from gcmt3d.source import CMTSource
 import glob
 import os
 import shutil
 import warnings
-
 
 
 class DataBaseSkeleton(object):
@@ -38,7 +36,6 @@ class DataBaseSkeleton(object):
                             ".../path/to/specfem3d_globe"
 
         """
-
 
         self.basedir = basedir
         self.specfem_dir = specfem_dir
@@ -61,8 +58,6 @@ class DataBaseSkeleton(object):
         # Create empty earthquake directory list
         self.eq_dirs = []
         self.eq_ids = []
-
-
 
     def create_all(self):
         """ Writes complete database structure."""
@@ -92,7 +87,6 @@ class DataBaseSkeleton(object):
 
             # Create directory
             self.create_1_eq_dir(cmtfile)
-
 
     def create_1_eq_dir(self, cmtfile):
         """Creates 1 Earthquake directory"""
@@ -158,7 +152,6 @@ class DataBaseSkeleton(object):
                            os.path.join(cmt_der_path, "bin"),
                            target_is_directory=True)
 
-
     def create_response_dir(self):
         """Creates response subdirectory"""
 
@@ -190,14 +183,15 @@ class DataBaseSkeleton(object):
                       "be overwritten." % destination)
             self._replace_dir(source, destination)
 
-        elif os.path.isdir(destination) and self.ow == False:
+        elif os.path.isdir(destination) and self.ow is False:
             if self.v:
                 print("Directory %s exists already. It will "
                       "NOT be overwritten." % destination)
 
         else:
             if self.v:
-                print("Copying directory %s file to %s" % (source, destination))
+                print("Copying directory %s file to %s"
+                      % (source, destination))
             shutil.copytree(source, destination)
 
     def _copy_cmt(self, source, destination):
@@ -205,14 +199,13 @@ class DataBaseSkeleton(object):
         for potential duplicates in the same place, warns whether they are
         different but have the name."""
 
-
         if os.path.isfile(destination) and self.ow:
             if self.v:
                 print("Earthquake file %s exists already. It will "
                       "be overwritten." % destination)
             self._replace_file(source, destination)
 
-        elif os.path.isfile(destination) and self.ow == False:
+        elif os.path.isfile(destination) and self.ow is False:
             if self.v:
                 print("Earthquake file %s exists already. It will "
                       "NOT be overwritten." % destination)
@@ -252,9 +245,8 @@ class DataBaseSkeleton(object):
         """Mini function that replaces a directory"""
         if os.path.exists(destination) and os.path.isdir(destination):
             shutil.rmtree(destination)
-        if source==None:
+        if source is None:
             os.makedirs(destination)
-
 
     @staticmethod
     def _replace_file(source, destination):
@@ -270,8 +262,8 @@ class DataBaseSkeleton(object):
 
         string = "Database directory:\n"
         string += self.basedir + "\n\n"
-        string +="CMTSOLUTION path:\n"
+        string += "CMTSOLUTION path:\n"
         string += self.cmt_fn + "\n\n"
-        string +="Specfem directory:\n"
+        string += "Specfem directory:\n"
         string += self.specfem_dir + "\n\n"
         return string
