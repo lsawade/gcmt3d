@@ -16,7 +16,7 @@ Source and Receiver classes of Instaseis.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import numpy as np
-import obspy
+from obspy import UTCDateTime, read_events
 import warnings
 
 
@@ -25,7 +25,7 @@ class CMTSource(object):
     Class to handle a seismic moment tensor source including a source time
     function.
     """
-    def __init__(self, origin_time=obspy.UTCDateTime(0),
+    def __init__(self, origin_time=UTCDateTime(0),
                  pde_latitude=0.0, pde_longitude=0.0, mb=0.0, ms=0.0,
                  pde_depth_in_m=None, region_tag=None, eventname=None,
                  cmt_time=0.0, half_duration=0.0, latitude=0.0, longitude=0.0,
@@ -82,11 +82,11 @@ class CMTSource(object):
             values = list(map(int, origin_time[:-1])) + \
                 [float(origin_time[-1])]
             try:
-                origin_time = obspy.UTCDateTime(*values)
+                origin_time = UTCDateTime(*values)
             except (TypeError, ValueError):
                 warnings.warn("Could not determine origin time from line: %s"
                               % line)
-                origin_time = obspy.UTCDateTime(0)
+                origin_time = UTCDateTime(0)
             otherinfo = line[4:].strip().split()[6:]
             pde_lat = float(otherinfo[0])
             pde_lon = float(otherinfo[1])
@@ -126,7 +126,6 @@ class CMTSource(object):
         Initialiaze a source object from a quakeml file
         :param filename: path to a quakeml file
         """
-        from obspy import read_events
         cat = read_events(filename)
         event = cat[0]
         cmtsolution = event.preferred_origin()
