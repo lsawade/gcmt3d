@@ -65,8 +65,11 @@ class DataBaseSkeleton(object):
         # Create earthquake directory
         self.create_eq_dirs()
 
-        # Create Response directory
-        self.create_response_dir()
+        # Create station metadata directory
+        self.create_station_dir()
+
+        # Create window data directory
+        self.create_window_dir()
 
         # Create Seismogram directory
         self.create_seismogram_dir()
@@ -112,6 +115,28 @@ class DataBaseSkeleton(object):
         # Copy the Earthquake file into the directory with eq_<ID>.cmt
         self._copy_cmt(cmtfile, cmt_path)
 
+    def create_station_dir(self):
+        """Creates station_data directory for station metadata."""
+
+        for _i, _eq_dir in enumerate(self.eq_dirs):
+
+            # Create station_data dirs
+            station_dir = os.path.join(_eq_dir, "station_data")
+
+            # Create new directory
+            self._create_dir(station_dir)
+
+    def create_window_dir(self):
+        """Creates window_data directory for pyflex window data metadata."""
+
+        for _i, _eq_dir in enumerate(self.eq_dirs):
+
+            # Create window_data dirs
+            station_dir = os.path.join(_eq_dir, "window_data")
+
+            # Create new directory
+            self._create_dir(station_dir)
+
     def create_CMT_SIM_dir(self):
         """
         Creates CMT simulation directory and copies necessary files from given
@@ -151,17 +176,6 @@ class DataBaseSkeleton(object):
                 os.symlink(os.path.join(self.specfem_dir, "bin"),
                            os.path.join(cmt_der_path, "bin"),
                            target_is_directory=True)
-
-    def create_response_dir(self):
-        """Creates response subdirectory"""
-
-        for _i, _eq_dir in enumerate(self.eq_dirs):
-
-            # Create response path
-            response_dir = os.path.join(_eq_dir, "responses")
-
-            # Create new directory
-            self._create_dir(response_dir)
 
     def create_seismogram_dir(self):
         """Creates response subdirectory"""
