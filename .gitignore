@@ -4,3 +4,6 @@ __pycache__
 *.xml
 *.ipynb_checkpoints
 CMTSOLUTION_*
+.DS_Store
+*.pdf
+*.egg-info
