@@ -109,7 +109,7 @@ class DataRequest(object):
 
     @classmethod
     def from_file(cls, cmtfname,
-                  stationlistfname,
+                  stationlistfname=None,
                   duration=0.,
                   channels=["BHZ"],
                   locations=["00"],
@@ -130,6 +130,14 @@ class DataRequest(object):
 
         # First Create CMT Solution
         cmt = CMTSource.from_CMTSOLUTION_file(cmtfname)
+
+        if stationlistfname is None:
+            # Get module directory
+            mod_dir, __ = os.path.split(__file__)
+
+            # set stationlistfname to given stationlist
+            stationlistfname = os.path.join(mod_dir, "resources",
+                                            "stations.txt")
 
         # Read station list file with two columns and whitespace separation
         statfile = open(stationlistfname, 'r')
