@@ -15,11 +15,12 @@ import os
 import subprocess
 from warnings import warn
 
+
 class RunSimulation(object):
     """Class handles the running of specfem after its directory has been
     added to the database. """
 
-    def __init__(self, earthquake_dir, npar=9, n=1, verbose=False):
+    def __init__(self, earthquake_dir, N=1, npar=9, n=1, verbose=False):
         """
         Initializes Run parameters
 
@@ -39,8 +40,9 @@ class RunSimulation(object):
         self.N = N
         self.n = n
         self.npar = npar
-        self.batchdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                     "batch")
+        self.batchdir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "batch")
         self.v = verbose
 
     def __call__(self):
@@ -73,7 +75,3 @@ class RunSimulation(object):
         string += "Number of Nodes: %d\n" % self.N
         string += "Number of Tasks: %d\n" % self.n
         string += "Number of Parameters: %d\n\n" % self.npar
-
-
-
-
