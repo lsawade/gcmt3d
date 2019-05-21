@@ -45,6 +45,11 @@ class RunSimulation(object):
             "batch")
         self.v = verbose
 
+    def fix_parfiles(self):
+        """This function changes the number of nodes within the parfile
+        in each subdirectory of the CMT_SIMs directory."""
+
+        pass
     def __call__(self):
         """Runs the Simulation using the shell and batch files in the batch
         subdirectory."""
