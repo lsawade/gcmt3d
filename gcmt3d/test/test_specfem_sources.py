@@ -30,12 +30,23 @@ class Test_SpecfemSources(unittest.TestCase):
     """
     Test class for specfem_sources.py. The main reason for this being necessary
     is that the class includes a mechanism to test error raising.
+    The writing is set to be written into the different subdirectories of the
+    databse skeleton created by the Skeleton class.
     """
 
     def setUp(self):
         # Create a temporary directory
         self.test_dir = tempfile.TemporaryDirectory()
         self.tmpdir = self.test_dir.name
+
+        # Create subdirectories for each simulation
+        self.attr = ["CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
+                     "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
+        for at in self.attr:
+            # create each sim dir
+            os.makedirs(os.path.join(self.tmpdir, at))
+            os.makedirs(os.path.join(self.tmpdir, at, "DATA"))
+
         self.cmt = CMTSource.from_CMTSOLUTION_file(CMTFILE)
 
     def tearDown(self):
@@ -97,7 +108,7 @@ class Test_SpecfemSources(unittest.TestCase):
         sfsource.write_sources()
 
         # Get files of the written files
-        written_files = glob.glob(outputdir + "/*")
+        written_files = glob.glob(outputdir + "CMT_*/DATA/CMTSOLUTION")
 
         # Get files and names of the test files
         test_files = glob.glob(DATA_DIR + "/*")
@@ -144,7 +155,7 @@ class Test_SpecfemSources(unittest.TestCase):
         sfsource.write_sources()
 
         # Get files and names of the written files
-        written_files = glob.glob(outputdir + "/*")
+        written_files = glob.glob(outputdir + "CMT_*/DATA/CMTSOLUTION")
 
         # Get files and names of the test files
         test_files = glob.glob(DATA_DIR + "/*")
@@ -174,5 +185,5 @@ class Test_SpecfemSources(unittest.TestCase):
                             assert teststring == str(written_line[index])
 
 
-if __name__ == '__mpyteain__':
+if __name__ == '__main__':
     unittest.main()

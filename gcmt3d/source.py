@@ -267,4 +267,4 @@ class CMTSource(object):
         return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
-        return self.__dict__ == other.__dict__
+        return self.__dict__ != other.__dict__
