@@ -16,7 +16,7 @@ import unittest
 import tempfile
 import os
 import inspect
-from gcmt3d.runSF3D.runSF3D import RunSimulation
+from gcmt3d.runSF3D.runSF3D import ParfileFixer
 
 
 def _upper_level(path, nlevel=4):
@@ -34,7 +34,7 @@ TESTBASE_DIR = _upper_level(os.path.abspath(
 DATA_DIR = os.path.join(TESTBASE_DIR, "data")
 
 
-class TestSkeleton(unittest.TestCase):
+class TestParfileFixer(unittest.TestCase):
     """Class that handles testing of the Data Base structure creator"""
 
     def test_replace_var(self):
@@ -51,22 +51,20 @@ class TestSkeleton(unittest.TestCase):
             # Copy parfile content to temporary file.
             print(tmpfile)
             with open(parfile) as PF:
-                        for line in PF:
-                            tmpfile.write(line)
+                for line in PF:
+                    tmpfile.write(line)
 
             # Back to start of file
             tmpfile.seek(0)
 
             # Replace value
-            RunSimulation.replace_varval(tmpfile.name, "NCHUNKS", newval)
+            ParfileFixer.replace_varval(tmpfile.name, "NCHUNKS", newval)
 
             # Check if value is
-            val = RunSimulation.get_val(tmpfile.name, "NCHUNKS")
+            val = ParfileFixer.get_val(tmpfile.name, "NCHUNKS")
 
             # Check if value has changed
             self.assertTrue(newval == int(val))
-
-
 
     def test_get_val(self):
         """ Tests static method get_val"""
@@ -78,14 +76,8 @@ class TestSkeleton(unittest.TestCase):
         original_value = 6
 
         # Get the value from the file
-        val = RunSimulation.get_val(parfile, 'NCHUNKS')
+        val = ParfileFixer.get_val(parfile, 'NCHUNKS')
 
         print(val)
         # Check if values match
         self.assertTrue(original_value == int(val))
-
-
-
-
-
-

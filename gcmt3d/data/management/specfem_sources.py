@@ -43,7 +43,8 @@ class SpecfemSources(object):
         :type dtshift: float
         :param dhdur: change in half duration for frechet derivative
         :type dhdur: float
-        :param outdir: output directory for sources
+        :param outdir: output directory for sources Should be CMT_SIMs
+                       directory as created by the Skeleton class.
         :type outdir: str
 
         '''
@@ -96,6 +97,10 @@ class SpecfemSources(object):
 
         for index in range(6):
 
+            cmtsim_outdir = os.path.join(self.outdir, "CMT_"
+                                         + attr[index][-2:],
+                                         "DATA")
+
             # Create new CMT solution
             new_cmt = deepcopy(self.cmt)
 
@@ -107,14 +112,16 @@ class SpecfemSources(object):
             setattr(new_cmt, attr[index], self.dm)
 
             # write file
-            new_cmt.write_CMTSOLUTION_file(os.path.join(self.outdir,
-                                                        "CMTSOLUTION_M"
-                                                        + attr[index][-2:]))
+            new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
+                                                        "CMTSOLUTION"))
 
         if self.npar > 6:
 
             # Attribute name
             depth_str = "depth_in_m"
+
+            # Set output dir
+            cmtsim_outdir = os.path.join(self.outdir, "CMT_depth", "DATA")
 
             # Create new CMT solution
             new_cmt = deepcopy(self.cmt)
@@ -123,9 +130,8 @@ class SpecfemSources(object):
             setattr(new_cmt, depth_str, new_cmt.depth_in_m + self.dx)
 
             # write new solution
-            new_cmt.write_CMTSOLUTION_file(os.path.join(self.outdir,
-                                                        "CMTSOLUTION_"
-                                                        + "depth"))
+            new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
+                                                        "CMTSOLUTION"))
 
         if self.npar == 9:
 
@@ -139,20 +145,24 @@ class SpecfemSources(object):
             # change a depth
             setattr(new_cmt, lat_str, new_cmt.latitude + self.ddeg)
 
+            # Set outdir
+            cmtsim_outdir = os.path.join(self.outdir, "CMT_lat", "DATA")
+
             # write new solution
-            new_cmt.write_CMTSOLUTION_file(os.path.join(self.outdir,
-                                                        "CMTSOLUTION_"
-                                                        + "lat"))
+            new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
+                                                        "CMTSOLUTION"))
             # Create new CMT solution
             new_cmt = deepcopy(self.cmt)
 
             # change a depth
             setattr(new_cmt, lon_str, new_cmt.longitude + self.ddeg)
 
+            # Set outdir
+            cmtsim_outdir = os.path.join(self.outdir, "CMT_lon", "DATA")
+
             # write new solution
-            new_cmt.write_CMTSOLUTION_file(os.path.join(self.outdir,
-                                                        "CMTSOLUTION_"
-                                                        + "lon"))
+            new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
+                                                        "CMTSOLUTION"))
 
     def __str__(self):
         string = "-------- CMT Source Writer --------\n"

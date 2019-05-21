@@ -14,14 +14,13 @@ Last Update: May 2019
 import os
 import re
 import subprocess
-from warnings import warn
 
 
 class RunSimulation(object):
     """Class handles the running of specfem after its directory has been
     added to the database. """
 
-    def __init__(self, earthquake_dir, N=1, npar=9, n=1, verbose=False):
+    def __init__(self, earthquake_dir, N=1, npar=9, n=24, verbose=False):
         """
         Initializes Run parameters
 
@@ -30,6 +29,8 @@ class RunSimulation(object):
             N: integer with number of Nodes
             n: integer with number of tasks
             npar: integer number of parameters
+            NEX: Number of elements along the first chunk (s. Specfem Manual)
+            NPROC: Number of MPI processors (s. Specfem Manual)
             verbose: boolean deciding on whether to print stuff
 
         Returns: Nothing really it just runs specfem with the above options
@@ -40,17 +41,17 @@ class RunSimulation(object):
         self.simdir = os.path.join(self.earthquake, "CMT_SIMs")
         self.N = N
         self.n = n
-        self.npar = npar
+        self.attr = ["CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
+                     "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
+        if npar in [6, 7, 9]:
+            self.npar = npar
+        else:
+            raise ValueError("Wrong number. must be 6, 7, or 9.")
         self.batchdir = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "batch")
         self.v = verbose
 
-    def fix_parfiles(self):
-        """This function changes the number of nodes within the parfile
-        in each subdirectory of the CMT_SIMs directory."""
-
-        pass
     def __call__(self):
         """Runs the Simulation using the shell and batch files in the batch
         subdirectory."""
@@ -62,14 +63,13 @@ class RunSimulation(object):
         batchscript = os.path.join(self.batchdir, "drive.sbatch")
 
         # Create command
-        bashCommand = "%s %s %s %s %s %s %s" % (batchwrapper,self.N, 
+        bashCommand = "%s %s %s %s %s %s %s" % (batchwrapper, self.N,
                                                 self.n, self.npar,
                                                 self.simdir, batchscript,
                                                 int(self.v))
-        
+
         # Send command
-        process = subprocess.run(bashCommand.split(), check=True,
-                                 text=True)
+        process = subprocess.run(bashCommand.split(), check=True, text=True)
 
         # catch outputs
         if self.v:
@@ -77,6 +77,59 @@ class RunSimulation(object):
             print("Command has been sent.")
             print("Output:\n", process.stdout)
             print("Errors:\n", process.stderr)
+
+    def __str__(self):
+        """string return"""
+
+        string = ""
+        string += "Earthquake directory: %s\n" % self.earthquake
+        string += "Simulation directory: %s\n" % self.simdir
+        string += "Number of Nodes: %d\n" % self.N
+        string += "Number of Tasks: %d\n" % self.n
+        string += "Number of Parameters: %d\n\n" % self.npar
+        return string
+
+
+class ParfileFixer(object):
+    """Not necessary but it handles the fixing of the parfile"""
+
+    def __init__(self, specfemdir, NEX=128, NPROC=1,
+                 verbose=False):
+        """
+        Initializes Run parameters
+
+        Args:
+            specfemdir: string with directory name
+            NEX: Number of elements along the first chunk (s. Specfem Manual)
+            NPROC: Number of MPI processors (s. Specfem Manual)
+            verbose: boolean deciding on whether to print stuff
+
+        Returns: Nothing really it just runs specfem with the above options
+
+        """
+
+        self.specfemdir = specfemdir
+        self.NPROC = NPROC
+        self.NEX = NEX
+        self.v = verbose
+
+    def fix_parfiles(self):
+        """This function changes the number of nodes within the parfile
+        in each subdirectory of the CMT_SIMs directory."""
+
+        parfile = os.path.join(self.specfemdir, "DATA/Par_file")
+
+        # Make sure it's a global simulation:
+        self.replace_varval(parfile, "NCHUNKS", self.NEX)
+
+        # Replace elements along surface of the two sides of first chunk
+        self.replace_varval(parfile, "NEX_XI", self.NEX)
+        self.replace_varval(parfile, "NEX_ETA", self.NEX)
+
+        # Replace number of MPI processors along the two sides of the first
+        # chunk
+        self.replace_varval(parfile, "NPROC_XI", self.NPROC)
+        self.replace_varval(parfile, "NPROC_ETA", self.NPROC)
 
     @staticmethod
     def replace_varval(filename, var, newval):
@@ -154,17 +207,3 @@ class RunSimulation(object):
                              "overwrite.")
         else:
             return val
-
-
-
-    def __str__(self):
-        """string return"""
-
-        string = ""
-        string += "Earthquake directory: %s\n" % self.earthquake
-        string += "Simulation directory: %s\n" % self.simdir
-        string += "Number of Nodes: %d\n" % self.N
-        string += "Number of Tasks: %d\n" % self.n
-        string += "Number of Parameters: %d\n\n" % self.npar
-        return string
-
