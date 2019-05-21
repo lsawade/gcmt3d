@@ -49,29 +49,37 @@ class RunSimulation(object):
         """Runs the Simulation using the shell and batch files in the batch
         subdirectory."""
 
+        # batch driver wrapper
+        batchwrapper = os.path.join(self.batchdir, "drive.sh")
+
         # batch driver script
         batchscript = os.path.join(self.batchdir, "drive.sbatch")
 
-        bashCommand = "drive.sh %s %s %s %s %s" % (self.N, self.n,
-                                                   self.npar, self.simdir,
-                                                   batchscript)
-
-        # Start process
-        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+        # Create command
+        bashCommand = "%s %s %s %s %s %s %s" % (batchwrapper,self.N, 
+                                                self.n, self.npar,
+                                                self.simdir, batchscript,
+                                                int(self.v))
+        
+        # Send command
+        process = subprocess.run(bashCommand.split(), check=True,
+                                 text=True)
 
         # catch outputs
-        output, error = process.communicate()
-
         if self.v:
-            print("Output:\n", output)
-            warn("Errors:\n", error)
+            print(bashCommand)
+            print("Command has been sent.")
+            print("Output:\n", process.stdout)
+            print("Errors:\n", process.stderr)
 
     def __str__(self):
         """string return"""
 
         string = ""
-        string += "Earthquake directory: %d\n" % self.earthquake
-        string += "Simulation directory: %d\n" % self.simdir
+        string += "Earthquake directory: %s\n" % self.earthquake
+        string += "Simulation directory: %s\n" % self.simdir
         string += "Number of Nodes: %d\n" % self.N
         string += "Number of Tasks: %d\n" % self.n
         string += "Number of Parameters: %d\n\n" % self.npar
+        return string
+
