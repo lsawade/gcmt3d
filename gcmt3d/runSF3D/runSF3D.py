@@ -12,6 +12,7 @@ Last Update: May 2019
 
 """
 import os
+import re
 import subprocess
 from warnings import warn
 
@@ -76,6 +77,85 @@ class RunSimulation(object):
             print("Command has been sent.")
             print("Output:\n", process.stdout)
             print("Errors:\n", process.stderr)
+
+    @staticmethod
+    def replace_varval(filename, var, newval):
+        """ This function updates the value of a function within a text file
+
+        Args:
+            var: variable name -- string
+            newval: new variable value, string, number or list
+
+        Throws and error if variable doesnt exist or has multiple definitions.
+        """
+
+        file = open(filename, 'r+')
+        content_lines = []
+        counter = 0
+
+        for line in file:
+            # more robust than simple string comparison
+            if re.match(" *" + var + " *=", line):
+                counter += 1
+                # Split the line into to at the equal sign
+                line_components = line.split('=')
+
+                # set the value of the line again
+                line_components[1] = str(newval)
+                updated_line = "= ".join(line_components)
+                content_lines.append(updated_line)
+            else:
+                content_lines.append(line)
+
+        # Check whether variable is in file or has multiple definitions
+        if counter == 0:
+            raise ValueError("Variable not in file.")
+        elif counter > 1:
+            raise ValueError("Variable is defined in multiple places. Cannot "
+                             "overwrite.")
+        else:
+            file.seek(0)
+            file.truncate()
+            file.writelines(content_lines)
+
+        file.close()
+
+    @staticmethod
+    def get_val(filename, var):
+        """ Function searches file for variable and returns that value as a
+        string.
+
+        Args:
+            filename: string
+            var: string
+
+        Returns:
+            val
+        """
+
+        file = open(filename, 'r+')
+        counter = 0
+
+        for line in file:
+            # more robust than simple string comparison
+            if re.match(" *" + var + " *=", line):
+                counter += 1
+                # Split the line into to at the equal sign
+                line_components = line.split('=')
+
+                # set the value of the line again
+                val = line_components[1]
+
+        # Check whether variable is in file or has multiple definitions
+        if counter == 0:
+            raise ValueError("Variable not in file.")
+        elif counter > 1:
+            raise ValueError("Variable is defined in multiple places. Cannot "
+                             "overwrite.")
+        else:
+            return val
+
+
 
     def __str__(self):
         """string return"""
