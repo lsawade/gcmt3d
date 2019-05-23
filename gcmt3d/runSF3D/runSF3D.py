@@ -14,6 +14,7 @@ Last Update: May 2019
 import os
 import re
 import subprocess
+import shutil
 
 
 class RunSimulation(object):
@@ -70,13 +71,31 @@ class RunSimulation(object):
 
         # Send command
         process = subprocess.run(bashCommand.split(), check=True, text=True)
-
+        print(process)
         # catch outputs
         if self.v:
             print(bashCommand)
             print("Command has been sent.")
             print("Output:\n", process.stdout)
             print("Errors:\n", process.stderr)
+
+    def replace_STATIONS(self, statfile):
+        """This function handles the replacement of the STATION file in the
+        database directory."""
+
+        if (self.npar is None) or (self.simdir is None):
+            raise ValueError("No number of parameters or Sim dir given")
+        else:
+            for at in self.attr:
+                newstatfile = os.path.join(self.simdir, at, "DATA", "STATIONS")
+                self._replace_file(statfile, newstatfile)
+
+    @staticmethod
+    def _replace_file(source, destination):
+        """Mini function that replaces a directory"""
+        if os.path.exists(destination) and os.path.isfile(destination):
+            os.remove(destination)
+        shutil.copy2(source, destination)
 
     def __str__(self):
         """string return"""
@@ -90,10 +109,10 @@ class RunSimulation(object):
         return string
 
 
-class ParfileFixer(object):
+class DATAFixer(object):
     """Not necessary but it handles the fixing of the parfile"""
 
-    def __init__(self, specfemdir, NEX=128, NPROC=1,
+    def __init__(self, specfemdir, simdir, NEX=128, NPROC=1, npar=None,
                  verbose=False):
         """
         Initializes Run parameters
@@ -111,6 +130,15 @@ class ParfileFixer(object):
         self.specfemdir = specfemdir
         self.NPROC = NPROC
         self.NEX = NEX
+        self.simdir = simdir
+        self.attr = ["CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
+                     "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
+        if npar in [6, 7, 9]:
+            self.npar = npar
+        elif npar is None:
+            pass
+        else:
+            raise ValueError("Wrong number. must be 6, 7, or 9.")
         self.v = verbose
 
     def fix_parfiles(self):

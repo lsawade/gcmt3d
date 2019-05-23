@@ -16,7 +16,7 @@ import unittest
 import tempfile
 import os
 import inspect
-from gcmt3d.runSF3D.runSF3D import ParfileFixer
+from gcmt3d.runSF3D.runSF3D import DATAFixer
 
 
 def _upper_level(path, nlevel=4):
@@ -58,10 +58,10 @@ class TestParfileFixer(unittest.TestCase):
             tmpfile.seek(0)
 
             # Replace value
-            ParfileFixer.replace_varval(tmpfile.name, "NCHUNKS", newval)
+            DATAFixer.replace_varval(tmpfile.name, "NCHUNKS", newval)
 
             # Check if value is
-            val = ParfileFixer.get_val(tmpfile.name, "NCHUNKS")
+            val = DATAFixer.get_val(tmpfile.name, "NCHUNKS")
 
             # Check if value has changed
             self.assertTrue(newval == int(val))
@@ -76,7 +76,7 @@ class TestParfileFixer(unittest.TestCase):
         original_value = 6
 
         # Get the value from the file
-        val = ParfileFixer.get_val(parfile, 'NCHUNKS')
+        val = DATAFixer.get_val(parfile, 'NCHUNKS')
 
         print(val)
         # Check if values match
