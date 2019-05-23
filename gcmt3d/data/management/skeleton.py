@@ -173,9 +173,10 @@ class DataBaseSkeleton(object):
                     self._copy_dir(src_path, dst_path)
 
                 # Create symbolic link to destination folders
-                os.symlink(os.path.join(self.specfem_dir, "bin"),
-                           os.path.join(cmt_der_path, "bin"),
-                           target_is_directory=True)
+                if not os.path.islink((os.path.join(cmt_der_path, "bin"))):
+                    os.symlink(os.path.join(self.specfem_dir, "bin"),
+                               os.path.join(cmt_der_path, "bin"),
+                               target_is_directory=True)
 
     def create_seismogram_dir(self):
         """Creates response subdirectory"""

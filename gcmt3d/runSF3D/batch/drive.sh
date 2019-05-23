@@ -17,7 +17,7 @@ if [ "$VERBOSE" -eq "1" ]
       echo $SCRIPT
 fi
 # Set max runtime for job
-TIME=00:00:20
+TIME=00:30:00
 
 if [ "$VERBOSE" -eq "1" ] 
     then
