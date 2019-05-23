@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#SBATCH -t 00:00:20
 #SBATCH --job-name=CMT_array_%a
 # blub SBATCH --output=job_%a.out
 # blub SBATCH --error=job_%a.err
