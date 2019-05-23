@@ -7,7 +7,6 @@
 # Load necessary modules:
 module load intel/18.0
 module load openmpi/intel-18.0
-module load openmpi/intel-18.0
 
 # Set FORTRAN COMPILER
 export FORTRAN_COMPILER=INTEL
@@ -18,7 +17,7 @@ STRINGS=(CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
 # Check locaysh
 if [ "$VERBOSE" -eq "1" ]
     then
-      echo "JOB: ${STRINGS[${SLURM_ARRAY_TASK_ID}]}"
+      echo "JOB: $SLURM_ARRAY_TASK_ID"
       echo "RUNDIR: $RUNDIR"
       echo "PARAMETERS: $NPAR"
       echo "NODES: $NODES"
@@ -28,7 +27,17 @@ if [ "$VERBOSE" -eq "1" ]
 fi
 
 # Change to earthquake simulation directory
-cd "$RUNDIR/${STRINGS[${SLURM_ARRAY_TASK_ID}]}"
+echo ${STRINGS[$SLURM_ARRAY_TASK_ID]}
+
+cd $RUNDIR/${STRINGS[${SLURM_ARRAY_TASK_ID}]}
+
+echo $PWD
+echo $LD_LIBRARY_PATH
+
+if [ "$VERBOSE" -eq "1" ]
+    then
+      echo "PWD: $PWD"
+fi
 
 # Execute script
 srun ./bin/xspecfem3D
