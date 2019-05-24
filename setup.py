@@ -47,7 +47,7 @@ setup(
     license='GNU Lesser General Public License, Version 3',
     keywords="Global CMT, Inversion, Moment Tensor",
     url='https://github.com/lsawade/GCMT3D',
-    packages=find_packages("."),
+    packages=find_packages(".", exclude=("notebooks",)),
     package_dir={"": "."},
     include_package_data=True,
     package_data={'gcmt3d/data/download/resources/':
