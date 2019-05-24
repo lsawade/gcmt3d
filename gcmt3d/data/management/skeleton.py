@@ -18,7 +18,7 @@ import glob
 import os
 import shutil
 import warnings
-
+from distutils.dir_util import copy_tree
 
 class DataBaseSkeleton(object):
     """Class to handle data skeleton creation. If specfem directory is given,
@@ -207,7 +207,7 @@ class DataBaseSkeleton(object):
             if self.v:
                 print("Copying directory %s file to %s"
                       % (source, destination))
-            shutil.copytree(source, destination)
+            copy_tree(source, destination, update=1)
 
     def _copy_cmt(self, source, destination):
         """ Copies CMT solution from source to destination. It checks also
@@ -235,7 +235,7 @@ class DataBaseSkeleton(object):
             if self.v:
                 print("Copying earthquake %s file to %s." % (source,
                                                              destination))
-            shutil.copy2(source, destination)
+            shutil.copyfile(source, destination)
 
     def _create_dir(self, directory):
         """Create subdirectory"""

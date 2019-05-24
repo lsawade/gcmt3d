@@ -8,9 +8,6 @@
 module load intel/18.0
 module load openmpi/intel-18.0
 
-# Set FORTRAN COMPILER
-export FORTRAN_COMPILER=INTEL
-
 # Create String array as a function of wanted parameters
 STRINGS=(CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
 
@@ -29,10 +26,9 @@ fi
 # Change to earthquake simulation directory
 echo ${STRINGS[$SLURM_ARRAY_TASK_ID]}
 
-cd $RUNDIR/${STRINGS[${SLURM_ARRAY_TASK_ID}]}
+cd $RUNDIR/${STRINGS[$SLURM_ARRAY_TASK_ID]}
 
 echo $PWD
-echo $LD_LIBRARY_PATH
 
 if [ "$VERBOSE" -eq "1" ]
     then
