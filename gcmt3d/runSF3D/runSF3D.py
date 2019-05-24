@@ -21,7 +21,8 @@ class RunSimulation(object):
     """Class handles the running of specfem after its directory has been
     added to the database. """
 
-    def __init__(self, earthquake_dir, N=1, npar=9, n=24, verbose=False):
+    def __init__(self, earthquake_dir, N=1, npar=9, n=24,
+                 walltime="00:30:00", verbose=False):
         """
         Initializes Run parameters
 
@@ -30,11 +31,10 @@ class RunSimulation(object):
             N: integer with number of Nodes
             n: integer with number of tasks
             npar: integer number of parameters
-            NEX: Number of elements along the first chunk (s. Specfem Manual)
-            NPROC: Number of MPI processors (s. Specfem Manual)
+            walltime: string with max time "hh:mm:ss"
             verbose: boolean deciding on whether to print stuff
 
-        Returns: Nothing really it just runs specfem with the above options
+        Returns: Nothing really, it just runs specfem with the above options
 
         """
 
@@ -42,6 +42,7 @@ class RunSimulation(object):
         self.simdir = os.path.join(self.earthquake, "CMT_SIMs")
         self.N = N
         self.n = n
+        self.walltime = walltime
         self.attr = ["CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
                      "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
         if npar in [6, 7, 9]:
@@ -64,10 +65,10 @@ class RunSimulation(object):
         batchscript = os.path.join(self.batchdir, "drive.sbatch")
 
         # Create command
-        bashCommand = "%s %s %s %s %s %s %s" % (batchwrapper, self.N,
-                                                self.n, self.npar,
-                                                self.simdir, batchscript,
-                                                int(self.v))
+        bashCommand = "%s %s %s %s %s %s %s %s" % (batchwrapper, self.N,
+                                                   self.n, self.npar,
+                                                   self.simdir, self.walltime,
+                                                   int(self.v), batchscript)
 
         # Send command
         process = subprocess.run(bashCommand.split(), check=True, text=True)
@@ -95,7 +96,7 @@ class RunSimulation(object):
         """Mini function that replaces a directory"""
         if os.path.exists(destination) and os.path.isfile(destination):
             os.remove(destination)
-        shutil.copy2(source, destination)
+        shutil.copyfile(source, destination)
 
     def __str__(self):
         """string return"""
