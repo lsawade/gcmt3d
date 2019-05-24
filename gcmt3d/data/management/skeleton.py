@@ -20,6 +20,7 @@ import shutil
 import warnings
 from distutils.dir_util import copy_tree
 
+
 class DataBaseSkeleton(object):
     """Class to handle data skeleton creation. If specfem directory is given,
     the class copies the necessary data from the specfem folder."""
