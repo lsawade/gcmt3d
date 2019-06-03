@@ -1,0 +1,42 @@
+# directory where specfem is compiled
+SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem_tutorial/specfem3d_globe"
+
+# Set MPI Parameters
+NEX_XI: 128
+NEX_ETA: 128
+NPROC_XI: 2
+NPROC_ETA: 2
+GPU_MODE: False
+ADIOS_ENABLED: False
+
+# Minimal Processing
+ROTATE_SEISMOGRAMS_RT: True
+RECORD_LENGTH: 60
+MODEL: "s362ani"
+
+# Output style
+WRITE_SEISMOGRAMS_BY_MASTER: True
+OUTPUT_SEISMOS_ASCII_TEXT: False
+OUTPUT_SEISMOS_SAC_ALPHANUM: False
+OUTPUT_SEISMOS_SAC_BINARY: True
+OUTPUT_SEISMOS_ASDF: False
+
+# Visualization
+MOVIE_SURFACE: False
+MOVIE_VOLUME: False
+MOVIE_COARSE: False
+
+# Computational Resources
+nodes: 1
+tasks: 24
+walltime: "00:30:00"
+
+# If solver is supposed to be used set these values. NOT the correct
+# solver wrapper for the CMT inversion.
+walltime_solver: None
+nodes_solver: None
+tasks_solver: None
+
+# Verbose output
+verbose: True
+

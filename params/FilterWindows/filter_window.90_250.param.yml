@@ -1,0 +1,51 @@
+# the sensors listed will be the sensor kept in
+# the windows. Others will be deleted
+sensor:
+  # if set to false, then this step will be skipped
+  flag: False
+  # the sensor types to be kept
+  sensor_types: ["STS1", "STS-1", "KS54000"]
+
+measurement:
+  # If set to false, then this step will be skipped
+  flag: True
+
+  # based on flexwin, we set a hard criteria to reject windows
+  # for each component. If exceed, windows will be rejected
+  component:
+    Z:
+      tshift_acceptance_level: 30.0
+      tshift_reference: 0.0
+      dlna_acceptance_level: 0.8
+      dlna_reference: 0.0
+      std_ratio: 4.0
+      # evaludate over all the measurements. Check if
+      # if mean and standard deviation values of a
+      # specific category satisfy the condition.
+      # If not, reject the whole category.
+      tshift_mean_range: [-6.0, 6.0]
+      tshift_std_level: 8.0
+      dlna_mean_range: [-1.0, 1.0]
+      dlna_std_level: 1.0
+    R:
+      tshift_acceptance_level: 30.0
+      tshift_reference: 0.0
+      dlna_acceptance_level: 0.8
+      dlna_reference: 0.0
+      std_ratio: 4.0
+      # evaludate over all the measurements
+      tshift_mean_range: [-6.0, 6.0]
+      tshift_std_level: 8.0
+      dlna_mean_range: [-1.0, 1.0]
+      dlna_std_level: 1.0
+    T:
+      tshift_acceptance_level: 30.0
+      tshift_reference: 0.0
+      dlna_acceptance_level: 0.8
+      dlna_reference: 0.0
+      std_ratio: 4.0
+      # evaludate over all the measurements
+      tshift_mean_range: [-6.0, 6.0]
+      tshift_std_level: 8.0
+      dlna_mean_range: [-1.0, 1.0]
+      dlna_std_level: 1.0
