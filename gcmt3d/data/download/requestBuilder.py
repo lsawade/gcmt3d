@@ -110,6 +110,7 @@ class DataRequest(object):
     @classmethod
     def from_file(cls, cmtfname,
                   stationlistfname=None,
+                  sfstationlist=False,
                   duration=0.,
                   channels=["BHZ"],
                   locations=["00"],
@@ -117,9 +118,20 @@ class DataRequest(object):
                   outputdir="",
                   verbose=1):
         """Creates a downloader class from an input file
-
         This downloader class also needs to contain the output directory for
         the traces.
+
+        Args:
+            cmtfname:
+            stationlistfname: Give list of stations. Fileformat either:
+                              ```
+                              NETWORK	STATION	LAT	LON	ELEVATION
+                              IU	ADK	+51.882300	-176.684200	130.0
+                              ```
+                              or in specfem format.
+
+            sfstationlist: `boolean`, if `True` list is in specfem format.
+                           Default `False`
         """
 
         # Name of the output directory:
@@ -142,18 +154,29 @@ class DataRequest(object):
         # Read station list file with two columns and whitespace separation
         statfile = open(stationlistfname, 'r')
 
-        # For loop to add all stations to the station list
-        stationlist = []
-        for line in statfile:
+        if sfstationlist is False:
+            # For loop to add all stations to the station list
+            stationlist = []
+            for line in statfile:
+                # Read stations into list of stations
+                line = line.split()
+
+                if line[0] == "NETWORK":
+                    continue
+                else:
+                    # Append the [network station latitude longitude elevation]
+                    # to the station list
+                    stationlist.append(line)
+        elif sfstationlist is True:
+
+            stationlist = []
             # Read stations into list of stations
             line = line.split()
 
-            if line[0] == "NETWORK":
-                continue
-            else:
-                # Append the [network station latitude longitude elevation]
-                # to the station list
-                stationlist.append(line)
+            newline = [line[1], line[0], line[2:-1]]
+            # Append the [network station latitude longitude elevation]
+            # to the station list
+            stationlist.append(newline)
 
         return cls(cmt=cmt,
                    stationlist=stationlist,

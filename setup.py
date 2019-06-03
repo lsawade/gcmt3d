@@ -7,7 +7,7 @@ from setuptools import find_packages
 from setuptools.command.test import test as testcommand
 
 # Utility function to read the README.md file.
-# Used for the long_description.  It's nice, because now 1) we have a top level
+# Used for the long_description.  It's nice, because now 1) we have a top levelx
 # README.md file and 2) it's easier to type in the README.md file than to put a raw
 # string in below ...
 
@@ -47,9 +47,10 @@ setup(
     license='GNU Lesser General Public License, Version 3',
     keywords="Global CMT, Inversion, Moment Tensor",
     url='https://github.com/lsawade/GCMT3D',
-    packages=find_packages(".", exclude=("notebooks", "data")),
+    packages=find_packages(exclude=['*.data','*.data.*','data.*','data','*.Notebooks','*.notebooks.*','notebooks.*','notebooks']),
     package_dir={"": "."},
     include_package_data=True,
+    exclude_package_data={'': ['data','notebooks']},    
     package_data={'gcmt3d/data/download/resources/':
                       ['Fetchdata', 'stations.txt']},
     tests_require=['pytest'],

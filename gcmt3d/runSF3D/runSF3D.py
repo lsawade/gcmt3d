@@ -15,7 +15,6 @@ import os
 import re
 import subprocess
 import shutil
-import warnings
 
 
 class RunSimulation(object):
@@ -72,8 +71,10 @@ class RunSimulation(object):
                                                    int(self.v), batchscript)
 
         # Send command
-        process = subprocess.run(bashCommand.split(), check=True, text=True)
-        print(process)
+        process = subprocess.run(bashCommand.split(), check=True, text=True,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+
         # catch outputs
         if self.v:
             print(bashCommand)
@@ -88,9 +89,41 @@ class RunSimulation(object):
         if (self.npar is None) or (self.simdir is None):
             raise ValueError("No number of parameters or Sim dir given")
         else:
-            for at in self.attr:
+            for at in self.attr[:self.npar]:
                 newstatfile = os.path.join(self.simdir, at, "DATA", "STATIONS")
                 self._replace_file(statfile, newstatfile)
+
+    def clean_up(self):
+        """This function cleans out the simulation directory, getting rid of
+        unnecessary MPI and database files. The parameter files are first
+        copied to the directory OUTPUT_FILES and then `bin`, `DATA` and
+        `DATABASES_MPI` are deleted since they are irrelevant for future
+        reproducibility."""
+
+        for at in self.attr[:self.npar]:
+            # Copy Par_file CMTSOLUTION and STATIONS files to the OUTPUTFILES
+            # directory
+            atsimdir = os.path.join(self.simdir, at)
+            datadir = os.path.join(atsimdir, "DATA")
+            outdir = os.path.join(atsimdir, "OUTPUT_FILES")
+
+            # Stations
+            self._replace_file(os.path.join(datadir, "STATIONS"),
+                               os.path.join(outdir, "STATIONS"))
+            # Par_file
+            self._replace_file(os.path.join(datadir, "Par_file"),
+                               os.path.join(outdir, "Par_file"))
+
+            # CMTSOLUTION
+            self._replace_file(os.path.join(datadir, "CMTSOLUTION"),
+                               os.path.join(outdir, "CMTSOLUTION"))
+
+            # Remove bin symlink
+            os.remove(os.path.join(atsimdir, "bin"))
+
+            # remove unnecessary directories
+            shutil.rmtree(os.path.join(atsimdir, "DATA"))
+            shutil.rmtree(os.path.join(atsimdir, "DATABASES_MPI"))
 
     @staticmethod
     def _replace_file(source, destination):
@@ -115,42 +148,123 @@ class DATAFixer(object):
     """Not necessary but it handles the fixing of the parfile"""
 
     def __init__(self, specfemdir,
-                 NEX_XI=128, NEX_ETA=128,
-                 NPROC_XI=1, NPROC_ETA=1,
-                 RECORD_LENGTH=10,
-                 MODEL=None,
                  nodes=1,
                  tasks=24,
                  walltime="00:30:00",
+                 walltime_solver=None,
+                 nodes_solver=None,
+                 tasks_solver=None,
+                 NEX_XI=128, NEX_ETA=128,
+                 NPROC_XI=1, NPROC_ETA=1,
+                 GPU_MODE=False,
+                 ADIOS_ENABLED=False,
+                 ROTATE_SEISMOGRAMS_RT=True,
+                 RECORD_LENGTH=10,
+                 MODEL="s40rts",
+                 WRITE_SEISMOGRAMS_BY_MASTER=True,
+                 OUTPUT_SEISMOS_ASCII_TEXT=False,
+                 OUTPUT_SEISMOS_SAC_ALPHANUM=False,
+                 OUTPUT_SEISMOS_SAC_BINARY=False,
+                 OUTPUT_SEISMOS_ASDF=False,
+                 MOVIE_SURFACE=False,
+                 MOVIE_VOLUME=False,
+                 MOVIE_COARSE=False,
                  verbose=False):
         """
         Initializes Run parameters in the Parfile
 
         Args:
             specfemdir: string with directory name
-            NEX_XI: Number of elements along the chunk (s. Specfem Manual)
+            nodes: number of computational nodes for the mesher. Default `1`
+            tasks: number of tasks per node for the mesher. Default `24`
+            walltime: Requested server time for the nodes. Default `00:30:00`
+            nodes_solver: number of computational nodes for the mesher.
+                          Default `None`. `None` since this class is mainly
+                          used for fixing the `Par_file`
+            tasks_solver: number of tasks per node for the mesher.
+                          Default `None`. `None` since this class is used for
+                          fixing the `Par_file`
+            walltime: Requested server time for the nodes. Default `None`.
+                      `None` since this class is used for fixing the `Par_file`
+            NEX_XI: Number of elements along the chunk (s. Specfem Manual).
+                    Default `128`.
             NEX_ETA: Number of elements along the first chunk (s. Specfem
-            Manual)
-            NPROC_XI: Number of MPI processors (s. Specfem Manual)
-            NPROC_ETA: Number of MPI processors (s. Specfem Manual)
-            RECORD_LENGTH: length of the final seismic record in minutes
-            MODEL: velocity model, right now only 3D models are supported
-            verbose: boolean deciding on whether to print stuff
+                     Manual). Default `128`.
+            NPROC_XI: Number of MPI processors (s. Specfem Manual).
+                      Default `1`.
+            NPROC_ETA: Number of MPI processors (s. Specfem Manual).
+                       Default `1`.
+            GPU_MODE: Set whether specfem should be GPU enabled (not yet
+                    supported). Default `False`.
+            ADIOS_ENABLED: Set whether ADIOS should be turned on (not yet
+                           supported). Default `False`
+            RECORD_LENGTH: length of the final seismic record in minutes.
+                           Default `1`.
+            MODEL: velocity model, right now only 3D models are supported.
+                   Default `'s40rts'`
+            ROTATE_SEISMOGRAMS_RT: This sets whether the seismograms are
+                                   output as as NEZ or RTZ if True RTZ is
+                                   chosen. Default `True`.
+            WRITE_SEISMOGRAMS_BY_MASTER: Write seismograms by master job.
+                                         Default `False`.
+            OUTPUT_SEISMOS_ASCII_TEXT: Output seismograms in `ASCII` format.
+                                       Default `False`.
+            OUTPUT_SEISMOS_SAC_ALPHANUM: Output seismograms in `ASCII` format.
+                                         Default `False`.
+            OUTPUT_SEISMOS_SAC_BINARY: Output seismograms in `ASCII` format.
+                                       Default `False`.
+            OUTPUT_SEISMOS_ASDF: Output seismograms in `ASCII` format.
+                                 Default `False`.
+            MOVIE_SURFACE: Write movie on the surface. Default `False`
+            MOVIE_VOLUME: Write movie within the volume. Default `False`
+            MOVIE_COARSE: Write coarse movie. Default `False`
+            nodes_solver:
+            verbose: boolean deciding on whether to print stuff.
+                     Default `False`.
 
         Returns: Nothing really it just runs specfem with the above options
-
         """
 
+        # Specfem parameters
         self.specfemdir = specfemdir
+
+        # MPI STUFF
         self.NPROC_XI = NPROC_XI
         self.NPROC_ETA = NPROC_ETA
         self.NEX_XI = NEX_XI
         self.NEX_ETA = NEX_ETA
-        self.RECORD_LENGTH = RECORD_LENGTH
-        self.vmodel = MODEL
+        self.GPU_MODE = GPU_MODE
+        self.ADIOS_ENABLED = ADIOS_ENABLED
+
+        # Slurm Resources for mesher
         self.nodes = nodes
         self.tasks = tasks
-        self.walltime = walltime
+        self.walltime = walltime  # walltime for mesher
+
+        # PARAMETERS
+        self.vmodel = MODEL
+        self.RECORD_LENGTH = RECORD_LENGTH
+
+        # Processing
+        self.ROTATE_SEISMOGRAMS_RT = ROTATE_SEISMOGRAMS_RT
+
+        # OUTPUT seismograms as:
+        self.WRITE_SEISMOGRAMS_BY_MASTER = WRITE_SEISMOGRAMS_BY_MASTER
+        self.OUTPUT_SEISMOS_ASCII_TEXT = OUTPUT_SEISMOS_ASCII_TEXT
+        self.OUTPUT_SEISMOS_SAC_ALPHANUM = OUTPUT_SEISMOS_SAC_ALPHANUM
+        self.OUTPUT_SEISMOS_SAC_BINARY = OUTPUT_SEISMOS_SAC_BINARY
+        self.OUTPUT_SEISMOS_ASDF = OUTPUT_SEISMOS_ASDF
+
+        # Visualization
+        self.MOVIE_SURFACE = MOVIE_SURFACE
+        self.MOVIE_VOLUME = MOVIE_VOLUME
+        self.MOVIE_COARSE = MOVIE_COARSE
+
+        # The data fixer can also run specfem for that a specific walltime
+        # has to be set
+        self.nodes_solver = nodes_solver
+        self.tasks_solver = tasks_solver
+        self.walltime_solver = walltime_solver
 
         self.v = verbose
 
@@ -178,23 +292,47 @@ class DATAFixer(object):
         self.replace_varval(parfile, "NPROC_ETA", self.NPROC_ETA)
 
         # Check whether velocity model has to change
-        if self.vmodel is not None:
-            if self.vmodel not in [
-                    "transversely_isotropic_prem_plus_3D_crust_2.0",
-                    "3D_anisotropic", "3D_attenuation", "s20rts",
-                    "s40rts", "s362ani", "s362iso", "s362wmani",
-                    "s362ani_prem", "s362ani_3DQ", "s362iso_3DQ",
-                    "s29ea", "sea99_jp3d1994", "sea99", "jp3d1994",
-                    "heterogen", "full_sh", "sgloberani_aniso",
-                    "sgloberani_iso"]:
-                warnings.warn("Wrong velocity model name. Existing model is "
-                              "used.")
-            else:
-                self.replace_varval(parfile, "MODEL", self.vmodel)
+        if self.vmodel not in [
+                "transversely_isotropic_prem_plus_3D_crust_2.0",
+                "3D_anisotropic", "3D_attenuation", "s20rts",
+                "s40rts", "s362ani", "s362iso", "s362wmani",
+                "s362ani_prem", "s362ani_3DQ", "s362iso_3DQ",
+                "s29ea", "sea99_jp3d1994", "sea99", "jp3d1994",
+                "heterogen", "full_sh", "sgloberani_aniso",
+                "sgloberani_iso"]:
+            raise ValueError("Wrong velocity model name. Existing model is"
+                             " used.")
+        else:
+            self.replace_varval(parfile, "MODEL", self.vmodel)
 
         # Replace RECORD_LENGTH_IN_MINUTES
         self.replace_varval(parfile, "RECORD_LENGTH_IN_MINUTES", "%s.0d0" %
                             self.RECORD_LENGTH)
+
+        # Processing
+        self.replace_varval(parfile, "ROTATE_SEISMOGRAMS_RT",
+                            self.ROTATE_SEISMOGRAMS_RT)
+
+        # OUTPUT seismograms as:
+        self.replace_varval(parfile, "WRITE_SEISMOGRAMS_BY_MASTER",
+                            self.WRITE_SEISMOGRAMS_BY_MASTER)
+        self.replace_varval(parfile, "OUTPUT_SEISMOS_ASCII_TEXT",
+                            self.OUTPUT_SEISMOS_ASCII_TEXT)
+        self.replace_varval(parfile, "OUTPUT_SEISMOS_SAC_ALPHANUM",
+                            self.OUTPUT_SEISMOS_SAC_ALPHANUM)
+        self.replace_varval(parfile, "OUTPUT_SEISMOS_SAC_BINARY",
+                            self.OUTPUT_SEISMOS_SAC_BINARY)
+        self.replace_varval(parfile, "OUTPUT_SEISMOS_ASDF",
+                            self.OUTPUT_SEISMOS_ASDF)
+
+        # Visualization
+        self.replace_varval(parfile, "MOVIE_SURFACE", self.MOVIE_SURFACE)
+        self.replace_varval(parfile, "MOVIE_VOLUME", self.MOVIE_VOLUME)
+        self.replace_varval(parfile, "MOVIE_COARSE", self.MOVIE_COARSE)
+
+        # Acceleration parameters (Not supported yet)
+        self.replace_varval(parfile, "GPU_MODE", self.GPU_MODE)
+        self.replace_varval(parfile, "ADIOS_ENABLED", self.ADIOS_ENABLED)
 
     def run_mesher(self):
         """This function runs the mesher after """
@@ -203,15 +341,44 @@ class DATAFixer(object):
         batchscript = os.path.join(self.batchdir, "mesh.sbatch")
 
         # Create command -N nodes, -n tasks, -D change directory
-        bashCommand = "sbatch -N %s -n %s -D %s -t %s %s" % (self.N,
-                                                             self.n,
+        bashCommand = "sbatch -N %s -n %s -D %s -t %s %s" % (self.nodes,
+                                                             self.tasks,
                                                              self.specfemdir,
                                                              self.walltime,
                                                              batchscript)
 
         # Send command
-        process = subprocess.run(bashCommand.split(), check=True, text=True)
-        print(process)
+        process = subprocess.run(bashCommand.split(), check=True, text=True,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        # catch outputs
+        if self.v:
+            print(bashCommand)
+            print("Command has been sent.")
+            print("Output:\n", process.stdout)
+            print("Errors:\n", process.stderr)
+
+    def run_solver(self):
+        """This function runs the solver within the"""
+
+        # Check of solver runtime is set
+
+        # batch driver script
+        batchscript = os.path.join(self.batchdir, "solver.sbatch")
+
+        # Create command -N nodes, -n tasks, -D change directory
+        bashCommand = "sbatch -N %s -n %s -D " \
+                      "%s -t %s %s" % (self.nodes_solver,
+                                       self.tasks_solver,
+                                       self.specfemdir,
+                                       self.walltime_solver,
+                                       batchscript)
+
+        # Send command
+        process = subprocess.run(bashCommand.split(), check=True, text=True,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+
         # catch outputs
         if self.v:
             print(bashCommand)
@@ -223,6 +390,10 @@ class DATAFixer(object):
     def replace_varval(filename, var, newval):
         """ This function updates the value of a function within a text file
 
+        !Note! That this file is customized to change the specfem `Par_file`,
+               Meaning, if newval is `True` or `False` it will be replaced with
+               `.true.` or `.false` respectively.
+
         Args:
             var: variable name -- string
             newval: new variable value, string, number or list
@@ -233,6 +404,13 @@ class DATAFixer(object):
         file = open(filename, 'r+')
         content_lines = []
         counter = 0
+
+        # Specfem Par_file modification:
+        if type(newval) == bool:
+            if newval is True:
+                newval = '.true.'
+            elif newval is False:
+                newval = '.false.'
 
         for line in file:
             # more robust than simple string comparison
