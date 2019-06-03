@@ -208,7 +208,7 @@ class DataBaseSkeleton(object):
             if self.v:
                 print("Copying directory %s file to %s"
                       % (source, destination))
-            copy_tree(source, destination, update=1)
+            copy_tree(source, destination)
 
     def _copy_cmt(self, source, destination):
         """ Copies CMT solution from source to destination. It checks also
@@ -266,10 +266,10 @@ class DataBaseSkeleton(object):
 
     @staticmethod
     def _replace_file(source, destination):
-        """Mini function that replaces a directory"""
+        """Mini function that replaces a file"""
         if os.path.exists(destination) and os.path.isfile(destination):
             os.remove(destination)
-        shutil.copy2(source, destination)
+        shutil.copyfile(source, destination)
 
     def __str__(self):
         """This is what is printed when the initialized class is called in the

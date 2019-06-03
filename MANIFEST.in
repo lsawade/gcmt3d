@@ -8,3 +8,6 @@ include ./gcmt3d/data/download/resources/stations.txt
 include ./gcmt3d/runSF3D/batch/drive.sbatch
 include ./gcmt3d/runSF3D/batch/drive.sh
 
+# Exclude notebooks
+recursive-exclude notebooks *
+recursive-exclude data *

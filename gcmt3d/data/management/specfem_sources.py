@@ -108,6 +108,9 @@ class SpecfemSources(object):
             for attribute in attr:
                 setattr(new_cmt, attribute, 0)
 
+            # Set half duration to 0
+            new_cmt.half_duration = 0
+
             # except one variable
             setattr(new_cmt, attr[index], self.dm)
 
@@ -129,6 +132,9 @@ class SpecfemSources(object):
             # change a depth
             setattr(new_cmt, depth_str, new_cmt.depth_in_m + self.dx)
 
+            # Set half duration to 0
+            new_cmt.half_duration = 0
+
             # write new solution
             new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                         "CMTSOLUTION"))
@@ -145,6 +151,9 @@ class SpecfemSources(object):
             # change a depth
             setattr(new_cmt, lat_str, new_cmt.latitude + self.ddeg)
 
+            # Set half duration to 0
+            new_cmt.half_duration = 0
+
             # Set outdir
             cmtsim_outdir = os.path.join(self.outdir, "CMT_lat", "DATA")
 
@@ -156,6 +165,9 @@ class SpecfemSources(object):
 
             # change a depth
             setattr(new_cmt, lon_str, new_cmt.longitude + self.ddeg)
+
+            # Set half duration to 0
+            new_cmt.half_duration = 0
 
             # Set outdir
             cmtsim_outdir = os.path.join(self.outdir, "CMT_lon", "DATA")
