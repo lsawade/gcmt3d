@@ -1,0 +1,20 @@
+# Database directory
+databasedir: "../../test_sample_database"
+
+# Number of parameters to invert for
+# 6: only the moment tensor
+# 7: Moment tensor and depth
+# 9: Moment tensor, depth and location (This way around since the location
+#    doesnt really change)
+npar: 9
+
+# Chose verbose output
+verbose: False
+
+# Overwriting the database? Here I have to implement what should be overwritten
+# Not yet implemented, but will be in the future:
+# 0: Everything will be overwritten including the database
+# 1: Earthquake directories will be overwritten
+# 2: CMT simulations will be overwritten.
+# False: Nothing will be overwritten.
+overwrite: False
