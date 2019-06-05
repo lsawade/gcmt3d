@@ -11,7 +11,7 @@ asdf file.
 """
 from __future__ import (print_function, division, absolute_import)
 import pyasdf
-from gcmt3d.station import extract_staxml_info
+from ..station import extract_staxml_info
 
 
 def extract_station_info_from_asdf(asdf, verbose=False):

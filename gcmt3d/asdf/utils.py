@@ -92,7 +92,7 @@ def smart_read_json(json_file, mpi_mode=True, comm=None, object_hook=False):
 
 def read_yaml_file(filename):
     with open(filename) as fh:
-        return yaml.load(fh)
+        return yaml.load(fh, Loader=yaml.FullLoader)
 
 
 def smart_read_yaml(yaml_file, mpi_mode=True, comm=None):

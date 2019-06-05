@@ -4,7 +4,7 @@ Convert asdf files to sac
 """
 import argparse
 
-from pypaw import convert_from_asdf
+from ..convert import convert_from_asdf
 
 
 def main():

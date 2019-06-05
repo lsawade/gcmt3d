@@ -8,7 +8,18 @@ velocity structures.
 
 ## Installation
 
-In order to install GCMT3D we first need to create a new conda environment. Then we install the dependencies, and finally GCMT3D itself. The required steps are the following
+In order to install GCMT3D we first need to create a new conda environment. 
+Then we install the dependencies, and finally GCMT3D itself. The required steps
+are the following.
+
+##### First, make sure all necessary environment vairables are solved:
+
+Check whether an mpi compiler is installed:
+
+```bash
+which mpicc # Shoud return the location of your mpi compiler
+```
+if nothing is returned or the output says find then install a compiler.
 
 #### 1. Create and activate a new conda environment with python 3.7
 

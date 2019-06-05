@@ -17,9 +17,9 @@ import inspect
 from copy import deepcopy
 import json
 import pyflex
-from gcmt3d.window.window import window_on_stream
-from gcmt3d.window.utils import merge_windows, stats_all_windows
-from gcmt3d.window.io import get_json_content, WindowEncoder
+from ..window.window import window_on_stream
+from ..window.utils import merge_windows, stats_all_windows
+from ..window.io import get_json_content, WindowEncoder
 from .utils import smart_mkdir
 from .procbase import ProcASDFBase
 

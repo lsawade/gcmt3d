@@ -14,7 +14,7 @@ import os
 import glob
 import numpy as np
 from obspy import UTCDateTime, read
-from gcmt3d.station.utils import create_simple_inventory
+from ..station.utils import create_simple_inventory
 from pyasdf import ASDFDataSet
 from .utils import smart_read_json, drawProgressBar, timing
 
