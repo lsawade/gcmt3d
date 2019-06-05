@@ -13,7 +13,7 @@ handles parallel I/O so they are invisible to users.
 from __future__ import (print_function, division, absolute_import)
 import inspect
 from functools import partial
-from gcmt3d.signal.process import process_stream
+from ..signal.process import process_stream
 from .procbase import ProcASDFBase
 
 

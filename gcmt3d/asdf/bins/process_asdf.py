@@ -2,7 +2,7 @@
 
 import argparse
 
-from pypaw import ProcASDF
+from ..process import ProcASDF
 
 
 def main():

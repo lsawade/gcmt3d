@@ -14,7 +14,7 @@ from __future__ import print_function, division, absolute_import
 import numpy as np
 import argparse
 from pprint import pprint
-from gcmt3d.window.utils import generate_log_content
+from ...window.utils import generate_log_content
 from .utils import load_json, load_yaml, dump_json, dump_yaml
 
 

@@ -13,7 +13,7 @@ Last Update: April 2019
 
 """
 
-from gcmt3d.source import CMTSource
+from ...source import CMTSource
 import glob
 import os
 import shutil

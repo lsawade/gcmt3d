@@ -11,7 +11,7 @@ request from an input CMT source object and List of stations.
 
 """
 
-from gcmt3d.source import CMTSource
+from ...source import CMTSource
 import os
 from subprocess import Popen, PIPE, STDOUT
 import warnings
@@ -110,7 +110,7 @@ class DataRequest(object):
     @classmethod
     def from_file(cls, cmtfname,
                   stationlistfname=None,
-                  sfstationlist=False,
+                  sfstationlist=True,
                   duration=0.,
                   channels=["BHZ"],
                   locations=["00"],
@@ -128,7 +128,8 @@ class DataRequest(object):
                               NETWORK	STATION	LAT	LON	ELEVATION
                               IU	ADK	+51.882300	-176.684200	130.0
                               ```
-                              or in specfem format.
+                              or in specfem format. Default is None, in which
+                              case a specfem STATIONS list is read.
 
             sfstationlist: `boolean`, if `True` list is in specfem format.
                            Default `False`
@@ -149,7 +150,7 @@ class DataRequest(object):
 
             # set stationlistfname to given stationlist
             stationlistfname = os.path.join(mod_dir, "resources",
-                                            "stations.txt")
+                                            "STATIONS")
 
         # Read station list file with two columns and whitespace separation
         statfile = open(stationlistfname, 'r')
@@ -168,15 +169,16 @@ class DataRequest(object):
                     # to the station list
                     stationlist.append(line)
         elif sfstationlist is True:
-
             stationlist = []
-            # Read stations into list of stations
-            line = line.split()
+            for line in statfile:
+                # Read stations into list of stations
+                line = line.split()
 
-            newline = [line[1], line[0], line[2:-1]]
-            # Append the [network station latitude longitude elevation]
-            # to the station list
-            stationlist.append(newline)
+                newline = [line[1], line[0], line[2], line[3], line[4],
+                           line[5]]
+                # Append the [network station latitude longitude elevation]
+                # to the station list
+                stationlist.append(newline)
 
         return cls(cmt=cmt,
                    stationlist=stationlist,
@@ -293,6 +295,7 @@ class DataRequest(object):
 
         with open(specfemfile, 'w') as file:
             for k, line in enumerate(self.stationlist):
+                print(line)
                 file.write('{0:11s}{1:4s}{2:12.4f}{3:12.4f}{4:10.1f}{5:8.1f}\n'
                            .format(line[1], line[0], float(line[2]),
                                    float(line[3]), float(line[4]), 0.))

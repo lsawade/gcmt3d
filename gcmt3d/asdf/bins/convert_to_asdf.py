@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
-
-from pypaw import ConvertASDF
+from ..convert import ConvertASDF
 
 
 def main():

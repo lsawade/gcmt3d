@@ -6,7 +6,7 @@
 from __future__ import print_function, division, absolute_import
 import argparse
 from .utils import load_json, dump_json
-from pypaw.stations import extract_station_info_from_asdf
+from ..stations import extract_station_info_from_asdf
 
 
 def main():
