@@ -22,7 +22,7 @@ measurement:
       dlna_acceptance_level: 0.8
       dlna_reference: 0.0
       std_ratio: 4.0
-      # evaludate over all the measurements. Check if
+      # evaluate over all the measurements. Check if
       # if mean and standard deviation values of a
       # specific category satisfy the condition.
       # If not, reject the whole category.
@@ -36,7 +36,7 @@ measurement:
       dlna_acceptance_level: 0.8
       dlna_reference: 0.0
       std_ratio: 4.0
-      # evaludate over all the measurements
+      # evaluate over all the measurements
       tshift_mean_range: [-5.0, 5.0]
       tshift_std_level: 5.0
       dlna_mean_range: [-1.0, 1.0]
@@ -47,7 +47,7 @@ measurement:
       dlna_acceptance_level: 0.8
       dlna_reference: 0.0
       std_ratio: 4.0
-      # evaludate over all the measurements
+      # evaluate over all the measurements
       tshift_mean_range: [-5.0, 5.0]
       tshift_std_level: 5.0
       dlna_mean_range: [-1.0, 1.0]

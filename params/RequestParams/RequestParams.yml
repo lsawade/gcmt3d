@@ -1,0 +1,14 @@
+# seconds, 1h = 3600s
+duration: 3600
+
+# needs to be a list
+channels: ['BHN','BHE','BHZ']
+
+# location 00 is the primary location for most seismometers
+locations: ['00']
+
+# -60 seconds is 1 min before the earthquakes inverted cmt solution
+starttime_offset: -60
+
+# response format
+resp_format: "resp"
