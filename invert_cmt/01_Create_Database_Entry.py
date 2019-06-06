@@ -42,7 +42,7 @@ def main(cmt_filename):
     DB.create_all()
 
     # Return new earthquake location.
-    cmt_in_database = os.path.join(DB.eq_dir[0], "eq_" + DB.eq_ids[0])
+    cmt_in_database = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
 
     return cmt_in_database
 
@@ -55,6 +55,3 @@ if __name__ == '__main__':
 
     # Run
     main(args.filename)
-
-
-
