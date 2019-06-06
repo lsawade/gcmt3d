@@ -13,32 +13,33 @@ This script will download the observed data. To the necessary places.
 
 from gcmt3d.data import DataRequest
 from gcmt3d.source import CMTSource
+from gcmt3d import smart_read_yaml, is_mpi_env
 import os
 
-def main():
+def main(cmt_filename):
 
-    # Earthquake ID
-    eqID = CMTSource.from_CMTSOLUTION_file(cmt_filename).eventname
-
-    # specific output directory here left open if left open files will be
-    # saved in the folder wher the `.cmt` file is located
-    outputdir = os.path.join(databasedir, "eq_" + eqID)
+    # Load parameters from Request parameter file
+    param_path = os.path.dirname(os.path.dirname(__file__))
+    request_param_path = os.path.join(param_path,
+                                      "RequestParams/RequestParams.yml")
+    req_params = smart_read_yaml(request_param_path, mpi_mode=is_mpi_env())
 
     # Earthquake and Station parameters
-    cmt_filename = os.path.join(outputdir, os.path.basename(outputdir)+".cmt")
-    stationlist_filename = None
+    cmt_dir = os.path.dirname(cmt_filename)
 
     # Create Request Object
     Request = DataRequest.from_file(cmt_filename,
-                                    stationlistfname=stationlist_filename,
-                                    duration=duration,
-                                    channels=channels,
-                                    locations=locations,
-                                    starttime_offset=starttime_offset,
-                                    outputdir=outputdir)
+                                    duration=req_params.duration,
+                                    channels=req_params.channels,
+                                    locations=req_params.locations,
+                                    starttime_offset=req_params.starttime_offset,
+                                    outputdir=cmt_dir)
 
     # Print Earthquake Download Info
     print(Request)
+
+    # Request download
+    Request.download()
 
 
 if __name__ == "__main__":

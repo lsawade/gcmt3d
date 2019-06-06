@@ -12,3 +12,6 @@ starttime_offset: -60
 
 # response format
 resp_format: "resp"
+
+# OPTIONAL
+stationnlist: None
