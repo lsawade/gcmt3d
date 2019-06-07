@@ -19,6 +19,7 @@ import os
 import shutil
 import warnings
 from distutils.dir_util import copy_tree
+from obspy import read_events
 
 
 class DataBaseSkeleton(object):
@@ -108,6 +109,7 @@ class DataBaseSkeleton(object):
         # Create directory
         self._create_dir(eq_dir)
 
+        # Append directory path to the list.
         self.eq_dirs.append(eq_dir)
 
         # Create new CMT path
@@ -238,6 +240,37 @@ class DataBaseSkeleton(object):
                                                              destination))
             shutil.copyfile(source, destination)
 
+    def _write_quakeml(self, source, destination):
+        """ Copies CMT solution from source to QuakeML destination. It checks
+        also for potential duplicates in the same place, warns whether they are
+        different but have the name."""
+
+        # CMT Source file
+        catalog = read_events(source)
+
+        if os.path.isfile(destination) and self.ow:
+            if self.v:
+                print("Earthquake file %s exists already. It will "
+                      "be overwritten." % destination)
+            os.remove(destination)
+            catalog.write(destination, format = "QUAKEML")
+
+        elif os.path.isfile(destination) and self.ow is False:
+            if self.v:
+                print("Earthquake file %s exists already. It will "
+                      "NOT be overwritten." % destination)
+
+            # Warn if destination eq is not equal to new eq
+            if not CMTSource.from_CMTSOLUTION_file(source) \
+                   == CMTSource.from_quakeml_file(destination):
+                warnings.warn("CMT solution in the database is not "
+                              "the same as the file with the same ID.")
+        else:
+            if self.v:
+                print("Copying earthquake %s file to %s." % (source,
+                                                             destination))
+            catalog.write(destination, format="QUAKEML")
+
     def _create_dir(self, directory):
         """Create subdirectory"""
         if os.path.exists(directory) and os.path.isdir(directory) \
@@ -260,7 +293,7 @@ class DataBaseSkeleton(object):
     def _replace_dir(destination, source=None):
         """Mini function that replaces a directory"""
         if os.path.exists(destination) and os.path.isdir(destination):
-            shutil.rmtree(destination)
+            rmtree = shutil.rmtree(destination)
         if source is None:
             os.makedirs(destination)
 
