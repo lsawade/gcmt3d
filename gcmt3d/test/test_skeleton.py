@@ -211,6 +211,29 @@ class TestSkeleton(unittest.TestCase):
             self.assertTrue(CMTSource.from_CMTSOLUTION_file(new_cmt_path)
                             == CMTSource.from_CMTSOLUTION_file(cmtfile))
 
+    def test__copy_cmt(self):
+        """Test the create directory method"""
+        # Check one cmt file
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Cmtfile path
+            cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir,
+                                  verbose=True)
+
+            # create new directory
+            new_cmt_path = os.path.join(tmp_dir, "blub.xml")
+            DB._write_quakeml(cmtfile, new_cmt_path)
+
+            self.assertTrue(os.path.exists(new_cmt_path)
+                            and os.path.isfile(new_cmt_path))
+
+            self.assertTrue(CMTSource.from_quakeml_file(new_cmt_path)
+                            == CMTSource.from_CMTSOLUTION_file(cmtfile))
+
     def test_create_SIM_dir(self):
         """Tests the function that creates the Simulation directories and the
         copies the necessary files from the specfem directory."""

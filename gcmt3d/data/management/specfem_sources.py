@@ -23,7 +23,8 @@ class SpecfemSources(object):
     This class handles the writing of specfem sources in form of CMT solutions
     '''
 
-    def __init__(self, cmt, npar, dm=10.0*24, dx=2., ddeg=0.02, outdir=None):
+    def __init__(self, cmt, npar, dm=10.0*24, dx=2., ddeg=0.02,
+                 hdur0=False, outdir=None):
         '''
 
         :param cmt: The original CMT source loaded using CMTSource
@@ -41,8 +42,9 @@ class SpecfemSources(object):
         :type ddeg: float
         :param dtshift: change in cmt time shift for Frechet derivative
         :type dtshift: float
-        :param dhdur: change in half duration for frechet derivative
-        :type dhdur: float
+        :param hdur0: Sets the half duration to 0 if True.
+                      Default False.
+        :type hdur0: float
         :param outdir: output directory for sources Should be CMT_SIMs
                        directory as created by the Skeleton class.
         :type outdir: str
@@ -51,33 +53,23 @@ class SpecfemSources(object):
 
         if type(cmt) != CMTSource:
             raise ValueError('Given CMT parameter not a CMTSource.')
-
         self.cmt = cmt
 
         if npar not in [6, 7, 9]:
             raise ValueError('The parameters to be inverted for must be an '
                              + 'integer between 6 and 9.')
-
         self.npar = npar
 
         if type(dm) != float:
             raise ValueError('Change in magnitude needs to be a float.')
-
         self.dm = dm
 
         if type(dx) != float:
             raise ValueError("Change in depth should be a float")
-
         self.dx = dx
 
         if type(ddeg) != float:
             raise ValueError("Change in degrees should be a float")
-
-        self.ddeg = ddeg
-
-        if type(ddeg) != float:
-            raise ValueError("Change in degrees should be a float")
-
         self.ddeg = ddeg
 
         if outdir is None:
@@ -86,8 +78,9 @@ class SpecfemSources(object):
             os.makedirs(outdir)
             warnings.warn("The chosen output directory does not exist.\n"
                           + "A new one will be created.")
-
         self.outdir = outdir
+
+        self.hdur0 = hdur0
 
     def write_sources(self):
         """Function to write the CMT Solutions to CMT files
@@ -109,7 +102,8 @@ class SpecfemSources(object):
                 setattr(new_cmt, attribute, 0)
 
             # Set half duration to 0
-            new_cmt.half_duration = 0
+            if self.hdur0:
+                new_cmt.half_duration = 0
 
             # except one variable
             setattr(new_cmt, attr[index], self.dm)
@@ -133,7 +127,8 @@ class SpecfemSources(object):
             setattr(new_cmt, depth_str, new_cmt.depth_in_m + self.dx)
 
             # Set half duration to 0
-            new_cmt.half_duration = 0
+            if self.hdur0:
+                new_cmt.half_duration = 0
 
             # write new solution
             new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
@@ -152,7 +147,8 @@ class SpecfemSources(object):
             setattr(new_cmt, lat_str, new_cmt.latitude + self.ddeg)
 
             # Set half duration to 0
-            new_cmt.half_duration = 0
+            if self.hdur0:
+                new_cmt.half_duration = 0
 
             # Set outdir
             cmtsim_outdir = os.path.join(self.outdir, "CMT_lat", "DATA")

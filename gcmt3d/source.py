@@ -132,6 +132,7 @@ class CMTSource(object):
         pdesolution = event.origins[0]
 
         origin_time = pdesolution.time
+        print(origin_time)
         pde_lat = pdesolution.latitude
         pde_lon = pdesolution.longitude
         pde_depth_in_m = pdesolution.depth
