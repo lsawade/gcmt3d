@@ -27,7 +27,6 @@ def main(cmt_filename):
     outdir = os.path.join(cmt_dir, "CMT_SIMs")
 
     # Basic parameters
-    npar = 9
     dm = SCALE_MOMENT       # 10**22 dyne*cm
     dx = SCALE_DEPTH        # 1000 m
     ddeg = SCALE_LATITUDE   # 0.001 deg
