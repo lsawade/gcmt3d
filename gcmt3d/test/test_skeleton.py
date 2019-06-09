@@ -18,6 +18,7 @@ from gcmt3d.source import CMTSource
 import tempfile
 import os
 import inspect
+from .functions_for_testing import assertDictAlmostEqual
 
 
 def _upper_level(path, nlevel=4):
@@ -211,12 +212,12 @@ class TestSkeleton(unittest.TestCase):
             self.assertTrue(CMTSource.from_CMTSOLUTION_file(new_cmt_path)
                             == CMTSource.from_CMTSOLUTION_file(cmtfile))
 
-    def test__copy_cmt(self):
+    def test__copy_quake(self):
         """Test the create directory method"""
         # Check one cmt file
         with tempfile.TemporaryDirectory() as tmp_dir:
             # Cmtfile path
-            cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
+            cmtfile = os.path.join(DATA_DIR, "testCMT")
 
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
@@ -231,8 +232,10 @@ class TestSkeleton(unittest.TestCase):
             self.assertTrue(os.path.exists(new_cmt_path)
                             and os.path.isfile(new_cmt_path))
 
-            self.assertTrue(CMTSource.from_quakeml_file(new_cmt_path)
-                            == CMTSource.from_CMTSOLUTION_file(cmtfile))
+            print("QuakeML\n", CMTSource.from_quakeml_file(new_cmt_path))
+            print("CMT\n", CMTSource.from_CMTSOLUTION_file(cmtfile))
+            assertDictAlmostEqual(CMTSource.from_quakeml_file(new_cmt_path),
+                                  CMTSource.from_CMTSOLUTION_file(cmtfile))
 
     def test_create_SIM_dir(self):
         """Tests the function that creates the Simulation directories and the

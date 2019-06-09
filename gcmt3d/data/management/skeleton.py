@@ -148,8 +148,8 @@ class DataBaseSkeleton(object):
         GCMT.
         """
         # Parameters
-        attr = ["CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp", "CMT_tp",
-                "CMT_depth", "CMT_lat", "CMT_lon"]
+        attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
+                "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
 
         for _i, _eq in enumerate(self.eq_dirs):
 
@@ -253,7 +253,7 @@ class DataBaseSkeleton(object):
                 print("Earthquake file %s exists already. It will "
                       "be overwritten." % destination)
             os.remove(destination)
-            catalog.write(destination, format = "QUAKEML")
+            catalog.write(destination, format="QUAKEML")
 
         elif os.path.isfile(destination) and self.ow is False:
             if self.v:
@@ -262,7 +262,7 @@ class DataBaseSkeleton(object):
 
             # Warn if destination eq is not equal to new eq
             if not CMTSource.from_CMTSOLUTION_file(source) \
-                   == CMTSource.from_quakeml_file(destination):
+                    == CMTSource.from_quakeml_file(destination):
                 warnings.warn("CMT solution in the database is not "
                               "the same as the file with the same ID.")
         else:
@@ -293,7 +293,7 @@ class DataBaseSkeleton(object):
     def _replace_dir(destination, source=None):
         """Mini function that replaces a directory"""
         if os.path.exists(destination) and os.path.isdir(destination):
-            rmtree = shutil.rmtree(destination)
+            shutil.rmtree(destination)
         if source is None:
             os.makedirs(destination)
 
