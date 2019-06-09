@@ -128,8 +128,11 @@ class CMTSource(object):
         """
         cat = read_events(filename)
         event = cat[0]
-        cmtsolution = event.preferred_origin()
-        pdesolution = event.origins[0]
+        for origin in event.origins:
+            if origin.origin_type == 'centroid':
+                cmtsolution = origin
+            else:
+                pdesolution = origin
 
         origin_time = pdesolution.time
         print(origin_time)
@@ -139,11 +142,18 @@ class CMTSource(object):
         mb = 0.0
         ms = 0.0
         for mag in event.magnitudes:
-            if mag.magnitude_type == "mb":
+            if mag.magnitude_type == "Mb":
                 mb = mag.mag
             elif mag.magnitude_type == "MS":
                 ms = mag.mag
-        region_tag = event.event_descriptions[0].text
+        # Get region tag
+        try:
+            region_tag = cmtsolution.region
+        except Exception:
+            try:
+                region_tag = cmtsolution.region
+            except Exception:
+                warnings.warn("Region tag not found.")
 
         for descrip in event.event_descriptions:
             if descrip.type == "earthquake name":
@@ -263,6 +273,22 @@ class CMTSource(object):
         return_str += 'region tag: %s' % self.region_tag
 
         return return_str
+
+    def __len__(self):
+        return len(self.__dict__)
+
+    def __iter__(self):
+        """ Making the class iterable through key,value pairs. """
+        # first start by grabbing the Class items
+        iters = self.__dict__.items()
+
+        # now 'yield' through the items
+        for x, y in iters:
+            yield x
+
+    def __getitem__(self, item):
+        """ Making the CMT Source subscriptable with indeces."""
+        return self.__dict__[item]
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__

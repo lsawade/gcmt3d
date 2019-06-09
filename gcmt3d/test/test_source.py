@@ -15,6 +15,9 @@ import os
 import obspy
 from gcmt3d.source import CMTSource
 import pytest
+import tempfile
+from obspy import read_events
+from .functions_for_testing import assertDictAlmostEqual
 
 # Most generic way to get the data folder path.
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(
@@ -46,3 +49,25 @@ def test_write_CMTSOLUTION_File(tmpdir, cmt):
     cmt.write_CMTSOLUTION_file(fn)
     new_cmt = CMTSource.from_CMTSOLUTION_file(fn)
     assert new_cmt == cmt
+
+
+def test_load_quakeML():
+    """Test the create directory method"""
+    # Check one cmt file
+    with tempfile.TemporaryDirectory() as tmp_dir:
+
+        # Cmtfile path
+        cmtfile = os.path.join(DATA_DIR, "testCMT")
+
+        # create new directory
+        new_xml_path = os.path.join(tmp_dir, "test.xml")
+        xml = read_events(cmtfile)
+        xml.write(new_xml_path, format="QUAKEML")
+
+        assert(os.path.exists(new_xml_path)
+               and os.path.isfile(new_xml_path))
+
+        print("QuakeML\n", CMTSource.from_quakeml_file(new_xml_path))
+        print("CMT\n", CMTSource.from_CMTSOLUTION_file(cmtfile))
+        assertDictAlmostEqual(CMTSource.from_quakeml_file(new_xml_path),
+                              CMTSource.from_CMTSOLUTION_file(cmtfile))
