@@ -31,7 +31,7 @@ class Test_SpecfemSources(unittest.TestCase):
     Test class for specfem_sources.py. The main reason for this being necessary
     is that the class includes a mechanism to test error raising.
     The writing is set to be written into the different subdirectories of the
-    databse skeleton created by the Skeleton class.
+    database skeleton created by the Skeleton class.
     """
 
     def setUp(self):
@@ -40,7 +40,7 @@ class Test_SpecfemSources(unittest.TestCase):
         self.tmpdir = self.test_dir.name
 
         # Create subdirectories for each simulation
-        self.attr = ["CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
+        self.attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
                      "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
         for at in self.attr:
             # create each sim dir

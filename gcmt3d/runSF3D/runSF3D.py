@@ -43,7 +43,7 @@ class RunSimulation(object):
         self.N = N
         self.n = n
         self.walltime = walltime
-        self.attr = ["CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
+        self.attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
                      "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
         if npar in [6, 7, 9]:
             self.npar = npar
@@ -89,7 +89,7 @@ class RunSimulation(object):
         if (self.npar is None) or (self.simdir is None):
             raise ValueError("No number of parameters or Sim dir given")
         else:
-            for at in self.attr[:self.npar]:
+            for at in self.attr[:self.npar+1]:
                 newstatfile = os.path.join(self.simdir, at, "DATA", "STATIONS")
                 self._replace_file(statfile, newstatfile)
 
@@ -100,7 +100,7 @@ class RunSimulation(object):
         `DATABASES_MPI` are deleted since they are irrelevant for future
         reproducibility."""
 
-        for at in self.attr[:self.npar]:
+        for at in self.attr[:self.npar+1]:
             # Copy Par_file CMTSOLUTION and STATIONS files to the OUTPUTFILES
             # directory
             atsimdir = os.path.join(self.simdir, at)

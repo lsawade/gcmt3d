@@ -3,7 +3,7 @@
 # Get command line arguments
 export NODES=$1
 export TASKS=$2
-export NPAR=0-$(($3-1))
+export NPAR=0-$3
 export RUNDIR=$4
 export TIME=$5
 export VERBOSE=$6

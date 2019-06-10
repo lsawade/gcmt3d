@@ -36,6 +36,12 @@ TESTBASE_DIR = _upper_level(os.path.abspath(
 DATA_DIR = os.path.join(TESTBASE_DIR, "data")
 
 
+# Recreates bash touch behaviour
+def touch(path):
+    with open(path, 'a'):
+        os.utime(path, None)
+
+
 class TestSkeleton(unittest.TestCase):
     """Class that handles testing of the Data Base structure creator"""
 
@@ -44,6 +50,9 @@ class TestSkeleton(unittest.TestCase):
         self.test_dir = tempfile.TemporaryDirectory()
         self.specfem_dir = self.test_dir.name
         os.makedirs(os.path.join(self.specfem_dir, "DATA"))
+        touch(os.path.join(self.specfem_dir, "DATA", "STATIONS"))
+        touch(os.path.join(self.specfem_dir, "DATA", "Par_file"))
+        touch(os.path.join(self.specfem_dir, "DATA", "CMTSOLUTION"))
         os.makedirs(os.path.join(self.specfem_dir, "DATABASES_MPI"))
         os.makedirs(os.path.join(self.specfem_dir, "OUTPUT_FILES"))
         os.makedirs(os.path.join(self.specfem_dir, "bin"))
@@ -184,12 +193,12 @@ class TestSkeleton(unittest.TestCase):
 
             # create new directory
             test_dir = os.path.join(tmp_dir, "test")
-            DB._create_dir(test_dir)
+            DB._create_dir(test_dir, False)
 
             self.assertTrue(os.path.exists(test_dir)
                             and os.path.isdir(test_dir))
 
-    def test__copy_cmt(self):
+    def test__copy_file(self):
         """Test the create directory method"""
         # Check one cmt file
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -204,7 +213,7 @@ class TestSkeleton(unittest.TestCase):
 
             # create new directory
             new_cmt_path = os.path.join(tmp_dir, "blub.cmt")
-            DB._copy_cmt(cmtfile, new_cmt_path)
+            DB._copy_file(cmtfile, new_cmt_path, False)
 
             self.assertTrue(os.path.exists(new_cmt_path)
                             and os.path.isfile(new_cmt_path))
@@ -259,6 +268,7 @@ class TestSkeleton(unittest.TestCase):
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
                                   specfem_dir=self.specfem_dir,
+                                  overwrite=0,
                                   verbose=True)
 
             # Create earthquake solution directory
@@ -268,8 +278,8 @@ class TestSkeleton(unittest.TestCase):
             DB.create_CMT_SIM_dir()
 
             # Parameters
-            attr = ["CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp", "CMT_tp",
-                    "CMT_depth", "CMT_lat", "CMT_lon"]
+            attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
+                    "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
 
             # Subdirectories
             subdirs = ["DATA", "DATABASES_MPI", "OUTPUT_FILES"]
@@ -310,7 +320,7 @@ class TestSkeleton(unittest.TestCase):
                                   specfem_dir=self.specfem_dir,
                                   verbose=True)
 
-            DB._copy_dir(test_dir1, test_dir2)
+            DB._copy_dir(test_dir1, test_dir2, False)
 
             self.assertTrue(os.path.isdir(test_dir2))
 
