@@ -34,8 +34,19 @@ class DataBaseSkeleton(object):
                             ".../path/to/database/"
             cmt_fn: path to cmt solution, e.g ".../path/to/CMTSOLUTION", or,
                             e.g ".../path/to/cmtsolutionfile with list."
+            npar: number of parameters to be inverted for. 6,7 or 9. Default
+                  9
             specfem_dir: str with path to specfem directory, e.g
                             ".../path/to/specfem3d_globe"
+            overwrite: number which sets what should be over written. If not
+                       a number or False, nothing will be overwritten.
+                        0: Everything is overwritten, including the database
+                        1: The specific earthquake is overwritten:
+                        2: Seismogram, Simulation and Window Directories are
+                           overwritten for a certain Earthquake.
+                        3: Simulation subdirectories overwritten
+            verbose: boolean that sets whether the output should be verbose
+                     or not
 
         """
 
@@ -83,11 +94,14 @@ class DataBaseSkeleton(object):
     def create_base(self):
         """Creates Base directory if it doesn't exist."""
 
-        self._create_dir(self.basedir)
+        # Overwrite 0 overwrite total database
+        if self.ow in [0] and type(self.ow) is not bool:
+            self._create_dir(self.basedir, True)
+        else:
+            self._create_dir(self.basedir, False)
 
     def create_eq_dirs(self):
         """ If more than one earthquake exist with regex, call all of them"""
-
         for cmtfile in self.cmtfile_list:
 
             # Create directory
@@ -107,7 +121,10 @@ class DataBaseSkeleton(object):
         eq_dir = os.path.join(self.basedir, "eq_" + eq_id)
 
         # Create directory
-        self._create_dir(eq_dir)
+        if self.ow in [0, 1] and type(self.ow) is not bool:
+            self._create_dir(eq_dir, True)
+        else:
+            self._create_dir(eq_dir, False)
 
         # Append directory path to the list.
         self.eq_dirs.append(eq_dir)
@@ -116,7 +133,10 @@ class DataBaseSkeleton(object):
         cmt_path = os.path.join(eq_dir, "eq_" + eq_id + ".cmt")
 
         # Copy the Earthquake file into the directory with eq_<ID>.cmt
-        self._copy_cmt(cmtfile, cmt_path)
+        if self.ow in [0, 1] and type(self.ow) is not bool:
+            self._copy_file(cmtfile, cmt_path, True)
+        else:
+            self._copy_file(cmtfile, cmt_path, False)
 
     def create_station_dir(self):
         """Creates station_data directory for station metadata."""
@@ -126,8 +146,11 @@ class DataBaseSkeleton(object):
             # Create station_data dirs
             station_dir = os.path.join(_eq_dir, "station_data")
 
-            # Create new directory
-            self._create_dir(station_dir)
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(station_dir, True)
+            else:
+                self._create_dir(station_dir, False)
 
     def create_window_dir(self):
         """Creates window_data directory for pyflex window data metadata."""
@@ -135,10 +158,13 @@ class DataBaseSkeleton(object):
         for _i, _eq_dir in enumerate(self.eq_dirs):
 
             # Create window_data dirs
-            station_dir = os.path.join(_eq_dir, "window_data")
+            window_dir = os.path.join(_eq_dir, "window_data")
 
-            # Create new directory
-            self._create_dir(station_dir)
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(window_dir, True)
+            else:
+                self._create_dir(window_dir, False)
 
     def create_CMT_SIM_dir(self):
         """
@@ -155,14 +181,24 @@ class DataBaseSkeleton(object):
 
             # First create main directory
             sim_path = os.path.join(_eq, "CMT_SIMs")
-            self._create_dir(sim_path)
+
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                self._create_dir(sim_path, True)
+            else:
+                self._create_dir(sim_path, False)
 
             # Second create subdirectories of CMT specfem directories
             for _j, _attr in enumerate(attr[:self.npar+1]):
 
                 # Create subdirectory for simulation packages.
                 cmt_der_path = os.path.join(sim_path, _attr)
-                self._create_dir(cmt_der_path)
+
+                if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                    self._create_dir(cmt_der_path, True)
+                else:
+                    self._create_dir(cmt_der_path, False)
+
+                cmt_der_path
 
                 # Copy specfem directory into cmt_der_path
                 subdirs = ["DATA", "DATABASES_MPI", "OUTPUT_FILES"]
@@ -173,7 +209,39 @@ class DataBaseSkeleton(object):
 
                     # Path to destination directory
                     dst_path = os.path.join(cmt_der_path, _subdir)
-                    self._copy_dir(src_path, dst_path)
+
+                    # Only copy some files from the DATA directory
+                    if _subdir == "DATA":
+
+                        # Create DATA directory
+                        if self.ow in [0, 1, 2, 3] and type(
+                                self.ow) is not bool:
+                            self._create_dir(dst_path, True)
+                        else:
+                            self._create_dir(dst_path, False)
+
+                        # Set files to be copied into directory
+                        files = ["STATIONS", "Par_file", "CMTSOLUTION"]
+
+                        for file in files:
+
+                            # Set new source path
+                            src_path0 = os.path.join(src_path, file)
+
+                            # Set new destination path
+                            dst_path0 = os.path.join(dst_path, file)
+
+                            if self.ow in [0, 1, 2, 3] and type(
+                                    self.ow) is not bool:
+                                self._copy_file(src_path0, dst_path0, True)
+                            else:
+                                self._copy_file(src_path0, dst_path0, False)
+                    else:
+                        if self.ow in [0, 1, 2, 3] and type(
+                                self.ow) is not bool:
+                            self._copy_dir(src_path, dst_path, True)
+                        else:
+                            self._copy_dir(src_path, dst_path, False)
 
                 # Create symbolic link to destination folders
                 if not os.path.islink((os.path.join(cmt_der_path, "bin"))):
@@ -188,56 +256,50 @@ class DataBaseSkeleton(object):
             # Create response path
             seismogram_dir = os.path.join(_eq_dir, "seismograms")
 
-            # Create new directory
-            self._create_dir(seismogram_dir)
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(seismogram_dir, True)
+            else:
+                self._create_dir(seismogram_dir, False)
 
-    def _copy_dir(self, source, destination):
+    def _copy_dir(self, source, destination, ow, **kwargs):
         """ Copies a directory source to destination. It checks also for
         potential duplicates in the same place."""
 
-        if os.path.isdir(destination) and self.ow:
+        if os.path.isdir(destination) and ow:
             if self.v:
                 print("Directory %s exists already. It will "
                       "be overwritten." % destination)
-            self._replace_dir(source, destination)
+            shutil.rmtree(destination)
+            copy_tree(source, destination, **kwargs)
 
-        elif os.path.isdir(destination) and self.ow is False:
+        elif os.path.isdir(destination) and ow is False:
             if self.v:
                 print("Directory %s exists already. It will "
                       "NOT be overwritten." % destination)
-
         else:
             if self.v:
                 print("Copying directory %s file to %s"
                       % (source, destination))
             copy_tree(source, destination)
 
-    def _copy_cmt(self, source, destination):
-        """ Copies CMT solution from source to destination. It checks also
-        for potential duplicates in the same place, warns whether they are
-        different but have the name."""
+    def _copy_file(self, source, destination, ow):
+        """ Copies file from source to destination. """
 
-        if os.path.isfile(destination) and self.ow:
+        if os.path.isfile(destination) and ow:
             if self.v:
-                print("Earthquake file %s exists already. It will "
+                print("File %s exists already. It will "
                       "be overwritten." % destination)
             self._replace_file(source, destination)
 
-        elif os.path.isfile(destination) and self.ow is False:
+        elif os.path.isfile(destination) and ow is False:
             if self.v:
-                print("Earthquake file %s exists already. It will "
+                print("File %s exists already. It will "
                       "NOT be overwritten." % destination)
-
-            # Warn if destination eq is not equal to new eq
-            if not CMTSource.from_CMTSOLUTION_file(source) \
-                    == CMTSource.from_CMTSOLUTION_file(destination):
-                warnings.warn("CMT solution in the database is not "
-                              "the same as the file with the same ID.")
 
         else:
             if self.v:
-                print("Copying earthquake %s file to %s." % (source,
-                                                             destination))
+                print("Copying file %s file to %s." % (source, destination))
             shutil.copyfile(source, destination)
 
     def _write_quakeml(self, source, destination):
@@ -271,15 +333,15 @@ class DataBaseSkeleton(object):
                                                              destination))
             catalog.write(destination, format="QUAKEML")
 
-    def _create_dir(self, directory):
+    def _create_dir(self, directory, ow):
         """Create subdirectory"""
         if os.path.exists(directory) and os.path.isdir(directory) \
-                and self.ow is False:
+                and ow is False:
             if self.v:
                 print("%s exists already. Not overwritten." % directory)
 
         elif os.path.exists(directory) and os.path.isdir(directory) \
-                and self.ow is True:
+                and ow is True:
             if self.v:
                 print(
                     "%s exists already, but overwritten." % directory)

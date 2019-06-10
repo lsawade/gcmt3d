@@ -85,6 +85,22 @@ class SpecfemSources(object):
     def write_sources(self):
         """Function to write the CMT Solutions to CMT files
         """
+
+        # Write initial CMT solution
+        cmtsim_outdir = os.path.join(self.outdir, "CMT",
+                                     "DATA")
+
+        # Create new CMT solution
+        new_cmt = deepcopy(self.cmt)
+
+        # Set half duration to 0
+        if self.hdur0:
+            new_cmt.half_duration = 0
+
+        # write file
+        new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
+                                                    "CMTSOLUTION"))
+
         # Attribute list
         attr = ["m_rr", "m_tt", "m_pp", "m_rt", "m_rp", "m_tp"]
 
