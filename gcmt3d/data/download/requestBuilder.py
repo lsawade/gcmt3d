@@ -258,7 +258,7 @@ class DataRequest(object):
             for line in Proc.stdout:
                 # write to standard out
                 if self.verbose:
-                    sys.stdout.write(line)
+                    sys.stdout.write(line.decode('utf-8'))
 
                 # write to logfile
                 out.write(line.decode('utf-8'))

@@ -13,6 +13,7 @@ specfem simulations
 '''
 
 from ...source import CMTSource
+from obspy import read_events
 import os
 import warnings
 from copy import deepcopy
@@ -101,6 +102,11 @@ class SpecfemSources(object):
         new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                     "CMTSOLUTION"))
 
+        # Write the QuakeML to OUTPUT_FILES folder
+        src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
+        outfiles = os.path.join(self.outdir, "CMT", "OUTPUT_FILES")
+        dst = os.path.join(outfiles, "Quake.xml")
+
         # Attribute list
         attr = ["m_rr", "m_tt", "m_pp", "m_rt", "m_rp", "m_tp"]
 
@@ -128,6 +134,14 @@ class SpecfemSources(object):
             new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                         "CMTSOLUTION"))
 
+            # Write the QuakeML to OUTPUT_FILES folder
+            src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
+            outfiles = os.path.join(self.outdir, "CMT_" + attr[index][-2:],
+                                    "OUTPUT_FILES")
+            dst = os.path.join(outfiles, "Quake.xml")
+
+            self._write_quakeml(src, dst)
+
         if self.npar > 6:
 
             # Attribute name
@@ -149,6 +163,14 @@ class SpecfemSources(object):
             # write new solution
             new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                         "CMTSOLUTION"))
+
+            # Write the QuakeML to OUTPUT_FILES folder
+            src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
+            outfiles = os.path.join(self.outdir, "CMT_depth",
+                                    "OUTPUT_FILES")
+            dst = os.path.join(outfiles, "Quake.xml")
+
+            self._write_quakeml(src, dst)
 
         if self.npar == 9:
 
@@ -172,6 +194,14 @@ class SpecfemSources(object):
             # write new solution
             new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                         "CMTSOLUTION"))
+            # Write the QuakeML to OUTPUT_FILES folder
+            src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
+            outfiles = os.path.join(self.outdir, "CMT_lat",
+                                    "OUTPUT_FILES")
+            dst = os.path.join(outfiles, "Quake.xml")
+
+            self._write_quakeml(src, dst)
+
             # Create new CMT solution
             new_cmt = deepcopy(self.cmt)
 
@@ -187,6 +217,21 @@ class SpecfemSources(object):
             # write new solution
             new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                         "CMTSOLUTION"))
+
+            # Write the QuakeML to OUTPUT_FILES folder
+            src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
+            outfiles = os.path.join(self.outdir, "CMT_lon",
+                                    "OUTPUT_FILES")
+            dst = os.path.join(outfiles, "Quake.xml")
+
+            self._write_quakeml(src, dst)
+
+    def _write_quakeml(self, source, destination):
+        """ Copies CMT solution from source to QuakeML destination."""
+
+        # CMT Source file
+        catalog = read_events(source)
+        catalog.write(destination, format="QUAKEML")
 
     def __str__(self):
         string = "-------- CMT Source Writer --------\n"
