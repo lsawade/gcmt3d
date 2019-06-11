@@ -1,5 +1,5 @@
 # Database directory
-databasedir: "../../test_sample_database"
+databasedir: "/scratch/gpfs/lsawade/test_database"
 
 # Number of parameters to invert for
 # 6: only the moment tensor
@@ -9,7 +9,7 @@ databasedir: "../../test_sample_database"
 npar: 9
 
 # Chose verbose output
-verbose: False
+verbose: True
 
 # Overwriting the database? Here I have to implement what should be overwritten
 # Not yet implemented, but will be in the future:
@@ -17,4 +17,4 @@ verbose: False
 # 1: Earthquake directories will be overwritten
 # 2: CMT simulations will be overwritten.
 # False: Nothing will be overwritten.
-overwrite: 2
+overwrite: False

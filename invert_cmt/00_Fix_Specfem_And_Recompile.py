@@ -3,7 +3,7 @@
 """
 
 This is a script that will fix specfem given the parameters set in the
-`params/SpecfemParams/specfem_params.yml` file.
+`params/SpecfemParams/SpecfemParams.yml` file.
 
 :copyright:
     Lucas Sawade (lsawade@princeton.edu)
@@ -22,7 +22,7 @@ def main():
     # Define parameter directory
     param_path = os.path.dirname(os.path.dirname(__file__))
     specfemspec_path = os.path.join(param_path,
-                                    "SpecfemParams/specfem_params.yml.")
+                                    "SpecfemParams/SpecfemParams.yml.")
 
     # Load parameters
     smart_read_yaml(specfemspec_path, mpi_mode=is_mpi_env())
