@@ -14,7 +14,7 @@ This is a script that will fix specfem given the parameters set in the
 """
 
 import os
-from gcmt3d import smart_read_yaml, is_mpi_env
+from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 
 
 def main():

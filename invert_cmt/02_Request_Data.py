@@ -13,7 +13,7 @@ This script will download the observed data. To the necessary places.
 
 from gcmt3d.data import DataRequest
 from gcmt3d.source import CMTSource
-from gcmt3d import smart_read_yaml, is_mpi_env
+from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import os
 
 def main(cmt_filename):

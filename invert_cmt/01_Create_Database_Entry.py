@@ -13,7 +13,7 @@ This is a script that will create a database entry given a cmt solution in the
 
 import os
 from gcmt3d.data.management.skeleton import DataBaseSkeleton
-from gcmt3d import smart_read_yaml, is_mpi_env
+from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import sys
 import argparse
 
