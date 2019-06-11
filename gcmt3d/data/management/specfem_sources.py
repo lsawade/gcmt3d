@@ -25,7 +25,7 @@ class SpecfemSources(object):
     '''
 
     def __init__(self, cmt, npar, dm=10.0*24, dx=2., ddeg=0.02,
-                 hdur0=False, outdir=None):
+                 hdur0=False, outdir=None, verbose=False):
         '''
 
         :param cmt: The original CMT source loaded using CMTSource
@@ -73,6 +73,10 @@ class SpecfemSources(object):
             raise ValueError("Change in degrees should be a float")
         self.ddeg = ddeg
 
+        if type(verbose) != bool:
+            raise ValueError("Verbose flag must be boolean")
+        self.v = verbose
+
         if outdir is None:
             raise ValueError("The output directory needs wo be set.")
         elif not os.path.exists(outdir):
@@ -102,6 +106,11 @@ class SpecfemSources(object):
         new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                     "CMTSOLUTION"))
 
+        # Print info if verbose flag is True
+        if self.v:
+            print("%s has been written." % os.path.join(cmtsim_outdir,
+                                                        "CMTSOLUTION"))
+
         # Write the QuakeML to OUTPUT_FILES folder
         src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
         outfiles = os.path.join(self.outdir, "CMT", "OUTPUT_FILES")
@@ -109,6 +118,10 @@ class SpecfemSources(object):
 
         # Write Solution
         self._write_quakeml(src, dst)
+
+        # Print info if verbose flag is True
+        if self.v:
+            print("%s has been written." % dst)
 
         # Attribute list
         attr = ["m_rr", "m_tt", "m_pp", "m_rt", "m_rp", "m_tp"]
@@ -137,6 +150,12 @@ class SpecfemSources(object):
             new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                         "CMTSOLUTION"))
 
+            # Print info if verbose flag is True
+            if self.v:
+                print("%s has been written." % os.path.join(cmtsim_outdir,
+                                                        "CMTSOLUTION"))
+
+
             # Write the QuakeML to OUTPUT_FILES folder
             src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
             outfiles = os.path.join(self.outdir, "CMT_" + attr[index][-2:],
@@ -144,6 +163,10 @@ class SpecfemSources(object):
             dst = os.path.join(outfiles, "Quake.xml")
 
             self._write_quakeml(src, dst)
+
+            # Print info if verbose flag is True
+            if self.v:
+                print("%s has been written." % dst)
 
         if self.npar > 6:
 
@@ -167,6 +190,11 @@ class SpecfemSources(object):
             new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                         "CMTSOLUTION"))
 
+            # Print info if verbose flag is True
+            if self.v:
+                print("%s has been written." % os.path.join(cmtsim_outdir,
+                                                            "CMTSOLUTION"))
+
             # Write the QuakeML to OUTPUT_FILES folder
             src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
             outfiles = os.path.join(self.outdir, "CMT_depth",
@@ -174,6 +202,10 @@ class SpecfemSources(object):
             dst = os.path.join(outfiles, "Quake.xml")
 
             self._write_quakeml(src, dst)
+
+            # Print info if verbose flag is True
+            if self.v:
+                print("%s has been written." % dst)
 
         if self.npar == 9:
 
@@ -197,6 +229,12 @@ class SpecfemSources(object):
             # write new solution
             new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                         "CMTSOLUTION"))
+
+            # Print info if verbose flag is True
+            if self.v:
+                print("%s has been written." % os.path.join(cmtsim_outdir,
+                                                            "CMTSOLUTION"))
+
             # Write the QuakeML to OUTPUT_FILES folder
             src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
             outfiles = os.path.join(self.outdir, "CMT_lat",
@@ -204,6 +242,10 @@ class SpecfemSources(object):
             dst = os.path.join(outfiles, "Quake.xml")
 
             self._write_quakeml(src, dst)
+
+            # Print info if verbose flag is True
+            if self.v:
+                print("%s has been written." % dst)
 
             # Create new CMT solution
             new_cmt = deepcopy(self.cmt)
@@ -221,6 +263,11 @@ class SpecfemSources(object):
             new_cmt.write_CMTSOLUTION_file(os.path.join(cmtsim_outdir,
                                                         "CMTSOLUTION"))
 
+            # Print info if verbose flag is True
+            if self.v:
+                print("%s has been written." % os.path.join(cmtsim_outdir,
+                                                            "CMTSOLUTION"))
+
             # Write the QuakeML to OUTPUT_FILES folder
             src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
             outfiles = os.path.join(self.outdir, "CMT_lon",
@@ -228,6 +275,12 @@ class SpecfemSources(object):
             dst = os.path.join(outfiles, "Quake.xml")
 
             self._write_quakeml(src, dst)
+
+            # Print info if verbose flag is True
+            if self.v:
+                print("%s has been written." % dst)
+
+
 
     def _write_quakeml(self, source, destination):
         """ Copies CMT solution from source to QuakeML destination."""
