@@ -107,6 +107,9 @@ class SpecfemSources(object):
         outfiles = os.path.join(self.outdir, "CMT", "OUTPUT_FILES")
         dst = os.path.join(outfiles, "Quake.xml")
 
+        # Write Solution
+        self._write_quakeml(src, dst)
+
         # Attribute list
         attr = ["m_rr", "m_tt", "m_pp", "m_rt", "m_rp", "m_tp"]
 
