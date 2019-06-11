@@ -20,11 +20,12 @@ import argparse
 def main(cmt_filename):
 
     # Define parameter directory
-    param_path = os.path.dirname(os.path.dirname(__file__))
+    param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+        __file__))), "params")
     databaseparam_path = os.path.join(param_path,
                                     "Database/DatabaseParameters.yml")
     specfemspec_path = os.path.join(param_path,
-                                    "SpecfemParams/specfem_params.yml.")
+                                    "SpecfemParams/SpecfemParams.yml")
 
     # Load Parameters
     DB_params = smart_read_yaml(databaseparam_path,
