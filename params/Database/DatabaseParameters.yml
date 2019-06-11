@@ -17,4 +17,4 @@ verbose: False
 # 1: Earthquake directories will be overwritten
 # 2: CMT simulations will be overwritten.
 # False: Nothing will be overwritten.
-overwrite: False
+overwrite: 2
