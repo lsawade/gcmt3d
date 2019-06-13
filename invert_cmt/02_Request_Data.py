@@ -12,16 +12,19 @@ This script will download the observed data. To the necessary places.
 """
 
 from gcmt3d.data import DataRequest
-from gcmt3d.source import CMTSource
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import os
+import argparse
 
 def main(cmt_filename):
 
-    # Load parameters from Request parameter file
-    param_path = os.path.dirname(os.path.dirname(__file__))
+    # Set directories of the parameter files
+    param_path = os.path.join(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))), "params")
     request_param_path = os.path.join(param_path,
                                       "RequestParams/RequestParams.yml")
+
+    # Read the parameter file
     req_params = smart_read_yaml(request_param_path, mpi_mode=is_mpi_env())
 
     # Earthquake and Station parameters
@@ -29,10 +32,11 @@ def main(cmt_filename):
 
     # Create Request Object
     Request = DataRequest.from_file(cmt_filename,
-                                    duration=req_params.duration,
-                                    channels=req_params.channels,
-                                    locations=req_params.locations,
-                                    starttime_offset=req_params.starttime_offset,
+                                    duration=req_params['duration'],
+                                    channels=req_params['channels'],
+                                    locations=req_params['locations'],
+                                    starttime_offset=\
+                                    req_params['starttime_offset'],
                                     outputdir=cmt_dir)
 
     # Print Earthquake Download Info

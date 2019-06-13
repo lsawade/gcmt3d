@@ -1,5 +1,5 @@
 # directory where specfem is compiled
-SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem3d_globe"
+SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem_tutorial/specfem3d_globe"
 
 # Set MPI Parameters
 NEX_XI: 128
@@ -33,7 +33,7 @@ walltime: "00:15:00"
 
 # If solver is supposed to be used set these values. NOT the correct
 # solver wrapper for the CMT inversion.
-walltime_solver: 00:20:00
+walltime_solver: "03:59:00"
 nodes_solver: 1
 tasks_solver: 24
 
