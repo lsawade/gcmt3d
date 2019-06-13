@@ -1,51 +1,49 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-This is a script that will create a database entry given a cmt solution in the
 
+This script runs specfem on the cluster.
 
 :copyright:
     Lucas Sawade (lsawade@princeton.edu)
 :license:
     GNU Lesser General Public License, version 3 (LGPLv3)
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
+
 """
 
-import os
-from gcmt3d.data.management.skeleton import DataBaseSkeleton
+
+from gcmt3d.runSF3D.runSF3D import RunSimulation
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
-import sys
 import argparse
+import os
+
+
 
 def main(cmt_filename):
 
     # Define parameter directory
     param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
         __file__))), "params")
-    databaseparam_path = os.path.join(param_path,
-                                    "Database/DatabaseParameters.yml")
     specfemspec_path = os.path.join(param_path,
                                     "SpecfemParams/SpecfemParams.yml")
 
     # Load Parameters
-    DB_params = smart_read_yaml(databaseparam_path,
-                                         mpi_mode=is_mpi_env())
     specfemspecs = smart_read_yaml(specfemspec_path, mpi_mode=is_mpi_env())
 
-    # Database Setup.
-    DB = DataBaseSkeleton(basedir=DB_params["databasedir"],
-                          cmt_fn=cmt_filename,
-                          specfem_dir=specfemspecs["SPECFEM_DIR"],
-                          verbose=DB_params['verbose'],
-                          overwrite=DB_params['overwrite'])
+    cmt_dir = os.path.dirname(os.path.abspath(cmt_filename))
 
-    # Database Create entry
-    DB.create_all()
+    RD = RunSimulation(cmt_dir, N=specfemspecs['nodes_solver'],
+                       n=specfemspecs['tasks_solver'],
+                       walltime=specfemspecs['walltime_solver'],
+                       verbose=specfemspecs['verbose'])
 
-    # Return new earthquake location.
-    cmt_in_database = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
+    # Print Run specifications of verbose is True
+    if specfemspecs['verbose']:
+        print(RD)
 
-    return cmt_in_database
+    # Run Simulation by calling the class
+    RD()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

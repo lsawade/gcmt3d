@@ -16,7 +16,7 @@ filter_flag: True
 pre_filt: [0.0030, 0.0040, 0.0111, 0.0139]
 
 # cut time relative to CMT time. The final seismogram will be at
-# time range: [cmt_time+relative_time, cmt_time+relative_time]
+# time range: [cmt_time + relative_starttime, cmt_time + relative_endtime]
 relative_starttime: 0
 relative_endtime: 7150
 

@@ -18,11 +18,11 @@ from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 
 
 def main():
-
     # Define parameter directory
-    param_path = os.path.dirname(os.path.dirname(__file__))
+    param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+        __file__))), "params")
     specfemspec_path = os.path.join(param_path,
-                                    "SpecfemParams/SpecfemParams.yml.")
+                                    "SpecfemParams/SpecfemParams.yml")
 
     # Load parameters
     smart_read_yaml(specfemspec_path, mpi_mode=is_mpi_env())
