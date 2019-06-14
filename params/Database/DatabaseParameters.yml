@@ -1,5 +1,5 @@
 # Database directory
-databasedir: "/scratch/gpfs/lsawade/test_database"
+databasedir: "/scratch/gpfs/lsawade/test_database_GPU"
 
 # Number of parameters to invert for
 # 6: only the moment tensor
@@ -18,3 +18,6 @@ verbose: True
 # 2: CMT simulations will be overwritten.
 # False: Nothing will be overwritten.
 overwrite: False
+
+# Status bar for ASDF operations
+status_bar: True

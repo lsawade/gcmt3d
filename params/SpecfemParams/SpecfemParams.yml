@@ -1,17 +1,32 @@
 # directory where specfem is compiled
-SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem_tutorial/specfem3d_globe"
+SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem3d_globe_adios"
 
 # Set MPI Parameters
 NEX_XI: 128
 NEX_ETA: 128
-NPROC_XI: 2
-NPROC_ETA: 2
-GPU_MODE: False
+NPROC_XI: 1
+NPROC_ETA: 1
+
+# GPU Parameters
+GPU_MODE: True
+GPU_RUNTIME: 1
+GPU_PLATFORM: NVIDIA
+GPU_DEVICE: Tesla
+
+# ADIOS PARAMETERS
 ADIOS_ENABLED: False
+ADIOS_FOR_FORWARD_ARRAYS: True
+ADIOS_FOR_MPI_ARRAYS: True
+ADIOS_FOR_ARRAYS_SOLVER: True
+ADIOS_FOR_SOLVER_MESHFILES: True
+ADIOS_FOR_AVS_DX: True
+ADIOS_FOR_KERNELS: True
+ADIOS_FOR_MODELS: True
+ADIOS_FOR_UNDO_ATTENUATION: True
 
 # Minimal Processing
-ROTATE_SEISMOGRAMS_RT: True
-RECORD_LENGTH: 10
+ROTATE_SEISMOGRAMS_RT: False
+RECORD_LENGTH: 60
 MODEL: "s362ani"
 
 # Output style
@@ -27,15 +42,13 @@ MOVIE_VOLUME: False
 MOVIE_COARSE: False
 
 # Computational Resources
-nodes: 1
-tasks: 24
-walltime: "00:15:00"
+nodes: 2
+tasks: 6
+tasks_per_node: 3  # Unused for CPU runs
+walltime: "00:20:00"
+walltime_solver: "00:45:00"  # Solver usually
+memory_req: 40000  # Memory to be requested for run in MB. Unused for CPU runs.
 
-# If solver is supposed to be used set these values. NOT the correct
-# solver wrapper for the CMT inversion.
-walltime_solver: "03:59:00"
-nodes_solver: 1
-tasks_solver: 24
 
 # Verbose output
 verbose: True

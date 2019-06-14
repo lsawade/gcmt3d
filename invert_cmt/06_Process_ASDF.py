@@ -37,31 +37,14 @@ def main(cmt_filename):
     attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
             "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
 
-    ##### Converting the synthetic data
-    if DB_params['verbose']:
-        print("\nConverting synthetic traces to ASDF ... \n")
-
     for _i, at in enumerate(attr[:DB_params["npar"]+1]):
 
         # Path file
-        syn_path_file = os.path.join(sim_dir, at, at + ".yml")
+        path_file = os.path.join(sim_dir, at, at + ".yml")
 
-        converter = ConvertASDF(syn_path_file, verbose=DB_params["verbose"],
+        converter = ConvertASDF(path_file, verbose=DB_params["verbose"],
                                 status_bar=DB_params["verbose"])
         converter.run()
-
-    ##### Converting the observed data
-    if DB_params['verbose']:
-        print("\nConverting observed traces to ASDF ... \n")
-
-    obs_path_file = os.path.join(cmt_dir, "seismograms", "obs", "observed.yml")
-
-    converter = ConvertASDF(obs_path_file, verbose=DB_params["verbose"],
-                            status_bar=DB_params["verbose"])
-    converter.run()
-
-
-
 
 
 if __name__ == "__main__":

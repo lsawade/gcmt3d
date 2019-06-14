@@ -81,14 +81,8 @@ def main():
                    memory_req=sf_dict["memory_req"],
                    verbose=sf_dict["verbose"])
 
-    # Run `Par_file` fixer.
-    DF.fix_parfiles()
-
-    # Configure and compile
-    DF.configure_and_make()
-
     # Run the mesher to a slurm scheduler.
-    #DF.run_mesher()
+    DF.run_mesher()
 
 
 if __name__ == '__main__':
