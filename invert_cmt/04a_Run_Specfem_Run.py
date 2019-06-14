@@ -19,7 +19,6 @@ import argparse
 import os
 
 
-
 def main(cmt_filename):
 
     # Define parameter directory
@@ -27,14 +26,22 @@ def main(cmt_filename):
         __file__))), "params")
     specfemspec_path = os.path.join(param_path,
                                     "SpecfemParams/SpecfemParams.yml")
+    comp_and_modules_path = os.path.join(param_path,
+                                         "SpecfemParams/CompilersAndModules.yml")
 
     # Load Parameters
     specfemspecs = smart_read_yaml(specfemspec_path, mpi_mode=is_mpi_env())
+    cm_dict = smart_read_yaml(comp_and_modules_path, mpi_mode=is_mpi_env())
 
     cmt_dir = os.path.dirname(os.path.abspath(cmt_filename))
 
-    RD = RunSimulation(cmt_dir, N=specfemspecs['nodes_solver'],
-                       n=specfemspecs['tasks_solver'],
+    RD = RunSimulation(cmt_dir, N=specfemspecs['nodes'],
+                       n=specfemspecs['tasks'],
+                       npn=specfemspecs['tasks_per_node'],
+                       memory_req=specfemspecs['memory_req'],
+                       modules=cm_dict['modulelist'],
+                       gpu_module=cm_dict['gpu_module'],
+                       GPU_MODE=specfemspecs["GPU_MODE"],
                        walltime=specfemspecs['walltime_solver'],
                        verbose=specfemspecs['verbose'])
 
