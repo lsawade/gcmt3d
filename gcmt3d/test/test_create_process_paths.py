@@ -118,6 +118,8 @@ class TestCreatePaths(unittest.TestCase):
                                        "processed_seismograms",
                                        "processed_observed_040_100.h5")
             output_tag = "proc_obs_040_100"
+            process_param_file = os.path.join(process_dir,
+                                              "proc_obsd.40_100.param.yml")
 
             d = smart_read_yaml(process_file, mpi_mode=False)
 
@@ -126,6 +128,7 @@ class TestCreatePaths(unittest.TestCase):
             self.assertTrue(d["input_tag"] == input_tag)
             self.assertTrue(d["output_asdf"] == output_asdf)
             self.assertTrue(d["output_tag"] == output_tag)
+            self.assertTrue(d["process_param_file"] == process_param_file)
 
     def test__create_process_path_syn(self):
         """Testing the creation of the observed processing yaml file."""
@@ -169,6 +172,8 @@ class TestCreatePaths(unittest.TestCase):
                                        "processed_seismograms",
                                        "processed_synthetic_CMT_rp_040_100.h5")
             output_tag = "proc_syn_CMT_rp_040_100"
+            process_param_file = os.path.join(process_dir,
+                                              "proc_synt.40_100.param.yml")
 
             d = smart_read_yaml(process_file, mpi_mode=False)
 
@@ -177,6 +182,7 @@ class TestCreatePaths(unittest.TestCase):
             self.assertTrue(d["input_tag"] == input_tag)
             self.assertTrue(d["output_asdf"] == output_asdf)
             self.assertTrue(d["output_tag"] == output_tag)
+            self.assertTrue(d["process_param_file"] == process_param_file)
 
     def test__create_window_path(self):
         """Testing the creation of the window path yaml file."""
@@ -201,7 +207,7 @@ class TestCreatePaths(unittest.TestCase):
             cmt_filename = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
 
             # Create Processing path files
-            create_window_path(cmt_filename, window_process_dir, npar=9,
+            create_window_path(cmt_filename, window_process_dir,
                                figure_mode=True, verbose=True)
 
             # Outputdir
@@ -223,6 +229,11 @@ class TestCreatePaths(unittest.TestCase):
             output_file = os.path.join(cmt_dir, "window_data",
                                        "windows_040_100#surface_wave.json")
 
+            # window paramfile
+            window_param_file = os.path.join(window_process_dir,
+                                             "window.40_100#surface_wave."
+                                             "param.yml")
+
             # Output path file
             path_file = os.path.join(cmt_dir, "window_data", "window_paths",
                                      "windows_040_100#surface_wave.yml")
@@ -237,7 +248,7 @@ class TestCreatePaths(unittest.TestCase):
             self.assertTrue(d["synt_tag"] == synt_tag)
             self.assertTrue(d["figure_mode"])
             self.assertTrue(d["output_file"] == output_file)
-
+            self.assertTrue(d["window_param_file"] == window_param_file)
 
 if __name__ == "__main__":
     unittest.main()

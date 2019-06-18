@@ -445,7 +445,7 @@ class DataBaseSkeleton(object):
         filetype = "sac"
 
         # Tag
-        tag = "syn"
+        tag = "raw_synthetic"
 
         # QuakeML file path
         quakeml_file = os.path.join(waveform_dir, "Quake.xml")
@@ -490,7 +490,7 @@ class DataBaseSkeleton(object):
         """
 
         # Tag
-        tag = "obs"
+        tag = "raw_observed"
 
         # Waveform file
         waveform_files = os.path.join(eq_dir, "seismograms", "obs",
