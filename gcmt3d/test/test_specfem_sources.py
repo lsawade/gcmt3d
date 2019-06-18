@@ -46,6 +46,7 @@ class Test_SpecfemSources(unittest.TestCase):
             # create each sim dir
             os.makedirs(os.path.join(self.tmpdir, at))
             os.makedirs(os.path.join(self.tmpdir, at, "DATA"))
+            os.makedirs(os.path.join(self.tmpdir, at, "OUTPUT_FILES"))
 
         self.cmt = CMTSource.from_CMTSOLUTION_file(CMTFILE)
 
@@ -108,7 +109,7 @@ class Test_SpecfemSources(unittest.TestCase):
         sfsource.write_sources()
 
         # Get files of the written files
-        written_files = glob.glob(outputdir + "CMT_*/DATA/CMTSOLUTION")
+        written_files = glob.glob(outputdir + "CMT*/DATA/CMTSOLUTION")
 
         # Get files and names of the test files
         test_files = glob.glob(DATA_DIR + "/*")
@@ -155,7 +156,7 @@ class Test_SpecfemSources(unittest.TestCase):
         sfsource.write_sources()
 
         # Get files and names of the written files
-        written_files = glob.glob(outputdir + "CMT_*/DATA/CMTSOLUTION")
+        written_files = glob.glob(outputdir + "CMT*/DATA/CMTSOLUTION")
 
         # Get files and names of the test files
         test_files = glob.glob(DATA_DIR + "/*")

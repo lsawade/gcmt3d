@@ -6,12 +6,14 @@ and parallel I/O so they are invisible to users.
 
 :copyright:
     Wenjie Lei (lei@princeton.edu), 2016
+    Lucas Sawade (lsawade@princeton.edu) 2019
 :license:
     GNU Lesser General Public License, version 3 (LGPLv3)
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 from __future__ import (absolute_import, division, print_function)
 import os
+import warnings
 from pyasdf import ASDFDataSet
 from .utils import smart_read_yaml, smart_read_json, is_mpi_env
 from .utils import smart_check_path, smart_remove_file, smart_mkdir
@@ -65,7 +67,7 @@ class ProcASDFBase(object):
         """
         How you parse the path arugment to fit your requirements
         """
-        return self._parse_json(self.path)
+        return self._parse_yaml(self.path)
 
     def _parse_param(self):
         """
@@ -81,9 +83,8 @@ class ProcASDFBase(object):
         """
         self.mpi_mode = is_mpi_env()
         if not self.mpi_mode:
-            raise EnvironmentError(
-                "mpi environment required for parallel"
-                "running window selection")
+            warnings.warn("MPI environment required for parallel processing or"
+                          " window selection.")
         else:
             from mpi4py import MPI
             self.comm = MPI.COMM_WORLD
@@ -100,7 +101,7 @@ class ProcASDFBase(object):
         """
         def _print_subs(_dict, title):
             print("-"*10 + title + "-"*10)
-            sorted_dict = sorted(((v, k) for v, k in _dict.iteritems()))
+            sorted_dict = sorted(((v, k) for v, k in _dict.items()))
             for key, value in sorted_dict:
                 print("%s:  %s" % (key, value))
 
@@ -138,7 +139,7 @@ class ProcASDFBase(object):
 
     def check_output_file(self, filename, remove_flag=True):
         """
-        Check existance of output file. If directory of output file
+        Check existence of output file. If directory of output file
         not exists, raise ValueError; If output file exists, remove it
         """
         dirname = os.path.dirname(filename)

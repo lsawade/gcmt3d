@@ -17,7 +17,7 @@ from __future__ import (absolute_import, division, print_function)
 import os
 import argparse
 from pprint import pprint
-from ...window.filter_windows import filter_windows, count_windows
+from gcmt3d.window.filter_windows import filter_windows, count_windows
 from .utils import load_json, dump_json, load_yaml
 
 

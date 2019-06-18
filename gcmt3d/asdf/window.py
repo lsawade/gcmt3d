@@ -44,7 +44,7 @@ def load_window_config(param):
     config_dict = {}
     flag_list = []
 
-    for key, value in param.iteritems():
+    for key, value in param.items():
         # pop the "instrument_merge_flag" value out
         flag_list.append(value["instrument_merge_flag"])
         value.pop("instrument_merge_flag")
@@ -64,12 +64,12 @@ def write_window_json(results, output_file):
 
     print("Output window file: %s" % output_file)
     window_all = {}
-    for station, sta_win in results.iteritems():
+    for station, sta_win in results.items():
         if sta_win is None:
             continue
         window_all[station] = {}
         _window_comp = {}
-        for trace_id, trace_win in sta_win.iteritems():
+        for trace_id, trace_win in sta_win.items():
             _window = [get_json_content(_i) for _i in trace_win]
             _window_comp[trace_id] = _window
         window_all[station] = _window_comp
@@ -127,13 +127,13 @@ class WindowASDF(ProcASDFBase):
         default = param["default"]
         comp_settings = param["components"]
         results = {}
-        for _comp, _settings in comp_settings.iteritems():
+        for _comp, _settings in comp_settings.items():
             if myrank == 0:
-                print("Preapring params for components: %s" % _comp)
+                print("Preparing params for components: %s" % _comp)
             results[_comp] = deepcopy(default)
             if _settings is None:
                 continue
-            for k, v in _settings.iteritems():
+            for k, v in _settings.items():
                 if myrank == 0:
                     print("--> Modify key[%s] to value: %s --> %s"
                           % (k, results[_comp][k], v))
@@ -147,7 +147,7 @@ class WindowASDF(ProcASDFBase):
         self._missing_keys(necessary_keys, path)
 
     def _validate_param(self, param):
-        for key, value in param.iteritems():
+        for key, value in param.items():
             necessary_keys = ["min_period", "max_period", "selection_mode"]
             self._missing_keys(necessary_keys, value)
             minp = value["min_period"]
@@ -181,7 +181,7 @@ class WindowASDF(ProcASDFBase):
         # Ridvan Orsvuran, 2016
         # take out the user module values
         user_modules = {}
-        for key, value in param.iteritems():
+        for key, value in param.items():
             user_modules[key] = value.pop("user_module", None)
 
         config_dict, instrument_merge_flag = load_window_config(param)

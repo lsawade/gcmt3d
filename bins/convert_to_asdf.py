@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
-from ..convert import ConvertASDF
+from gcmt3d.asdf.convert import ConvertASDF
 
 
 def main():

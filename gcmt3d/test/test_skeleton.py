@@ -15,6 +15,7 @@ Last Update: April 2019
 import unittest
 from gcmt3d.data.management.skeleton import DataBaseSkeleton
 from gcmt3d.source import CMTSource
+from gcmt3d.asdf.utils import smart_read_yaml
 import tempfile
 import os
 import inspect
@@ -236,7 +237,7 @@ class TestSkeleton(unittest.TestCase):
 
             # create new directory
             new_cmt_path = os.path.join(tmp_dir, "blub.xml")
-            DB._write_quakeml(cmtfile, new_cmt_path)
+            DB._write_quakeml(cmtfile, new_cmt_path, True)
 
             self.assertTrue(os.path.exists(new_cmt_path)
                             and os.path.isfile(new_cmt_path))
@@ -292,6 +293,10 @@ class TestSkeleton(unittest.TestCase):
 
                 self.assertTrue(os.path.isdir(test_dir))
 
+                # Check if yaml path file exist.
+                self.assertTrue(os.path.isfile(os.path.join(test_dir,
+                                                            at + ".yml")))
+
                 # Now check if subdirectories are created
                 for _k, _subdir in enumerate(subdirs):
                     test_dir2 = os.path.join(test_dir, _subdir)
@@ -323,6 +328,85 @@ class TestSkeleton(unittest.TestCase):
             DB._copy_dir(test_dir1, test_dir2, False)
 
             self.assertTrue(os.path.isdir(test_dir2))
+
+    def test__create_syn_path_yaml(self):
+        """Testing the creation of the yaml file."""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+
+            # Cmtfile path
+            cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir,
+                                  verbose=True)
+
+            # Create database
+            DB.create_all()
+
+            # Read the yaml_file which should be created in the CMT directory
+            yaml_file = os.path.join(DB.eq_dirs[0], "CMT_SIMs", "CMT_rr",
+                                     "CMT_rr.yml")
+
+            # Solution should be:
+            waveform_dir = os.path.join(DB.eq_dirs[0], "CMT_SIMs", "CMT_rr",
+                                        "OUTPUT_FILES")
+            tag = 'syn'
+            filetype = 'sac'
+            output_file = os.path.join(DB.eq_dirs[0], "seismograms", "syn",
+                                       "CMT_rr.h5")
+            quakeml_file = os.path.join(DB.eq_dirs[0], "CMT_SIMs", "CMT_rr",
+                                        "OUTPUT_FILES", "Quake.xml")
+
+            d = smart_read_yaml(yaml_file, mpi_mode=False)
+
+            # Assessing correctness of yaml file
+            self.assertTrue(d["quakeml_file"] == quakeml_file)
+            self.assertTrue(d["tag"] == tag)
+            self.assertTrue(d["output_file"] == output_file)
+            self.assertTrue(d["filetype"] == filetype)
+            self.assertTrue(d["waveform_dir"] == waveform_dir)
+
+    def test__create_obs_path_yaml(self):
+        """Testing the creation of the yaml file."""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Cmtfile path
+            cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir,
+                                  verbose=True)
+
+            # Create database
+            DB.create_all()
+
+            # Read the yaml_file which should be created in the CMT directory
+            yaml_file = os.path.join(DB.eq_dirs[0], "seismograms", "obs",
+                                     "observed.yml")
+
+            # Solution should be:
+            waveform_files = os.path.join(DB.eq_dirs[0], "seismograms", "obs",
+                                          DB.eq_ids[0] + ".mseed")
+            staxml = os.path.join(DB.eq_dirs[0], "station_data", "station.xml")
+            tag = 'obs'
+            output_file = os.path.join(DB.eq_dirs[0], "seismograms", "obs",
+                                       "raw_observed.h5")
+            quakeml_file = os.path.join(DB.eq_dirs[0],
+                                        "eq_" + DB.eq_ids[0] + ".xml")
+
+            d = smart_read_yaml(yaml_file, mpi_mode=False)
+
+            # Assessing correctness of yaml file
+            self.assertTrue(d["quakeml_file"] == quakeml_file)
+            self.assertTrue(d["tag"] == tag)
+            self.assertTrue(d["output_file"] == output_file)
+            self.assertTrue(d["waveform_files"] == waveform_files)
+            self.assertTrue(d["staxml_files"] == staxml)
 
 
 if __name__ == "__main__":

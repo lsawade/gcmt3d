@@ -16,7 +16,7 @@ import numpy as np
 from obspy import UTCDateTime, read
 from ..station.utils import create_simple_inventory
 from pyasdf import ASDFDataSet
-from .utils import smart_read_json, drawProgressBar, timing
+from .utils import smart_read_yaml, drawProgressBar, timing
 
 
 def add_waveform_to_asdf(ds, waveform_filelist, tag, event=None,
@@ -70,7 +70,7 @@ def add_stationxml_to_asdf(ds, staxml_filelist, event=None,
             start_date = event_time - 300.0
         nstaxml = len(sta_dict)
         count = 0
-        for tag, value in sta_dict.iteritems():
+        for tag, value in sta_dict.items():
             count += 1
             inv = create_simple_inventory(
                 value[0], value[1], latitude=value[2], longitude=value[3],
@@ -271,7 +271,9 @@ class ConvertASDF(object):
     @staticmethod
     def print_info(waveform_files, tag, staxml_files, quakemlfile,
                    output_fn, create_simple_inv):
+
         waveform_dir = set([os.path.dirname(_i) for _i in waveform_files])
+
         print("-"*20)
         print("Quakeml files: ", quakemlfile)
         print("Waveform dirs:", waveform_dir)
@@ -298,7 +300,7 @@ class ConvertASDF(object):
     def _parse_path(path):
 
         if "waveform_files" in path:
-            waveformfiles = path["waveform_files"]
+            waveformfiles = glob.glob(path["waveform_files"])
             filetype = None
         elif "waveform_dir" in path:
             waveformdir = path["waveform_dir"]
@@ -306,11 +308,11 @@ class ConvertASDF(object):
             waveform_pattern = os.path.join(waveformdir, "*"+filetype)
             waveformfiles = glob.glob(waveform_pattern)
         else:
-            raise ValueError("missing keywords in json file, 'waveform_files'"
+            raise ValueError("missing keywords in yaml file, 'waveform_files'"
                              "or 'waveformdir'")
 
         if "staxml_files" in path:
-            staxmlfiles = path["staxml_files"]
+            staxmlfiles = glob.glob(path["staxml_files"])
             create_simple_inv = False
         elif "staxml_dir" in path:
             staxmldir = path["staxml_dir"]
@@ -347,9 +349,10 @@ class ConvertASDF(object):
                         create_simple_inv=create_simple_inv)
 
     def run(self):
-        path = smart_read_json(self.path, mpi_mode=False)
+        path = smart_read_yaml(self.path, mpi_mode=False)
         if isinstance(path, list):
             for _path in path:
                 self._run_subs(_path)
         else:
+            print(path)
             self._run_subs(path)
