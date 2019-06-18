@@ -44,6 +44,10 @@ def create_process_path_obs(cmt_filename, process_dir, verbose=True):
     # Get all process possibilities
     process_param_files = glob.glob(os.path.join(process_dir, "*"))
 
+    if verbose:
+        print("Processing parameter files to be used:")
+        print(process_param_files)
+
     for _i, process_param_file in enumerate(process_param_files):
 
         # Get band
@@ -76,7 +80,8 @@ def create_process_path_obs(cmt_filename, process_dir, verbose=True):
         d = {"input_asdf": input_asdf,
              "input_tag": input_tag,
              "output_asdf": output_asdf,
-             "output_tag": output_tag}
+             "output_tag": output_tag,
+             "process_param_file": process_param_file}
 
         # Writing the directory to file
         write_yaml_file(d, yaml_file_path)
@@ -103,6 +108,10 @@ def create_process_path_syn(cmt_filename, process_dir, npar, verbose=True):
 
     # Get all process possibilities
     process_param_files = glob.glob(os.path.join(process_dir, "*"))
+
+    if verbose:
+        print("Processing parameter files to be used:")
+        print(process_param_files)
 
     for _i, process_param_file in enumerate(process_param_files):
 
@@ -140,13 +149,14 @@ def create_process_path_syn(cmt_filename, process_dir, npar, verbose=True):
             d = {"input_asdf": input_asdf,
                  "input_tag": input_tag,
                  "output_asdf": output_asdf,
-                 "output_tag": output_tag}
+                 "output_tag": output_tag,
+                 "process_param_file": process_param_file}
 
             # Writing the directory to file
             write_yaml_file(d, yaml_file_path)
 
 
-def create_window_path(cmt_filename, window_process_dir, npar,
+def create_window_path(cmt_filename, window_process_dir,
                        figure_mode=False, verbose=True):
     """ This function writes a yaml processing path file all simulations
     file. This is needed for the processing of the ASDF files.
@@ -167,6 +177,10 @@ def create_window_path(cmt_filename, window_process_dir, npar,
 
     # Get all process possibilities
     window_param_files = glob.glob(os.path.join(window_process_dir, "*"))
+
+    if verbose:
+        print("Processing parameter files to be used:")
+        print(window_param_files)
 
     for _i, window_param_file in enumerate(window_param_files):
 
@@ -217,7 +231,8 @@ def create_window_path(cmt_filename, window_process_dir, npar,
              "synt_asdf": synt_asdf,
              "synt_tag": synt_tag,
              "output_file": output_file,
-             "figure_mode": figure_mode}
+             "figure_mode": figure_mode,
+             "window_param_file": window_param_file}
 
         # Writing the directory to file
         write_yaml_file(d, yaml_file_path)
