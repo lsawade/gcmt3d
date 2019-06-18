@@ -2,7 +2,7 @@
 import matplotlib as mpl
 mpl.use('Agg')  # NOQA
 import argparse
-from ..window import WindowASDF
+from gcmt3d.asdf.window import WindowASDF
 
 
 def main():

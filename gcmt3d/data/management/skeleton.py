@@ -14,6 +14,7 @@ Last Update: April 2019
 """
 
 from ...source import CMTSource
+from ...asdf.utils import write_yaml_file
 import glob
 import os
 import shutil
@@ -27,7 +28,7 @@ class DataBaseSkeleton(object):
     the class copies the necessary data from the specfem folder."""
 
     def __init__(self, basedir=None, cmt_fn=None, specfem_dir=None,
-                 verbose=False, overwrite=False, npar=9):
+                 npar=9, verbose=False, overwrite=False):
         """
         Args:
             basedir: str with path to database directory, e.g
@@ -45,6 +46,7 @@ class DataBaseSkeleton(object):
                         2: Seismogram, Simulation and Window Directories are
                            overwritten for a certain Earthquake.
                         3: Simulation subdirectories overwritten
+                        4: Overwrite yaml path files only
             verbose: boolean that sets whether the output should be verbose
                      or not
 
@@ -72,8 +74,17 @@ class DataBaseSkeleton(object):
         self.eq_dirs = []
         self.eq_ids = []
 
+        # List of possible attributes
+        # Parameters
+        self.attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
+                     "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
+
     def create_all(self):
         """ Writes complete database structure."""
+
+        if self.v:
+            print("Creating earthquake entry in database %s ... " %
+                  self.basedir)
 
         # Create earthquake directory
         self.create_eq_dirs()
@@ -90,6 +101,9 @@ class DataBaseSkeleton(object):
         if self.specfem_dir is not None:
             # Create
             self.create_CMT_SIM_dir()
+
+        if self.v:
+            print("Done.")
 
     def create_base(self):
         """Creates Base directory if it doesn't exist."""
@@ -132,11 +146,20 @@ class DataBaseSkeleton(object):
         # Create new CMT path
         cmt_path = os.path.join(eq_dir, "eq_" + eq_id + ".cmt")
 
+        # Create new CMT path
+        xml_path = os.path.join(eq_dir, "eq_" + eq_id + ".xml")
+
         # Copy the Earthquake file into the directory with eq_<ID>.cmt
         if self.ow in [0, 1] and type(self.ow) is not bool:
             self._copy_file(cmtfile, cmt_path, True)
         else:
             self._copy_file(cmtfile, cmt_path, False)
+
+        # Copy the Earthquake file into the directory with eq_<ID>.xml
+        if self.ow in [0, 1] and type(self.ow) is not bool:
+            self._write_quakeml(cmtfile, xml_path, True)
+        else:
+            self._write_quakeml(cmtfile, xml_path, False)
 
     def create_station_dir(self):
         """Creates station_data directory for station metadata."""
@@ -152,6 +175,20 @@ class DataBaseSkeleton(object):
             else:
                 self._create_dir(station_dir, False)
 
+    def create_inversion_output_dir(self):
+        """Creates station_data directory for station metadata."""
+
+        for _i, _eq_dir in enumerate(self.eq_dirs):
+
+            # Create station_data dirs
+            inv_dir = os.path.join(_eq_dir, "inversion_output")
+
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(inv_dir, True)
+            else:
+                self._create_dir(inv_dir, False)
+
     def create_window_dir(self):
         """Creates window_data directory for pyflex window data metadata."""
 
@@ -166,6 +203,15 @@ class DataBaseSkeleton(object):
             else:
                 self._create_dir(window_dir, False)
 
+            # Create Window path directory
+            window_path_dir = os.path.join(window_dir, "window_paths")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(window_path_dir, True)
+            else:
+                self._create_dir(window_path_dir, False)
+
     def create_CMT_SIM_dir(self):
         """
         Creates CMT simulation directory and copies necessary files from given
@@ -173,9 +219,6 @@ class DataBaseSkeleton(object):
         compiled already and there is no way of testing that prior to running
         GCMT.
         """
-        # Parameters
-        attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
-                "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
 
         for _i, _eq in enumerate(self.eq_dirs):
 
@@ -188,7 +231,7 @@ class DataBaseSkeleton(object):
                 self._create_dir(sim_path, False)
 
             # Second create subdirectories of CMT specfem directories
-            for _j, _attr in enumerate(attr[:self.npar+1]):
+            for _j, _attr in enumerate(self.attr[:self.npar+1]):
 
                 # Create subdirectory for simulation packages.
                 cmt_der_path = os.path.join(sim_path, _attr)
@@ -197,8 +240,6 @@ class DataBaseSkeleton(object):
                     self._create_dir(cmt_der_path, True)
                 else:
                     self._create_dir(cmt_der_path, False)
-
-                cmt_der_path
 
                 # Copy specfem directory into cmt_der_path
                 subdirs = ["DATA", "DATABASES_MPI", "OUTPUT_FILES"]
@@ -243,6 +284,14 @@ class DataBaseSkeleton(object):
                         else:
                             self._copy_dir(src_path, dst_path, False)
 
+                    # Create the Path file for later usage of the ASDF
+                    # conversion
+                    if _subdir == "OUTPUT_FILES":
+                        if self.v:
+                            print("Writing YAML path file from waveform dir "
+                                  "%s" % dst_path)
+                        self._create_syn_path_yaml(dst_path)
+
                 # Create symbolic link to destination folders
                 if not os.path.islink((os.path.join(cmt_der_path, "bin"))):
                     os.symlink(os.path.join(self.specfem_dir, "bin"),
@@ -261,6 +310,49 @@ class DataBaseSkeleton(object):
                 self._create_dir(seismogram_dir, True)
             else:
                 self._create_dir(seismogram_dir, False)
+
+            # Create the subdirectory for synthetic data
+            syn_dir_path = os.path.join(seismogram_dir, 'syn')
+
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(syn_dir_path, True)
+            else:
+                self._create_dir(syn_dir_path, False)
+
+            # Create the subdirectory for observed data
+            obs_dir_path = os.path.join(seismogram_dir, 'obs')
+
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(obs_dir_path, True)
+            else:
+                self._create_dir(obs_dir_path, False)
+
+            # write Observed path file
+            if self.v:
+                print("Writing the YAML path file to %s" %
+                      os.path.join(obs_dir_path, "observed.yml"))
+            self._create_obs_path_yaml(self.eq_ids[_i], _eq_dir)
+
+            # Create the subdirectory for processing pathfiles
+            process_dir_path = os.path.join(seismogram_dir, 'process_paths')
+
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(process_dir_path, True)
+            else:
+                self._create_dir(process_dir_path, False)
+
+            # Create the subdirectory for processed seismograms
+            processed_dir_path = os.path.join(seismogram_dir,
+                                              'processed_seismograms')
+
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(processed_dir_path, True)
+            else:
+                self._create_dir(processed_dir_path, False)
 
     def _copy_dir(self, source, destination, ow, **kwargs):
         """ Copies a directory source to destination. It checks also for
@@ -302,22 +394,22 @@ class DataBaseSkeleton(object):
                 print("Copying file %s file to %s." % (source, destination))
             shutil.copyfile(source, destination)
 
-    def _write_quakeml(self, source, destination):
-        """ Copies CMT solution from source to QuakeML destination. It checks
+    def _write_quakeml(self, source, destination, ow):
+        """ Copies CMTSOLUTION from source to QuakeML destination. It checks
         also for potential duplicates in the same place, warns whether they are
         different but have the name."""
 
         # CMT Source file
         catalog = read_events(source)
 
-        if os.path.isfile(destination) and self.ow:
+        if os.path.isfile(destination) and ow:
             if self.v:
                 print("Earthquake file %s exists already. It will "
                       "be overwritten." % destination)
             os.remove(destination)
             catalog.write(destination, format="QUAKEML")
 
-        elif os.path.isfile(destination) and self.ow is False:
+        elif os.path.isfile(destination) and ow is False:
             if self.v:
                 print("Earthquake file %s exists already. It will "
                       "NOT be overwritten." % destination)
@@ -329,9 +421,107 @@ class DataBaseSkeleton(object):
                               "the same as the file with the same ID.")
         else:
             if self.v:
-                print("Copying earthquake %s file to %s." % (source,
+                print("Writing earthquake %s file to %s." % (source,
                                                              destination))
             catalog.write(destination, format="QUAKEML")
+
+    def _create_syn_path_yaml(self, waveform_dir):
+        """ This function writes a yaml conversion path file for 1 Simulation
+        file. This file is later on need for the creation of ASDF files and the
+        processing involved ASDF files.
+
+        The function assumes that
+        * the QuakeML file is located in the OUTPUT_FILES directory with the
+          name `Quake.xml`
+        * The output directory name is the
+          `../database/eq_<id>/seismograms/syn/<attr>.h5
+
+        Args:
+              waveform_dir: path to OUTPUT_FILES
+
+        """
+
+        # File Type
+        filetype = "sac"
+
+        # Tag
+        tag = "syn"
+
+        # QuakeML file path
+        quakeml_file = os.path.join(waveform_dir, "Quake.xml")
+
+        # Outputfile
+        cmt_sim_dir = os.path.dirname(waveform_dir)
+        eq_dir = os.path.dirname(os.path.dirname(cmt_sim_dir))
+        cmt_name = os.path.basename(cmt_sim_dir)
+        output_file = os.path.join(eq_dir, "seismograms", "syn",
+                                   cmt_name + ".h5")
+
+        # Pathfile directory
+        yaml_file_path = os.path.join(cmt_sim_dir, cmt_name + ".yml")
+
+        # Create dictionary
+        if self.v:
+            print("Writing path file %s." % yaml_file_path)
+
+        d = {"waveform_dir": waveform_dir,
+             "filetype": filetype,
+             "quakeml_file": quakeml_file,
+             "tag": tag,
+             "output_file": output_file}
+
+        # Writing the directory to file
+        write_yaml_file(d, yaml_file_path)
+
+    def _create_obs_path_yaml(self, eq_id, eq_dir):
+        """ This function writes a yaml path file for 1 Simulation file. This
+        file is later on need for the creation of ASDF files and the
+        processing involved ASDF files.
+
+        The function assumes that
+        * the QuakeML file is located in the main EQ directory with the
+          name `eq_<id>.xml`
+        * The output file name is the
+          `../database/eq_<id>/seismograms/obs/raw_observed.h5
+
+        Args:
+              waveform_dir: path to OUTPUT_FILES
+
+        """
+
+        # Tag
+        tag = "obs"
+
+        # Waveform file
+        waveform_files = os.path.join(eq_dir, "seismograms", "obs",
+                                      eq_id + ".mseed")
+
+        # QuakeML file path
+        quakeml_file = os.path.join(eq_dir, "eq_" + eq_id + ".xml")
+
+        # Station file
+        staxml_file = os.path.join(eq_dir, "station_data", "station.xml")
+
+        # Outputfile
+        output_file = os.path.join(eq_dir, "seismograms",
+                                   "obs", "raw_observed.h5")
+
+        # Pathfile directory
+        yaml_file_path = os.path.join(eq_dir, "seismograms",
+                                      "obs", "observed.yml")
+
+        # Create dictionary
+        if self.v:
+            print("Writing path file %s." % yaml_file_path)
+
+        d = {"waveform_files": waveform_files,
+             "quakeml_file": quakeml_file,
+             "tag": tag,
+             "staxml_files": staxml_file,
+             "output_file": output_file}
+
+        # Writing the directory to file
+        write_yaml_file(d, yaml_file_path)
 
     def _create_dir(self, directory, ow):
         """Create subdirectory"""

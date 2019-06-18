@@ -4,7 +4,7 @@ Convert asdf files to sac
 """
 import argparse
 
-from ..convert import convert_from_asdf
+from gcmt3d.asdf.convert import convert_from_asdf
 
 
 def main():

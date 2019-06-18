@@ -6,6 +6,7 @@ handles parallel I/O so they are invisible to users.
 
 :copyright:
     Wenjie Lei (lei@princeton.edu), 2016
+    Lucas Sawade (lsawade@princeton.edu) 2019
 :license:
     GNU Lesser General Public License, version 3 (LGPLv3)
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
@@ -88,6 +89,18 @@ def smart_read_json(json_file, mpi_mode=True, comm=None, object_hook=False):
             json_obj = None
         json_obj = comm.bcast(json_obj, root=0)
     return json_obj
+
+
+def write_yaml_file(d, filename, **kwargs):
+    """Writes dictionary to given yaml file.
+
+    Args:
+          d: Dictionary to be written into the yaml file
+          filename: string with filename of the file to be written.
+
+    """
+    with open(filename, 'w') as yaml_file:
+        yaml.dump(d, yaml_file, default_flow_style=False, **kwargs)
 
 
 def read_yaml_file(filename):
@@ -192,7 +205,7 @@ def timing(f):
         time1 = time.time()
         ret = f(*args, **kwargs)
         time2 = time.time()
-        print('%s function took %0.3f s' % (f.func_name, (time2-time1)))
+        print('%s function took %0.3f s' % (f.__name__, (time2-time1)))
         return ret
     return wrap
 

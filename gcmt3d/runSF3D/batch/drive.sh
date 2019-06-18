@@ -6,8 +6,9 @@ export TASKS=$2
 export NPAR=0-$3
 export RUNDIR=$4
 export TIME=$5
-export VERBOSE=$6
-export SCRIPT=$7
+export MODULES=$6
+export VERBOSE=$7
+export SCRIPT=$8
 
 
 # Control output

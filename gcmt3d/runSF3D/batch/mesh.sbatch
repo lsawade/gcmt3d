@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Load necessary modules:
-module load intel/18.0
-module load openmpi/intel-18.0
+module load intel
+module load openmpi
 
 # Execute script
 srun ./bin/xmeshfem3D

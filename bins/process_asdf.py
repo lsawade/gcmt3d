@@ -2,7 +2,7 @@
 
 import argparse
 
-from ..process import ProcASDF
+from gcmt3d.asdf.process import ProcASDF
 
 
 def main():

@@ -21,9 +21,9 @@ import os
 
 import pyasdf
 
-from ..stations import extract_adjoint_stations
-from ..stations import extract_waveform_stations
-from ...station.utils import write_stations_file
+from gcmt3d.asdf.stations import extract_adjoint_stations
+from gcmt3d.asdf.stations import extract_waveform_stations
+from gcmt3d.station.utils import write_stations_file
 
 
 def generate_waveform_stations(asdf, outputfn):

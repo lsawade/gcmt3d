@@ -153,8 +153,7 @@ class SpecfemSources(object):
             # Print info if verbose flag is True
             if self.v:
                 print("%s has been written." % os.path.join(cmtsim_outdir,
-                                                        "CMTSOLUTION"))
-
+                                                            "CMTSOLUTION"))
 
             # Write the QuakeML to OUTPUT_FILES folder
             src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
@@ -279,8 +278,6 @@ class SpecfemSources(object):
             # Print info if verbose flag is True
             if self.v:
                 print("%s has been written." % dst)
-
-
 
     def _write_quakeml(self, source, destination):
         """ Copies CMT solution from source to QuakeML destination."""
