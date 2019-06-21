@@ -7,3 +7,4 @@ CMTSOLUTION_*
 .DS_Store
 *.pdf
 *.egg-info
+*.pyc

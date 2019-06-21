@@ -22,7 +22,7 @@ def check_param_keywords(param):
     Check the param keywords are the same with the keywords list of
     the function of process_stream
     """
-    default_param = inspect.getargspec(process_stream).args
+    default_param = inspect.getfullargspec(process_stream).args
     default_param.remove("st")
     default_param.remove("inventory")
     if not param["remove_response_flag"]:

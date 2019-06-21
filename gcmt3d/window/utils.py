@@ -201,5 +201,16 @@ def stats_all_windows(windows, obsd_tag, synt_tag,
     window_log = generate_log_content(windows)
     log.update(window_log)
 
+    print(output_file)
+
     print("Windows statistic log file: %s" % output_file)
     dump_json(log, output_file)
+
+
+def convert_to_window_json_to_txt(windowjson, outputtxt):
+    """ Converts window
+
+    :param windowjson:
+    :param outputtxt:
+    :return:
+    """

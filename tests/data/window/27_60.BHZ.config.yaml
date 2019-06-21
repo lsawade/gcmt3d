@@ -24,6 +24,7 @@
 
 # window signal-to-noise ratio
 "s2n_limit": 3.0
+
 #"s2n_limit_energy": 1.5
 "window_signal_to_noise_type": "amplitude"
 

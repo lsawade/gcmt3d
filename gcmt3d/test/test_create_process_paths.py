@@ -108,7 +108,7 @@ class TestCreatePaths(unittest.TestCase):
 
             # One solution path file:
             process_file = os.path.join(process_paths,
-                                        "process_observed_040_100.yml")
+                                        "process_observed.040_100.yml")
 
             # Solution should be:
             input_asdf = os.path.join(DB.eq_dirs[0], "seismograms", "obs",
@@ -116,8 +116,8 @@ class TestCreatePaths(unittest.TestCase):
             input_tag = "obs"
             output_asdf = os.path.join(DB.eq_dirs[0], "seismograms",
                                        "processed_seismograms",
-                                       "processed_observed_040_100.h5")
-            output_tag = "proc_obs_040_100"
+                                       "processed_observed.040_100.h5")
+            output_tag = "processed_observed"
             process_param_file = os.path.join(process_dir,
                                               "proc_obsd.40_100.param.yml")
 
@@ -162,7 +162,7 @@ class TestCreatePaths(unittest.TestCase):
 
             # One solution path file:
             process_file = os.path.join(process_paths,
-                                        "process_synthetic_CMT_rp_040_100.yml")
+                                        "process_synthetic_CMT_rp.040_100.yml")
 
             # Solution should be:
             input_asdf = os.path.join(DB.eq_dirs[0], "seismograms", "syn",
@@ -170,8 +170,8 @@ class TestCreatePaths(unittest.TestCase):
             input_tag = "syn"
             output_asdf = os.path.join(DB.eq_dirs[0], "seismograms",
                                        "processed_seismograms",
-                                       "processed_synthetic_CMT_rp_040_100.h5")
-            output_tag = "proc_syn_CMT_rp_040_100"
+                                       "processed_synthetic_CMT_rp.040_100.h5")
+            output_tag = "processed_synthetic"
             process_param_file = os.path.join(process_dir,
                                               "proc_synt.40_100.param.yml")
 
@@ -216,18 +216,18 @@ class TestCreatePaths(unittest.TestCase):
             # Define observed ASDF
             obsd_asdf = os.path.join(cmt_dir, "seismograms",
                                      "processed_seismograms",
-                                     "processed_observed_040_100.h5")
-            obsd_tag = "proc_obs_040_100"
+                                     "processed_observed.040_100.h5")
+            obsd_tag = "processed_observed"
 
             # Synthetic ASDF
-            synt_asdf = os.path.join(cmt_dir, "seismograms", "syn",
+            synt_asdf = os.path.join(cmt_dir, "seismograms",
                                      "processed_seismograms",
-                                     "processed_synthetic_CMT_040_100.h5")
-            synt_tag = "proc_syn_CMT_040_100"
+                                     "processed_synthetic_CMT.040_100.h5")
+            synt_tag = "processed_synthetic"
 
             # Output file parameters
             output_file = os.path.join(cmt_dir, "window_data",
-                                       "windows_040_100#surface_wave.json")
+                                       "windows.040_100#surface_wave.json")
 
             # window paramfile
             window_param_file = os.path.join(window_process_dir,
@@ -236,10 +236,14 @@ class TestCreatePaths(unittest.TestCase):
 
             # Output path file
             path_file = os.path.join(cmt_dir, "window_data", "window_paths",
-                                     "windows_040_100#surface_wave.yml")
+                                     "windows.040_100#surface_wave.yml")
 
             # Read written dictionary
             d = smart_read_yaml(path_file, mpi_mode=False)
+
+
+            print("Solution: ", synt_asdf)
+            print("Loaded: ", d["synt_asdf"])
 
             # Assessing correctness of yaml file
             self.assertTrue(d["obsd_asdf"] == obsd_asdf)

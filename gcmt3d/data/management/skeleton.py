@@ -9,7 +9,7 @@ database of Earthquakes. If wanted.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 
-Last Update: April 2019
+Last Update: June 2019
 
 """
 
@@ -98,6 +98,9 @@ class DataBaseSkeleton(object):
         # Create Seismogram directory
         self.create_seismogram_dir()
 
+        # Create Inversion directory
+        self.create_inversion_dir()
+
         if self.specfem_dir is not None:
             # Create
             self.create_CMT_SIM_dir()
@@ -175,19 +178,35 @@ class DataBaseSkeleton(object):
             else:
                 self._create_dir(station_dir, False)
 
-    def create_inversion_output_dir(self):
+    def create_inversion_dir(self):
         """Creates station_data directory for station metadata."""
 
         for _i, _eq_dir in enumerate(self.eq_dirs):
 
             # Create station_data dirs
-            inv_dir = os.path.join(_eq_dir, "inversion_output")
+            inv_dir = os.path.join(_eq_dir, "inversion")
 
             if self.ow in [0, 1, 2] and type(self.ow) is not bool:
                 # Create new directory
                 self._create_dir(inv_dir, True)
             else:
                 self._create_dir(inv_dir, False)
+
+            inv_dict_dir = os.path.join(inv_dir, "inversion_dicts")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(inv_dict_dir, True)
+            else:
+                self._create_dir(inv_dict_dir, False)
+
+            inv_out_dir = os.path.join(inv_dir, "inversion_output")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(inv_out_dir, True)
+            else:
+                self._create_dir(inv_out_dir, False)
 
     def create_window_dir(self):
         """Creates window_data directory for pyflex window data metadata."""
@@ -445,7 +464,7 @@ class DataBaseSkeleton(object):
         filetype = "sac"
 
         # Tag
-        tag = "raw_synthetic"
+        tag = "syn"
 
         # QuakeML file path
         quakeml_file = os.path.join(waveform_dir, "Quake.xml")
@@ -490,7 +509,7 @@ class DataBaseSkeleton(object):
         """
 
         # Tag
-        tag = "raw_observed"
+        tag = "obs"
 
         # Waveform file
         waveform_files = os.path.join(eq_dir, "seismograms", "obs",
