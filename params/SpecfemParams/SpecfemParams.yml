@@ -1,5 +1,5 @@
 # directory where specfem is compiled
-SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem3d_globe_adios"
+SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem3d_globe_gpu"
 
 # Set MPI Parameters
 NEX_XI: 128
@@ -25,8 +25,8 @@ ADIOS_FOR_MODELS: True
 ADIOS_FOR_UNDO_ATTENUATION: True
 
 # Minimal Processing
-ROTATE_SEISMOGRAMS_RT: False
-RECORD_LENGTH: 60
+ROTATE_SEISMOGRAMS_RT: False # Rotates the seismograms to RTZ
+RECORD_LENGTH: 125
 MODEL: "s362ani"
 
 # Output style
@@ -46,7 +46,7 @@ nodes: 2
 tasks: 6
 tasks_per_node: 3  # Unused for CPU runs
 walltime: "00:20:00"
-walltime_solver: "00:45:00"  # Solver usually
+walltime_solver: "00:15:00"  # Solver usually
 memory_req: 40000  # Memory to be requested for run in MB. Unused for CPU runs.
 
 

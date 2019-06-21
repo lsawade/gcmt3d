@@ -1,5 +1,5 @@
 # seconds, 1h = 3600s
-duration: 3600
+duration: 7400
 
 # needs to be a list
 channels: ['BHN','BHE','BHZ']
