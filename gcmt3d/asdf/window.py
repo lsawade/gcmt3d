@@ -10,6 +10,7 @@ so they are invisible to users.
     GNU Lesser General Public License, version 3 (LGPLv3)
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
+
 from __future__ import (absolute_import, division, print_function)
 from functools import partial
 import os
@@ -29,15 +30,22 @@ def check_param_keywords(config):
                "signal_start_index", "signal_end_index",
                "window_weight_fct"]
 
-    default_keywords = inspect.getargspec(pyflex.Config.__init__).args
+    default_keywords = inspect.getfullargspec(pyflex.Config.__init__).args
+    print(default_keywords)
     for d in deletes:
         default_keywords.remove(d)
+
+    print("DK: ", set(default_keywords))
+    print("CK: ", set(config.keys()))
 
     if set(default_keywords) != set(config.keys()):
         print("Missing: %s" % (set(default_keywords) - set(config.keys())))
         print("Redundant: %s" % (set(config.keys()) - set(default_keywords)))
-        raise ValueError("config file is missing values compared to "
-                         "pyflex.Config")
+
+        if len(set(default_keywords) - set(config.keys())) > 0:
+            raise ValueError("config file is missing values compared to "
+                             "pyflex.Config")
+
 
 
 def load_window_config(param):
@@ -90,14 +98,21 @@ def window_wrapper(obsd_station_group, synt_station_group, config_dict=None,
     """
     Wrapper for asdf I/O
     """
+
     # Make sure everything thats required is there.
-    if not hasattr(synt_station_group, "StationXML"):
+    try:
+        hasattr(synt_station_group, "StationXML")
+    except Exception:
         print("Missing StationXML from synt_staiton_group")
         return
-    if not hasattr(obsd_station_group, obsd_tag):
+    try:
+        hasattr(obsd_station_group, obsd_tag)
+    except Exception:
         print("Missing tag '%s' from obsd_station_group" % obsd_tag)
         return
-    if not hasattr(synt_station_group, synt_tag):
+    try:
+        hasattr(synt_station_group, synt_tag)
+    except Exception:
         print("Missing tag '%s' from synt_station_group" % synt_tag)
         return
 
@@ -120,24 +135,42 @@ class WindowASDF(ProcASDFBase):
                               debug=debug)
 
     def _parse_param(self):
-        myrank = self.comm.Get_rank()
+
+        # Get params
         param = self._parse_yaml(self.param)
 
         # reform the param from default
         default = param["default"]
         comp_settings = param["components"]
         results = {}
-        for _comp, _settings in comp_settings.items():
-            if myrank == 0:
-                print("Preparing params for components: %s" % _comp)
-            results[_comp] = deepcopy(default)
-            if _settings is None:
-                continue
-            for k, v in _settings.items():
+
+        if self.mpi_mode:
+
+            # Get MPI rank
+            myrank = self.comm.Get_rank()
+
+            for _comp, _settings in comp_settings.items():
                 if myrank == 0:
-                    print("--> Modify key[%s] to value: %s --> %s"
-                          % (k, results[_comp][k], v))
-                results[_comp][k] = v
+                    print("Preparing params for components: %s" % _comp)
+                results[_comp] = deepcopy(default)
+                if _settings is None:
+                    continue
+                for k, v in _settings.items():
+                    if myrank == 0:
+                        print("--> Modify key[%s] to value: %s --> %s"
+                              % (k, results[_comp][k], v))
+                    results[_comp][k] = v
+        else:
+
+            for _comp, _settings in comp_settings.items():
+
+                results[_comp] = deepcopy(default)
+
+                if _settings is None:
+                    continue
+
+                for k, v in _settings.items():
+                    results[_comp][k] = v
 
         return results
 
@@ -148,7 +181,7 @@ class WindowASDF(ProcASDFBase):
 
     def _validate_param(self, param):
         for key, value in param.items():
-            necessary_keys = ["min_period", "max_period", "selection_mode"]
+            necessary_keys = ["min_period", "max_period"]
             self._missing_keys(necessary_keys, value)
             minp = value["min_period"]
             maxp = value["max_period"]
@@ -193,20 +226,22 @@ class WindowASDF(ProcASDFBase):
                           figure_dir=figure_dir, _verbose=self._verbose)
 
         windows = \
-            obsd_ds.process_two_files(synt_ds, winfunc)
+            obsd_ds.process_two_files_no_mpi(synt_ds, winfunc)
 
-        if self.rank == 0:
-            if instrument_merge_flag:
-                # merge multiple instruments
-                results = merge_windows(windows)
-            else:
-                # nothing is done
-                results = windows
+        if instrument_merge_flag:
+            # merge multiple instruments
+            results = merge_windows(windows)
+        else:
+            # nothing is done
+            results = windows
 
-            stats_logfile = os.path.join(output_dir, "windows.stats.json")
-            # stats windows on rand 0
-            stats_all_windows(results, obsd_tag, synt_tag,
-                              instrument_merge_flag,
-                              stats_logfile)
+        # Take of the json and add stats to save the statistics to file
+        stats_logfile = output_file[:-4] + "stats.json"
 
-            write_window_json(results, output_file)
+        # stats windows on rand 0
+        stats_all_windows(results, obsd_tag, synt_tag,
+                          instrument_merge_flag,
+                          stats_logfile)
+
+        # Write to file
+        write_window_json(results, output_file)

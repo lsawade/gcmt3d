@@ -83,6 +83,7 @@ class ProcASDFBase(object):
         """
         self.mpi_mode = is_mpi_env()
         if not self.mpi_mode:
+            print(self.mpi_mode)
             warnings.warn("MPI environment required for parallel processing or"
                           " window selection.")
         else:

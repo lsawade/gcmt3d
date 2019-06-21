@@ -78,7 +78,7 @@ class CMTSource(object):
 
         with open(filename, "rt") as f:
             line = f.readline()
-            origin_time = line[4:].strip().split()[:6]
+            origin_time = line[5:].strip().split()[:6]
             values = list(map(int, origin_time[:-1])) + \
                 [float(origin_time[-1])]
             try:

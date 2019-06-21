@@ -9,13 +9,14 @@ observed and synthetic data.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 
-Last Update: April 2019
+Last Update: June 2019
 
 """
 
 import os
 import glob
 from ...asdf.utils import smart_read_yaml
+from ...asdf.utils import is_mpi_env
 from ...asdf.utils import write_yaml_file
 
 attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp", "CMT_tp",
@@ -51,7 +52,8 @@ def create_process_path_obs(cmt_filename, process_dir, verbose=True):
     for _i, process_param_file in enumerate(process_param_files):
 
         # Get band
-        process_params = smart_read_yaml(process_param_file)
+        process_params = smart_read_yaml(process_param_file,
+                                         mpi_mode=is_mpi_env())
         band = process_params["pre_filt"][1:-1]
         lP = 1 / band[1]  # Get low period bound from hz filtervalue
         hP = 1 / band[0]  # Get high period bound from hz filtervalue
@@ -64,13 +66,13 @@ def create_process_path_obs(cmt_filename, process_dir, verbose=True):
         # Output file parameters
         output_asdf = os.path.join(cmt_dir, "seismograms",
                                    "processed_seismograms",
-                                   "processed_observed_%03.0f_%03.0f.h5"
+                                   "processed_observed.%03.0f_%03.0f.h5"
                                    % (lP, hP))
-        output_tag = "proc_obs_%03.0f_%03.0f" % (lP, hP)
+        output_tag = "processed_observed"
 
         # Pathfile directory
         yaml_file_path = os.path.join(process_path_dir,
-                                      "process_observed_%03.0f_%03.0f.yml"
+                                      "process_observed.%03.0f_%03.0f.yml"
                                       % (lP, hP))
 
         # Create dictionary
@@ -118,7 +120,8 @@ def create_process_path_syn(cmt_filename, process_dir, npar, verbose=True):
         for _j, at in enumerate(attr[:npar + 1]):
 
             # Get band
-            process_params = smart_read_yaml(process_param_file)
+            process_params = smart_read_yaml(process_param_file,
+                                             mpi_mode=is_mpi_env())
             band = process_params["pre_filt"][1:-1]
             lP = 1 / band[1]  # Get low period bound from hz filtervalue
             hP = 1 / band[0]  # Get high period bound from hz filtervalue
@@ -132,14 +135,14 @@ def create_process_path_syn(cmt_filename, process_dir, npar, verbose=True):
             output_asdf = os.path.join(cmt_dir, "seismograms",
                                        "processed_seismograms",
                                        'processed_synthetic_'
-                                       '%s_%03.0f_%03.0f.h5'
+                                       '%s.%03.0f_%03.0f.h5'
                                        % (at, lP, hP))
-            output_tag = "proc_syn_%s_%03.0f_%03.0f" % (at, lP, hP)
+            output_tag = "processed_synthetic"
 
             # Pathfile directory
             yaml_file_path = os.path.join(process_path_dir,
                                           "process_synthetic_"
-                                          "%s_%03.0f_%03.0f.yml"
+                                          "%s.%03.0f_%03.0f.yml"
                                           % (at, lP, hP))
 
             # Create dictionary
@@ -185,7 +188,8 @@ def create_window_path(cmt_filename, window_process_dir,
     for _i, window_param_file in enumerate(window_param_files):
 
         # Get band
-        window_process_params = smart_read_yaml(window_param_file)
+        window_process_params = smart_read_yaml(window_param_file,
+                                                mpi_mode=is_mpi_env())
         # Get lower and upper period bound
         lP = window_process_params["default"]["min_period"]
         hP = window_process_params["default"]["max_period"]
@@ -201,25 +205,25 @@ def create_window_path(cmt_filename, window_process_dir,
         # Define observed ASDF
         obsd_asdf = os.path.join(cmt_dir, "seismograms",
                                  "processed_seismograms",
-                                 "processed_observed_%03.0f_%03.0f.h5"
+                                 "processed_observed.%03.0f_%03.0f.h5"
                                  % (lP, hP))
-        obsd_tag = "proc_obs_%03.0f_%03.0f" % (lP, hP)
+        obsd_tag = "processed_observed"
 
         # Synthetic ASDF
-        synt_asdf = os.path.join(cmt_dir, "seismograms", "syn",
+        synt_asdf = os.path.join(cmt_dir, "seismograms",
                                  "processed_seismograms",
-                                 "processed_synthetic_CMT_%03.0f_%03.0f.h5"
+                                 "processed_synthetic_CMT.%03.0f_%03.0f.h5"
                                  % (lP, hP))
-        synt_tag = "proc_syn_CMT_%03.0f_%03.0f" % (lP, hP)
+        synt_tag = "processed_synthetic"
 
         # Output file parameters
         output_file = os.path.join(cmt_dir, "window_data",
-                                   'windows_%03.0f_%03.0f%s.json'
+                                   'windows.%03.0f_%03.0f%s.json'
                                    % (lP, hP, wave_type))
 
         # Pathfile directory
         yaml_file_path = os.path.join(window_path_dir,
-                                      "windows_%03.0f_%03.0f%s.yml"
+                                      "windows.%03.0f_%03.0f%s.yml"
                                       % (lP, hP, wave_type))
 
         # Create dictionary
