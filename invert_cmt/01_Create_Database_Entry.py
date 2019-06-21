@@ -28,8 +28,7 @@ def main(cmt_filename):
                                     "SpecfemParams/SpecfemParams.yml")
 
     # Load Parameters
-    DB_params = smart_read_yaml(databaseparam_path,
-                                         mpi_mode=is_mpi_env())
+    DB_params = smart_read_yaml(databaseparam_path, mpi_mode=is_mpi_env())
     specfemspecs = smart_read_yaml(specfemspec_path, mpi_mode=is_mpi_env())
 
     # Database Setup.

@@ -11,9 +11,10 @@ Cutting of the traces
 +++++++++++++++++++++
 
 First the traces are cut into equal length. The starttime is the the CMT
-origin time and the end time is 3600 seconds later. If for some reason, there
-are gaps at the beginning or the end of the trace, the will be padded with
-zeros.
+origin time and the end time is 7200 seconds later. It is important to
+download and create synthetic traces that are longer than the cutting
+parameters. Meaning, that the traces should start earlier than the start cut
+time and later than the end cut time.
 
 Detrend, demean, and first tapering
 +++++++++++++++++++++++++++++++++++
@@ -50,7 +51,7 @@ using a SAC style filter.
 
 The corner are set in the parameter file using the ``pre_filt`` parameter. In
 the current processing setup this frequency corners are set to [0.0075, 0
-.0100, 0.0250, 0.0313] Hz
+.0100, 0.0250, 0.0313] Hz.
 
 
 

@@ -13,7 +13,7 @@ This script writes specfem sources into the respective simulation directories.
 """
 
 
-from pycmt3d.constant import SCALE_MOMENT, SCALE_DEPTH, SCALE_LONGITUDE, SCALE_LATITUDE
+
 from gcmt3d.source import CMTSource
 from gcmt3d.data import SpecfemSources
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
@@ -27,10 +27,15 @@ def main(cmt_filename):
         __file__))), "params")
     databaseparam_path = os.path.join(param_path,
                                       "Database/DatabaseParameters.yml")
+    inversionparam_path = os.path.join(param_path,
+                                       "CMTInversion/InversionParams.yml")
 
     # Load Parameters
     DB_params = smart_read_yaml(databaseparam_path,
                                 mpi_mode=is_mpi_env())
+
+    # Inversion Params
+    INV_params = smart_read_yaml(inversionparam_path, mpi_mode=is_mpi_env())
 
     # File and directory
     cmt_dir = os.path.dirname(cmt_filename)
@@ -38,12 +43,21 @@ def main(cmt_filename):
     outdir = os.path.join(cmt_dir, "CMT_SIMs")
 
     # Basic parameters
-    dm = SCALE_MOMENT       # 10**22 dyne*cm
-    dx = SCALE_DEPTH        # 1000 m
-    ddeg = SCALE_LATITUDE   # 0.001 deg
+    dm = float(INV_params["config"]["dmoment"])      # 10**22 dyne*cm
+    dz = float(INV_params["config"]["ddepth"])       # 1000 m
+    ddeg = float(INV_params["config"]["dlocation"])  # 0.001 deg
+
+    if DB_params["verbose"]:
+        print("\n")
+        print("  Perturbation parameters")
+        print("  " + 50 * "*")
+        print("  𝚫M: %g" % dm)
+        print("  𝚫z: %g" % dz)
+        print("  𝚫deg: %g" % ddeg)
+        print("  " + 50 * "*" + "\n")
 
     # Create source creation class
-    sfsource = SpecfemSources(cmt, npar=DB_params['npar'], dm=dm, dx=dx,
+    sfsource = SpecfemSources(cmt, npar=DB_params['npar'], dm=dm, dx=dz,
                               ddeg=ddeg, verbose=DB_params['verbose'],
                               outdir=outdir)
 

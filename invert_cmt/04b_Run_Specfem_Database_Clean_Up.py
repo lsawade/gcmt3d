@@ -57,7 +57,7 @@ def main(cmt_filename):
     RD.clean_up()
 
     if specfemspecs["verbose"]:
-        print("Deleting unnecessary stuff ...")
+        print("Deleting DONE.")
 
 
 if __name__ == '__main__':

@@ -88,7 +88,7 @@ def main():
     DF.configure_and_make()
 
     # Run the mesher to a slurm scheduler.
-    #DF.run_mesher()
+    DF.run_mesher()
 
 
 if __name__ == '__main__':

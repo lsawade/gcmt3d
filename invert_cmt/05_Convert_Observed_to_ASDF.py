@@ -61,7 +61,8 @@ def main(cmt_filename):
     converter.run()
 
 
-
+    if DB_params['verbose']:
+        print("\nConversion to ASDF DONE.\n")
 
 
 if __name__ == "__main__":

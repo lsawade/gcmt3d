@@ -15,9 +15,13 @@ verbose: True
 # Not yet implemented, but will be in the future:
 # 0: Everything will be overwritten including the database
 # 1: Earthquake directories will be overwritten
-# 2: CMT simulations will be overwritten.
+# 2: CMT simulations and downloaded seismograms will be overwritten.
+# 3: Only simulations will be overwritten.
 # False: Nothing will be overwritten.
 overwrite: False
 
 # Status bar for ASDF operations
-status_bar: True
+status_bar: False
+
+# When windowing traces create figures?
+figure_mode: False
