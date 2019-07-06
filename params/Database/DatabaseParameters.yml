@@ -25,3 +25,11 @@ status_bar: False
 
 # When windowing traces create figures?
 figure_mode: False
+
+
+
+####### EnTK parameters
+# activate conda environment
+conda-activate: '/home/lsawade/.miniconda3/bin/activate gcmt3d'
+# python location
+bin-python: '/home/lsawade/.miniconda3/envs/gcmt3d/bin/python'

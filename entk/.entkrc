@@ -1,0 +1,10 @@
+# Radical Pilot verbose format
+export RADICAL_PILOT_VERBOSE="REPORT"
+
+# Database resource
+export RADICAL_PILOT_DBURL="mongodb://user:user123@ds043012.mlab.com:43012/princeton"
+
+# RabbitMQ resource
+export RMQ_HOSTNAME="two.radical-project.org"
+export RMQ_PORT="33267"
+
