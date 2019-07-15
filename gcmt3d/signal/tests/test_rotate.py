@@ -68,7 +68,7 @@ def test_ensemble_synthetic_channel_orientation():
 
     with pytest.raises(Exception) as err:
         rotate.ensemble_synthetic_channel_orientation("MXR")
-    assert ": MXR" in str(err)
+    assert ": MXR" in str(er_r)
 
 
 def test_extract_channel_orientation():
