@@ -47,7 +47,6 @@ def check_param_keywords(config):
                              "pyflex.Config")
 
 
-
 def load_window_config(param):
     config_dict = {}
     flag_list = []

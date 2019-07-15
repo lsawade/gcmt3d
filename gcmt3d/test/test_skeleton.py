@@ -14,6 +14,7 @@ Last Update: April 2019
 
 import unittest
 from gcmt3d.data.management.skeleton import DataBaseSkeleton
+# from gcmt3d.data.management.skeleton import get_eq_entry_path
 from gcmt3d.source import CMTSource
 from gcmt3d.asdf.utils import smart_read_yaml
 import tempfile
@@ -407,6 +408,31 @@ class TestSkeleton(unittest.TestCase):
             self.assertTrue(d["output_file"] == output_file)
             self.assertTrue(d["waveform_files"] == waveform_files)
             self.assertTrue(d["staxml_files"] == staxml)
+
+    # def test_get_database_dir(self):
+    #     """Tests the function that gets the database directory. From the
+    #     directory name and the cmtfilename."""
+    #
+    #     with tempfile.TemporaryDirectory() as tmp_dir:
+    #         # Cmtfile path
+    #         cmtfile = os.path.join(DATA_DIR, "testCMT")
+    #
+    #         # Initialize database skeleton class
+    #         DB = DataBaseSkeleton(basedir=tmp_dir,
+    #                               cmt_fn=cmtfile,
+    #                               specfem_dir=self.specfem_dir,
+    #                               verbose=True)
+    #
+    #         # Create database
+    #         DB.create_all()
+    #
+    #         # Get path with function
+    #         eq_dir = get_eq_entry_path(tmp_dir, cmtfile)
+    #
+    #         print(eq_dir)
+    #
+    #         # Test if equal to actual path
+    #         self.assertTrue(eq_dir == DB.eq_dirs[0])
 
 
 if __name__ == "__main__":
