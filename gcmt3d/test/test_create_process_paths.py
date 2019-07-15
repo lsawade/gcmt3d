@@ -241,7 +241,6 @@ class TestCreatePaths(unittest.TestCase):
             # Read written dictionary
             d = smart_read_yaml(path_file, mpi_mode=False)
 
-
             print("Solution: ", synt_asdf)
             print("Loaded: ", d["synt_asdf"])
 
@@ -253,6 +252,7 @@ class TestCreatePaths(unittest.TestCase):
             self.assertTrue(d["figure_mode"])
             self.assertTrue(d["output_file"] == output_file)
             self.assertTrue(d["window_param_file"] == window_param_file)
+
 
 if __name__ == "__main__":
     unittest.main()
