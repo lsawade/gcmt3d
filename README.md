@@ -34,6 +34,7 @@ conda activate <your_environment>
 # Install basemap using conda
 conda config --add channels conda-forge
 conda install basemap
+conda install mpi4py
 ```
 
 #### 3. Download GCMT3D
