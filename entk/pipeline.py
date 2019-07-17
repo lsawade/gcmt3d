@@ -19,7 +19,7 @@ os.environ['RADICAL_ENTK_VERBOSE'] = 'DEBUG'
 # VM, set "RMQ_HOSTNAME" and "RMQ_PORT" in the session where you are running
 # this script.
 hostname = os.environ.get('RMQ_HOSTNAME', 'localhost')
-port = os.environ.get('RMQ_PORT', 5672)
+port = int(os.environ.get('RMQ_PORT', 5672))
 
 def read_yaml_file(filename):
     """read yaml file"""
@@ -153,7 +153,7 @@ def main(cmt_filename):
     runSF3d = Stage()
     runSF3d.name = 'Simulation'
 
-    for at in attr:
+    for at in attr[0]:
         sf_t = Task()
         sf_t.name = 'run-' + at
 
@@ -176,12 +176,12 @@ def main(cmt_filename):
         sf_t.stderr = os.path.join(pipelinedir,
                                       "run_specfem." + eq_id + ".stderr")
 
-        # sf_t.gpu_reqs = {
-        #     'processes': 1,
-        #     'process_type': 'MPI',
-        #     'threads_per_process': 6,
-        #     'thread_type': 'OpenMP'
-        #     }
+        sf_t.gpu_reqs = {
+            'processes': 6,
+            'process_type': 'MPI',
+            'threads_per_process': 1,
+            'thread_type': 'OpenMP'
+            }
 
         # Add Task to the Stage
         runSF3d.add_tasks(sf_t)
@@ -201,7 +201,7 @@ def main(cmt_filename):
         'project': 'geo',
         'queue': 'gpu',
         'schema': 'local',
-        'walltime': 60,
+        'walltime': 300,
         'cpus': 2,
         'gpus': 6
     }

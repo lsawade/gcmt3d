@@ -1,5 +1,7 @@
 # Radical Pilot verbose format
-export RADICAL_PILOT_VERBOSE="REPORT"
+export RADICAL_PILOT_VERBOSE=REPORT
+export RADICAL_LOG_LVL=VERBOSE
+
 
 # Database resource
 export RADICAL_PILOT_DBURL="mongodb://user:user123@ds043012.mlab.com:43012/princeton"
