@@ -30,12 +30,17 @@ everywhere then the power spectrum, which is often used for magnitude
 estimation, will also contain higher values. This leads to incorrect - here,
 too high - computations of the earthquake magnitude.
 
-The last step in this section is the the first simple taper that is applied
-to the ends of the traces before filtering to avoid ringing at the ends of
-the traces after filtering. Here, a Hann window and a percentage of 0.05,
-following the standard SAC routine. This means 5% of the total number of
-points is are tapered on each side of the trace. That is, if the trace has
-100 samples, on each side of the trace 5 points are tapered.
+Next, the traces are tapered at the ends of the traces before filtering to
+avoid ringing at the ends of the traces after filtering. Here, a Hann window
+and a percentage of 0.05, following the standard SAC routine. This means 5%
+of the total number of points is are tapered on each side of the trace. That
+is, if the trace has 100 samples, on each side of the trace 5 points are
+tapered.
+
+After tapering, the traces are interpolated (resampled) to make sure that the
+traces have the exact same format and all further processing has the same
+effect on all traces.
+
 
 Instrument response removal
 +++++++++++++++++++++++++++
@@ -59,4 +64,16 @@ the current processing setup this frequency corners are set to [0.0075, 0
 Filtering
 +++++++++
 
-Both observed and synthetic traces are filtered with band-pass filters.
+Both observed and synthetic traces are filtered with band-pass filters. The
+band-pass filter is a two-pass filter with the same corner frequencies as the
+``pre_filt`` definition. The traces are filtered again due to a possible
+effect of the response removal on the observed traces or an initial filtering
+of the synthetic traces.
+
+Rotation
+++++++++
+
+If the ``rotate_flag`` is set to ``True`` in the parameter file, the traces
+are rotated from the ``NEZ`` coordinate system into the ``RTZ``.
+
+
