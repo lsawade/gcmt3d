@@ -7,6 +7,10 @@ synthetic data can be found in the ``params`` directory under
 difference between the two is the removal of the instrument response for the
 observed traces. The rest of the processing steps are the same.
 
+The following steps in the processing are governed by an ``ASDF`` processing
+workflow which in turn is run using the :class:`ProcASDF` class. The
+``ProcASDF``
+
 Cutting of the traces
 +++++++++++++++++++++
 
