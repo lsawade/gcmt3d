@@ -27,6 +27,17 @@ def read_yaml_file(filename):
         return yaml.load(fh, Loader=yaml.FullLoader)
 
 def main(cmt_filename):
+    '''This tiny function runs shit
+
+    Args:
+        cmt_filename: str containing the path to the cmt solution that is
+                      supposed to be inverted for
+
+    Usage:
+        From the commandline:
+            python pipeline <path/to/cmtsolution>
+
+    '''
 
     # Path to pipeline file
     pipelinepath = os.path.abspath(__file__)
