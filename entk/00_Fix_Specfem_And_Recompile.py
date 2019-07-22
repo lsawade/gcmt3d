@@ -19,6 +19,20 @@ from gcmt3d.runSF3D.runSF3D import DATAFixer
 
 
 def main():
+    """This script controlls the compilation and setting up of
+    specfem3d_globe.
+
+    Usage:
+        In the command line
+        ``00_Fix_Specfem_And_Recompile.py``
+
+    It uses the parameter files located in
+    ``../params/SpecfemParams/SpecfemParams.yml``
+    and ``../params/SpecfemParams/CompAndModules.yaml`` to get all necessary
+    parameters.
+
+    """
+
     # Define parameter directory
     param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
         __file__))), "params")
