@@ -11,6 +11,11 @@ The following steps in the processing are governed by an ``ASDF`` processing
 workflow which in turn is run using the :class:`ProcASDF` class. The
 ``ProcASDF``
 
+# Documetation
+sphinx
+sphinx_rtd_theme
+sphinxcontrib-bibtex
+
 Cutting of the traces
 +++++++++++++++++++++
 
