@@ -8,13 +8,19 @@ difference between the two is the removal of the instrument response for the
 observed traces. The rest of the processing steps are the same.
 
 The following steps in the processing are governed by an ``ASDF`` processing
-workflow which in turn is run using the :class:`ProcASDF` class. The
-``ProcASDF``
+workflow which in turn is run using the ``ProcASDF`` ``class`` which is
+included in the ``GCMT3D`` package. The ``ProcASDF`` ``class``, much like the
+in the conversion process, takes in a path file containing the paths to the
+following files:
 
-# Documetation
-sphinx
-sphinx_rtd_theme
-sphinxcontrib-bibtex
+- path to the input file
+- input tag (ASDF)
+- path to the output file
+- output tag (ASDF)
+- path to processing parameter file
+
+A standard path
+
 
 Cutting of the traces
 +++++++++++++++++++++
