@@ -19,8 +19,7 @@ following files:
 - output tag (ASDF)
 - path to processing parameter file
 
-A standard path
-
+A standard processing path file has the following content.
 
 Cutting of the traces
 +++++++++++++++++++++
