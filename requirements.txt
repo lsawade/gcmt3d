@@ -2,6 +2,6 @@ numpy==1.16.2
 obspy==1.1.1
 PyYAML==5.1
 pyflex
-pytest
+pytest==4.5.0
 git+git://github.com/lsawade/spaceweight.git@master
 git+git://github.com/lsawade/pycmt3d.git@devel
