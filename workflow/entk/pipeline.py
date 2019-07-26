@@ -191,7 +191,7 @@ def main(cmt_filename):
             'processes': 6,
             'process_type': 'MPI',
             'threads_per_process': 1,
-            'thread_type': 'OpenMP'
+            'thread_type': None
             }
 
         # Add Task to the Stage

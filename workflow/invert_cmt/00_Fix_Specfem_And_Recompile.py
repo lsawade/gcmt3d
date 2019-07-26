@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-
 This is a script that will fix specfem given the parameters set in the
 `params/SpecfemParams/SpecfemParams.yml` file.
 
@@ -18,21 +17,39 @@ from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 from gcmt3d.runSF3D.runSF3D import DATAFixer
 
 
-def main():
+def Fix_Specfem():
+    """This Function uses the parameters found in
+    ::
+
+        GCMT3D/workflow/params/SpecfemParams/SpecfemParams.yml
+
+    and
+
+    ::
+
+        GCMT3D/workflow/params/SpecfemParams/CompilersAndModules.yml
+
+    to fix and recompile the software which is necessary for the simulation
+    and inversion of the data.
+
+    Since all data are taken from the parameter files. there are no in- and
+    outputs.
+
+    """
     # Define parameter directory
     param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
         __file__))), "params")
     specfemspec_path = os.path.join(param_path,
                                     "SpecfemParams/SpecfemParams.yml")
-    comp_and_modules_path = os.path.join(param_path,
-                                    "SpecfemParams/CompilersAndModules.yml")
+    comp_and_modules_path = os.path.\
+        join(param_path, "SpecfemParams/CompilersAndModules.yml")
 
     # Load parameters
     sf_dict = smart_read_yaml(specfemspec_path, mpi_mode=is_mpi_env())
     cm_dict = smart_read_yaml(comp_and_modules_path, mpi_mode=is_mpi_env())
 
     # Define the specfemdatafixer
-    DF = DATAFixer(sf_dict["SPECFEM_DIR"],
+    df = DATAFixer(sf_dict["SPECFEM_DIR"],
                    NEX_XI=sf_dict["NEX_XI"], NEX_ETA=sf_dict["NEX_ETA"],
                    NPROC_XI=sf_dict["NPROC_XI"], NPROC_ETA=sf_dict["NPROC_ETA"],
                    ROTATE_SEISMOGRAMS_RT=sf_dict["ROTATE_SEISMOGRAMS_RT"],
@@ -82,14 +99,14 @@ def main():
                    verbose=sf_dict["verbose"])
 
     # Run `Par_file` fixer.
-    DF.fix_parfiles()
+    df.fix_parfiles()
 
     # Configure and compile
-    DF.configure_and_make()
+    df.configure_and_make()
 
     # Run the mesher to a slurm scheduler.
-    DF.run_mesher()
+    df.run_mesher()
 
 
 if __name__ == '__main__':
-    main()
+    Fix_Specfem()

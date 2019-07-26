@@ -17,7 +17,14 @@ from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import sys
 import argparse
 
-def main(cmt_filename):
+def Create_Entry(cmt_filename):
+    """ This function creates a database entry for the inversion.
+    :param cmt_filename: path to cmt file that an Entry is supposed to be
+                         created for
+    :return:
+        no returns since it is simply a copy and create dirs function
+
+    """
 
     # Define parameter directory
     param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
@@ -54,4 +61,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Run
-    main(args.filename)
+    Create_Entry(args.filename)
