@@ -152,10 +152,12 @@ def rotate_12_rt_func(st, inv, back_azimuth, method="12->RT",
     Rotate horizontal component to RT. This function works generally
     for two horizontal and orthogonal components. This function
     supports two method:
-        1) "12->RT": which rotates "12" component to "RT", for example,
-            "BH1" and "BH2" to "BHR" and "BHT"
-        2) "NE->RT": which rotates "NE" component to "RT", for example,
-            "BHN" and "BHE" to "BHR" and "BHT"
+
+    1. "12->RT": which rotates "12" component to "RT", for example,
+       "BH1" and "BH2" to "BHR" and "BHT"
+    2. "NE->RT": which rotates "NE" component to "RT", for example,
+       "BHN" and "BHE" to "BHR" and "BHT"
+
     The reason why we use our own rotation function is because in obspy
     the inventory information is not checked.
 
@@ -350,25 +352,29 @@ def rotate_stream(st, event_latitude, event_longitude,
     :param event_longitude: event longitude
     :type event_longitude: float
     :param inventory: station inventory information. If you want to rotate
-    "12" components, you need to provide inventory since only station
-    and station_longitude is not enough.
+        "12" components, you need to provide inventory since only station
+        and station_longitude is not enough.
     :type inventory: obspy.Inventory
     :param mode: rotation mode, could be one of:
-        1) "NE->RT": rotate only North and East channel to RT
-        2) "12->RT": rotate only 1 and 2 channel, like "BH1" and "BH2" to RT
-        3) "ALL->RT": rotate all components to RT
-        4) "RT->NE": rotate RT to NE
+
+        1. "NE->RT": rotate only North and East channel to RT
+        2. "12->RT": rotate only 1 and 2 channel, like "BH1" and "BH2" to RT
+        3. "ALL->RT": rotate all components to RT
+        4. "RT->NE": rotate RT to NE
+
     :param sanity_check: check the sanity of inventory, mianly of the
         orientation of ZNE components.
-        1) If rotating observed data from NE(12)to RT, it is recommended
-            to set to True; if rotating from RT to NE, then you could set
-            it to False;
-            ATTENTION: please turn it to True when processing observed
-            data since the instrument alignment of observed data might
-            be messy.
-        2) If rotating synthetic data, you could set it to False since
-            I assume for synthetic data, there should not be problem
-            associated with orientation.
+
+        1. If rotating observed data from NE(12)to RT, it is recommended
+           to set to True; if rotating from RT to NE, then you could set
+           it to False;
+           ATTENTION: please turn it to True when processing observed
+           data since the instrument alignment of observed data might
+           be messy.
+        2. If rotating synthetic data, you could set it to False since
+           I assume for synthetic data, there should not be problem
+           associated with orientation.
+
     :return: rotated stream(obspy.Stream)
     """
 

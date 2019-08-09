@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Methods that contains utils for adjoint sources
+Conversion utilities for different seismic datasets.
 
 :copyright:
     Wenjie Lei (lei@princeton.edu), 2016

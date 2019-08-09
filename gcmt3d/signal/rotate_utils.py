@@ -57,12 +57,19 @@ def rotate_certain_angle(d1, d2, angle, unit="degree"):
     component.
 
     (d1, d2, Vertical) should form a left-handed coordinate system, i.e.,
-                    Azimuth_{d2} = Azimuth_{d1} + 90.0
+
+    ::
+
+        Azimuth_{d2} = Azimuth_{d1} + 90.0 .
+
     For example, (North, East, Vertical) & (Radial, Transverse, Vertical)
     are both left-handed coordinate systems. The return value (dnew1,
     dnew2, vertic) should also form a left-handed coordinate system.
     The angle is azimuth differnce between d1 and dnew1, i.e.,
-                    angle = Azimuth_{dnew1} - Azimuth_{d1}
+
+    ::
+
+        angle = Azimuth_{dnew1} - Azimuth_{d1}
 
     :type d1: :class:`~numpy.ndarray`
     :param d1: Data of one of the two horizontal components
@@ -71,13 +78,14 @@ def rotate_certain_angle(d1, d2, angle, unit="degree"):
     :type angle: float
     :param angle: component azimuth of data2
     :return: two new components after rotation
+
     """
     if unit == "degree":
         angle = deg2rad(angle)
     elif unit == "radian":
         angle = angle
     else:
-        raise ValueError("Unregonized unit(%s): 1) degree; 2) radian"
+        raise ValueError("Unrecognized unit(%s): 1) degree; 2) radian"
                          % unit)
 
     if len(d1) != len(d2):
