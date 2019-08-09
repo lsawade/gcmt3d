@@ -28,11 +28,10 @@ def create_process_path_obs(cmt_filename, process_dir, verbose=True):
     file. This file is later on need for the creation of ASDF files and the
     processing involved ASDF files.
 
-    Args:
-        cmt_filename: cmt_filename in the database (Important this only works
+    :param cmt_filename: cmt_filename in the database (Important this only works
                       if the directory structure exists already)
-        process_dir: path to the directory containing all processing files.
-        verbose: boolean on whether process info should be written
+    :param process_dir: path to the directory containing all processing files.
+    :param verbose: boolean on whether process info should be written
     """
 
     # CMT directory Name
@@ -93,12 +92,12 @@ def create_process_path_syn(cmt_filename, process_dir, npar, verbose=True):
     """ This function writes a yaml processing path file all simulations
     file. This is needed for the processing of the ASDF files.
 
-    Args:
-        cmt_filename: cmt_filename in the database (Important this only works
-                      if the directory structure exists already)
-        process_dir: path to the directory containing all processing files.
-        npar: number of parameters to invert for
-        verbose: boolean on whether process info should be written
+
+    :param cmt_filename: cmt_filename in the database (Important this only
+        works if the directory structure exists already)
+    :param process_dir: path to the directory containing all processing files.
+    :param npar: number of parameters to invert for
+    :param verbose: boolean on whether process info should be written
     """
 
     # CMT directory Name
@@ -164,12 +163,12 @@ def create_window_path(cmt_filename, window_process_dir,
     """ This function writes a yaml processing path file all simulations
     file. This is needed for the processing of the ASDF files.
 
-    Args:
-        cmt_filename: cmt_filename in the database (Important this only works
-                      if the directory structure exists already)
-        process_dir: path to the directory containing all processing files.
-        npar: number of parameters to invert for
-        verbose: boolean on whether process info should be written
+
+    :param cmt_filename: cmt_filename in the database (Important this only works
+                  if the directory structure exists already)
+    :param process_dir: path to the directory containing all processing files.
+    :param npar: number of parameters to invert for
+    :param verbose: boolean on whether process info should be written
     """
 
     # CMT directory Name

@@ -121,18 +121,21 @@ class DataRequest(object):
         This downloader class also needs to contain the output directory for
         the traces.
 
-        Args:
-            cmtfname:
-            stationlistfname: Give list of stations. Fileformat either:
-                              ```
-                              NETWORK	STATION	LAT	LON	ELEVATION
-                              IU	ADK	+51.882300	-176.684200	130.0
-                              ```
-                              or in specfem format. Default is None, in which
-                              case a specfem STATIONS list is read.
 
-            sfstationlist: `boolean`, if `True` list is in specfem format.
-                           Default `False`
+        :param cmtfname: filename of input CMTSOLUTION
+
+        :param stationlistfname: Give list of stations. Fileformat either
+            ::
+
+                NETWORK	STATION	LAT	        LON	        ELEVATION
+                IU	    ADK	    +51.882300	-176.684200	130.0
+
+
+            or in specfem format. Default is None, in which
+            case a specfem STATIONS list is read.
+
+        :param sfstationlist: `boolean`, if `True` list is in specfem format.
+                              Default `False`
         """
 
         # Name of the output directory:
@@ -218,8 +221,7 @@ class DataRequest(object):
         return path_to_file
 
     def download(self, selection_file="", download_log_file=""):
-        """
-        takes self.request and starts the download of the time series data
+        """Takes self.request and starts the download of the time series data
         """
 
         # Create request file if none is given
@@ -271,6 +273,7 @@ class DataRequest(object):
         The text file should have following format but not contain a header
 
         ::
+
             -------------------------------------------------------------
             | Station Network Latitude Longitude Elevation(m) Burial(m) |
             -------------------------------------------------------------

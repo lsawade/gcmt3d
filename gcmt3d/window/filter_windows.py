@@ -5,13 +5,15 @@ Filter the window based on the sensor type. For example, in long
 period band(90-250s), we want to keep only STS-1 instrument windows.
 For the input file, it requires 1) sensor type as json file; 2) windows
 as json file. For the output, it is going to replace the origin window file
-and keep a copy of original windows as "***.origin.json"
+and keep a copy of original windows as "``***``.origin.json"
 
 :copyright:
     Wenjie Lei (lei@princeton.edu), 2016
+
 :license:
     GNU Lesser General Public License, version 3 (LGPLv3)
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
+
 """
 from __future__ import (absolute_import, division, print_function)
 from pprint import pprint
