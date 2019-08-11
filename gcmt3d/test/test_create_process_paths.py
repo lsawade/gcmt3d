@@ -18,9 +18,12 @@ from ..data.management.skeleton import DataBaseSkeleton
 from ..data.management.create_process_paths import create_process_path_syn
 from ..data.management.create_process_paths import create_process_path_obs
 from ..data.management.create_process_paths import create_window_path
+from ..data.management.create_process_paths import get_processing_list
+from ..data.management.create_process_paths import get_windowing_list
 import tempfile
 import inspect
 import os
+import glob
 import unittest
 
 
@@ -117,6 +120,7 @@ class TestCreatePaths(unittest.TestCase):
             output_asdf = os.path.join(DB.eq_dirs[0], "seismograms",
                                        "processed_seismograms",
                                        "processed_observed.040_100.h5")
+
             output_tag = "processed_observed"
             process_param_file = os.path.join(process_dir,
                                               "proc_obsd.40_100.param.yml")
@@ -188,6 +192,7 @@ class TestCreatePaths(unittest.TestCase):
         """Testing the creation of the window path yaml file."""
 
         with tempfile.TemporaryDirectory() as tmp_dir:
+
             # Cmtfile path
             cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
 
@@ -252,6 +257,103 @@ class TestCreatePaths(unittest.TestCase):
             self.assertTrue(d["figure_mode"])
             self.assertTrue(d["output_file"] == output_file)
             self.assertTrue(d["window_param_file"] == window_param_file)
+
+
+    def test_get_processing_list(self):
+        """Tests the get_processing_list function in the create_process_paths
+        modules. """
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Cmtfile path
+            cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir,
+                                  verbose=True)
+
+            # Create database
+            DB.create_all()
+
+            # Outputdir
+            cmt_dir = DB.eq_dirs[0]
+            cmt_file_db = os.path.join(cmt_dir, "eq_" + DB.eq_ids[0] + ".cmt")
+
+            # Read the yaml_file which should be created in the CMT directory
+            process_syn_dir = os.path.join(DATA_DIR, "ProcessSynthetic")
+
+            # CMT filename in database
+            cmt_filename = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
+
+            # Create Processing path files
+            create_process_path_syn(cmt_filename, process_syn_dir, npar=9,
+                                    verbose=True)
+
+            # Read the yaml_file which should be created in the CMT directory
+            process_obs_dir = os.path.join(DATA_DIR, "ProcessObserved")
+
+            # Create Processing path files
+            create_process_path_obs(cmt_filename, process_obs_dir, verbose=True)
+
+            # Solution output path:
+            process_paths = os.path.join(DB.eq_dirs[0], "seismograms",
+                                         "process_paths")
+
+            # Get processing lsit
+            processing_list = get_processing_list(cmt_file_db, process_obs_dir,
+                                                  process_obs_dir, verbose=True)
+
+            # Files on disk
+            solution_list = glob.glob(os.path.join(process_paths, "*"))
+
+            # Check if processing list equals process dir files
+            for process_path in processing_list:
+                self.assertTrue(process_path in solution_list)
+
+    def test_get_windowing_list(self):
+        """Tests the get_processing_list function in the create_process_paths
+        modules. """
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Cmtfile path
+            cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir,
+                                  verbose=True)
+
+            # Create database
+            DB.create_all()
+
+            # Outputdir
+            cmt_dir = DB.eq_dirs[0]
+            cmt_file_db = os.path.join(cmt_dir, "eq_" + DB.eq_ids[0] + ".cmt")
+
+            # Read the yaml_file which should be created in the CMT directory
+            window_process_dir = os.path.join(DATA_DIR, "CreateWindows")
+
+            # Create Processing path files
+            create_window_path(cmt_file_db, window_process_dir,
+                               figure_mode=True, verbose=True)
+
+
+            # Get processing lsit
+            windowing_list = get_windowing_list(cmt_file_db, window_process_dir,
+                                                verbose=True)
+
+            # Solution output path:
+            window_paths = os.path.join(DB.eq_dirs[0], "window_data",
+                                        "window_paths")
+
+            # Files on disk
+            solution_list = glob.glob(os.path.join(window_paths, "*"))
+
+            # Check if processing list equals process dir files
+            for window_path in windowing_list:
+                self.assertTrue(window_path in solution_list)
 
 
 if __name__ == "__main__":

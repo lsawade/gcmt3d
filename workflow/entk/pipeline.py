@@ -417,8 +417,45 @@ def create_process_path_files(cmt_file_db, param_path, pipelinedir):
     return cpp
 
 
-def create_processing_stage(cmt_file_db, param_path):
-    pass
+def create_processing_stage(cmt_file_db, param_path, pipelinedir):
+    """This function creates the ASDF processing stage.
+
+    :param cmt_file_db: cmtfile in the database
+    :param param_path: path to parameter file directory
+    :param pipelinedir: path to pipeline directory
+    :return: EnTK Stage
+
+    """
+
+    # Get database parameter path
+    databaseparam_path = os.path.join(param_path,
+                                      "Database/DatabaseParameters.yml")
+
+    # Load Parameters
+    DB_params = read_yaml_file(databaseparam_path)
+
+    # Process path function
+    create_process_path_bin = os.path.join(pipelinedir,
+                                           "06_Create_Path_Files.py")
+
+    # Create Process Paths Stage (CPP)
+    # Create a Stage object
+    cpp = Stage()
+    cpp.name = 'CreateProcessPaths'
+
+    # Create Task
+    cpp_t = Task()
+    cpp_t = "CPP-Task"
+    cpp_t.pre_exec = [  # Conda activate
+        DB_params["conda-activate"]]
+    cpp_t.executable = [DB_params['bin-python']]  # Assign executable
+    # to the task
+    cpp_t.arguments = [create_process_path_bin, cmt_file_db]
+
+    cpp.add_tasks(cpp_t)
+
+    return cpp
+
 
 
 

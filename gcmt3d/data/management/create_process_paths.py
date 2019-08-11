@@ -15,6 +15,8 @@ Last Update: June 2019
 
 import os
 import glob
+from typing import List, Union
+
 from ...asdf.utils import smart_read_yaml
 from ...asdf.utils import is_mpi_env
 from ...asdf.utils import write_yaml_file
@@ -239,3 +241,165 @@ def create_window_path(cmt_filename, window_process_dir,
 
         # Writing the directory to file
         write_yaml_file(d, yaml_file_path)
+
+
+
+def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
+                        verbose=False):
+    """This function returns a list of all process path files. It is needed
+    for the EnTK workflow. This way the processing of each ASDF file can be
+    assigned to one task.
+
+    :param cmt_file_db: the cmtsolution file in the database.
+    :type cmt_file_db: str
+    :param process_obs_dir: directory with the process parameter files for
+                            the observed data
+    :type cmt_file_db: str
+    :param process_syn_dir: directory with the process parameter files for
+                            the synthetic data
+    :
+    :param npar: Number of parameters to invert for
+    :param verbose: verbose output if true
+    :type verbose: bool
+    :return: list with all processing path files
+    """
+
+    # CMT directory Name
+    cmt_dir = os.path.dirname(os.path.abspath(cmt_file_db))
+
+    # Output directory
+    process_path_dir = os.path.join(cmt_dir, "seismograms",
+                                    "process_paths")
+
+    # Get all process possibilities
+    process_obs_param_files = glob.glob(os.path.join(process_obs_dir, "*"))
+    process_syn_param_files = glob.glob(os.path.join(process_syn_dir, "*"))
+
+    # If verbose print all used observed and synthetic files
+    if verbose:
+        print("Processing parameter files to be used:\n")
+        print("    Observed:\n")
+        for process_file in process_obs_param_files:
+            print("    " + process_file)
+        print("\n    Synthetic:\n")
+        for process_file in process_syn_param_files:
+            print("    " + process_file)
+        print(" ")
+
+    # Create empty process_path file list
+    process_path_file_list = []
+
+    # Get observed path files
+    for _i, process_param_file in enumerate(process_obs_param_files):
+        # Get band
+        process_params = smart_read_yaml(process_param_file,
+                                         mpi_mode=is_mpi_env())
+        band = process_params["pre_filt"][1:-1]
+        lP = 1 / band[1]  # Get low period bound from hz filtervalue
+        hP = 1 / band[0]  # Get high period bound from hz filtervalue
+
+        # Pathfile directory
+        yaml_file_path = os.path.join(process_path_dir,
+                                      "process_observed.%03.0f_%03.0f.yml"
+                                      % (lP, hP))
+        # Add the path file to list
+        process_path_file_list.append(yaml_file_path)
+
+    # Get synthetic path files
+    for _i, process_param_file in enumerate(process_syn_param_files):
+        for _j, at in enumerate(attr[:npar + 1]):
+            # Get band
+            process_params = smart_read_yaml(process_param_file,
+                                             mpi_mode=is_mpi_env())
+            band = process_params["pre_filt"][1:-1]
+            lP = 1 / band[1]  # Get low period bound from hz filtervalue
+            hP = 1 / band[0]  # Get high period bound from hz filtervalue
+
+            # Pathfile directory
+            yaml_file_path = os.path.join(process_path_dir,
+                                          "process_synthetic_"
+                                          "%s.%03.0f_%03.0f.yml"
+                                          % (at, lP, hP))
+
+            # Add the path file to list
+            process_path_file_list.append(yaml_file_path)
+
+    if verbose:
+        print("Resulting Processing Path files:")
+        print("--------------------------------\n")
+        for process_file in process_path_file_list:
+            print("    " + process_file)
+        print(" ")
+
+    return process_path_file_list
+
+
+def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
+    """This function returns a list of all windowing path files. It is needed 
+    for the EnTK workflow. This way the windowing of each passband ASDF file 
+    can be assigned to one task.
+
+    :param cmt_file_db: the cmtsolution file in the database.
+    :type cmt_file_db: str
+    :param window_process_dir: path to the process directory
+    :type window_process_dir: str
+    :param verbose: if True verbose output
+    :type verbose: bool
+
+    :return: list with all processing path files
+
+    """
+
+    # CMT directory Name
+    cmt_dir = os.path.dirname(os.path.abspath(cmt_file_db))
+
+    # Output directory
+    window_path_dir = os.path.join(cmt_dir, "window_data", "window_paths")
+
+    # Get all process possibilities
+    window_param_files = glob.glob(os.path.join(window_process_dir, "*"))
+
+    if verbose:
+        print("Processing parameter files to be used:")
+        print("--------------------------------------\n")
+        for param_file in window_param_files:
+            print(param_file)
+        print(" ")
+
+    window_processing_list = []
+
+    for _i, window_param_file in enumerate(window_param_files):
+
+        # Get band
+        window_process_params = smart_read_yaml(window_param_file,
+                                                mpi_mode=is_mpi_env())
+        # Get lower and upper period bound
+        lP = window_process_params["default"]["min_period"]
+        hP = window_process_params["default"]["max_period"]
+
+        # Check BodyWave/SurfaceWave flag
+        if "body" in os.path.basename(window_param_file):
+            wave_type = "#body_wave"
+        elif "surface" in os.path.basename(window_param_file):
+            wave_type = "#surface_wave"
+        else:
+            wave_type = ""
+
+        # Pathfile directory
+        yaml_file_path = os.path.join(window_path_dir,
+                                      "windows.%03.0f_%03.0f%s.yml"
+                                      % (lP, hP, wave_type))
+
+        window_processing_list.append(yaml_file_path)
+
+    # Create dictionary
+    if verbose:
+        print("Resulting Windowing Path files:")
+        print("--------------------------------\n")
+        for process_file in window_processing_list:
+            print("    " + process_file)
+        print(" ")
+
+    return window_processing_list
+
+
