@@ -271,7 +271,8 @@ class DATAFixer(object):
         :param nodes: number of computational nodes for the mesher. Default `1`
         :param tasks: number of tasks per node for the mesher. Default `24`
         :param tasks_per_node: maximum number of tasks per node. Default `24`.
-        :param walltime: Requested server time for the nodes. Default `00:30:00`
+        :param walltime: Requested server time for the nodes.
+                         Default `00:30:00`
         :param walltime_solver: walltime of mesher and solver can be different.
         f90: string with fortran compiler
         :param mpif90: string with fortran mpi compiler
@@ -307,8 +308,8 @@ class DATAFixer(object):
                                      Default `False`.
         :param OUTPUT_SEISMOS_ASCII_TEXT: Output seismograms in `ASCII` format.
                                    Default `False`.
-        :param OUTPUT_SEISMOS_SAC_ALPHANUM: Output seismograms in `ASCII` format.
-                                     Default `False`.
+        :param OUTPUT_SEISMOS_SAC_ALPHANUM: Output seismograms in `ASCII`
+                                            format. Default `False`.
         :param OUTPUT_SEISMOS_SAC_BINARY: Output seismograms in `ASCII` format.
                                    Default `False`.
         :param OUTPUT_SEISMOS_ASDF: Output seismograms in `ASCII` format.

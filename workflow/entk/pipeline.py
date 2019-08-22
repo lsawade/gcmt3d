@@ -2,10 +2,13 @@ from radical.entk import Pipeline, Stage, Task, AppManager
 import os
 import argparse
 from get_eq_dir import get_eq_entry_path
+from gcmt3d.data.management.create_process_paths import get_windowing_list
+from gcmt3d.data.management.create_process_paths import get_processing_list
 import yaml
 import glob
 
-
+bin_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                        "bins")
 
 # ------------------------------------------------------------------------------
 # Set default verbosity
@@ -315,10 +318,7 @@ def convert_traces(cmt_file_db, param_path):
     conversion_stage.name = 'Conversion'
 
     # Conversion binary
-    conversion_bin = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-        "bins",
-        "convert_to_asdf.py")
+    conversion_bin = os.path.join(bin_path, "convert_to_asdf.py")
 
 
     attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
@@ -405,7 +405,7 @@ def create_process_path_files(cmt_file_db, param_path, pipelinedir):
 
     # Create Task
     cpp_t = Task()
-    cpp_t = "CPP-Task"
+    cpp_t.name = "CPP-Task"
     cpp_t.pre_exec = [  # Conda activate
                       DB_params["conda-activate"]]
     cpp_t.executable = [DB_params['bin-python']]  # Assign executable
@@ -417,7 +417,7 @@ def create_process_path_files(cmt_file_db, param_path, pipelinedir):
     return cpp
 
 
-def create_processing_stage(cmt_file_db, param_path, pipelinedir):
+def create_processing_stage(cmt_file_db, param_path):
     """This function creates the ASDF processing stage.
 
     :param cmt_file_db: cmtfile in the database
@@ -434,29 +434,157 @@ def create_processing_stage(cmt_file_db, param_path, pipelinedir):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
+    # Processing param dir
+    process_obs_param_dir = os.path.join(param_path, "ProcessObserved")
+    process_syn_param_dir = os.path.join(param_path, "ProcessSynthetic")
+
+    # Process path list
+    # Important step! This creates a processing list prior to having created
+    # the actual process path files. It is tested so it definitely works!
+    # this way the processes can be distributed for each ASDF file on one
+    # processor or more (MPI enabled!)
+    processing_list = get_processing_list(cmt_file_db, process_obs_param_dir,
+                                          process_syn_param_dir, verbose=True)
+
     # Process path function
-    create_process_path_bin = os.path.join(pipelinedir,
-                                           "06_Create_Path_Files.py")
+    process_func = os.join.path(bin_path, "process_asdf.py")
 
     # Create Process Paths Stage (CPP)
     # Create a Stage object
-    cpp = Stage()
-    cpp.name = 'CreateProcessPaths'
+    process_stage = Stage()
+    process_stage.name = 'Processing'
+
+    # Loop over process path files
+    for process_path in processing_list:
+
+        # Create Task
+        processing_task = Task()
+
+        # This way the task gets the name of the path file
+        processing_task.name = "Processing-" + os.path.basename(process_path)
+
+        processing_task.pre_exec = [  # Conda activate
+                                      DB_params["conda-activate"]]
+
+        processing_task.executable = [DB_params['bin-python']]  # Assign exec.
+                                                                # to the task
+
+        processing_task.arguments = [process_func,
+                                     "-f", process_path,
+                                     "-v", DB_params["verbose"]]
+
+        process_stage.add_tasks(processing_task)
+
+    return process_stage
+
+
+def create_windowing_stage(cmt_file_db, param_path):
+    """This function creates the ASDF windowing stage.
+
+    :param cmt_file_db: cmtfile in the database
+    :param param_path: path to parameter file directory
+    :param pipelinedir: path to pipeline directory
+    :return: EnTK Stage
+
+    """
+
+    # Get database parameter path
+    databaseparam_path = os.path.join(param_path,
+                                      "Database/DatabaseParameters.yml")
+
+    # Load Parameters
+    DB_params = read_yaml_file(databaseparam_path)
+
+    # Windowing parameter file directory
+    window_process_dir = os.path.join(param_path, "CreateWindows")
+
+    # Window path list
+    # Important step! This creates a windowing list prior to having created
+    # the actual window path files. It is tested so it definitely works!
+    # This way the windowing processes can be distributed for each ASDF file
+    # pair on one processor (No MPI support!)
+
+    window_path_list = get_windowing_list(cmt_file_db, window_process_dir,
+                                          verbose=False)
+
+    # Process path function
+    window_func = os.join.path(bin_path, "window_selection_asdf.py")
+
+    # Create Process Paths Stage (CPP)
+    # Create a Stage object
+    window_stage = Stage()
+    window_stage.name = 'Windowing'
+
+    # Loop over process path files
+    for window_path in window_path_list:
+
+        # Create Task
+        window_task = Task()
+
+        # This way the task gets the name of the path file
+        window_task.name = os.path.basename(window_path)
+
+        window_task.pre_exec = [  # Conda activate
+                                      DB_params["conda-activate"]]
+
+        window_task.executable = [DB_params['bin-python']]  # Assign exec
+                                                            # to the task
+
+        window_task.arguments = [window_func,
+                                 "-f", window_path,
+                                 "-v", DB_params["verbose"]]
+
+        window_stage.add_tasks(window_task)
+
+    return window_stage
+
+
+def create_inversion_dict_stage(cmt_file_db, param_path):
+    """Creates stage for the creation of the inversion files. This stage is
+    tiny, but required before the actual inversion.
+
+    :param cmt_file_db:
+    :param param_path:
+    :return:
+    """
+
+    # Get database parameter path
+    databaseparam_path = os.path.join(param_path,
+                                      "Database/DatabaseParameters.yml")
+
+    # Load Parameters
+    DB_params = read_yaml_file(databaseparam_path)
+
+    # Function
+    inv_dict_func = os.path.join(bin_path, "write_inversion_dicts.py")
+
+    # Create Process Paths Stage (CPP)
+    # Create a Stage object
+    inv_dict_stage = Stage()
+    inv_dict_stage.name = 'Creating'
 
     # Create Task
-    cpp_t = Task()
-    cpp_t = "CPP-Task"
-    cpp_t.pre_exec = [  # Conda activate
-        DB_params["conda-activate"]]
-    cpp_t.executable = [DB_params['bin-python']]  # Assign executable
+    inv_dict_task = Task()
+
+    # This way the task gets the name of the path file
+    inv_dict_task.name = "Inversion-Dictionaries"
+
+    inv_dict_task.pre_exec = [  # Conda activate
+                              DB_params["conda-activate"]]
+
+    inv_dict_task.executable = [DB_params['bin-python']]  # Assign exec
     # to the task
-    cpp_t.arguments = [create_process_path_bin, cmt_file_db]
 
-    cpp.add_tasks(cpp_t)
+    inv_dict_task.arguments = [inv_dict_func,
+                               "-f", cmt_file_db,
+                               "-p", param_path]
 
-    return cpp
+    inv_dict_stage.add_tasks(inv_dict_task)
+
+    return inv_dict_stage
 
 
+def inversion_stage(cmt_file_db, param_path)
 
 
 def workflow(cmt_filename):
@@ -543,19 +671,25 @@ def workflow(cmt_filename):
 
     # ---- Create Process Path files ----------------------------------------- #
 
-    # Create Process Stage
-    create_process_path_stage = create_process_path_files(cmt_file_db,
-                                                          param_path,
-                                                          pipelinedir)
-
-    p.add_stages(conversion_stage)
+    # Create Process Stage Pipeline
+    process_path_stage = create_process_path_files(cmt_file_db,
+                                                   param_path,
+                                                   pipelinedir)
+    p.add_stages(process_path_stage)
 
     # ---- Process Traces ---------------------------------------------------- #
 
     # Create processing stage
-    processing_stage = create_processing_stage(cmt_file_db)
+    processing_stage = create_processing_stage(cmt_file_db, param_path)
 
+    p.add_stages(processing_stage)
 
+    # ---- Window Traces ---------------------------------------------------- #
+
+    # Create processing stage
+    windowing_stage = create_processing_stage(cmt_file_db, param_path)
+
+    p.add_stages(windowing_stage)
 
     # ============== RUNNING THE PIPELINE ==================================== #
 
