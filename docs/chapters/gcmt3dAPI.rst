@@ -218,3 +218,9 @@ Source ``class``
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+stage del
+stage 1500dbar (50dbar) 1000mn (1000mn)
+stage 1500dbar (50dbar) 5857mn (6857mn)
+stage store

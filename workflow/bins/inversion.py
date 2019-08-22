@@ -1,19 +1,19 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 
-This script writes specfem sources into the respective simulation directories.
+This script contains functions to invert the produced data
 
 :copyright:
     Lucas Sawade (lsawade@princeton.edu)
 :license:
-    GNU Lesser General Public License, version 3 (LGPLv3)
-    (http://www.gnu.org/licenses/lgpl-3.0.en.html)
+    GNU General Public License, Version 3
+    (http://www.gnu.org/copyleft/gpl.html)
+
+Last Update: June 2019
 
 """
 
-from gcmt3d.asdf.utils import smart_read_yaml
-from gcmt3d.asdf.utils import is_mpi_env
+import yaml
+
 from gcmt3d.source import CMTSource
 from pycmt3d import DataContainer
 from pycmt3d import DefaultWeightConfig, Config
@@ -22,42 +22,49 @@ from pycmt3d import Cmt3D
 
 import os
 import glob
-import argparse
 
 
-def main(cmt_filename):
+def read_yaml_file(filename):
+    """read yaml file"""
+    with open(filename) as fh:
+        return yaml.load(fh, Loader=yaml.FullLoader)
 
-    # Define parameter directory
-    param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        __file__))), "params")
+
+
+
+def invert(cmt_file_db, param_path):
+    """Runs the actual inversion.
+
+    :param cmt_file_db:
+    :param param_path:
+    :return: Nothing, inversion results are written to file.
+    """
 
     # Load Database Parameters
     databaseparam_path = os.path.join(param_path,
                                       "Database/DatabaseParameters.yml")
-    DB_params = smart_read_yaml(databaseparam_path, mpi_mode=is_mpi_env())
+    DB_params = read_yaml_file(databaseparam_path)
 
     # Inversion Params
     inversionparam_path = os.path.join(param_path,
                                        "CMTInversion/InversionParams.yml")
-    INV_params = smart_read_yaml(inversionparam_path, mpi_mode=is_mpi_env())
+    INV_params = read_yaml_file(inversionparam_path)
 
     # Get processing path from cmt_filename in database
-    cmt_dir = os.path.dirname(os.path.abspath(cmt_filename))
+    cmt_dir = os.path.dirname(os.path.abspath(cmt_file_db))
 
     # Create cmt source:
-    cmtsource = CMTSource.from_CMTSOLUTION_file(cmt_filename)
-
-    # Window directory
-    window_dir = os.path.join(cmt_dir, "window_data")
+    cmtsource = CMTSource.from_CMTSOLUTION_file(cmt_file_db)
 
     # Inversion dictionary directory
     inv_dict_dir = os.path.join(cmt_dir, "inversion", "inversion_dicts")
 
     # Inversion dictionaries
-    inv_dicts = glob.glob(os.path.join(inv_dict_dir, "*"))
+    inv_dict_files = glob.glob(os.path.join(inv_dict_dir, "*"))
 
     # Inversion output directory
     inv_out_dir = os.path.join(cmt_dir, "inversion", "inversion_output")
+
 
     if DB_params["verbose"]:
         print("\n#######################################################")
@@ -69,7 +76,7 @@ def main(cmt_filename):
     # Creating Data container
     dcon = DataContainer(parlist=PARLIST[:DB_params["npar"]])
 
-    for _i, inv_dict in enumerate(inv_dicts):
+    for _i, inv_dict_file in enumerate(inv_dict_files):
 
         # Get processing band
         bandstring = str(os.path.basename(inv_dict)).split(".")[1]
@@ -83,36 +90,28 @@ def main(cmt_filename):
             print("  " + 54 * "*" + "\n")
 
         # Load inversion file dictionary
-        asdf_dict = smart_read_yaml(inv_dict, mpi_mode=is_mpi_env())
-        window_files = glob.glob(os.path.join(window_dir,
-                                              "windows." + bandstring
-                                              + "*[!stats].json"))
+        inv_dict = read_yaml_file(inv_dict_file)
+        asdf_dict = inv_dict["asdf_dict"]
+        window_file = inv_dict["window_file"]
 
         # Adding measurements
+        # Print Inversion parameters:
+        if DB_params["verbose"]:
+            print("  Adding measurements to data container:")
+            print("  _____________________________________________________\n")
 
-        for _j, window_file in enumerate(window_files):
-            # Print Inversion parameters:
-            if DB_params["verbose"]:
-                print("  Adding measurements to data container:")
-                print("  _____________________________________________________\n")
+        # Add measurements from ASDF file and windowfile
+        if DB_params["verbose"]:
+            print("  Window file:\n", "  ", window_file)
+            print("\n  ASDF files:")
+            for key, value in asdf_dict.items():
+                print("    ", key + ":", value)
+        dcon.add_measurements_from_asdf(window_file, asdf_dict)
 
-            # Add measurements from ASDF file and windowfile
-            # if _j == 0:
-            if DB_params["verbose"]:
-                print("  Window file:\n", "  ", window_file)
-                print("\n  ASDF files:")
-                for key, value in asdf_dict.items():
-                    print("    ", key + ":", value)
-            dcon.add_measurements_from_asdf(window_file, asdf_dict)
-            # else:
-            #     if DB_params["verbose"]:
-            #         print("  Window file:\n", "  ", window_file)
-            #     dcon.add_measurements_from_sac(window_file)
-
-            if DB_params["verbose"]:
-                print(
-                    "  _____________________________________________________\n")
-                print("   ... \n\n")
+        if DB_params["verbose"]:
+            print(
+                "  _____________________________________________________\n")
+            print("   ... \n\n")
 
     if DB_params["verbose"]:
         print("  Inverting for a new moment tensor .... ")
@@ -141,23 +140,5 @@ def main(cmt_filename):
     # plot result
     srcinv.plot_summary(inv_out_dir, figure_format="pdf")
 
-    if DB_params["verbose"]:
-        print("  DONE inversion for period band: %d - %d s.\n"
-              % tuple(band))
-
-    if DB_params["verbose"]:
-        print("\n#######################################################")
-        print("#                                                     #")
-        print("#      Inversion DONE.                                #")
-        print("#                                                     #")
-        print("#######################################################\n")
-
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('filename', help='Path to CMTSOLUTION file in database',
-                        type=str)
-    args = parser.parse_args()
-
-    main(args.filename)

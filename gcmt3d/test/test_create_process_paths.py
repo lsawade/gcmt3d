@@ -20,7 +20,10 @@ from ..data.management.create_process_paths import create_process_path_obs
 from ..data.management.create_process_paths import create_window_path
 from ..data.management.create_process_paths import get_processing_list
 from ..data.management.create_process_paths import get_windowing_list
+from ..data.management.inversion_dicts import create_full_inversion_dict_list
+from ..data.management.inversion_dicts import write_inversion_dicts
 import tempfile
+from pprint import pprint
 import inspect
 import os
 import glob
@@ -300,9 +303,12 @@ class TestCreatePaths(unittest.TestCase):
             process_paths = os.path.join(DB.eq_dirs[0], "seismograms",
                                          "process_paths")
 
-            # Get processing lsit
-            processing_list = get_processing_list(cmt_file_db, process_obs_dir,
-                                                  process_obs_dir, verbose=True)
+            # Get processing list
+            processing_list, obs_list, syn_list = get_processing_list(
+                                                    cmt_file_db,
+                                                    process_obs_dir,
+                                                    process_syn_dir,
+                                                    verbose=True)
 
             # Files on disk
             solution_list = glob.glob(os.path.join(process_paths, "*"))
@@ -310,6 +316,7 @@ class TestCreatePaths(unittest.TestCase):
             # Check if processing list equals process dir files
             for process_path in processing_list:
                 self.assertTrue(process_path in solution_list)
+
 
     def test_get_windowing_list(self):
         """Tests the get_processing_list function in the create_process_paths
@@ -335,13 +342,14 @@ class TestCreatePaths(unittest.TestCase):
             # Read the yaml_file which should be created in the CMT directory
             window_process_dir = os.path.join(DATA_DIR, "CreateWindows")
 
-            # Create Processing path files
+            # Create Window path files
             create_window_path(cmt_file_db, window_process_dir,
                                figure_mode=True, verbose=True)
 
-
-            # Get processing lsit
-            windowing_list = get_windowing_list(cmt_file_db, window_process_dir,
+            # Get windowing list
+            windowing_list, outputfile_list = get_windowing_list(
+                                                cmt_file_db,
+                                                window_process_dir,
                                                 verbose=True)
 
             # Solution output path:
@@ -352,8 +360,70 @@ class TestCreatePaths(unittest.TestCase):
             solution_list = glob.glob(os.path.join(window_paths, "*"))
 
             # Check if processing list equals process dir files
-            for window_path in windowing_list:
+            for window_path, outfile in zip(windowing_list, outputfile_list):
                 self.assertTrue(window_path in solution_list)
+
+
+    def test_create_inversion_dicts(self):
+        """Test the inversion dictionary creator."""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Cmtfile path
+            cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir,
+                                  verbose=True)
+
+            # Create database
+            DB.create_all()
+
+            # Outputdir
+            cmt_dir = DB.eq_dirs[0]
+            cmt_file_db = os.path.join(cmt_dir, "eq_" + DB.eq_ids[0] + ".cmt")
+
+            # Read the yaml_file which should be created in the CMT directory
+            window_process_dir = os.path.join(DATA_DIR, "CreateWindows")
+
+            # Create Window path files
+            create_window_path(cmt_file_db, window_process_dir,
+                               figure_mode=True, verbose=True)
+
+            # Read the yaml_file which should be created in the CMT directory
+            process_syn_dir = os.path.join(DATA_DIR, "ProcessSynthetic")
+
+            # CMT filename in database
+            cmt_filename = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
+
+            # Create Processing path files
+            create_process_path_syn(cmt_filename, process_syn_dir, npar=9,
+                                    verbose=True)
+
+            # Read the yaml_file which should be created in the CMT directory
+            process_obs_dir = os.path.join(DATA_DIR, "ProcessObserved")
+
+            # Create Processing path files
+            create_process_path_obs(cmt_filename, process_obs_dir, verbose=True)
+
+            # Solution output path:
+            process_paths = os.path.join(DB.eq_dirs[0], "seismograms",
+                                         "process_paths")
+
+            # Create dict list
+            inv_dict_list, filenames = create_full_inversion_dict_list(
+                                                            cmt_filename,
+                                                            process_obs_dir,
+                                                            process_syn_dir,
+                                                            window_process_dir,
+                                                            npar=9,
+                                                            verbose=True)
+
+            write_inversion_dicts(inv_dict_list, filenames)
+
+            for inv_dict, filename in zip(inv_dict_list, filenames):
+                self.assertTrue(os.path.exists(filename))
 
 
 if __name__ == "__main__":

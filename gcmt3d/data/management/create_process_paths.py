@@ -15,7 +15,6 @@ Last Update: June 2019
 
 import os
 import glob
-from typing import List, Union
 
 from ...asdf.utils import smart_read_yaml
 from ...asdf.utils import is_mpi_env
@@ -30,10 +29,11 @@ def create_process_path_obs(cmt_filename, process_dir, verbose=True):
     file. This file is later on need for the creation of ASDF files and the
     processing involved ASDF files.
 
-    :param cmt_filename: cmt_filename in the database (Important this only works
-                      if the directory structure exists already)
+    :param cmt_filename: cmt_filename in the database (Important this only
+                         works if the directory structure exists already)
     :param process_dir: path to the directory containing all processing files.
     :param verbose: boolean on whether process info should be written
+
     """
 
     # CMT directory Name
@@ -165,9 +165,8 @@ def create_window_path(cmt_filename, window_process_dir,
     """ This function writes a yaml processing path file all simulations
     file. This is needed for the processing of the ASDF files.
 
-
-    :param cmt_filename: cmt_filename in the database (Important this only works
-                  if the directory structure exists already)
+    :param cmt_filename: cmt_filename in the database (Important this only
+                        works if the directory structure exists already)
     :param process_dir: path to the directory containing all processing files.
     :param npar: number of parameters to invert for
     :param verbose: boolean on whether process info should be written
@@ -243,7 +242,6 @@ def create_window_path(cmt_filename, window_process_dir,
         write_yaml_file(d, yaml_file_path)
 
 
-
 def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
                         verbose=False):
     """This function returns a list of all process path files. It is needed
@@ -257,11 +255,14 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
     :type cmt_file_db: str
     :param process_syn_dir: directory with the process parameter files for
                             the synthetic data
-    :
+    :type process_syn_dir: str
     :param npar: Number of parameters to invert for
+    :type npar: int
     :param verbose: verbose output if true
     :type verbose: bool
-    :return: list with all processing path files
+    :return: tuple of 3 lists - 1 all processing path files;
+                                2 the observed output files;
+                                3 the synthetic output files
     """
 
     # CMT directory Name
@@ -288,6 +289,8 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
 
     # Create empty process_path file list
     process_path_file_list = []
+    obs_output_file_list = []
+    syn_output_file_list = []
 
     # Get observed path files
     for _i, process_param_file in enumerate(process_obs_param_files):
@@ -297,6 +300,12 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
         band = process_params["pre_filt"][1:-1]
         lP = 1 / band[1]  # Get low period bound from hz filtervalue
         hP = 1 / band[0]  # Get high period bound from hz filtervalue
+
+        # Output file parameters
+        obs_output_file_list.append(os.path.join(cmt_dir, "seismograms",
+                                   "processed_seismograms",
+                                   "processed_observed.%03.0f_%03.0f.h5"
+                                   % (lP, hP)))
 
         # Pathfile directory
         yaml_file_path = os.path.join(process_path_dir,
@@ -315,6 +324,13 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
             lP = 1 / band[1]  # Get low period bound from hz filtervalue
             hP = 1 / band[0]  # Get high period bound from hz filtervalue
 
+            # Output file parameters
+            syn_output_file_list.append(os.path.join(cmt_dir, "seismograms",
+                                        "processed_seismograms",
+                                        'processed_synthetic_'
+                                        '%s.%03.0f_%03.0f.h5'
+                                        % (at, lP, hP)))
+
             # Pathfile directory
             yaml_file_path = os.path.join(process_path_dir,
                                           "process_synthetic_"
@@ -331,12 +347,12 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
             print("    " + process_file)
         print(" ")
 
-    return process_path_file_list
+    return process_path_file_list, obs_output_file_list, syn_output_file_list
 
 
 def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
-    """This function returns a list of all windowing path files. It is needed 
-    for the EnTK workflow. This way the windowing of each passband ASDF file 
+    """This function returns a list of all windowing path files. It is needed
+    for the EnTK workflow. This way the windowing of each passband ASDF file
     can be assigned to one task.
 
     :param cmt_file_db: the cmtsolution file in the database.
@@ -346,8 +362,7 @@ def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
     :param verbose: if True verbose output
     :type verbose: bool
 
-    :return: list with all processing path files
-
+    :return:  tuple of 2 lists - 1 all windowing path files; 2 the output files
     """
 
     # CMT directory Name
@@ -367,6 +382,7 @@ def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
         print(" ")
 
     window_processing_list = []
+    output_file_list = []
 
     for _i, window_param_file in enumerate(window_param_files):
 
@@ -385,6 +401,12 @@ def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
         else:
             wave_type = ""
 
+
+        # Output file parameters
+        output_file_list.append(os.path.join(cmt_dir, "window_data",
+                                             'windows.%03.0f_%03.0f%s.json'
+                                             % (lP, hP, wave_type)))
+
         # Pathfile directory
         yaml_file_path = os.path.join(window_path_dir,
                                       "windows.%03.0f_%03.0f%s.yml"
@@ -400,6 +422,7 @@ def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
             print("    " + process_file)
         print(" ")
 
-    return window_processing_list
+    return window_processing_list, output_file_list
+
 
 
