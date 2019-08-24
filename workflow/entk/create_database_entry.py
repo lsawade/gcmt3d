@@ -17,7 +17,7 @@ from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import sys
 import argparse
 
-def main(cmt_filename):
+def create_entry(cmt_filename):
 
     # Define parameter directory
     param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
@@ -45,13 +45,3 @@ def main(cmt_filename):
     cmt_in_database = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
 
     return cmt_in_database
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('filename', help='Path to CMTSOLUTION file',
-                        type=str)
-    args = parser.parse_args()
-
-    # Run
-    main(args.filename)

@@ -19,7 +19,7 @@ import os
 import glob
 import argparse
 
-def main(cmt_filename):
+def windowing(cmt_filename):
 
     # Define parameter directory
     param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
@@ -61,14 +61,3 @@ def main(cmt_filename):
 
     if DB_params["verbose"]:
         print("\nDONE windowed all data!\n")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('filename', help='Path to CMTSOLUTION file in database',
-                        type=str)
-    args = parser.parse_args()
-
-    # Run
-    main(args.filename)

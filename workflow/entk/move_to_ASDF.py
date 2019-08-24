@@ -18,7 +18,7 @@ from gcmt3d.asdf.convert import ConvertASDF
 import os
 import argparse
 
-def main(cmt_filename):
+def convert(cmt_filename):
 
     # Define parameter directory
     param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
@@ -63,14 +63,3 @@ def main(cmt_filename):
 
     if DB_params['verbose']:
         print("\nConversion to ASDF DONE.\n")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('filename', help='Path to CMTSOLUTION file',
-                        type=str)
-    args = parser.parse_args()
-
-    # Run
-    main(args.filename)

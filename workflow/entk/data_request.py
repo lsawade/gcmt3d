@@ -16,7 +16,7 @@ from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import os
 import argparse
 
-def main(cmt_filename):
+def data_request(cmt_filename):
 
     # Set directories of the parameter files
     param_path = os.path.join(os.path.dirname(
@@ -45,16 +45,3 @@ def main(cmt_filename):
     # Request download
     Request.download()
 
-
-if __name__ == "__main__":
-    # Create argument parser
-    parser = argparse.ArgumentParser()
-
-    # Set arguments
-    parser.add_argument('filename', help='Path to CMTSOLUTION file in database',
-                        type=str)
-
-    # Get Arguments
-    args = parser.parse_args()
-
-    main(args.filename)

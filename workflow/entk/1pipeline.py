@@ -1,7 +1,7 @@
 from radical.entk import Pipeline, Stage, Task, AppManager
 import os
 import argparse
-from get_eq_dir import get_eq_entry_path
+from ._get_eq_dir import get_eq_entry_path
 from gcmt3d.data.management.create_process_paths import get_windowing_list
 from gcmt3d.data.management.create_process_paths import get_processing_list
 import yaml
@@ -56,7 +56,7 @@ def create_entry(cmt_filename, param_path, pipelinedir):
 
     # Path to function
     create_database_func = os.path.join(pipelinedir,
-                                        "01_Create_Database_Entry.py")
+                                        "create_entry.py")
 
     # Create a Stage object
     database_entry = Stage()
@@ -94,7 +94,7 @@ def data_request(cmt_file_db, param_path, pipelinedir):
     DB_params = read_yaml_file(databaseparam_path)
 
     # # Path to function
-    request_data_func = os.path.join(pipelinedir, "02_Request_Data.py")
+    request_data_func = os.path.join(pipelinedir, "data_request.py")
 
     # Create a Stage object
     datarequest = Stage()
@@ -139,7 +139,7 @@ def write_sources(cmt_file_db, param_path, pipelinedir):
     DB_params = read_yaml_file(databaseparam_path)
 
     # Path to function
-    write_source_func = os.path.join(pipelinedir, "03_Write_Sources.py")
+    write_source_func = os.path.join(pipelinedir, "generate_sources.py")
 
     # Create a Stage object
     w_sources = Stage()
@@ -262,7 +262,7 @@ def specfem_clean_up(cmt_file_db, param_path, pipelinedir):
 
     # Path to function
     clean_up_func = os.path.join(pipelinedir,
-                                     "04b_Run_Specfem_Database_Clean_Up.py")
+                                     "polish_specfem_files.py")
 
     # Create a Stage object
     clean_up = Stage()
@@ -396,7 +396,7 @@ def create_process_path_files(cmt_file_db, param_path, pipelinedir):
 
     # Process path function
     create_process_path_bin = os.path.join(pipelinedir,
-                                           "06_Create_Path_Files.py")
+                                           "prepare_path_files.py")
 
     # Create Process Paths Stage (CPP)
     # Create a Stage object
@@ -600,7 +600,7 @@ def inversion_stage(cmt_file_db, param_path):
     DB_params = read_yaml_file(databaseparam_path)
 
     # Function
-    inversion_func = os.path.join(bin_path, "inversion.py")
+    inversion_func = os.path.join(bin_path, "tensor_inversion.py")
 
     # Create Process Paths Stage (CPP)
     # Create a Stage object
