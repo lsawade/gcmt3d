@@ -11,7 +11,9 @@ This is a script that will create a database entry given a cmt solution in the
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 
-from
+
+from ..entk.create_database_entry import create_entry
+import argparse
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -21,4 +23,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Run
-    main(args.filename)
+    create_entry(args.filename)
