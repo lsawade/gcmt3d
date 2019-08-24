@@ -584,7 +584,48 @@ def create_inversion_dict_stage(cmt_file_db, param_path):
     return inv_dict_stage
 
 
-def inversion_stage(cmt_file_db, param_path)
+def inversion_stage(cmt_file_db, param_path):
+    """Creates inversion stage.
+
+    :param cmt_file_db:
+    :param param_path:
+    :return:
+    """
+
+    # Get database parameter path
+    databaseparam_path = os.path.join(param_path,
+                                      "Database/DatabaseParameters.yml")
+
+    # Load Parameters
+    DB_params = read_yaml_file(databaseparam_path)
+
+    # Function
+    inversion_func = os.path.join(bin_path, "inversion.py")
+
+    # Create Process Paths Stage (CPP)
+    # Create a Stage object
+    inversion_stage = Stage()
+    inversion_stage.name = 'CMT3D'
+
+    # Create Task
+    inversion_task = Task()
+
+    # This way the task gets the name of the path file
+    inversion_task.name = "Inversion"
+
+    inversion_task.pre_exec = [  # Conda activate
+        DB_params["conda-activate"]]
+
+    inversion_task.executable = [DB_params['bin-python']]  # Assign exec
+    # to the task
+
+    inversion_task.arguments = [inversion_func,
+                               "-f", cmt_file_db,
+                               "-p", param_path]
+
+    inversion_stage.add_tasks(inversion_task)
+
+    return inversion_stage
 
 
 def workflow(cmt_filename):
