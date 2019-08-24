@@ -11,14 +11,32 @@ weight_config:
   rayleigh_dist_weight: 1.0
   azi_exp_idx: 0.5
 
-#  configuration for pycmt3d
+# Source Inversion Configuration for pycmt3d
 config:
   dlocation: 0.5
   ddepth: 0.5
   dmoment: 1.0e22
+  double_couple: False
   zero_trace: True
   weight_data: True
   station_correction: True
   bootstrap: True
-  bootstrap_repeat: 20
+  bootstrap_repeat: 100
   bootstrap_subset_ratio: 0.4
+
+
+# Grid3D Configuration for pycmt3d
+grid3d_config:
+  origin_time_inv: True
+  time_start: -5.0
+  time_end: 5.0
+  dt_over_delta: 1
+  energy_inv: True
+  energy_start: 0.8
+  energy_end: 1.2
+  denergy: 0.1,
+  energy_keys: None
+  energy_misfit_coef: None,
+  weight_data: False
+  weight_config: None,
+  taper_type: "tukey"

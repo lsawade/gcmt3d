@@ -14,12 +14,18 @@ Last Update: June 2019
 
 import yaml
 
+# CMT3D
 from gcmt3d.source import CMTSource
 from pycmt3d import DataContainer
 from pycmt3d import DefaultWeightConfig, Config
 from pycmt3d.constant import PARLIST
 from pycmt3d import Cmt3D
 
+# GRID3D
+from pycmt3d import Grid3d
+from pycmt3d import Grid3dConfig
+
+import argparse
 import os
 import glob
 
@@ -114,31 +120,99 @@ def invert(cmt_file_db, param_path):
             print("   ... \n\n")
 
     if DB_params["verbose"]:
-        print("  Inverting for a new moment tensor .... ")
+        print("  Setting up inversion classes .... ")
         print("  " + 54 * "*" + "\n\n")
 
+
+
     # Setting up weight config
+    inv_weight_config = INV_params["weight_config"]
+
     weight_config = DefaultWeightConfig(
-        normalize_by_energy=False, normalize_by_category=False,
-        comp_weight={"Z": 1.0, "R": 1.0, "T": 1.0},
-        love_dist_weight=1.0, pnl_dist_weight=1.0,
-        rayleigh_dist_weight=1.0, azi_exp_idx=0.5)
+        normalize_by_energy=inv_weight_config["normalize_by_energy"],
+        normalize_by_category=inv_weight_config["normalize_by_category"],
+        comp_weight=inv_weight_config["comp_weight"],
+        love_dist_weight=inv_weight_config["love_dist_weight"],
+        pnl_dist_weight=inv_weight_config["pnl_dist_weight"],
+        rayleigh_dist_weight=inv_weight_config["rayleigh_dist_weight"],
+        azi_exp_idx=inv_weight_config["azi_exp_idx"])
 
     # Setting up general inversion config
-    config = Config(DB_params["npar"],
-                    dlocation=float(INV_params["config"]["dlocation"]),
-                    ddepth=float(INV_params["config"]["ddepth"]),
-                    dmoment=float(INV_params["config"]["dmoment"]),
-                    weight_data=True, station_correction=True,
-                    zero_trace=True, double_couple=False,
-                    bootstrap=True, bootstrap_repeat=100,
-                    weight_config=weight_config)
+    grid3d_config = INV_params["grid3d_config"]
+
+    g3d_config = Grid3dConfig(
+        origin_time_inv=bool(grid3d_config["origin_time_inv"]),
+        time_start=float(grid3d_config["time_start"]),
+        time_end=float(grid3d_config["time_end"]),
+        dt_over_delta=float(grid3d_config["dt_over_delta"]),
+        energy_inv=bool(grid3d_config["energy_inv"]),
+        energy_start=float(grid3d_config["energy_start"]),
+        energy_end=float(grid3d_config["energy_end"]),
+        denergy=float(grid3d_config["denergy"]),
+        energy_keys=float(grid3d_config['energy_keys']),
+        energy_misfit_coef=float(grid3d_config["energy_misfit_coef"]),
+        weight_data=float(grid3d_config["weight_data"]),
+        taper_type=float(grid3d_config["tukey"]),
+        weight_config=weight_config)
+
+    # Setting up general inversion config
+    inv_config = INV_params["config"]
+
+    config = Config(
+        DB_params["npar"],
+        dlocation=float(inv_config["dlocation"]),
+        ddepth=float(inv_config["ddepth"]),
+        dmoment=float(inv_config["dmoment"]),
+        weight_data=bool(inv_config["weight_data"]),
+        station_correction=bool(inv_config["station_correction"]),
+        zero_trace=bool(inv_config["zero_trace"]),
+        double_couple=bool(inv_config["double_couple"]),
+        bootstrap=bool(inv_config["bootstrap"]),
+        bootstrap_repeat=int(inv_config["bootstrap_repeat"]),
+        weight_config=weight_config)
+
+    if DB_params["verbose"]:
+        print("  Grid3d is finding better moment and origin time .... ")
+        print("  " + 54 * "*" + "\n\n")
+
+    grid3d = Grid3d(cmtsource, dcon, config)
+    grid3d.search()
+
+    # Plot Statistics
+    grid3d.plot_stats_histogram(outputdir=inv_out_dir)
+
+    # Plot Misfit
+    grid3d.plot_misfit_summary(outputdir=inv_out_dir)
+
+    if DB_params["verbose"]:
+        print("  PyCMT3D is finding an improved CMTSOLUTION .... ")
+        print("  " + 54 * "*" + "\n\n")
 
     srcinv = Cmt3D(cmtsource, dcon, config)
     srcinv.source_inversion()
 
-    # plot result
+    # Plot result
     srcinv.plot_summary(inv_out_dir, figure_format="pdf")
+
+    # Plot Statistics
+    srcinv.plot_stats_histogram(outputdir=inv_out_dir,
+                                figure_format="pdf")
+
+    # Write new CMT file
+    srcinv.write_new_cmtfile(outputdir=inv_out_dir)
+
+    # Compute and write new synthetics.
+    srcinv.compute_new_syn()
+    srcinv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
+                         file_format="asdf")
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', action='store', dest='cmt_file',
+                        required=True, help="Path to CMT file in database")
+    parser.add_argument('-p', action='store', dest='param_path', required=True,
+                        help="Path to Parameter Directory")
+    args = parser.parse_args()
+
+    invert(args.cmt_file, args.param_path)
