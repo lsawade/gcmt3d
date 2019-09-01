@@ -5,7 +5,6 @@ from ._get_eq_dir import get_eq_entry_path
 from gcmt3d.data.management.create_process_paths import get_windowing_list
 from gcmt3d.data.management.create_process_paths import get_processing_list
 import yaml
-import glob
 
 bin_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "bins")
 
