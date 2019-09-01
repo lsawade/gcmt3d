@@ -303,9 +303,10 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
 
         # Output file parameters
         obs_output_file_list.append(os.path.join(cmt_dir, "seismograms",
-                                   "processed_seismograms",
-                                   "processed_observed.%03.0f_%03.0f.h5"
-                                   % (lP, hP)))
+                                                 "processed_seismograms",
+                                                 "processed_observed"
+                                                 ".%03.0f_%03.0f.h5"
+                                                 % (lP, hP)))
 
         # Pathfile directory
         yaml_file_path = os.path.join(process_path_dir,
@@ -326,10 +327,10 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
 
             # Output file parameters
             syn_output_file_list.append(os.path.join(cmt_dir, "seismograms",
-                                        "processed_seismograms",
-                                        'processed_synthetic_'
-                                        '%s.%03.0f_%03.0f.h5'
-                                        % (at, lP, hP)))
+                                                     "processed_seismograms",
+                                                     'processed_synthetic_'
+                                                     '%s.%03.0f_%03.0f.h5'
+                                                     % (at, lP, hP)))
 
             # Pathfile directory
             yaml_file_path = os.path.join(process_path_dir,
@@ -401,7 +402,6 @@ def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
         else:
             wave_type = ""
 
-
         # Output file parameters
         output_file_list.append(os.path.join(cmt_dir, "window_data",
                                              'windows.%03.0f_%03.0f%s.json'
@@ -423,6 +423,3 @@ def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
         print(" ")
 
     return window_processing_list, output_file_list
-
-
-

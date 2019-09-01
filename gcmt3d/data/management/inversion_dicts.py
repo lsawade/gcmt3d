@@ -143,11 +143,10 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
                                                     verbose=verbose)
 
     # Get the processing list
-    processing_list, obs_list, syn_list = get_processing_list(
-                                            cmt_file_db,
-                                            process_obs_dir,
-                                            process_syn_dir,
-                                            verbose=verbose)
+    processing_list, obs_list, syn_list = get_processing_list(cmt_file_db,
+                                                              process_obs_dir,
+                                                              process_syn_dir,
+                                                              verbose=verbose)
 
     # Create empty list of dictionaries
     inv_dict_list = []
@@ -163,12 +162,6 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
 
         # Get Passband
         band = band_and_wave_type[0]
-
-        # Get Wavetype
-        if len(band_and_wave_type) < 2:
-            wave_type = ""
-        else:
-            wave_type = band_and_wave_type[1]
 
         # Create empty dictionary
         inv_dict = dict()
@@ -218,7 +211,6 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
         outfile_list.append(output_file_name)
 
     return inv_dict_list, outfile_list
-
 
 
 def write_inversion_dicts(dict_list, filename_list):
