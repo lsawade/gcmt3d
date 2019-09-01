@@ -23,7 +23,6 @@ from ..data.management.create_process_paths import get_windowing_list
 from ..data.management.inversion_dicts import create_full_inversion_dict_list
 from ..data.management.inversion_dicts import write_inversion_dicts
 import tempfile
-from pprint import pprint
 import inspect
 import os
 import glob
@@ -261,7 +260,6 @@ class TestCreatePaths(unittest.TestCase):
             self.assertTrue(d["output_file"] == output_file)
             self.assertTrue(d["window_param_file"] == window_param_file)
 
-
     def test_get_processing_list(self):
         """Tests the get_processing_list function in the create_process_paths
         modules. """
@@ -297,7 +295,8 @@ class TestCreatePaths(unittest.TestCase):
             process_obs_dir = os.path.join(DATA_DIR, "ProcessObserved")
 
             # Create Processing path files
-            create_process_path_obs(cmt_filename, process_obs_dir, verbose=True)
+            create_process_path_obs(cmt_filename, process_obs_dir,
+                                    verbose=True)
 
             # Solution output path:
             process_paths = os.path.join(DB.eq_dirs[0], "seismograms",
@@ -305,10 +304,10 @@ class TestCreatePaths(unittest.TestCase):
 
             # Get processing list
             processing_list, obs_list, syn_list = get_processing_list(
-                                                    cmt_file_db,
-                                                    process_obs_dir,
-                                                    process_syn_dir,
-                                                    verbose=True)
+                cmt_file_db,
+                process_obs_dir,
+                process_syn_dir,
+                verbose=True)
 
             # Files on disk
             solution_list = glob.glob(os.path.join(process_paths, "*"))
@@ -316,7 +315,6 @@ class TestCreatePaths(unittest.TestCase):
             # Check if processing list equals process dir files
             for process_path in processing_list:
                 self.assertTrue(process_path in solution_list)
-
 
     def test_get_windowing_list(self):
         """Tests the get_processing_list function in the create_process_paths
@@ -348,9 +346,9 @@ class TestCreatePaths(unittest.TestCase):
 
             # Get windowing list
             windowing_list, outputfile_list = get_windowing_list(
-                                                cmt_file_db,
-                                                window_process_dir,
-                                                verbose=True)
+                cmt_file_db,
+                window_process_dir,
+                verbose=True)
 
             # Solution output path:
             window_paths = os.path.join(DB.eq_dirs[0], "window_data",
@@ -362,7 +360,6 @@ class TestCreatePaths(unittest.TestCase):
             # Check if processing list equals process dir files
             for window_path, outfile in zip(windowing_list, outputfile_list):
                 self.assertTrue(window_path in solution_list)
-
 
     def test_create_inversion_dicts(self):
         """Test the inversion dictionary creator."""
@@ -405,20 +402,17 @@ class TestCreatePaths(unittest.TestCase):
             process_obs_dir = os.path.join(DATA_DIR, "ProcessObserved")
 
             # Create Processing path files
-            create_process_path_obs(cmt_filename, process_obs_dir, verbose=True)
-
-            # Solution output path:
-            process_paths = os.path.join(DB.eq_dirs[0], "seismograms",
-                                         "process_paths")
+            create_process_path_obs(cmt_filename, process_obs_dir,
+                                    verbose=True)
 
             # Create dict list
             inv_dict_list, filenames = create_full_inversion_dict_list(
-                                                            cmt_filename,
-                                                            process_obs_dir,
-                                                            process_syn_dir,
-                                                            window_process_dir,
-                                                            npar=9,
-                                                            verbose=True)
+                cmt_filename,
+                process_obs_dir,
+                process_syn_dir,
+                window_process_dir,
+                npar=9,
+                verbose=True)
 
             write_inversion_dicts(inv_dict_list, filenames)
 

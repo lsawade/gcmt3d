@@ -216,7 +216,6 @@ class DataBaseSkeleton(object):
             else:
                 self._create_dir(inv_new_syn_dir, False)
 
-
     def create_window_dir(self):
         """Creates window_data directory for pyflex window data metadata."""
 
