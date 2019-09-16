@@ -14,7 +14,7 @@ parameter file. The structure of the Database looks as follows:
     │   │   ├──CMT/
     │   │   │   ├──DATA/
     │   │   │   ├──DATABASES_MPI/
-    │   │   │   ├──OUTPUTFILES/
+    │   │   │   ├──OUTPUT_FILES/
     │   │   │   │   ├──CMT.yml # ASDF conversion path file
     │   │   │   │   :
     │   │   │   └──bin/  # symbolic link --> SPECFEM_DIR/bin/
