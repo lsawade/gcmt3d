@@ -90,7 +90,6 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
                                     process_syn_dir, window_process_dir,
                                     npar=9, verbose=False):
     """
-
     :param cmt_file_db: the cmtsolution file in the database.
     :type cmt_file_db: str
     :param process_obs_dir: directory with the process parameter files for
@@ -114,7 +113,8 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
     possible wavetype).
 
     **Dictionary structure:**
-    ..
+    .. code-block:: yaml
+
         Window_file: "path/to/window/file"
         ASDF_dict:
             Mrr: "path/to/CMT_rr.h5"
