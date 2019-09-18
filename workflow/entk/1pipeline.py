@@ -1,34 +1,59 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
+from __future__ import nested_scopes, generators, division, absolute_import, \
+    with_statement, print_function
+
 from radical.entk import Pipeline, Stage, Task, AppManager
 import os
 import argparse
-from ._get_eq_dir import get_eq_entry_path
-from gcmt3d.data.management.create_process_paths import get_windowing_list
-from gcmt3d.data.management.create_process_paths import get_processing_list
+from _get_eq_dir import get_eq_entry_path
+
+# Hopefully this changes soon with entk for python 3
+import sys
+sys.path.append(os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),  # GCMT3D DIR
+    "gcmt3d", "data", "management"))
+from create_process_paths import get_windowing_list
+from create_process_paths import get_processing_list
 import yaml
 
-bin_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "bins")
+# For calling binaries without entkd
+import subprocess
+from shlex import split
+
+bin_path = os.path.join(os.path.dirname(os.path.dirname(
+                            os.path.abspath(__file__))),
+                        "bins")
 
 # ------------------------------------------------------------------------------
 # Set default verbosity
 
-if os.environ.get('RADICAL_ENTK_VERBOSE') == None:
-    os.environ['RADICAL_ENTK_REPORT'] = 'True'
+if os.environ.get("RADICAL_ENTK_VERBOSE") == None:
+    os.environ["RADICAL_ENTK_REPORT"] = "True"
 
-os.environ['RADICAL_VERBOSE'] = 'DEBUG'
-os.environ['RADICAL_ENTK_VERBOSE'] = 'DEBUG'
+os.environ["RADICAL_VERBOSE"] = "DEBUG"
+os.environ["RADICAL_ENTK_VERBOSE"] = "DEBUG"
 
 # Description of how the RabbitMQ process is accessible
 # No need to change/set any variables if you installed RabbitMQ has a system
 # process. If you are running RabbitMQ under a docker container or another
 # VM, set "RMQ_HOSTNAME" and "RMQ_PORT" in the session where you are running
 # this script.
-hostname = os.environ.get('RMQ_HOSTNAME', 'localhost')
-port = int(os.environ.get('RMQ_PORT', 5672))
+hostname = os.environ.get("RMQ_HOSTNAME", "localhost")
+port = int(os.environ.get("RMQ_PORT", 5672))
+
+
+# DEFINES WHETHER THE HEADNODE IS AVAILABLE FOR DOWNLOAD FROM WITHIN AN ENTK
+# WORFLOW
+HEADNODE_AVAILABLE = False
+
 
 def read_yaml_file(filename):
     """read yaml file"""
     with open(filename) as fh:
-        return yaml.load(fh, Loader=yaml.FullLoader)
+        return yaml.load(fh, Loader=yaml.Loader)
 
 
 def create_entry(cmt_filename, param_path, pipelinedir):
@@ -48,10 +73,6 @@ def create_entry(cmt_filename, param_path, pipelinedir):
     # Earthquake specific database parameters: Dir and eq_id
     eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_filename)
 
-    # Earthquake file in the database
-    cmt_file_db = os.path.join(eq_dir, "eq_" + eq_id + ".cmt")
-
-
     # Path to function
     create_database_func = os.path.join(bin_path, "create_entry.py")
 
@@ -59,11 +80,13 @@ def create_entry(cmt_filename, param_path, pipelinedir):
     database_entry = Stage()
 
     t1 = Task()
-    t1.name = 'database-entry'
+    t1.name = "database-entry"
     t1.pre_exec = [  # Conda activate
-        DB_params["conda-activate"]]
-    t1.executable = [DB_params['bin-python']]  # Assign executable to the task
-    t1.arguments = [create_database_func, os.path.abspath(cmt_filename)]
+                     DB_params["conda-activate"]]
+    t1.executable =  [DB_params["bin-python"]]  # Assign
+    # executable to the task
+    t1.arguments = [create_database_func,
+                   os.path.abspath(cmt_filename)]
 
     # In the future maybe to database dir as a total log?
     t1.stdout = os.path.join(pipelinedir, "database-entry." + eq_id + ".stdout")
@@ -73,6 +96,97 @@ def create_entry(cmt_filename, param_path, pipelinedir):
     database_entry.add_tasks(t1)
 
     return database_entry
+
+
+def call_create_entry(cmt_filename, param_path, pipelinedir):
+    """Simply calls the binary to create an entry without making it a stage.
+    Hence, it would be run prior to the pipeline start.
+
+    :param cmt_filename: cmt_filename from wherever
+    :param param_path: path to parameter files
+    :param pipelinedir: Directory of the pipeline
+    :return: nothing as it is simply a function call.
+    """
+
+    # Get Database parameters
+    databaseparam_path = os.path.join(param_path,
+                                      "Database/DatabaseParameters.yml")
+    DB_params = read_yaml_file(databaseparam_path)
+
+    # Earthquake specific database parameters: Dir and eq_id
+    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_filename)
+
+    # Path to function
+    create_database_func = os.path.join(bin_path, "create_entry.py")
+
+    if DB_params["verbose"]:
+        print("Creating the entry outside of the pipeline!")
+
+    # Create command -N nodes, -n tasks, -D change directory
+    bash_command = "%s\n %s %s %s\n %s" \
+                       % (DB_params["conda-activate"],
+                          DB_params["bin-python"],
+                          create_database_func,
+                          cmt_filename,
+                          DB_params["conda-deactivate"])
+
+    # In the future maybe to database dir as a total log?
+    stdout = os.path.join(pipelinedir, "database-entry." + eq_id + ".stdout")
+    stderr = os.path.join(pipelinedir, "database-entry." + eq_id + ".stderr")
+
+    if DB_params["verbose"]:
+        # Send command
+        subprocess.check_output(bash_command, shell=True)
+
+    else:
+        # Send command
+        with open(stdout, "wb") as out, open(stderr, "wb") as err:
+            subprocess.check_output(bash_command, shell=True, stderr=err)
+
+
+
+def call_download_data(cmt_file_db, param_path, pipelinedir):
+    """Simply calls the binary to download the observed data.
+
+    :param cmt_file_db: cmt_file in the database
+    :param param_path: path to parameter files
+    :param pipelinedir: Directory of the pipeline
+    :return: nothing as it is simply a function call.
+    """
+
+    # Get Database parameters
+    databaseparam_path = os.path.join(param_path,
+                                      "Database/DatabaseParameters.yml")
+    DB_params = read_yaml_file(databaseparam_path)
+
+    # Path to function
+    download_data_func = os.path.join(bin_path, "request_data.py")
+
+    if DB_params["verbose"]:
+        print("Download outside pipeline!")
+
+    # Create command -N nodes, -n tasks, -D change directory
+    bash_command = "%s; %s %s %s; %s" \
+                   % (DB_params["conda-activate"],
+                      DB_params["bin-python"],
+                      download_data_func,
+                      cmt_file_db,
+                      DB_params["conda-deactivate"])
+
+    # In the future maybe to database dir as a total log?
+    stdout = os.path.join(pipelinedir, "datarequest." + cmt_file_db[3:-4] +
+                                       ".stdout")
+    stderr = os.path.join(pipelinedir, "datarequest." + cmt_file_db[3:-4] +
+                                       ".stderr")
+
+    if DB_params["verbose"]:
+        # Send command
+        subprocess.check_output(bash_command, shell=True)
+    else:
+        # Send command
+        with open(stdout, "wb") as out, open(stderr, "wb") as err:
+            subprocess.check_output(bash_command, shell=True, stderr=err)
+
 
 def data_request(cmt_file_db, param_path, pipelinedir):
     """ This function creates the request for the observed data and returns
@@ -97,11 +211,11 @@ def data_request(cmt_file_db, param_path, pipelinedir):
     datarequest = Stage()
 
     datarequest_t = Task()
-    datarequest_t.name = 'data-request'
+    datarequest_t.name = "data-request"
     datarequest_t.pre_exec = [  # Conda activate
-        DB_params["conda-activate"]]
-    datarequest_t.executable = [DB_params['bin-python']]  # Assign executable
-    # to the task
+                                DB_params["conda-activate"]]
+    datarequest_t.executable = [DB_params["bin-python"]]  # Assign executable
+                                                          # to the task
     datarequest_t.arguments = [request_data_func, cmt_file_db]
 
     # In the future maybe to database dir as a total log?
@@ -140,24 +254,26 @@ def write_sources(cmt_file_db, param_path, pipelinedir):
 
     # Create a Stage object
     w_sources = Stage()
-    w_sources.name = 'Write-Sources'
+
+    w_sources.name = "Write-Sources"
 
     # Create Task for stage
     w_sources_t = Task()
-    w_sources_t.name = 'Task-Sources'
+    w_sources_t.name = "Task-Sources"
     w_sources_t.pre_exec = [  # Conda activate
-        DB_params["conda-activate"]]
-    w_sources_t.executable = [DB_params['bin-python']]  # Assign executable
-    # to the task
+                              DB_params["conda-activate"]]
+    w_sources_t.executable = DB_params["bin-python"]  #
+        # Assign executable
+        # to the task
     w_sources_t.arguments = [write_source_func, cmt_file_db]
 
-    # In the future maybe to database dir as a total log?
-    w_sources_t.stdout = os.path.join(pipelinedir,
-                                      "write_sources." + cmt_file_db[3:-4] +
-                                      ".stdout")
-    w_sources_t.stderr = os.path.join(pipelinedir,
-                                      "write_sources." + cmt_file_db[3:-4] +
-                                      ".stderr")
+    # # In the future maybe to database dir as a total log?
+    # w_sources_t.stdout = os.path.join(pipelinedir,
+    #                                   "write_sources." + cmt_file_db[3:-4] +
+    #                                   ".stdout")
+    # w_sources_t.stderr = os.path.join(pipelinedir,
+    #                                   "write_sources." + cmt_file_db[3:-4] +
+    #                                   ".stderr")
 
     # Add Task to the Stage
     w_sources.add_tasks(w_sources_t)
@@ -172,7 +288,6 @@ def run_specfem(cmt_file_db, param_path, pipelinedir):
     :param param_path: path to parameter file directory
     :param pipelinedir: path to pipeline directory
     :return: EnTK Stage
-
 
     """
 
@@ -193,15 +308,15 @@ def run_specfem(cmt_file_db, param_path, pipelinedir):
 
     # Create a Stage object
     runSF3d = Stage()
-    runSF3d.name = 'Simulation'
+    runSF3d.name = "Simulation"
 
     for at in attr[0]:
         sf_t = Task()
-        sf_t.name = 'run-' + at
+        sf_t.name = "run-" + at
 
         # Module Loading
         sf_t.pre_exec = [  # Get rid of existing modules
-            'module purge']
+            "module purge"]
         for module in cm_dict["modulelist"]:
             sf_t.pre_exec.append("module load %s" % module)
         sf_t.pre_exec.append("module load %s" % cm_dict["gpu_module"])
@@ -210,7 +325,7 @@ def run_specfem(cmt_file_db, param_path, pipelinedir):
         sf_t.pre_exec.append(  # Change directory
             "cd %s" % os.path.join(simdir, at))
 
-        sf_t.executable = ['./bin/xspecfem3D']  # Assign executable
+        sf_t.executable = ["./bin/xspecfem3D"]  # Assign executable
 
         # In the future maybe to database dir as a total log?
         sf_t.stdout = os.path.join(pipelinedir,
@@ -220,18 +335,11 @@ def run_specfem(cmt_file_db, param_path, pipelinedir):
                                    "run_specfem." + cmt_file_db[3:-4] +
                                    ".stderr")
 
-        sf_t.gpu_reqs = {
-            'processes': 6,
-            'process_type': 'MPI',
-            'threads_per_process': 1,
-            'thread_type': None
-        }
-
         sf_t.cpu_reqs = {
-            'processes': 6,
-            'process_type': 'MPI',
-            'threads_per_process': 1,
-            'thread_type': None
+            "processes": 54,
+            "process_type": "MPI",
+            "threads_per_process": 1,
+            "thread_type": None
         }
 
         # Add Task to the Stage
@@ -241,7 +349,7 @@ def run_specfem(cmt_file_db, param_path, pipelinedir):
 
 
 def specfem_clean_up(cmt_file_db, param_path, pipelinedir):
-    """ Cleaning up the simulation directories since we don't need all the
+    """ Cleaning up the simulation directories since we don"t need all the
     files for the future.
 
     :param cmt_file_db: cmtfile in the database
@@ -262,14 +370,14 @@ def specfem_clean_up(cmt_file_db, param_path, pipelinedir):
 
     # Create a Stage object
     clean_up = Stage()
-    clean_up.name = 'Clean-Up'
+    clean_up.name = "Clean-Up"
 
     # Create Task for stage
     clean_up_t = Task()
-    clean_up_t.name = 'Task-Clean-Up'
+    clean_up_t.name = "Task-Clean-Up"
     clean_up_t.pre_exec = [  # Conda activate
         DB_params["conda-activate"]]
-    clean_up_t.executable = [DB_params['bin-python']]  # Assign executable
+    clean_up_t.executable = [DB_params["bin-python"]]  # Assign executable
     # to the task
     clean_up_t.arguments = [clean_up_func, cmt_file_db]
 
@@ -311,7 +419,7 @@ def convert_traces(cmt_file_db, param_path):
 
     ## Create a Stage object
     conversion_stage = Stage()
-    conversion_stage.name = 'Conversion'
+    conversion_stage.name = "Convert"
 
     # Conversion binary
     conversion_bin = os.path.join(bin_path, "convert_to_asdf.py")
@@ -321,7 +429,7 @@ def convert_traces(cmt_file_db, param_path):
             "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
 
     ##### Converting the synthetic data
-    if DB_params['verbose']:
+    if DB_params["verbose"]:
         print("\nConverting synthetic traces to ASDF ... \n")
 
     for _i, at in enumerate(attr[:DB_params["npar"] + 1]):
@@ -329,42 +437,46 @@ def convert_traces(cmt_file_db, param_path):
         # Path file
         syn_path_file = os.path.join(sim_dir, at, at + ".yml")
 
+        print(syn_path_file)
+
         # Create Task for stage
         c_task = Task()
         c_task.name = at
 
         c_task.pre_exec = [DB_params["conda-activate"]]
-        c_task.executable = [DB_params['bin-python']]  # Assign executable
+        c_task.executable = DB_params["bin-python"]  # Assign executable
                                                        # to the task
 
-        c_task.arguments = [conversion_bin,
-                            "-f", syn_path_file,  # Path File
-                            "-v", DB_params["verbose"],  # verbose flag
-                            "-s", DB_params["verbose"],  # status bar
-                            ]
+        arguments = [conversion_bin, "-f", syn_path_file]
+        if DB_params["verbose"]:
+            arguments.append("-v")
+
+        c_task.arguments = arguments
 
         conversion_stage.add_tasks(c_task)
 
 
     ##### Converting the observed data
-    if DB_params['verbose']:
+    if DB_params["verbose"]:
         print("\nConverting observed traces to ASDF ... \n")
 
     obs_path_file = os.path.join(cmt_dir, "seismograms", "obs", "observed.yml")
 
     # Create Task for stage
     c_task = Task()
-    c_task.name = at
+    c_task.name = "Observed"
 
     c_task.pre_exec = [DB_params["conda-activate"]]
-    c_task.executable = [DB_params['bin-python']]  # Assign executable
+    c_task.executable = [DB_params["bin-python"]]  # Assign executable
     # to the task
 
-    c_task.arguments = [conversion_bin,
-                        "-f", obs_path_file,  # Path File
-                        "-v", DB_params["verbose"],  # verbose flag
-                        "-s", DB_params["verbose"],  # status bar
-                        ]
+    arguments = [conversion_bin, "-f", obs_path_file]
+    if DB_params["verbose"]:
+        arguments.append("-v")
+
+    c_task.arguments = arguments
+
+    print(c_task.arguments)
 
     conversion_stage.add_tasks(c_task)
 
@@ -397,14 +509,14 @@ def create_process_path_files(cmt_file_db, param_path, pipelinedir):
     # Create Process Paths Stage (CPP)
     # Create a Stage object
     cpp = Stage()
-    cpp.name = 'CreateProcessPaths'
+    cpp.name = "CreateProcessPaths"
 
     # Create Task
     cpp_t = Task()
     cpp_t.name = "CPP-Task"
     cpp_t.pre_exec = [  # Conda activate
                       DB_params["conda-activate"]]
-    cpp_t.executable = [DB_params['bin-python']]  # Assign executable
+    cpp_t.executable = [DB_params["bin-python"]]  # Assign executable
                                                   # to the task
     cpp_t.arguments = [create_process_path_bin, cmt_file_db]
 
@@ -439,16 +551,17 @@ def create_processing_stage(cmt_file_db, param_path):
     # the actual process path files. It is tested so it definitely works!
     # this way the processes can be distributed for each ASDF file on one
     # processor or more (MPI enabled!)
-    processing_list = get_processing_list(cmt_file_db, process_obs_param_dir,
+    processing_list, _, _ = get_processing_list(cmt_file_db,
+                                              process_obs_param_dir,
                                           process_syn_param_dir, verbose=True)
 
     # Process path function
-    process_func = os.join.path(bin_path, "process_asdf.py")
+    process_func = os.path.join(bin_path, "process_asdf.py")
 
     # Create Process Paths Stage (CPP)
     # Create a Stage object
     process_stage = Stage()
-    process_stage.name = 'Processing'
+    process_stage.name = "Processing"
 
     # Loop over process path files
     for process_path in processing_list:
@@ -457,17 +570,20 @@ def create_processing_stage(cmt_file_db, param_path):
         processing_task = Task()
 
         # This way the task gets the name of the path file
-        processing_task.name = "Processing-" + os.path.basename(process_path)
+        processing_task.name = "Processing-" \
+                                + os.path.basename(process_path)
 
         processing_task.pre_exec = [  # Conda activate
                                       DB_params["conda-activate"]]
 
-        processing_task.executable = [DB_params['bin-python']]  # Assign exec.
+        processing_task.executable = [DB_params["bin-python"]]  # Assign exec.
                                                                 # to the task
 
         processing_task.arguments = [process_func,
                                      "-f", process_path,
                                      "-v", DB_params["verbose"]]
+
+        print(processing_task.arguments)
 
         process_stage.add_tasks(processing_task)
 
@@ -509,7 +625,7 @@ def create_windowing_stage(cmt_file_db, param_path):
     # Create Process Paths Stage (CPP)
     # Create a Stage object
     window_stage = Stage()
-    window_stage.name = 'Windowing'
+    window_stage.name = "Windowing"
 
     # Loop over process path files
     for window_path in window_path_list:
@@ -521,9 +637,9 @@ def create_windowing_stage(cmt_file_db, param_path):
         window_task.name = os.path.basename(window_path)
 
         window_task.pre_exec = [  # Conda activate
-                                      DB_params["conda-activate"]]
+                                  DB_params["conda-activate"]]
 
-        window_task.executable = [DB_params['bin-python']]  # Assign exec
+        window_task.executable = [DB_params["bin-python"]]  # Assign exec
                                                             # to the task
 
         window_task.arguments = [window_func,
@@ -557,7 +673,7 @@ def create_inversion_dict_stage(cmt_file_db, param_path):
     # Create Process Paths Stage (CPP)
     # Create a Stage object
     inv_dict_stage = Stage()
-    inv_dict_stage.name = 'Creating'
+    inv_dict_stage.name = "Creating"
 
     # Create Task
     inv_dict_task = Task()
@@ -568,7 +684,7 @@ def create_inversion_dict_stage(cmt_file_db, param_path):
     inv_dict_task.pre_exec = [  # Conda activate
                               DB_params["conda-activate"]]
 
-    inv_dict_task.executable = [DB_params['bin-python']]  # Assign exec
+    inv_dict_task.executable = [DB_params["bin-python"]]  # Assign exec
     # to the task
 
     inv_dict_task.arguments = [inv_dict_func,
@@ -601,7 +717,7 @@ def inversion_stage(cmt_file_db, param_path):
     # Create Process Paths Stage (CPP)
     # Create a Stage object
     inversion_stage = Stage()
-    inversion_stage.name = 'CMT3D'
+    inversion_stage.name = "CMT3D"
 
     # Create Task
     inversion_task = Task()
@@ -612,12 +728,12 @@ def inversion_stage(cmt_file_db, param_path):
     inversion_task.pre_exec = [  # Conda activate
         DB_params["conda-activate"]]
 
-    inversion_task.executable = [DB_params['bin-python']]  # Assign exec
-    # to the task
+    inversion_task.executable = DB_params["bin-python"]  # Assign exec
+                                                           # to the task
 
     inversion_task.arguments = [inversion_func,
-                               "-f", cmt_file_db,
-                               "-p", param_path]
+                                "-f", cmt_file_db,
+                                "-p", param_path]
 
     inversion_stage.add_tasks(inversion_task)
 
@@ -658,21 +774,29 @@ def workflow(cmt_filename):
     # Create a Pipeline object
     p = Pipeline()
 
-    # ---- Create Database Entry --------------------------------------------- #
+    if HEADNODE_AVAILABLE:
+        # ---- Create Database Entry --------------------------------------------- #
 
-    # Create Database entry stage:
-    database_entry_stage = create_entry(cmt_filename, param_path, pipelinedir)
+        # Create Database entry stage:
+        database_entry_stage = create_entry(cmt_filename, param_path, pipelinedir)
 
-    # Add Stage to the Pipeline
-    p.add_stages(database_entry_stage)
+        # Add Stage to the Pipeline
+        p.add_stages(database_entry_stage)
 
-    # ---- REQUEST DATA ------------------------------------------------------ #
+        # ---- REQUEST DATA ------------------------------------------------------ #
 
-    # Request data stage
-    datarequest_stage = data_request(cmt_file_db, param_path, pipelinedir)
+        # Request data stage
+        datarequest_stage = data_request(cmt_file_db, param_path, pipelinedir)
 
-    # Add Stage to the Pipeline
-    p.add_stages(datarequest_stage)
+        # Add Stage to the Pipeline
+        p.add_stages(datarequest_stage)
+    else:
+
+        # Create the entry now before running the pipeline
+        call_create_entry(cmt_filename, param_path, pipelinedir)
+
+        # Download the data from the headnode before running the pipeline
+        #call_download_data(cmt_file_db, param_path, pipelinedir)
 
     # ---- Write Sources ----------------------------------------------------- #
 
@@ -684,49 +808,49 @@ def workflow(cmt_filename):
 
     # ---- Run Specfem ------------------------------------------------------- #
 
-    # Create Specfem Stage
-    runSF3D_stage = run_specfem(cmt_file_db, param_path, pipelinedir)
-
-    # Add Simulation stage to the Pipeline
-    p.add_stages(runSF3D_stage)
-
-    # ---- Clean Up Specfem -------------------------------------------------- #
-
-    # Create clean_up stage
-    clean_up_stage = specfem_clean_up(cmt_file_db, param_path, pipelinedir)
-
-    # Add Stage to the Pipeline
-    p.add_stages(clean_up_stage)
+    # # Create Specfem Stage
+    # runSF3D_stage = run_specfem(cmt_file_db, param_path, pipelinedir)
+    #
+    # # Add Simulation stage to the Pipeline
+    # p.add_stages(runSF3D_stage)
+    #
+    # # ---- Clean Up Specfem -------------------------------------------------- #
+    #
+    # # Create clean_up stage
+    # clean_up_stage = specfem_clean_up(cmt_file_db, param_path, pipelinedir)
+    #
+    # # Add Stage to the Pipeline
+    # p.add_stages(clean_up_stage)
 
     # ---- Convert to ASDF --------------------------------------------------- #
 
-    # Create conversion stage
-    conversion_stage = convert_traces(cmt_file_db, param_path)
-
-    # Add stage to pipeline
-    p.add_stages(conversion_stage)
+    # # Create conversion stage
+    # conversion_stage = convert_traces(cmt_file_db, param_path)
+    #
+    # # Add stage to pipeline
+    # p.add_stages(conversion_stage)
 
     # ---- Create Process Path files ----------------------------------------- #
 
-    # Create Process Stage Pipeline
-    process_path_stage = create_process_path_files(cmt_file_db,
-                                                   param_path,
-                                                   pipelinedir)
-    p.add_stages(process_path_stage)
-
-    # ---- Process Traces ---------------------------------------------------- #
-
-    # Create processing stage
-    processing_stage = create_processing_stage(cmt_file_db, param_path)
-
-    p.add_stages(processing_stage)
-
-    # ---- Window Traces ---------------------------------------------------- #
-
-    # Create processing stage
-    windowing_stage = create_processing_stage(cmt_file_db, param_path)
-
-    p.add_stages(windowing_stage)
+    # # Create Process Stage Pipeline
+    # process_path_stage = create_process_path_files(cmt_file_db,
+    #                                                param_path,
+    #                                                pipelinedir)
+    # p.add_stages(process_path_stage)
+    #
+    # # ---- Process Traces ---------------------------------------------------- #
+    #
+    # # Create processing stage
+    # processing_stage = create_processing_stage(cmt_file_db, param_path)
+    #
+    # p.add_stages(processing_stage)
+    #
+    # # ---- Window Traces ---------------------------------------------------- #
+    #
+    # # Create processing stage
+    # windowing_stage = create_processing_stage(cmt_file_db, param_path)
+    #
+    # p.add_stages(windowing_stage)
 
     # ============== RUNNING THE PIPELINE ==================================== #
 
@@ -735,19 +859,28 @@ def workflow(cmt_filename):
 
     # Create a dictionary describe four mandatory keys:
     # resource, walltime, and cpus
-    # resource is 'local.localhost' to execute locally
-    res_dict = {
-        'resource': 'princeton.tiger_gpu',
-        'project': 'geo',
-        'queue': 'gpu',
-        'schema': 'local',
-        'walltime': 300,
-        'cpus': 6,
-        'gpus': 6
+    # resource is "local.localhost" to execute locally
+    # res_dict_gpu = {
+    #     "resource": "princeton.tiger_gpu",
+    #     "project": "geo",
+    #     "queue": "gpu",
+    #     "schema": "local",
+    #     "walltime": 300,
+    #     "cpus": 6,
+    #     "gpus": 6
+    # }
+
+    res_dict_cpu = {
+        "resource": "princeton.tiger_cpu",
+        "project": "geo",
+        "queue": "cpu",
+        "schema": "local",
+        "walltime": 30,
+        "cpus": 10,
     }
 
     # Assign resource request description to the Application Manager
-    appman.resource_desc = res_dict
+    appman.resource_desc = res_dict_cpu
 
     # Assign the workflow as a set or list of Pipelines to the Application Manager
     # Note: The list order is not guaranteed to be preserved
@@ -757,9 +890,9 @@ def workflow(cmt_filename):
     appman.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('filename', help='Path to CMTSOLUTION file',
+    parser.add_argument("filename", help="Path to CMTSOLUTION file",
                         type=str)
     args = parser.parse_args()
 

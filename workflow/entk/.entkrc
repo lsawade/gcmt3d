@@ -1,10 +1,11 @@
 # Radical Pilot verbose format
-export RADICAL_PILOT_VERBOSE=REPORT
-export RADICAL_LOG_LVL=VERBOSE
+export RADICAL_PILOT_VERBOSE="REPORT"
+export RADICAL_LOG_LVL="DEBUG"
+export RADICAL_LOG_TGT="radical.log"
 
 
 # Database resource
-export RADICAL_PILOT_DBURL="mongodb://user:user123@ds043012.mlab.com:43012/princeton"
+export RADICAL_PILOT_DBURL="mongodb://specfm:5p3cfm@two.radical-project.org:27017/specfm"
 
 # RabbitMQ resource
 export RMQ_HOSTNAME="two.radical-project.org"

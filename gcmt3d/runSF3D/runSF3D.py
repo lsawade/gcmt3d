@@ -518,10 +518,14 @@ class DATAFixer(object):
                              self.mpicc,
                              " ".join(self.modules))
 
-        # Send command
-        process = subprocess.run(split(bashCommand), check=True, text=True,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
+        if self.v:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True)
+        else:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
 
         # catch outputs
         if self.v:
@@ -569,10 +573,15 @@ class DATAFixer(object):
                              self.walltime,
                              batchscript)
 
-        # Send command
-        process = subprocess.run(split(bashCommand), check=True, text=True,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
+        if self.v:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True)
+        else:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+
         # catch outputs
         if self.v:
             print(bashCommand)
@@ -617,10 +626,14 @@ class DATAFixer(object):
                              self.walltime_solver,
                              batchscript)
 
-        # Send command
-        process = subprocess.run(split(bashCommand), check=True, text=True,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
+        if self.v:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True)
+        else:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
 
         # catch outputs
         if self.v:

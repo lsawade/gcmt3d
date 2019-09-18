@@ -11,10 +11,10 @@ This script will download the observed data. To the necessary places.
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 
+
 from gcmt3d.data import DataRequest
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import os
-import argparse
 
 def data_request(cmt_filename):
 

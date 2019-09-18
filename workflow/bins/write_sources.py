@@ -12,7 +12,12 @@ directories.
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 
-from ..entk.generate_sources import write_sources
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                             "entk"))
+
+from generate_sources import write_sources
 import argparse
 
 
