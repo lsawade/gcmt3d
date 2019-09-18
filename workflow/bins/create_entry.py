@@ -11,8 +11,11 @@ This is a script that will create a database entry given a cmt solution in the
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 
-
-from ..entk.create_database_entry import create_entry
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                             "entk"))
+from create_database_entry import create_entry
 import argparse
 
 if __name__ == '__main__':

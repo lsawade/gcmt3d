@@ -11,7 +11,11 @@ This script will download the observed data. To the necessary places.
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 
-from ..entk import data_request
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                             "entk"))
+from data_request import data_request
 import argparse
 
 

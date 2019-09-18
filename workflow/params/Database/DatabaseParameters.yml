@@ -1,5 +1,5 @@
 # Database directory
-databasedir: "/scratch/gpfs/lsawade/test_database_GPU"
+databasedir: "/scratch/gpfs/lsawade/database_new"
 
 # Number of parameters to invert for
 # 6: only the moment tensor
@@ -29,7 +29,12 @@ figure_mode: False
 
 
 ####### EnTK parameters
+# This will be obsolete (hopefully) by the end of this year as EnTK will roll
+# out in python 3 and I will be able to install both in one environment.
+
 # activate conda environment
 conda-activate: '/home/lsawade/.miniconda3/bin/activate gcmt3d'
+conda-deactivate: 'source /home/lsawade/.miniconda3/bin/activate'
+
 # python location
 bin-python: '/home/lsawade/.miniconda3/envs/gcmt3d/bin/python'

@@ -8,7 +8,7 @@ and the CMTSolution file
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import os
-from gcmt3d.source import CMTSource
+from source import CMTSource
 
 
 def get_eq_entry_path(database_dir, cmtfilename):
