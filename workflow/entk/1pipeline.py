@@ -232,7 +232,7 @@ def data_request(cmt_file_db, param_path, pipelinedir):
     return datarequest
 
 
-def write_sources(cmt_file_db, param_path, pipelinedir):
+def write_sources(cmt_file_db, param_path, pipelinedir, task_counter):
     """ This function creates a stage that modifies the CMTSOLUTION files
     before the simulations are run.
 
@@ -248,6 +248,9 @@ def write_sources(cmt_file_db, param_path, pipelinedir):
                                       "Database/DatabaseParameters.yml")
 
     DB_params = read_yaml_file(databaseparam_path)
+
+    # Earthquake specific database parameters: Dir and eq_id
+    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
 
     # Path to function
     write_source_func = os.path.join(bin_path, "write_sources.py")
@@ -268,17 +271,24 @@ def write_sources(cmt_file_db, param_path, pipelinedir):
     w_sources_t.arguments = [write_source_func, cmt_file_db]
 
     # # In the future maybe to database dir as a total log?
-    # w_sources_t.stdout = os.path.join(pipelinedir,
-    #                                   "write_sources." + cmt_file_db[3:-4] +
-    #                                   ".stdout")
+    w_sources_t.stdout = os.path.join("%s" % eq_dir, "logs",
+                                      "stdout.pipeline_%s.task_%s"
+                                      % (eq_id, str(task_counter).zfill(4)))
+
+    w_sources_t.stderr = os.path.join("%s"% eq_dir, "logs",
+                                      "stderr.pipeline_%s.task_%s"
+                                      % (eq_id, str(task_counter).zfill(4)))
+
     # w_sources_t.stderr = os.path.join(pipelinedir,
-    #                                   "write_sources." + cmt_file_db[3:-4] +
+    #                                   "write-sources." + cmt_file_db[3:-4] +
     #                                   ".stderr")
 
     # Add Task to the Stage
     w_sources.add_tasks(w_sources_t)
 
-    return w_sources
+    task_counter += 1
+
+    return w_sources, task_counter
 
 
 def run_specfem(cmt_file_db, param_path, pipelinedir):
@@ -325,7 +335,7 @@ def run_specfem(cmt_file_db, param_path, pipelinedir):
         sf_t.pre_exec.append(  # Change directory
             "cd %s" % os.path.join(simdir, at))
 
-        sf_t.executable = ["./bin/xspecfem3D"]  # Assign executable
+        sf_t.executable = "./bin/xspecfem3D"  # Assign executable
 
         # In the future maybe to database dir as a total log?
         sf_t.stdout = os.path.join(pipelinedir,
@@ -377,7 +387,7 @@ def specfem_clean_up(cmt_file_db, param_path, pipelinedir):
     clean_up_t.name = "Task-Clean-Up"
     clean_up_t.pre_exec = [  # Conda activate
         DB_params["conda-activate"]]
-    clean_up_t.executable = [DB_params["bin-python"]]  # Assign executable
+    clean_up_t.executable = DB_params["bin-python"]  # Assign executable
     # to the task
     clean_up_t.arguments = [clean_up_func, cmt_file_db]
 
@@ -516,7 +526,7 @@ def create_process_path_files(cmt_file_db, param_path, pipelinedir):
     cpp_t.name = "CPP-Task"
     cpp_t.pre_exec = [  # Conda activate
                       DB_params["conda-activate"]]
-    cpp_t.executable = [DB_params["bin-python"]]  # Assign executable
+    cpp_t.executable = DB_params["bin-python"]  # Assign executable
                                                   # to the task
     cpp_t.arguments = [create_process_path_bin, cmt_file_db]
 
@@ -576,12 +586,12 @@ def create_processing_stage(cmt_file_db, param_path):
         processing_task.pre_exec = [  # Conda activate
                                       DB_params["conda-activate"]]
 
-        processing_task.executable = [DB_params["bin-python"]]  # Assign exec.
+        processing_task.executable = DB_params["bin-python"]  # Assign exec.
                                                                 # to the task
 
         processing_task.arguments = [process_func,
                                      "-f", process_path,
-                                     "-v", DB_params["verbose"]]
+                                     "-v"]
 
         print(processing_task.arguments)
 
@@ -753,6 +763,10 @@ def workflow(cmt_filename):
 
     """
 
+    # Task & pipeline counter
+    pipeline_counter = 0
+    task_counter = 0
+
     # Path to pipeline file
     pipelinepath = os.path.abspath(__file__)
     pipelinedir = os.path.dirname(pipelinepath)
@@ -771,6 +785,7 @@ def workflow(cmt_filename):
     # Earthquake file in the database
     cmt_file_db = os.path.join(eq_dir, "eq_" + eq_id + ".cmt")
 
+
     # Create a Pipeline object
     p = Pipeline()
 
@@ -778,7 +793,8 @@ def workflow(cmt_filename):
         # ---- Create Database Entry --------------------------------------------- #
 
         # Create Database entry stage:
-        database_entry_stage = create_entry(cmt_filename, param_path, pipelinedir)
+        database_entry_stage = create_entry(cmt_filename, param_path,
+                                            pipelinedir)
 
         # Add Stage to the Pipeline
         p.add_stages(database_entry_stage)
@@ -786,7 +802,8 @@ def workflow(cmt_filename):
         # ---- REQUEST DATA ------------------------------------------------------ #
 
         # Request data stage
-        datarequest_stage = data_request(cmt_file_db, param_path, pipelinedir)
+        datarequest_stage = data_request(cmt_file_db, param_path,
+                                         pipelinedir)
 
         # Add Stage to the Pipeline
         p.add_stages(datarequest_stage)
@@ -801,7 +818,9 @@ def workflow(cmt_filename):
     # ---- Write Sources ----------------------------------------------------- #
 
     # Create Source modification stage
-    w_sources_stage = write_sources(cmt_file_db, param_path, pipelinedir)
+    w_sources_stage, task_counter = write_sources(cmt_file_db, param_path,
+                                                  pipelinedir,
+                                                  task_counter)
 
     # Add Stage to the Pipeline
     p.add_stages(w_sources_stage)
