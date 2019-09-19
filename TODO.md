@@ -1,6 +1,18 @@
 # TODO
 
 
+## My Stuff
+
+* Put conditions functions into the entk workflow
+    - for specfem, check whether `output_solver.txt` has `End of simulation` 
+    at the end
+    - for conversion, check existence and time stamp of `.h5` files
+    - for processing check existence and time stamp of processed files
+    - ...
+    
+    
+## Wenjie's stuff
+
 * Fix below functions so that they can be implemented in a workflow
 * Create automatic workflow to process the data (make equal!) and the window the data using pyflex
 * Use inversion algorithm.
