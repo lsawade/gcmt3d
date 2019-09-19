@@ -18,6 +18,7 @@ sys.path.append(os.path.join(
 from create_process_paths import get_windowing_list
 from create_process_paths import get_processing_list
 import yaml
+import math
 
 # For calling binaries without entkd
 import subprocess
@@ -56,7 +57,7 @@ def read_yaml_file(filename):
         return yaml.load(fh, Loader=yaml.Loader)
 
 
-def create_entry(cmt_filename, param_path, pipelinedir):
+def create_entry(cmt_filename, param_path, pipelinedir, task_counter):
     """This function creates the Entk stage for creation of a database entry.
 
     :param cmt_filename: cmt_filename
@@ -83,7 +84,7 @@ def create_entry(cmt_filename, param_path, pipelinedir):
     t1.name = "database-entry"
     t1.pre_exec = [  # Conda activate
                      DB_params["conda-activate"]]
-    t1.executable =  [DB_params["bin-python"]]  # Assign
+    t1.executable = DB_params["bin-python"]  # Assign
     # executable to the task
     t1.arguments = [create_database_func,
                    os.path.abspath(cmt_filename)]
@@ -92,13 +93,24 @@ def create_entry(cmt_filename, param_path, pipelinedir):
     t1.stdout = os.path.join(pipelinedir, "database-entry." + eq_id + ".stdout")
     t1.stderr = os.path.join(pipelinedir, "database-entry." + eq_id + ".stderr")
 
+    # In the future maybe to database dir as a total log?
+    t1.stdout = os.path.join("%s" % eq_dir, "logs",
+                             "stdout.pipeline_%s.task_%s.%s"
+                             % (eq_id, str(task_counter).zfill(4),
+                                t1.name))
+
+    t1.stderr = os.path.join("%s" % eq_dir, "logs",
+                             "stderr.pipeline_%s.task_%s.%s"
+                             % (eq_id, str(task_counter).zfill(4),
+                                t1.name))
+
     # Add Task to the Stage
     database_entry.add_tasks(t1)
 
     return database_entry
 
 
-def call_create_entry(cmt_filename, param_path, pipelinedir):
+def call_create_entry(cmt_filename, param_path, pipelinedir, task_counter):
     """Simply calls the binary to create an entry without making it a stage.
     Hence, it would be run prior to the pipeline start.
 
@@ -130,9 +142,18 @@ def call_create_entry(cmt_filename, param_path, pipelinedir):
                           cmt_filename,
                           DB_params["conda-deactivate"])
 
+    create_entry_t = "database-entry"
+
     # In the future maybe to database dir as a total log?
-    stdout = os.path.join(pipelinedir, "database-entry." + eq_id + ".stdout")
-    stderr = os.path.join(pipelinedir, "database-entry." + eq_id + ".stderr")
+    stdout = os.path.join("%s" % eq_dir, "logs",
+                          "stdout.pipeline_%s.task_%s.%s"
+                          % (eq_id, str(task_counter).zfill(4),
+                             create_entry_t))
+
+    stderr = os.path.join("%s" % eq_dir, "logs",
+                          "stderr.pipeline_%s.task_%s.%s"
+                          % (eq_id, str(task_counter).zfill(4),
+                             create_entry_t))
 
     if DB_params["verbose"]:
         # Send command
@@ -145,7 +166,7 @@ def call_create_entry(cmt_filename, param_path, pipelinedir):
 
 
 
-def call_download_data(cmt_file_db, param_path, pipelinedir):
+def call_download_data(cmt_file_db, param_path, pipelinedir, task_counter):
     """Simply calls the binary to download the observed data.
 
     :param cmt_file_db: cmt_file in the database
@@ -158,6 +179,9 @@ def call_download_data(cmt_file_db, param_path, pipelinedir):
     databaseparam_path = os.path.join(param_path,
                                       "Database/DatabaseParameters.yml")
     DB_params = read_yaml_file(databaseparam_path)
+
+    # Earthquake specific database parameters: Dir and eq_id
+    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
 
     # Path to function
     download_data_func = os.path.join(bin_path, "request_data.py")
@@ -173,11 +197,18 @@ def call_download_data(cmt_file_db, param_path, pipelinedir):
                       cmt_file_db,
                       DB_params["conda-deactivate"])
 
+    datarequest_t = "data-request"
+
     # In the future maybe to database dir as a total log?
-    stdout = os.path.join(pipelinedir, "datarequest." + cmt_file_db[3:-4] +
-                                       ".stdout")
-    stderr = os.path.join(pipelinedir, "datarequest." + cmt_file_db[3:-4] +
-                                       ".stderr")
+    stdout = os.path.join("%s" % eq_dir, "logs",
+                                        "stdout.pipeline_%s.task_%s.%s"
+                                        % (eq_id, str(task_counter).zfill(4),
+                                           datarequest_t))
+
+    stderr = os.path.join("%s" % eq_dir, "logs",
+                                        "stderr.pipeline_%s.task_%s.%s"
+                                        % (eq_id, str(task_counter).zfill(4),
+                                           datarequest_t))
 
     if DB_params["verbose"]:
         # Send command
@@ -188,7 +219,7 @@ def call_download_data(cmt_file_db, param_path, pipelinedir):
             subprocess.check_output(bash_command, shell=True, stderr=err)
 
 
-def data_request(cmt_file_db, param_path, pipelinedir):
+def data_request(cmt_file_db, param_path, pipelinedir, task_counter):
     """ This function creates the request for the observed data and returns
     it as an EnTK Stage
 
@@ -204,6 +235,9 @@ def data_request(cmt_file_db, param_path, pipelinedir):
                                       "Database/DatabaseParameters.yml")
     DB_params = read_yaml_file(databaseparam_path)
 
+    # Earthquake specific database parameters: Dir and eq_id
+    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+
     # # Path to function
     request_data_func = os.path.join(bin_path, "request_data.py")
 
@@ -214,17 +248,20 @@ def data_request(cmt_file_db, param_path, pipelinedir):
     datarequest_t.name = "data-request"
     datarequest_t.pre_exec = [  # Conda activate
                                 DB_params["conda-activate"]]
-    datarequest_t.executable = [DB_params["bin-python"]]  # Assign executable
+    datarequest_t.executable = DB_params["bin-python"]  # Assign executable
                                                           # to the task
     datarequest_t.arguments = [request_data_func, cmt_file_db]
 
     # In the future maybe to database dir as a total log?
-    datarequest_t.stdout = os.path.join(pipelinedir,
-                                        "datarequest." + cmt_file_db[3:-4] +
-                                        ".stdout")
-    datarequest_t.stderr = os.path.join(pipelinedir,
-                                        "datarequest." + cmt_file_db[3:-4] +
-                                        ".stderr")
+    datarequest_t.stdout = os.path.join("%s" % eq_dir, "logs",
+                                        "stdout.pipeline_%s.task_%s.%s"
+                                        % (eq_id, str(task_counter).zfill(4),
+                                           datarequest_t.name))
+
+    datarequest_t.stderr = os.path.join("%s" % eq_dir, "logs",
+                                        "stderr.pipeline_%s.task_%s.%s"
+                                        % (eq_id, str(task_counter).zfill(4),
+                                           datarequest_t.name))
 
     # Add Task to the Stage
     datarequest.add_tasks(datarequest_t)
@@ -270,18 +307,16 @@ def write_sources(cmt_file_db, param_path, pipelinedir, task_counter):
         # to the task
     w_sources_t.arguments = [write_source_func, cmt_file_db]
 
-    # # In the future maybe to database dir as a total log?
+    # In the future maybe to database dir as a total log?
     w_sources_t.stdout = os.path.join("%s" % eq_dir, "logs",
-                                      "stdout.pipeline_%s.task_%s"
-                                      % (eq_id, str(task_counter).zfill(4)))
+                                      "stdout.pipeline_%s.task_%s.%s"
+                                      % (eq_id, str(task_counter).zfill(4),
+                                         w_sources_t.name))
 
     w_sources_t.stderr = os.path.join("%s"% eq_dir, "logs",
-                                      "stderr.pipeline_%s.task_%s"
-                                      % (eq_id, str(task_counter).zfill(4)))
-
-    # w_sources_t.stderr = os.path.join(pipelinedir,
-    #                                   "write-sources." + cmt_file_db[3:-4] +
-    #                                   ".stderr")
+                                      "stderr.pipeline_%s.task_%s.%s"
+                                      % (eq_id, str(task_counter).zfill(4),
+                                         w_sources_t.name))
 
     # Add Task to the Stage
     w_sources.add_tasks(w_sources_t)
@@ -405,7 +440,7 @@ def specfem_clean_up(cmt_file_db, param_path, pipelinedir):
     return clean_up
 
 
-def convert_traces(cmt_file_db, param_path):
+def convert_traces(cmt_file_db, param_path, task_counter):
     """This function creates the to-ASDF conversion stage. Meaning, in this
     stage, both synthetic and observed traces are converted to ASDF files.
 
@@ -421,6 +456,9 @@ def convert_traces(cmt_file_db, param_path):
 
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
+
+    # Earthquake specific database parameters: Dir and eq_id
+    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
 
     # File and directory
     cmt_dir = os.path.dirname(cmt_file_db)
@@ -447,8 +485,6 @@ def convert_traces(cmt_file_db, param_path):
         # Path file
         syn_path_file = os.path.join(sim_dir, at, at + ".yml")
 
-        print(syn_path_file)
-
         # Create Task for stage
         c_task = Task()
         c_task.name = at
@@ -462,6 +498,20 @@ def convert_traces(cmt_file_db, param_path):
             arguments.append("-v")
 
         c_task.arguments = arguments
+
+        # In the future maybe to database dir as a total log?
+        c_task.stdout = os.path.join("%s" % eq_dir, "logs",
+                                          "stdout.pipeline_%s.task_%s.%s"
+                                          % (eq_id, str(task_counter).zfill(4),
+                                             c_task.name))
+
+        c_task.stderr = os.path.join("%s" % eq_dir, "logs",
+                                          "stderr.pipeline_%s.task_%s.%s"
+                                          % (eq_id, str(task_counter).zfill(4),
+                                             c_task.name))
+
+        # Increase Task counter
+        task_counter += 1
 
         conversion_stage.add_tasks(c_task)
 
@@ -477,23 +527,36 @@ def convert_traces(cmt_file_db, param_path):
     c_task.name = "Observed"
 
     c_task.pre_exec = [DB_params["conda-activate"]]
-    c_task.executable = [DB_params["bin-python"]]  # Assign executable
+    c_task.executable = DB_params["bin-python"]  # Assign executable
     # to the task
 
+    # Create Argument list
     arguments = [conversion_bin, "-f", obs_path_file]
     if DB_params["verbose"]:
         arguments.append("-v")
 
     c_task.arguments = arguments
 
-    print(c_task.arguments)
+    # In the future maybe to database dir as a total log?
+    c_task.stdout = os.path.join("%s" % eq_dir, "logs",
+                                 "stdout.pipeline_%s.task_%s.%s"
+                                 % (eq_id, str(task_counter).zfill(4),
+                                    c_task.name))
+
+    c_task.stderr = os.path.join("%s" % eq_dir, "logs",
+                                 "stderr.pipeline_%s.task_%s.%s"
+                                 % (eq_id, str(task_counter).zfill(4),
+                                    c_task.name))
+    # Increase Task counter
+    task_counter += 1
 
     conversion_stage.add_tasks(c_task)
 
-    return conversion_stage
+    return conversion_stage, task_counter
 
 
-def create_process_path_files(cmt_file_db, param_path, pipelinedir):
+def create_process_path_files(cmt_file_db, param_path, pipelinedir,
+                              task_counter):
     """This function creates the path files used for processing both
     synthetic and observed data in ASDF format, as well as the following
     windowing procedure.
@@ -512,8 +575,11 @@ def create_process_path_files(cmt_file_db, param_path, pipelinedir):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
+    # Earthquake specific database parameters: Dir and eq_id
+    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+
     # Process path function
-    create_process_path_bin = os.path.join(pipelinedir,
+    create_process_path_bin = os.path.join(bin_path,
                                            "create_path_files.py")
 
     # Create Process Paths Stage (CPP)
@@ -530,12 +596,25 @@ def create_process_path_files(cmt_file_db, param_path, pipelinedir):
                                                   # to the task
     cpp_t.arguments = [create_process_path_bin, cmt_file_db]
 
+    # In the future maybe to database dir as a total log?
+    cpp_t.stdout = os.path.join("%s" % eq_dir, "logs",
+                              "stdout.pipeline_%s.task_%s.%s"
+                              % (eq_id, str(task_counter).zfill(4),
+                                 cpp_t.name))
+
+    cpp_t.stderr = os.path.join("%s" % eq_dir, "logs",
+                              "stderr.pipeline_%s.task_%s.%s"
+                              % (eq_id, str(task_counter).zfill(4),
+                                 cpp_t.name))
+
+    task_counter += 1
+
     cpp.add_tasks(cpp_t)
 
-    return cpp
+    return cpp, task_counter
 
 
-def create_processing_stage(cmt_file_db, param_path):
+def create_processing_stage(cmt_file_db, param_path, task_counter):
     """This function creates the ASDF processing stage.
 
     :param cmt_file_db: cmtfile in the database
@@ -552,6 +631,9 @@ def create_processing_stage(cmt_file_db, param_path):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
+    # Earthquake specific database parameters: Dir and eq_id
+    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+
     # Processing param dir
     process_obs_param_dir = os.path.join(param_path, "ProcessObserved")
     process_syn_param_dir = os.path.join(param_path, "ProcessSynthetic")
@@ -562,8 +644,9 @@ def create_processing_stage(cmt_file_db, param_path):
     # this way the processes can be distributed for each ASDF file on one
     # processor or more (MPI enabled!)
     processing_list, _, _ = get_processing_list(cmt_file_db,
-                                              process_obs_param_dir,
-                                          process_syn_param_dir, verbose=True)
+                                                process_obs_param_dir,
+                                                process_syn_param_dir,
+                                                verbose=True)
 
     # Process path function
     process_func = os.path.join(bin_path, "process_asdf.py")
@@ -573,6 +656,9 @@ def create_processing_stage(cmt_file_db, param_path):
     process_stage = Stage()
     process_stage.name = "Processing"
 
+    # Number of Processes:
+    N = len(processing_list)
+
     # Loop over process path files
     for process_path in processing_list:
 
@@ -581,7 +667,7 @@ def create_processing_stage(cmt_file_db, param_path):
 
         # This way the task gets the name of the path file
         processing_task.name = "Processing-" \
-                                + os.path.basename(process_path)
+                               + os.path.basename(process_path)
 
         processing_task.pre_exec = [  # Conda activate
                                       DB_params["conda-activate"]]
@@ -589,18 +675,32 @@ def create_processing_stage(cmt_file_db, param_path):
         processing_task.executable = DB_params["bin-python"]  # Assign exec.
                                                                 # to the task
 
-        processing_task.arguments = [process_func,
-                                     "-f", process_path,
-                                     "-v"]
+        # Create Argument list
+        arguments = [process_func, "-f", process_path]
+        if DB_params["verbose"]:
+            arguments.append("-v")
 
-        print(processing_task.arguments)
+        processing_task.arguments = arguments
+
+        # In the future maybe to database dir as a total log?
+        processing_task.stdout = os.path.join("%s" % eq_dir, "logs",
+                                  "stdout.pipeline_%s.task_%s.%s"
+                                  % (eq_id, str(task_counter).zfill(4),
+                                     processing_task.name))
+
+        processing_task.stderr = os.path.join("%s" % eq_dir, "logs",
+                                  "stderr.pipeline_%s.task_%s.%s"
+                                  % (eq_id, str(task_counter).zfill(4),
+                                     processing_task.name))
+
+        task_counter += 1
 
         process_stage.add_tasks(processing_task)
 
-    return process_stage
+    return process_stage, task_counter
 
 
-def create_windowing_stage(cmt_file_db, param_path):
+def create_windowing_stage(cmt_file_db, param_path, task_counter):
     """This function creates the ASDF windowing stage.
 
     :param cmt_file_db: cmtfile in the database
@@ -617,6 +717,9 @@ def create_windowing_stage(cmt_file_db, param_path):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
+    # Earthquake specific database parameters: Dir and eq_id
+    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+
     # Windowing parameter file directory
     window_process_dir = os.path.join(param_path, "CreateWindows")
 
@@ -626,11 +729,11 @@ def create_windowing_stage(cmt_file_db, param_path):
     # This way the windowing processes can be distributed for each ASDF file
     # pair on one processor (No MPI support!)
 
-    window_path_list = get_windowing_list(cmt_file_db, window_process_dir,
-                                          verbose=False)
+    window_path_list, _ = get_windowing_list(cmt_file_db, window_process_dir,
+                                             verbose=False)
 
     # Process path function
-    window_func = os.join.path(bin_path, "window_selection_asdf.py")
+    window_func = os.path.join(bin_path, "window_selection_asdf.py")
 
     # Create Process Paths Stage (CPP)
     # Create a Stage object
@@ -652,13 +755,29 @@ def create_windowing_stage(cmt_file_db, param_path):
         window_task.executable = [DB_params["bin-python"]]  # Assign exec
                                                             # to the task
 
-        window_task.arguments = [window_func,
-                                 "-f", window_path,
-                                 "-v", DB_params["verbose"]]
+        # Create Argument list
+        arguments = [window_func, "-f", window_path]
+        if DB_params["verbose"]:
+            arguments.append("-v")
+
+        window_task.arguments = arguments
+
+        # In the future maybe to database dir as a total log?
+        window_task.stdout = os.path.join("%s" % eq_dir, "logs",
+                                              "stdout.pipeline_%s.task_%s.%s"
+                                              % (
+                                              eq_id, str(task_counter).zfill(4),
+                                              window_task.name))
+
+        window_task.stderr = os.path.join("%s" % eq_dir, "logs",
+                                              "stderr.pipeline_%s.task_%s.%s"
+                                              % (
+                                              eq_id, str(task_counter).zfill(4),
+                                              window_task.name))
 
         window_stage.add_tasks(window_task)
 
-    return window_stage
+    return window_stage, task_counter
 
 
 def create_inversion_dict_stage(cmt_file_db, param_path):
@@ -794,7 +913,7 @@ def workflow(cmt_filename):
 
         # Create Database entry stage:
         database_entry_stage = create_entry(cmt_filename, param_path,
-                                            pipelinedir)
+                                            pipelinedir, task_counter)
 
         # Add Stage to the Pipeline
         p.add_stages(database_entry_stage)
@@ -803,17 +922,17 @@ def workflow(cmt_filename):
 
         # Request data stage
         datarequest_stage = data_request(cmt_file_db, param_path,
-                                         pipelinedir)
+                                         pipelinedir, task_counter)
 
         # Add Stage to the Pipeline
         p.add_stages(datarequest_stage)
     else:
 
         # Create the entry now before running the pipeline
-        call_create_entry(cmt_filename, param_path, pipelinedir)
+        call_create_entry(cmt_filename, param_path, pipelinedir, task_counter)
 
-        # Download the data from the headnode before running the pipeline
-        #call_download_data(cmt_file_db, param_path, pipelinedir)
+        # # Download the data from the headnode before running the pipeline
+        # call_download_data(cmt_file_db, param_path, pipelinedir, task_counter)
 
     # ---- Write Sources ----------------------------------------------------- #
 
@@ -843,33 +962,40 @@ def workflow(cmt_filename):
 
     # ---- Convert to ASDF --------------------------------------------------- #
 
-    # # Create conversion stage
-    # conversion_stage = convert_traces(cmt_file_db, param_path)
-    #
-    # # Add stage to pipeline
-    # p.add_stages(conversion_stage)
+    # Create conversion stage
+    conversion_stage, task_counter = convert_traces(cmt_file_db, param_path,
+                                                    task_counter)
+
+    # Add stage to pipeline
+    p.add_stages(conversion_stage)
 
     # ---- Create Process Path files ----------------------------------------- #
 
-    # # Create Process Stage Pipeline
-    # process_path_stage = create_process_path_files(cmt_file_db,
-    #                                                param_path,
-    #                                                pipelinedir)
-    # p.add_stages(process_path_stage)
-    #
-    # # ---- Process Traces ---------------------------------------------------- #
-    #
-    # # Create processing stage
-    # processing_stage = create_processing_stage(cmt_file_db, param_path)
-    #
-    # p.add_stages(processing_stage)
-    #
+    # Create Process Stage Pipeline
+    process_path_stage, task_counter = create_process_path_files(cmt_file_db,
+                                                                 param_path,
+                                                                 pipelinedir,
+                                                                 task_counter)
+
+    p.add_stages(process_path_stage)
+
+    # ---- Process Traces ---------------------------------------------------- #
+
+    # Create processing stage
+    processing_stage, task_counter = create_processing_stage(cmt_file_db,
+                                                             param_path,
+                                                             task_counter)
+
+    p.add_stages(processing_stage)
+
     # # ---- Window Traces ---------------------------------------------------- #
-    #
-    # # Create processing stage
-    # windowing_stage = create_processing_stage(cmt_file_db, param_path)
-    #
-    # p.add_stages(windowing_stage)
+
+    # Create processing stage
+    windowing_stage, task_counter = create_windowing_stage(cmt_file_db,
+                                                           param_path,
+                                                           task_counter)
+
+    p.add_stages(windowing_stage)
 
     # ============== RUNNING THE PIPELINE ==================================== #
 

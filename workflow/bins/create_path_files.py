@@ -13,8 +13,12 @@ This script writes specfem sources into the respective simulation directories.
 """
 
 
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                             "entk"))
 import argparse
-from ..entk.prepare_path_files import make_paths
+from prepare_path_files import make_paths
 
 
 if __name__ == "__main__":
