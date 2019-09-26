@@ -1,5 +1,5 @@
 # seconds, 1h = 3600s
-duration: 7400
+duration: 7600  # Remember to change simulation length if you change this
 
 # needs to be a list
 channels: ['BHN','BHE','BHZ']
