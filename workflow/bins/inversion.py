@@ -12,7 +12,11 @@ This script finallay inverts the CMT Solution.
 
 """
 
-from ..entk.tensor_inversion import invert
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                             "entk"))
+from tensor_inversion import invert
 import argparse
 
 if __name__ == "__main__":

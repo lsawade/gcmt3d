@@ -25,7 +25,6 @@ from pycmt3d import Cmt3D
 from pycmt3d import Grid3d
 from pycmt3d import Grid3dConfig
 
-import argparse
 import os
 import glob
 
@@ -85,7 +84,9 @@ def invert(cmt_file_db, param_path):
     for _i, inv_dict_file in enumerate(inv_dict_files):
 
         # Get processing band
-        bandstring = str(os.path.basename(inv_dict)).split(".")[1]
+        bandstring = str(os.path.basename(inv_dict_file).split(".")[1])
+        if "surface" in bandstring  or "body" in bandstring:
+            bandstring = bandstring.split("#")[0]
         band = [float(x) for x in bandstring.split("_")]
 
         if DB_params["verbose"]:
@@ -149,11 +150,13 @@ def invert(cmt_file_db, param_path):
         energy_start=float(grid3d_config["energy_start"]),
         energy_end=float(grid3d_config["energy_end"]),
         denergy=float(grid3d_config["denergy"]),
-        energy_keys=float(grid3d_config['energy_keys']),
-        energy_misfit_coef=float(grid3d_config["energy_misfit_coef"]),
-        weight_data=float(grid3d_config["weight_data"]),
-        taper_type=float(grid3d_config["tukey"]),
+        energy_keys=grid3d_config['energy_keys'],
+        energy_misfit_coef=grid3d_config["energy_misfit_coef"],
+        weight_data=bool(grid3d_config["weight_data"]),
+        taper_type=grid3d_config["taper_type"],
         weight_config=weight_config)
+
+    print(grid3d_config['energy_keys'])
 
     # Setting up general inversion config
     inv_config = INV_params["config"]
@@ -175,14 +178,14 @@ def invert(cmt_file_db, param_path):
         print("  Grid3d is finding better moment and origin time .... ")
         print("  " + 54 * "*" + "\n\n")
 
-    grid3d = Grid3d(cmtsource, dcon, config)
+    grid3d = Grid3d(cmtsource, dcon, g3d_config)
     grid3d.search()
 
     # Plot Statistics
-    grid3d.plot_stats_histogram(outputdir=inv_out_dir)
+    grid3d.plot_stats_histogram(outputdir=inv_out_dir, figure_format="pdf")
 
     # Plot Misfit
-    grid3d.plot_misfit_summary(outputdir=inv_out_dir)
+    grid3d.plot_misfit_summary(outputdir=inv_out_dir, figure_format="pdf")
 
     if DB_params["verbose"]:
         print("  PyCMT3D is finding an improved CMTSOLUTION .... ")
