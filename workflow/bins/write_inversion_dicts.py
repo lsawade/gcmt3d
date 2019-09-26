@@ -12,8 +12,11 @@ Last Update: June 2019
 
 """
 
-
-from ..entk.shape_inversion_dictionaries import inversion_dictionaries
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                             "entk"))
+from shape_inversion_dictionaries import inversion_dictionaries
 import argparse
 
 if __name__ == "__main__":

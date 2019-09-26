@@ -648,56 +648,83 @@ def create_processing_stage(cmt_file_db, param_path, task_counter):
                                                 process_syn_param_dir,
                                                 verbose=True)
 
-    # Process path function
-    process_func = os.path.join(bin_path, "process_asdf.py")
+    # The following little work around help getting around the fact that
+    # multiple tasks cannot read the same file.
+    # Get all available bands
+    bands = []
+    for file in processing_list:
+        bands.append(os.path.basename(file).split(".")[-2])
 
-    # Create Process Paths Stage (CPP)
-    # Create a Stage object
-    process_stage = Stage()
-    process_stage.name = "Processing"
+    bands = list(set(bands))
 
-    # Number of Processes:
-    N = len(processing_list)
+    # List of stages
+    stages = []
 
-    # Loop over process path files
-    for process_path in processing_list:
+    for band in bands:
 
-        # Create Task
-        processing_task = Task()
+        # Processing sublist
+        sub_list = [x for x in processing_list if band in x]
 
-        # This way the task gets the name of the path file
-        processing_task.name = "Processing-" \
-                               + os.path.basename(process_path)
 
-        processing_task.pre_exec = [  # Conda activate
-                                      DB_params["conda-activate"]]
+        # Process path function
+        process_func = os.path.join(bin_path, "process_asdf.py")
 
-        processing_task.executable = DB_params["bin-python"]  # Assign exec.
-                                                                # to the task
+        # Create Process Paths Stage (CPP)
+        # Create a Stage object
+        process_stage = Stage()
+        process_stage.name = "Processing"
 
-        # Create Argument list
-        arguments = [process_func, "-f", process_path]
-        if DB_params["verbose"]:
-            arguments.append("-v")
+        # Number of Processes:
+        N = len(processing_list)
 
-        processing_task.arguments = arguments
+        # Loop over process path files
+        for process_path in sub_list:
 
-        # In the future maybe to database dir as a total log?
-        processing_task.stdout = os.path.join("%s" % eq_dir, "logs",
-                                  "stdout.pipeline_%s.task_%s.%s"
-                                  % (eq_id, str(task_counter).zfill(4),
-                                     processing_task.name))
+            # Create Task
+            processing_task = Task()
 
-        processing_task.stderr = os.path.join("%s" % eq_dir, "logs",
-                                  "stderr.pipeline_%s.task_%s.%s"
-                                  % (eq_id, str(task_counter).zfill(4),
-                                     processing_task.name))
+            # This way the task gets the name of the path file
+            processing_task.name = "Processing-" \
+                                   + os.path.basename(process_path)
 
-        task_counter += 1
+            processing_task.pre_exec = [  # Conda activate
+                                          DB_params["conda-activate"]]
 
-        process_stage.add_tasks(processing_task)
+            processing_task.executable = DB_params["bin-python"]  # Assign exec.
+                                                                    # to the task
 
-    return process_stage, task_counter
+            # Create Argument list
+            arguments = [process_func, "-f", process_path]
+            if DB_params["verbose"]:
+                arguments.append("-v")
+
+            processing_task.arguments = arguments
+
+            # In the future maybe to database dir as a total log?
+            processing_task.stdout = os.path.join("%s" % eq_dir, "logs",
+                                      "stdout.pipeline_%s.task_%s.%s"
+                                      % (eq_id, str(task_counter).zfill(4),
+                                         processing_task.name))
+
+            processing_task.stderr = os.path.join("%s" % eq_dir, "logs",
+                                      "stderr.pipeline_%s.task_%s.%s"
+                                      % (eq_id, str(task_counter).zfill(4),
+                                         processing_task.name))
+
+            processing_task.cpu_reqs = {
+                "processes": 1,
+                "process_type": "MPI",
+                "threads_per_process": 1,
+                "thread_type": "OpenMP"
+            }
+
+            task_counter += 1
+
+            process_stage.add_tasks(processing_task)
+
+        stages.append(process_stage)
+
+    return stages, task_counter
 
 
 def create_windowing_stage(cmt_file_db, param_path, task_counter):
@@ -735,57 +762,85 @@ def create_windowing_stage(cmt_file_db, param_path, task_counter):
     # Process path function
     window_func = os.path.join(bin_path, "window_selection_asdf.py")
 
-    # Create Process Paths Stage (CPP)
-    # Create a Stage object
-    window_stage = Stage()
-    window_stage.name = "Windowing"
+    # The following little work around help getting around the fact that
+    # multiple tasks cannot read the same file.
+    # Create two stages one for #bodywaves or general entries and one for
+    # surfaces waves.
+    bodywave_list = []
+    surfacewave_list = []
+    for file in window_path_list:
+        name = os.path.basename(file)
+        if "surface" in name:
+            surfacewave_list.append(file)
+        else:
+            bodywave_list.append(file)
 
-    # Loop over process path files
-    for window_path in window_path_list:
+    stage_list = []
+    if len(bodywave_list) > 0:
+        stage_list.append(bodywave_list)
+    if len(surfacewave_list) > 0:
+        stage_list.append(surfacewave_list)
 
-        # Create Task
-        window_task = Task()
+    # List of stages
+    stages = []
 
-        # This way the task gets the name of the path file
-        window_task.name = os.path.basename(window_path)
+    for window_list in stage_list:
+        # Create Process Paths Stage (CPP)
+        # Create a Stage object
+        window_stage = Stage()
+        window_stage.name = "Windowing-Surface"
 
-        window_task.pre_exec = [  # Conda activate
-                                  DB_params["conda-activate"]]
+        # Loop over process path files
+        for window_path in window_list:
 
-        window_task.executable = [DB_params["bin-python"]]  # Assign exec
-                                                            # to the task
+            # Create Task
+            window_task = Task()
 
-        # Create Argument list
-        arguments = [window_func, "-f", window_path]
-        if DB_params["verbose"]:
-            arguments.append("-v")
+            # This way the task gets the name of the path file
+            window_task.name = os.path.basename(window_path)
 
-        window_task.arguments = arguments
+            window_task.pre_exec = [  # Conda activate
+                                      DB_params["conda-activate"]]
 
-        # In the future maybe to database dir as a total log?
-        window_task.stdout = os.path.join("%s" % eq_dir, "logs",
-                                              "stdout.pipeline_%s.task_%s.%s"
-                                              % (
-                                              eq_id, str(task_counter).zfill(4),
-                                              window_task.name))
+            window_task.executable = [DB_params["bin-python"]]  # Assign exec
+                                                                # to the task
 
-        window_task.stderr = os.path.join("%s" % eq_dir, "logs",
+            # Create Argument list
+            arguments = [window_func, "-f", window_path]
+            if DB_params["verbose"]:
+                arguments.append("-v")
+
+            window_task.arguments = arguments
+
+            # In the future maybe to database dir as a total log?
+            window_task.stdout = os.path.join("%s" % eq_dir, "logs",
+                                                  "stdout.pipeline_%s.task_%s.%s"
+                                                  % (eq_id,
+                                                     str(task_counter).zfill(4),
+                                                     window_task.name))
+
+            window_task.stderr = os.path.join("%s" % eq_dir, "logs",
                                               "stderr.pipeline_%s.task_%s.%s"
-                                              % (
-                                              eq_id, str(task_counter).zfill(4),
-                                              window_task.name))
+                                              % (eq_id,
+                                                 str(task_counter).zfill(4),
+                                                 window_task.name))
 
-        window_stage.add_tasks(window_task)
+            window_stage.add_tasks(window_task)
 
-    return window_stage, task_counter
+            task_counter += 1
+
+        stages.append(window_stage)
+
+    return stages, task_counter
 
 
-def create_inversion_dict_stage(cmt_file_db, param_path):
+def create_inversion_dict_stage(cmt_file_db, param_path, task_counter):
     """Creates stage for the creation of the inversion files. This stage is
     tiny, but required before the actual inversion.
 
     :param cmt_file_db:
     :param param_path:
+    :param task_counter:
     :return:
     """
 
@@ -795,6 +850,9 @@ def create_inversion_dict_stage(cmt_file_db, param_path):
 
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
+
+    # Earthquake specific database parameters: Dir and eq_id
+    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
 
     # Function
     inv_dict_func = os.path.join(bin_path, "write_inversion_dicts.py")
@@ -820,12 +878,27 @@ def create_inversion_dict_stage(cmt_file_db, param_path):
                                "-f", cmt_file_db,
                                "-p", param_path]
 
+    # In the future maybe to database dir as a total log?
+    inv_dict_task.stdout = os.path.join("%s" % eq_dir, "logs",
+                                        "stdout.pipeline_%s.task_%s.%s"
+                                        % (eq_id,
+                                           str(task_counter).zfill(4),
+                                           inv_dict_task.name))
+
+    inv_dict_task.stderr = os.path.join("%s" % eq_dir, "logs",
+                                        "stderr.pipeline_%s.task_%s.%s"
+                                        % (eq_id,
+                                           str(task_counter).zfill(4),
+                                           inv_dict_task.name))
+
     inv_dict_stage.add_tasks(inv_dict_task)
 
-    return inv_dict_stage
+    task_counter += 1
+
+    return inv_dict_stage, task_counter
 
 
-def inversion_stage(cmt_file_db, param_path):
+def create_inversion_stage(cmt_file_db, param_path, task_counter):
     """Creates inversion stage.
 
     :param cmt_file_db:
@@ -840,10 +913,12 @@ def inversion_stage(cmt_file_db, param_path):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
+    # Earthquake specific database parameters: Dir and eq_id
+    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+
     # Function
     inversion_func = os.path.join(bin_path, "inversion.py")
 
-    # Create Process Paths Stage (CPP)
     # Create a Stage object
     inversion_stage = Stage()
     inversion_stage.name = "CMT3D"
@@ -858,11 +933,24 @@ def inversion_stage(cmt_file_db, param_path):
         DB_params["conda-activate"]]
 
     inversion_task.executable = DB_params["bin-python"]  # Assign exec
-                                                           # to the task
+                                                         # to the task
 
     inversion_task.arguments = [inversion_func,
                                 "-f", cmt_file_db,
                                 "-p", param_path]
+
+    # In the future maybe to database dir as a total log?
+    inversion_task.stdout = os.path.join("%s" % eq_dir, "logs",
+                                        "stdout.pipeline_%s.task_%s.%s"
+                                        % (eq_id,
+                                           str(task_counter).zfill(4),
+                                           inversion_task.name))
+
+    inversion_task.stderr = os.path.join("%s" % eq_dir, "logs",
+                                        "stderr.pipeline_%s.task_%s.%s"
+                                        % (eq_id,
+                                           str(task_counter).zfill(4),
+                                           inversion_task.name))
 
     inversion_stage.add_tasks(inversion_task)
 
@@ -877,7 +965,7 @@ def workflow(cmt_filename):
 
     Usage:
         ```bash
-        python pipeline <path/to/cmtsolution>
+        python 1pipeline <path/to/cmtsolution>
         ```
 
     """
@@ -960,7 +1048,7 @@ def workflow(cmt_filename):
     # # Add Stage to the Pipeline
     # p.add_stages(clean_up_stage)
 
-    # ---- Convert to ASDF --------------------------------------------------- #
+    # ---- Convert to ASDF -------------------------------------------------- #
 
     # Create conversion stage
     conversion_stage, task_counter = convert_traces(cmt_file_db, param_path,
@@ -969,7 +1057,7 @@ def workflow(cmt_filename):
     # Add stage to pipeline
     p.add_stages(conversion_stage)
 
-    # ---- Create Process Path files ----------------------------------------- #
+    # ---- Create Process Path files ---------------------------------------- #
 
     # Create Process Stage Pipeline
     process_path_stage, task_counter = create_process_path_files(cmt_file_db,
@@ -979,23 +1067,42 @@ def workflow(cmt_filename):
 
     p.add_stages(process_path_stage)
 
-    # ---- Process Traces ---------------------------------------------------- #
+    # ---- Process Traces --------------------------------------------------- #
 
     # Create processing stage
-    processing_stage, task_counter = create_processing_stage(cmt_file_db,
+    processing_stages, task_counter = create_processing_stage(cmt_file_db,
                                                              param_path,
                                                              task_counter)
+    for stage in processing_stages:
+        p.add_stages(stage)
 
-    p.add_stages(processing_stage)
-
-    # # ---- Window Traces ---------------------------------------------------- #
+    # ---- Window Traces ---------------------------------------------------- #
 
     # Create processing stage
-    windowing_stage, task_counter = create_windowing_stage(cmt_file_db,
+    windowing_stages, task_counter = create_windowing_stage(cmt_file_db,
+                                                           param_path,
+                                                           task_counter)
+    for windowing_stage in windowing_stages:
+        p.add_stages(windowing_stage)
+
+    # ---- Create Inversion Dictionaries------------------------------------- #
+
+    # Create processing stage
+    inv_dict_stage, task_counter = create_inversion_dict_stage(cmt_file_db,
+                                                               param_path,
+                                                               task_counter)
+
+    p.add_stages(inv_dict_stage)
+
+    # ---- Inversion -------------------------------------------------------- #
+
+    # Create processing stage
+    inversion_stage = create_inversion_stage(cmt_file_db,
                                                            param_path,
                                                            task_counter)
 
-    p.add_stages(windowing_stage)
+    p.add_stages(inversion_stage)
+
 
     # ============== RUNNING THE PIPELINE ==================================== #
 
@@ -1021,7 +1128,8 @@ def workflow(cmt_filename):
         "queue": "cpu",
         "schema": "local",
         "walltime": 30,
-        "cpus": 10,
+        "cpus": 40,
+
     }
 
     # Assign resource request description to the Application Manager

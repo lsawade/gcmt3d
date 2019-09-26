@@ -34,9 +34,9 @@ grid3d_config:
   energy_inv: True
   energy_start: 0.8
   energy_end: 1.2
-  denergy: 0.1,
+  denergy: 0.1
   energy_keys: None
-  energy_misfit_coef: None,
+  energy_misfit_coef: None
   weight_data: False
-  weight_config: None,
+  weight_config: None
   taper_type: "tukey"
