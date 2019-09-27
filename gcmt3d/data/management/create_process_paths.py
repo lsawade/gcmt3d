@@ -38,6 +38,11 @@ def is_mpi_env():
     return True
 
 
+def _get_mpi_comm():
+    from mpi4py import MPI
+    return MPI.COMM_WORLD
+
+
 def write_yaml_file(d, filename, **kwargs):
     """Writes dictionary to given yaml file.
 
