@@ -4,6 +4,17 @@ SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem3d_globe_entk"
 # Verbose output
 verbose: True
 
+# Computational Resources for One run
+nodes: 2
+tasks: 54
+tasks_per_node: 27  # Unused for CPU runs
+walltime: "00:45:00"
+memory_req: 40000  # Memory to be requested for run in MB. Unused for CPU runs.
+
+# Total amount of cpus requested
+cpus: 80
+gpus: None
+
 # Set MPI Parameters
 NEX_XI: 144
 NEX_ETA: 144
@@ -27,15 +38,8 @@ MOVIE_SURFACE: False
 MOVIE_VOLUME: False
 MOVIE_COARSE: False
 
-# Computational Resources
-nodes: 2
-tasks: 54
-tasks_per_node: 27  # Unused for CPU runs
-walltime: "00:30:00"
-memory_req: 40000  # Memory to be requested for run in MB. Unused for CPU runs.
-
 # GPU Parameters
-GPU_MODE: False
+GPU_MODE: False  # If set to True remember to set total requested GPUs!
 GPU_RUNTIME: 1
 GPU_PLATFORM: NVIDIA
 GPU_DEVICE: Tesla

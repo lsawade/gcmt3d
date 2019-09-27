@@ -355,9 +355,11 @@ def run_specfem(cmt_file_db, param_path, task_counter):
     specfemspecs = read_yaml_file(specfemspec_path)
     cm_dict = read_yaml_file(comp_and_modules_path)
 
+    # Simulations to be run
     attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
             "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
 
+    # Simulation directory
     simdir = os.path.join(os.path.dirname(cmt_file_db), "CMT_SIMs")
 
     # Create a Stage object
@@ -1142,28 +1144,45 @@ def workflow(cmt_filename):
     # Create Application Manager
     appman = AppManager(hostname=hostname, port=port)
 
+    # Compute the necessary walltime from walltime/per simulation
+    # Load parameters
+    specfem_specs = read_yaml_file(
+        os.path.join(param_path, "SpecfemParams/SpecfemParams.yml"))
+
+    # Get twalltime from walltime specification in the parameter file.
+    walltime_per_simulation = specfem_specs["walltime"].split(":")
+    hours_in_min = float(walltime_per_simulation[0])*60
+    min_in_min = float(walltime_per_simulation[1])
+    sec_in_min = float(walltime_per_simulation[2])/60
+
+    # Add times to get full simulation time. The 45 min are accounting for
+    # everything that is not simulation time
+    total_min = 10 * int(round(hours_in_min + min_in_min + sec_in_min)) + 45
+
     # Create a dictionary describe four mandatory keys:
-    # resource, walltime, and cpus
+    # resource, walltime, cpus etc.
     # resource is "local.localhost" to execute locally
-    # res_dict_gpu = {
-    #     "resource": "princeton.tiger_gpu",
-    #     "project": "geo",
-    #     "queue": "gpu",
-    #     "schema": "local",
-    #     "walltime": 300,
-    #     "cpus": 6,
-    #     "gpus": 6
-    # }
+    # Define which resources to get depending on how specfem is run!
+    if specfem_specs["GPU_MODE"] is False:
+        res_dict_cpu = {
+            "resource": "princeton.tiger_cpu",
+            "project": "geo",
+            "queue": "cpu",
+            "schema": "local",
+            "walltime": total_min,
+            "cpus": int(specfem_specs["cpus"]),
+        }
+    else:
+        res_dict_gpu = {
+            "resource": "princeton.tiger_gpu",
+            "project": "geo",
+            "queue": "gpu",
+            "schema": "local",
+            "walltime": 300,
+            "cpus": int(specfem_specs["cpus"]),
+            "gpus": int(specfem_specs["gpus"])
+        }
 
-    res_dict_cpu = {
-        "resource": "princeton.tiger_cpu",
-        "project": "geo",
-        "queue": "cpu",
-        "schema": "local",
-        "walltime": 30,
-        "cpus": 80,
-
-    }
 
     # Assign resource request description to the Application Manager
     appman.resource_desc = res_dict_cpu
