@@ -5,21 +5,21 @@ SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem3d_globe_entk"
 verbose: True
 
 # Computational Resources for One run
-nodes: 2
-tasks: 54
-tasks_per_node: 27  # Unused for CPU runs
-walltime: "00:45:00"
+nodes: 1
+tasks: 24
+tasks_per_node: 24  # Unused for CPU runs
+walltime: "07:00:00"
 memory_req: 40000  # Memory to be requested for run in MB. Unused for CPU runs.
 
 # Total amount of cpus requested
-cpus: 80
+cpus: 160
 gpus: None
 
 # Set MPI Parameters
-NEX_XI: 144
-NEX_ETA: 144
-NPROC_XI: 3
-NPROC_ETA: 3
+NEX_XI: 128
+NEX_ETA: 128
+NPROC_XI: 2
+NPROC_ETA: 2
 
 # Minimal Processing
 ROTATE_SEISMOGRAMS_RT: False # Rotates the seismograms to RTZ

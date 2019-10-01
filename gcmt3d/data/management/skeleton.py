@@ -322,14 +322,15 @@ class DataBaseSkeleton(object):
                             else:
                                 self._copy_file(src_path0, dst_path0, False)
 
-                    elif _subdir == "DATABASES_MPI":
-                        if not os.path.islink(
-                                (os.path.join(cmt_der_path, "DATABASES_MPI"))):
-                            os.symlink(os.path.join(self.specfem_dir,
-                                                    "DATABASES_MPI"),
-                                       os.path.join(cmt_der_path,
-                                                    "DATABASES_MPI"),
-                                       target_is_directory=True)
+                    # elif _subdir == "DATABASES_MPI":
+                    #     if not os.path.islink(
+                    #             (os.path.join(cmt_der_path,
+                    #                           "DATABASES_MPI"))):
+                    #         os.symlink(os.path.join(self.specfem_dir,
+                    #                                 "DATABASES_MPI"),
+                    #                    os.path.join(cmt_der_path,
+                    #                                 "DATABASES_MPI"),
+                    #                    target_is_directory=True)
 
                     else:
                         if self.ow in [0, 1, 2, 3] and type(
