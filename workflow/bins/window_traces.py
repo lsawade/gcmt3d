@@ -11,8 +11,11 @@ directories.
     GNU Lesser General Public License, version 3 (LGPLv3)
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
-
-from ..entk.set_up_trace_windows import windowing
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                             "entk"))
+from set_up_trace_windows import windowing
 import argparse
 
 if __name__ == "__main__":
