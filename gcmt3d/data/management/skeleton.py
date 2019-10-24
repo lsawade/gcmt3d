@@ -233,6 +233,15 @@ class DataBaseSkeleton(object):
             else:
                 self._create_dir(inv_new_syn_dir, False)
 
+            inv_new_syn_plots_dir = os.path.join(inv_out_dir,
+                                                 "waveform_plots")
+
+            if self.ow in [0, 1, 2, 3, 4] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(inv_new_syn_plots_dir, True)
+            else:
+                self._create_dir(inv_new_syn_plots_dir, False)
+
     def create_window_dir(self):
         """Creates window_data directory for pyflex window data metadata."""
 

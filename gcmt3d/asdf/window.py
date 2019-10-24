@@ -77,7 +77,7 @@ def write_window_json(results, output_file):
         window_all[station] = {}
         _window_comp = {}
         for trace_id, trace_win in sta_win.items():
-            _window = [get_json_content(_i) for _i in trace_win]
+            _window = [get_json_content(_i, simple_mode=False) for _i in trace_win]
             _window_comp[trace_id] = _window
         window_all[station] = _window_comp
 
