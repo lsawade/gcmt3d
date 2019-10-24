@@ -24,7 +24,7 @@ overwrite: False
 status_bar: False
 
 # When windowing traces create figures?
-figure_mode: False
+figure_mode: True
 
 
 

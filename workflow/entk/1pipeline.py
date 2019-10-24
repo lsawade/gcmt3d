@@ -1049,13 +1049,13 @@ def workflow(cmt_filename):
 
         # ---- REQUEST DATA ------------------------------------------------- #
 
-        # Request data stage
-        datarequest_stage, task_counter = data_request(cmt_file_db,
-                                                       param_path,
-                                                       task_counter)
-
-        # Add Stage to the Pipeline
-        p.add_stages(datarequest_stage)
+        # # Request data stage
+        # datarequest_stage, task_counter = data_request(cmt_file_db,
+        #                                                param_path,
+        #                                                task_counter)
+        #
+        # # Add Stage to the Pipeline
+        # p.add_stages(datarequest_stage)
 
     else:
 
@@ -1063,38 +1063,38 @@ def workflow(cmt_filename):
         task_counter = call_create_entry(cmt_filename, param_path,
                                          task_counter)
 
-        # # Download the data from the headnode before running the pipeline
-        task_counter = call_download_data(cmt_file_db, param_path,
-                                          task_counter)
+        # # # Download the data from the headnode before running the pipeline
+        # task_counter = call_download_data(cmt_file_db, param_path,
+        #                                   task_counter)
 
     # ---- Write Sources ---------------------------------------------------- #
 
-    # Create Source modification stage
-    w_sources_stage, task_counter = write_sources(cmt_file_db, param_path,
-                                                  task_counter)
-
-    # Add Stage to the Pipeline
-    p.add_stages(w_sources_stage)
+    # # Create Source modification stage
+    # w_sources_stage, task_counter = write_sources(cmt_file_db, param_path,
+    #                                               task_counter)
+    #
+    # # Add Stage to the Pipeline
+    # p.add_stages(w_sources_stage)
 
     # ---- Run Specfem ------------------------------------------------------ #
 
-    # Create Specfem Stage
-    runSF3D_stage, task_counter = run_specfem(cmt_file_db,
-                                              param_path,
-                                              task_counter)
-
-    # Add Simulation stage to the Pipeline
-    p.add_stages(runSF3D_stage)
-
-    # ---- Clean Up Specfem ------------------------------------------------- #
-
-    # Create clean_up stage
-    clean_up_stage, task_counter = specfem_clean_up(cmt_file_db,
-                                                    param_path,
-                                                    task_counter)
-
-    # Add Stage to the Pipeline
-    p.add_stages(clean_up_stage)
+    # # Create Specfem Stage
+    # runSF3D_stage, task_counter = run_specfem(cmt_file_db,
+    #                                           param_path,
+    #                                           task_counter)
+    #
+    # # Add Simulation stage to the Pipeline
+    # p.add_stages(runSF3D_stage)
+    #
+    # # ---- Clean Up Specfem ------------------------------------------------- #
+    #
+    # # Create clean_up stage
+    # clean_up_stage, task_counter = specfem_clean_up(cmt_file_db,
+    #                                                 param_path,
+    #                                                 task_counter)
+    #
+    # # Add Stage to the Pipeline
+    # p.add_stages(clean_up_stage)
 
     # ---- Convert to ASDF -------------------------------------------------- #
 
@@ -1180,13 +1180,21 @@ def workflow(cmt_filename):
     # resource is "local.localhost" to execute locally
     # Define which resources to get depending on how specfem is run!
     if specfem_specs["GPU_MODE"] is False:
+        # res_dict_cpu = {
+        #     "resource": "princeton.tiger_cpu",
+        #     "project": "geo",
+        #     "queue": "cpu",
+        #     "schema": "local",
+        #     "walltime": total_min,
+        #     "cpus": int(specfem_specs["cpus"]),
+        # }
         res_dict_cpu = {
             "resource": "princeton.tiger_cpu",
             "project": "geo",
             "queue": "cpu",
             "schema": "local",
-            "walltime": total_min,
-            "cpus": int(specfem_specs["cpus"]),
+            "walltime": 45,
+            "cpus": 20
         }
     else:
         res_dict_gpu = {
