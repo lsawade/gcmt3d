@@ -519,9 +519,7 @@ class DATAFixer(object):
                              " ".join(self.modules))
 
         # Send command
-        process = subprocess.run(split(bashCommand), check=True, text=True,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
+        process = subprocess.run(split(bashCommand), check=True, text=True)
 
         # catch outputs
         if self.v:
@@ -570,9 +568,7 @@ class DATAFixer(object):
                              batchscript)
 
         # Send command
-        process = subprocess.run(split(bashCommand), check=True, text=True,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
+        process = subprocess.run(split(bashCommand), check=True, text=True)
         # catch outputs
         if self.v:
             print(bashCommand)
