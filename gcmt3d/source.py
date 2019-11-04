@@ -88,11 +88,9 @@ class CMTSource(object):
                               % line)
                 origin_time = UTCDateTime(0)
             otherinfo = line[4:].strip().split()[6:]
-            print(otherinfo)
             pde_lat = float(otherinfo[0])
             pde_lon = float(otherinfo[1])
             pde_depth_in_m = float(otherinfo[2]) * 1e3
-            print(pde_depth_in_m)
             mb = float(otherinfo[3])
             ms = float(otherinfo[4])
             region_tag = ' '.join(otherinfo[5:])

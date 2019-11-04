@@ -156,7 +156,9 @@ class ProcASDFBase(object):
                 if self.rank == 0:
                     print("Output file already exists and removed:%s"
                           % filename)
-                smart_remove_file(filename)
+                    os.remove(filename)
+                else:
+                    smart_remove_file(filename)
 
     @staticmethod
     def clean_memory(asdf_ds):

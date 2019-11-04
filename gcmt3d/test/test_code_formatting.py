@@ -24,7 +24,7 @@ def test_flake8():
 
     # Possibility to ignore some files and paths.
     ignore_paths = [
-        os.path.join(package_dir, "doc"),
+        os.path.join(package_dir, "docs"),
         os.path.join(package_dir, ".git")]
     files = []
     for dirpath, _, filenames in os.walk(package_dir):

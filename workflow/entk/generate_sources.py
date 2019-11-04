@@ -20,7 +20,7 @@ from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import os
 import argparse
 
-def main(cmt_filename):
+def write_sources(cmt_filename):
 
     # Define parameter directory
     param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
@@ -63,14 +63,3 @@ def main(cmt_filename):
 
     # Write sources
     sfsource.write_sources()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('filename', help='Path to CMTSOLUTION file',
-                        type=str)
-    args = parser.parse_args()
-
-    # Run
-    main(args.filename)

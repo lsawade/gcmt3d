@@ -184,7 +184,7 @@ def process_stream(st, inventory=None, remove_response_flag=False,
     :param water_level: water level used in remove instrument response. The
         default value in obspy is 60.
     :type water_level: float
-    :param filter_flag:flag for filter the seismogram
+    :param filter_flag: flag for filter the seismogram
     :type filter_flag: bool
     :param pre_filt: list of tuple of 4 corner frequency for filter,
         in ascending order(unit: Hz)

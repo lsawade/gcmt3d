@@ -21,7 +21,7 @@ import os
 import argparse
 
 
-def main(cmt_filename):
+def make_paths(cmt_filename):
 
     # Define parameter directory
     param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
@@ -56,14 +56,3 @@ def main(cmt_filename):
     window_dir = os.path.join(param_path, "CreateWindows")
     create_window_path(cmt_filename, window_dir,
                        figure_mode=DB_params["figure_mode"], verbose=True)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('filename', help='Path to CMTSOLUTION file',
-                        type=str)
-    args = parser.parse_args()
-
-    # Run
-    main(args.filename)

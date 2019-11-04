@@ -14,7 +14,7 @@ parameter file. The structure of the Database looks as follows:
     │   │   ├──CMT/
     │   │   │   ├──DATA/
     │   │   │   ├──DATABASES_MPI/
-    │   │   │   ├──OUTPUTFILES/
+    │   │   │   ├──OUTPUT_FILES/
     │   │   │   │   ├──CMT.yml # ASDF conversion path file
     │   │   │   │   :
     │   │   │   └──bin/  # symbolic link --> SPECFEM_DIR/bin/
@@ -46,7 +46,7 @@ parameter file. The structure of the Database looks as follows:
     │   │
     │   ├──inversion/
     │   │   ├──inversion_dicts/
-    │   │   │   ├──inversion_file_dict.<lT1>_<hT1>.yml
+    │   │   │   ├──inversion.<lT1>_<hT1>.yml
     │   │   └──inversion_output/
     │   │       ├──inv_summary.pdf
     │   │

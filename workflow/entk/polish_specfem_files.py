@@ -23,7 +23,7 @@ import os
 
 
 
-def main(cmt_filename):
+def clean_up(cmt_filename):
 
     # Define parameter directory
     param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
@@ -68,4 +68,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Run
-    main(args.filename)
+    clean_up(args.filename)

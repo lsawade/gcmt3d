@@ -1,4 +1,4 @@
-numpy==1.16.2
+numpy
 obspy==1.1.1
 PyYAML==5.1
 pyflex

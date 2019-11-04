@@ -18,6 +18,7 @@ Welcome to gcmt3d's documentation!
    chapters/running_specfem
    chapters/conversion
    chapters/processing
+   chapters/gcmt3dAPI
    chapters/workflowAPI
 
 
