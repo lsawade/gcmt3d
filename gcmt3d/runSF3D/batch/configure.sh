@@ -18,6 +18,6 @@ done
 
 ./configure MPIFC=$MPI90 FC=$F90 CC=$CC CXX=$CXX
 
-make all
+make -j
 
 cd -

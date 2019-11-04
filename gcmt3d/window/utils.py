@@ -132,12 +132,14 @@ def merge_station_windows(windows):
     For example, you may have "00.BH", "10.BH", "00.LH", "10.LH" from
     different locations and channels. You may only want to keep one
     at the very end. So:
-    1) select locations: keep only one location with the most
-        number of windows for one channel. For example, in "00.BH" and
-        "10.BH" we only keep "10.BH".
-    2) select channel: after last step, we keep only "00.BH" and "10.LH",
-        but ultimately we only want to keep one. So we may only choose
-        "00.BH" since it has more windows.
+
+    1. select locations: keep only one location with the most
+       number of windows for one channel. For example, in "00.BH" and
+       "10.BH" we only keep "10.BH".
+    2. select channel: after last step, we keep only "00.BH" and "10.LH",
+       but ultimately we only want to keep one. So we may only choose
+       "00.BH" since it has more windows.
+
     """
     w = merge_instruments_window(windows)
     w = merge_channels_window(w)

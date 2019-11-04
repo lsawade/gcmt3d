@@ -38,9 +38,6 @@ header contains all necessary information and no response info is needed.
 
 
 processing path files
-inverison dictionaries
-
-
-
+inversion dictionaries
 
 

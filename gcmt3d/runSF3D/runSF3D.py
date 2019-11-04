@@ -267,58 +267,58 @@ class DATAFixer(object):
         """
         Initializes Run parameters in the Parfile
 
-        Args:
-            specfemdir: string with directory name
-            nodes: number of computational nodes for the mesher. Default `1`
-            tasks: number of tasks per node for the mesher. Default `24`
-            tasks_per_node: maximum number of tasks per node. Default `24`.
-            walltime: Requested server time for the nodes. Default `00:30:00`
-            walltime_solver: walltime of mesher and solver can be different.
-            f90: string with fortran compiler
-            mpif90: string with fortran mpi compiler
-            cc: string with c compiler
-            cpp: string with c++ compiler
-            mpicc: string with c mpi compiler
-            modules: list of modules to be loaded for the run (for comilers
-                     etc.) Default ['intel', 'openmpi']
-            gpu_module: GPU module to be loaded. Default 'None'.
-            gpu_version: version that is used to compile specfem.
-            walltime: Requested server time for the nodes. Default `None`.
-                      `None` since this class is used for fixing the `Par_file`
-            NEX_XI: Number of elements along the chunk (s. Specfem Manual).
-                    Default `128`.
-            NEX_ETA: Number of elements along the first chunk (s. Specfem
-                     Manual). Default `128`.
-            NPROC_XI: Number of MPI processors (s. Specfem Manual).
-                      Default `1`.
-            NPROC_ETA: Number of MPI processors (s. Specfem Manual).
+        :param specfemdir: string with directory name
+        :param nodes: number of computational nodes for the mesher. Default `1`
+        :param tasks: number of tasks per node for the mesher. Default `24`
+        :param tasks_per_node: maximum number of tasks per node. Default `24`.
+        :param walltime: Requested server time for the nodes.
+                         Default `00:30:00`
+        :param walltime_solver: walltime of mesher and solver can be different.
+        f90: string with fortran compiler
+        :param mpif90: string with fortran mpi compiler
+        :param cc: string with c compiler
+        :param cpp: string with c++ compiler
+        :param mpicc: string with c mpi compiler
+        :param modules: list of modules to be loaded for the run (for comilers
+                 etc.) Default ['intel', 'openmpi']
+        :param gpu_module: GPU module to be loaded. Default 'None'.
+        :param gpu_version: version that is used to compile specfem.
+        :param walltime: Requested server time for the nodes. Default `None`.
+                  `None` since this class is used for fixing the `Par_file`
+        :param NEX_XI: Number of elements along the chunk (s. Specfem Manual).
+                Default `128`.
+        :param NEX_ETA: Number of elements along the first chunk (s. Specfem
+                 Manual). Default `128`.
+        :param NPROC_XI: Number of MPI processors (s. Specfem Manual).
+                  Default `1`.
+        :param NPROC_ETA: Number of MPI processors (s. Specfem Manual).
+                   Default `1`.
+        :param GPU_MODE: Set whether specfem should be GPU enabled (not yet
+                supported). Default `False`.
+        :param ADIOS_ENABLED: Set whether ADIOS should be turned on (not yet
+                       supported). Default `False`
+        :param RECORD_LENGTH: length of the final seismic record in minutes.
                        Default `1`.
-            GPU_MODE: Set whether specfem should be GPU enabled (not yet
-                    supported). Default `False`.
-            ADIOS_ENABLED: Set whether ADIOS should be turned on (not yet
-                           supported). Default `False`
-            RECORD_LENGTH: length of the final seismic record in minutes.
-                           Default `1`.
-            MODEL: velocity model, right now only 3D models are supported.
-                   Default `'s40rts'`
-            ROTATE_SEISMOGRAMS_RT: This sets whether the seismograms are
-                                   output as as NEZ or RTZ if True RTZ is
-                                   chosen. Default `True`.
-            WRITE_SEISMOGRAMS_BY_MASTER: Write seismograms by master job.
-                                         Default `False`.
-            OUTPUT_SEISMOS_ASCII_TEXT: Output seismograms in `ASCII` format.
-                                       Default `False`.
-            OUTPUT_SEISMOS_SAC_ALPHANUM: Output seismograms in `ASCII` format.
-                                         Default `False`.
-            OUTPUT_SEISMOS_SAC_BINARY: Output seismograms in `ASCII` format.
-                                       Default `False`.
-            OUTPUT_SEISMOS_ASDF: Output seismograms in `ASCII` format.
-                                 Default `False`.
-            MOVIE_SURFACE: Write movie on the surface. Default `False`
-            MOVIE_VOLUME: Write movie within the volume. Default `False`
-            MOVIE_COARSE: Write coarse movie. Default `False`
-            verbose: boolean deciding on whether to print stuff.
-                     Default `False`.
+        :param MODEL: velocity model, right now only 3D models are supported.
+               Default `'s40rts'`
+        :param ROTATE_SEISMOGRAMS_RT: This sets whether the seismograms are
+                               output as as NEZ or RTZ if True RTZ is
+                               chosen. Default `True`.
+        :param WRITE_SEISMOGRAMS_BY_MASTER: Write seismograms by master job.
+                                     Default `False`.
+        :param OUTPUT_SEISMOS_ASCII_TEXT: Output seismograms in `ASCII` format.
+                                   Default `False`.
+        :param OUTPUT_SEISMOS_SAC_ALPHANUM: Output seismograms in `ASCII`
+                                            format. Default `False`.
+        :param OUTPUT_SEISMOS_SAC_BINARY: Output seismograms in `ASCII` format.
+                                   Default `False`.
+        :param OUTPUT_SEISMOS_ASDF: Output seismograms in `ASCII` format.
+                             Default `False`.
+        :param MOVIE_SURFACE: Write movie on the surface. Default `False`
+        :param MOVIE_VOLUME: Write movie within the volume. Default `False`
+        :param MOVIE_COARSE: Write coarse movie. Default `False`
+        :param verbose: boolean deciding on whether to print stuff.
+                Default `False`.
 
         Returns: Nothing really it just runs specfem with the above options
         """
@@ -518,8 +518,19 @@ class DATAFixer(object):
                              self.mpicc,
                              " ".join(self.modules))
 
+<<<<<<< HEAD
         # Send command
         process = subprocess.run(split(bashCommand), check=True, text=True)
+=======
+        if self.v:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True)
+        else:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+>>>>>>> 401296cfc79716fa497b5b170cb4cd15decf9644
 
         # catch outputs
         if self.v:
@@ -567,8 +578,20 @@ class DATAFixer(object):
                              self.walltime,
                              batchscript)
 
+<<<<<<< HEAD
         # Send command
         process = subprocess.run(split(bashCommand), check=True, text=True)
+=======
+        if self.v:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True)
+        else:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+
+>>>>>>> 401296cfc79716fa497b5b170cb4cd15decf9644
         # catch outputs
         if self.v:
             print(bashCommand)
@@ -613,10 +636,14 @@ class DATAFixer(object):
                              self.walltime_solver,
                              batchscript)
 
-        # Send command
-        process = subprocess.run(split(bashCommand), check=True, text=True,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
+        if self.v:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True)
+        else:
+            # Send command
+            process = subprocess.run(split(bashCommand), check=True, text=True,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
 
         # catch outputs
         if self.v:

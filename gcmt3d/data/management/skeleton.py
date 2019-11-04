@@ -92,6 +92,9 @@ class DataBaseSkeleton(object):
         # Create station metadata directory
         self.create_station_dir()
 
+        # Create Log directory
+        self.create_log_dir()
+
         # Create window data directory
         self.create_window_dir()
 
@@ -178,6 +181,20 @@ class DataBaseSkeleton(object):
             else:
                 self._create_dir(station_dir, False)
 
+    def create_log_dir(self):
+        """Creates station_data directory for station metadata."""
+
+        for _i, _eq_dir in enumerate(self.eq_dirs):
+
+            # Create station_data dirs
+            log_dir = os.path.join(_eq_dir, "logs")
+
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(log_dir, True)
+            else:
+                self._create_dir(log_dir, False)
+
     def create_inversion_dir(self):
         """Creates station_data directory for station metadata."""
 
@@ -207,6 +224,14 @@ class DataBaseSkeleton(object):
                 self._create_dir(inv_out_dir, True)
             else:
                 self._create_dir(inv_out_dir, False)
+
+            inv_new_syn_dir = os.path.join(inv_out_dir, "new_synt")
+
+            if self.ow in [0, 1, 2, 3, 4] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(inv_new_syn_dir, True)
+            else:
+                self._create_dir(inv_new_syn_dir, False)
 
     def create_window_dir(self):
         """Creates window_data directory for pyflex window data metadata."""
@@ -296,6 +321,17 @@ class DataBaseSkeleton(object):
                                 self._copy_file(src_path0, dst_path0, True)
                             else:
                                 self._copy_file(src_path0, dst_path0, False)
+
+                    # elif _subdir == "DATABASES_MPI":
+                    #     if not os.path.islink(
+                    #             (os.path.join(cmt_der_path,
+                    #                           "DATABASES_MPI"))):
+                    #         os.symlink(os.path.join(self.specfem_dir,
+                    #                                 "DATABASES_MPI"),
+                    #                    os.path.join(cmt_der_path,
+                    #                                 "DATABASES_MPI"),
+                    #                    target_is_directory=True)
+
                     else:
                         if self.ow in [0, 1, 2, 3] and type(
                                 self.ow) is not bool:
