@@ -729,3 +729,6 @@ class DATAFixer(object):
                              "overwrite.")
         else:
             return val
+
+
+sys.addpath(os.path.join(__file__, ".."," ..")
