@@ -61,10 +61,7 @@ setup(
         "Topic :: Utilities",
         "License :: GNU License",
     ],
-    install_requires=[
-        "numpy", "matplotlib", "obspy", "pyasdf", "pyflex", "pycmt3d",
-        "spaceweight", "flake8"
-    ],
+    install_requires=parse_requirements("requirements.txt"),
     extras_require={
         "docs": ["sphinx", "sphinx_rtd_theme"],
         "tests": ["pytest", "py"]
