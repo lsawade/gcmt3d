@@ -18,6 +18,6 @@ done
 
 ./configure MPIFC=$MPI90 FC=$F90 CC=$CC CXX=$CXX
 
-make -j all
+make -j default
 
 cd -
