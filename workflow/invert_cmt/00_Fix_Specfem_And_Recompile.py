@@ -94,7 +94,7 @@ def Fix_Specfem():
                    tasks=sf_dict["tasks"],
                    tasks_per_node=sf_dict["tasks_per_node"],
                    walltime=sf_dict["walltime"],
-                   walltime_solver=sf_dict["walltime_solver"],
+                   walltime_solver=sf_dict["walltime"],
                    memory_req=sf_dict["memory_req"],
                    verbose=sf_dict["verbose"])
 

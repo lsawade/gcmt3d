@@ -32,8 +32,8 @@ grid3d_config:
   time_end: 5.0
   dt_over_delta: 1
   energy_inv: True
-  energy_start: 0.8
-  energy_end: 1.2
+  energy_start: 8.0
+  energy_end: 9.0
   denergy: 0.1
   energy_keys: None
   energy_misfit_coef: None

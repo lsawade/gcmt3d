@@ -57,7 +57,7 @@ def read_yaml_file(filename):
         return yaml.load(fh, Loader=yaml.Loader)
 
 
-def create_entry(cmt_filename, param_path, pipelinedir, task_counter):
+def create_entry(cmt_filename, param_path, task_counter):
     """This function creates the Entk stage for creation of a database entry.
 
     :param cmt_filename: cmt_filename
@@ -90,10 +90,6 @@ def create_entry(cmt_filename, param_path, pipelinedir, task_counter):
                    os.path.abspath(cmt_filename)]
 
     # In the future maybe to database dir as a total log?
-    t1.stdout = os.path.join(pipelinedir, "database-entry." + eq_id + ".stdout")
-    t1.stderr = os.path.join(pipelinedir, "database-entry." + eq_id + ".stderr")
-
-    # In the future maybe to database dir as a total log?
     t1.stdout = os.path.join("%s" % eq_dir, "logs",
                              "stdout.pipeline_%s.task_%s.%s"
                              % (eq_id, str(task_counter).zfill(4),
@@ -104,10 +100,13 @@ def create_entry(cmt_filename, param_path, pipelinedir, task_counter):
                              % (eq_id, str(task_counter).zfill(4),
                                 t1.name))
 
+    # Increase task-counter
+    task_counter += 1
+
     # Add Task to the Stage
     database_entry.add_tasks(t1)
 
-    return database_entry
+    return database_entry, task_counter
 
 
 def call_create_entry(cmt_filename, param_path, task_counter):
@@ -164,6 +163,10 @@ def call_create_entry(cmt_filename, param_path, task_counter):
         with open(stdout, "wb") as out, open(stderr, "wb") as err:
             subprocess.check_output(bash_command, shell=True, stderr=err)
 
+    # Increase task-counter
+    task_counter += 1
+
+    return task_counter
 
 
 def call_download_data(cmt_file_db, param_path, task_counter):
@@ -218,6 +221,11 @@ def call_download_data(cmt_file_db, param_path, task_counter):
         with open(stdout, "wb") as out, open(stderr, "wb") as err:
             subprocess.check_output(bash_command, shell=True, stderr=err)
 
+    # Increase task-counter
+    task_counter += 1
+
+    return task_counter
+
 
 def data_request(cmt_file_db, param_path, task_counter):
     """ This function creates the request for the observed data and returns
@@ -266,7 +274,10 @@ def data_request(cmt_file_db, param_path, task_counter):
     # Add Task to the Stage
     datarequest.add_tasks(datarequest_t)
 
-    return datarequest
+    # Increase task-counter
+    task_counter += 1
+
+    return datarequest, task_counter
 
 
 def write_sources(cmt_file_db, param_path, task_counter):
@@ -366,7 +377,7 @@ def run_specfem(cmt_file_db, param_path, task_counter):
     runSF3d = Stage()
     runSF3d.name = "Simulation"
 
-    for at in attr[0]:
+    for at in attr:
         sf_t = Task()
         sf_t.name = "run-" + at
 
@@ -399,12 +410,9 @@ def run_specfem(cmt_file_db, param_path, task_counter):
                                       str(task_counter).zfill(4),
                                       sf_t.name))
 
-        sf_t.cpu_reqs = {
-            "processes": int(specfemspecs["tasks"]),
-            "process_type": "MPI",
-            "threads_per_process": 1,
-            "thread_type": "OpenMP"
-        }
+
+        
+        print(sf_t.cpu_reqs)
 
         # Increase Task counter
         task_counter += 1
@@ -412,7 +420,7 @@ def run_specfem(cmt_file_db, param_path, task_counter):
         # Add Task to the Stage
         runSF3d.add_tasks(sf_t)
 
-        return runSF3d, task_counter
+    return runSF3d, task_counter
 
 
 def specfem_clean_up(cmt_file_db, param_path, task_counter):
@@ -1032,57 +1040,61 @@ def workflow(cmt_filename):
         # ---- Create Database Entry --------------------------------------------- #
 
         # Create Database entry stage:
-        database_entry_stage = create_entry(cmt_filename, param_path,
-                                            pipelinedir, task_counter)
+        database_entry_stage, task_counter = create_entry(cmt_filename,
+                                                          param_path,
+                                                          task_counter)
 
         # Add Stage to the Pipeline
         p.add_stages(database_entry_stage)
 
         # ---- REQUEST DATA ------------------------------------------------- #
 
-        # Request data stage
-        datarequest_stage = data_request(cmt_file_db, param_path,
-                                         pipelinedir, task_counter)
+        # # Request data stage
+        # datarequest_stage, task_counter = data_request(cmt_file_db,
+        #                                                param_path,
+        #                                                task_counter)
+        #
+        # # Add Stage to the Pipeline
+        # p.add_stages(datarequest_stage)
 
-        # Add Stage to the Pipeline
-        p.add_stages(datarequest_stage)
     else:
 
         # Create the entry now before running the pipeline
-        call_create_entry(cmt_filename, param_path, pipelinedir, task_counter)
+        task_counter = call_create_entry(cmt_filename, param_path,
+                                         task_counter)
 
-        # # Download the data from the headnode before running the pipeline
-        call_download_data(cmt_file_db, param_path, pipelinedir, task_counter)
+        # # # Download the data from the headnode before running the pipeline
+        # task_counter = call_download_data(cmt_file_db, param_path,
+        #                                   task_counter)
 
     # ---- Write Sources ---------------------------------------------------- #
 
-    # Create Source modification stage
-    w_sources_stage, task_counter = write_sources(cmt_file_db, param_path,
-                                                  pipelinedir,
-                                                  task_counter)
-
-    # Add Stage to the Pipeline
-    p.add_stages(w_sources_stage)
+    # # Create Source modification stage
+    # w_sources_stage, task_counter = write_sources(cmt_file_db, param_path,
+    #                                               task_counter)
+    #
+    # # Add Stage to the Pipeline
+    # p.add_stages(w_sources_stage)
 
     # ---- Run Specfem ------------------------------------------------------ #
 
-    # Create Specfem Stage
-    runSF3D_stage, task_counter = run_specfem(cmt_file_db,
-                                              param_path,
-                                              task_counter)
-
-    # Add Simulation stage to the Pipeline
-    p.add_stages(runSF3D_stage)
-
-    # ---- Clean Up Specfem ------------------------------------------------- #
-
-    # Create clean_up stage
-    clean_up_stage, task_counter = specfem_clean_up(cmt_file_db,
-                                                    param_path,
-                                                    task_counter)
-
-    # Add Stage to the Pipeline
-    p.add_stages(clean_up_stage)
+    # # Create Specfem Stage
+    # runSF3D_stage, task_counter = run_specfem(cmt_file_db,
+    #                                           param_path,
+    #                                           task_counter)
+    #
+    # # Add Simulation stage to the Pipeline
+    # p.add_stages(runSF3D_stage)
+    #
+    # # ---- Clean Up Specfem ------------------------------------------------- #
+    #
+    # # Create clean_up stage
+    # clean_up_stage, task_counter = specfem_clean_up(cmt_file_db,
+    #                                                 param_path,
+    #                                                 task_counter)
+    #
+    # # Add Stage to the Pipeline
+    # p.add_stages(clean_up_stage)
 
     # ---- Convert to ASDF -------------------------------------------------- #
 
@@ -1155,22 +1167,34 @@ def workflow(cmt_filename):
     min_in_min = float(walltime_per_simulation[1])
     sec_in_min = float(walltime_per_simulation[2])/60
 
+    cpus = int(specfem_specs["cpus"])
+    tasks = int(specfem_specs["tasks"])
+
     # Add times to get full simulation time. The 45 min are accounting for
     # everything that is not simulation time
-    total_min = 10 * int(round(hours_in_min + min_in_min + sec_in_min)) + 45
+    total_min = int(1/math.ceil(float(cpus)/40) \
+        * 10 * int(round(hours_in_min + min_in_min + sec_in_min)) + 45)
 
     # Create a dictionary describe four mandatory keys:
     # resource, walltime, cpus etc.
     # resource is "local.localhost" to execute locally
     # Define which resources to get depending on how specfem is run!
     if specfem_specs["GPU_MODE"] is False:
+        # res_dict_cpu = {
+        #     "resource": "princeton.tiger_cpu",
+        #     "project": "geo",
+        #     "queue": "cpu",
+        #     "schema": "local",
+        #     "walltime": total_min,
+        #     "cpus": int(specfem_specs["cpus"]),
+        # }
         res_dict_cpu = {
             "resource": "princeton.tiger_cpu",
             "project": "geo",
             "queue": "cpu",
             "schema": "local",
-            "walltime": total_min,
-            "cpus": int(specfem_specs["cpus"]),
+            "walltime": 45,
+            "cpus": 20
         }
     else:
         res_dict_gpu = {
