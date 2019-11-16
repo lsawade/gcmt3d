@@ -16,7 +16,7 @@ notebooks
 ._.DS_Store
 *session*
 *radical*
-slurm*
+slurm-*
 *.pyc
 *.stderr
 *.stdout

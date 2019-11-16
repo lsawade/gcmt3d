@@ -295,7 +295,7 @@ class DataBaseSkeleton(object):
                     self._create_dir(cmt_der_path, False)
 
                 # Copy specfem directory into cmt_der_path
-                subdirs = ["DATA", "DATABASES_MPI", "OUTPUT_FILES"]
+                subdirs = ["DATA", "OUTPUT_FILES"]
 
                 for _k, _subdir in enumerate(subdirs):
                     # Path to specfem subdirectory
@@ -331,16 +331,6 @@ class DataBaseSkeleton(object):
                             else:
                                 self._copy_file(src_path0, dst_path0, False)
 
-                    # elif _subdir == "DATABASES_MPI":
-                    #     if not os.path.islink(
-                    #             (os.path.join(cmt_der_path,
-                    #                           "DATABASES_MPI"))):
-                    #         os.symlink(os.path.join(self.specfem_dir,
-                    #                                 "DATABASES_MPI"),
-                    #                    os.path.join(cmt_der_path,
-                    #                                 "DATABASES_MPI"),
-                    #                    target_is_directory=True)
-
                     else:
                         if self.ow in [0, 1, 2, 3] and type(
                                 self.ow) is not bool:
@@ -360,6 +350,15 @@ class DataBaseSkeleton(object):
                 if not os.path.islink((os.path.join(cmt_der_path, "bin"))):
                     os.symlink(os.path.join(self.specfem_dir, "bin"),
                                os.path.join(cmt_der_path, "bin"),
+                               target_is_directory=True)
+
+                # Create symbolic link to destination folders
+                if not os.path.islink((os.path.join(cmt_der_path, 
+                                                    "DATABASES_MPI"))):
+                    os.symlink(os.path.join(self.specfem_dir, 
+                                            "DATABASES_MPI"),
+                               os.path.join(cmt_der_path,
+                                            "DATABASES_MPI"),
                                target_is_directory=True)
 
     def create_seismogram_dir(self):
