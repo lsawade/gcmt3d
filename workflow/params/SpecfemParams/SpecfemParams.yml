@@ -1,25 +1,25 @@
 # directory where specfem is compiled
-SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem3d_globe_entk"
+SPECFEM_DIR: "/tigress/lsawade/specfem3d_globe"
 
 # Verbose output
 verbose: True
 
 # Computational Resources for One run
 nodes: 2
-tasks: 54
-tasks_per_node: 27  # Unused for CPU runs
-walltime: "00:45:00"
+tasks: 6
+tasks_per_node: 3  # Unused for CPU runs
+walltime: "00:20:00"
 memory_req: 40000  # Memory to be requested for run in MB. Unused for CPU runs.
 
 # Total amount of cpus requested
-cpus: 80
-gpus: None
+cpus: 6
+gpus: 6
 
 # Set MPI Parameters
-NEX_XI: 144
-NEX_ETA: 144
-NPROC_XI: 3
-NPROC_ETA: 3
+NEX_XI: 128
+NEX_ETA: 128
+NPROC_XI: 1
+NPROC_ETA: 1
 
 # Minimal Processing
 ROTATE_SEISMOGRAMS_RT: False # Rotates the seismograms to RTZ
@@ -39,7 +39,7 @@ MOVIE_VOLUME: False
 MOVIE_COARSE: False
 
 # GPU Parameters
-GPU_MODE: False  # If set to True remember to set total requested GPUs!
+GPU_MODE: True   # If set to True remember to set total requested GPUs!
 GPU_RUNTIME: 1
 GPU_PLATFORM: NVIDIA
 GPU_DEVICE: Tesla

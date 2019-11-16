@@ -201,6 +201,10 @@ def invert(cmt_file_db, param_path):
     srcinv.plot_stats_histogram(outputdir=inv_out_dir,
                                 figure_format="pdf")
 
+    srcinv.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,
+                                                            "waveform_plots"),
+                                     figure_format="pdf")
+
     # Write new CMT file
     srcinv.write_new_cmtfile(outputdir=inv_out_dir)
 
