@@ -518,10 +518,6 @@ class DATAFixer(object):
                              self.mpicc,
                              " ".join(self.modules))
 
-<<<<<<< HEAD
-        # Send command
-        process = subprocess.run(split(bashCommand), check=True, text=True)
-=======
         if self.v:
             # Send command
             process = subprocess.run(split(bashCommand), check=True, text=True)
@@ -530,7 +526,6 @@ class DATAFixer(object):
             process = subprocess.run(split(bashCommand), check=True, text=True,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE)
->>>>>>> 401296cfc79716fa497b5b170cb4cd15decf9644
 
         # catch outputs
         if self.v:
@@ -578,10 +573,6 @@ class DATAFixer(object):
                              self.walltime,
                              batchscript)
 
-<<<<<<< HEAD
-        # Send command
-        process = subprocess.run(split(bashCommand), check=True, text=True)
-=======
         if self.v:
             # Send command
             process = subprocess.run(split(bashCommand), check=True, text=True)
@@ -591,7 +582,6 @@ class DATAFixer(object):
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE)
 
->>>>>>> 401296cfc79716fa497b5b170cb4cd15decf9644
         # catch outputs
         if self.v:
             print(bashCommand)
