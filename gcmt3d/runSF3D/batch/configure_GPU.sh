@@ -25,6 +25,6 @@ echo "./configure MPIFC=$MPI90 FC=$F90 CC=$CC CXX=$CXX --with-cuda=$9"
 
 ./configure MPIFC=$MPI90 FC=$F90 CC=$CC CXX=$CXX --with-cuda=$9
 
-make -j
+make -j default
 
 cd -
