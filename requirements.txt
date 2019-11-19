@@ -9,3 +9,4 @@ h5py
 git+git://github.com/lsawade/pyasdf.git@devel
 git+git://github.com/lsawade/spaceweight.git@master
 git+git://github.com/lsawade/pycmt3d.git@devel
+matplotlib
