@@ -64,7 +64,7 @@ conda activate gcmt3d
 python $BIN_DIR/create_entry.py $CMTSOLUTION
 
 # Download data
-# python $BIN_DIR/request_data.py $EQ_IN_DB 
+python $BIN_DIR/request_data.py $EQ_IN_DB 
 
 # Start slurm script that does the whole shindig
 
@@ -180,9 +180,9 @@ for BAND in \$BAND_LIST; do
             echo "Processing logfile: \$PROC_LOG_FILE"
             srun -N1 -n1 python $BIN_DIR/process_asdf.py -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
         fi
-    done 
-done 
-wait
+    done
+    wait
+done
 echo " "
 echo "Done."
 echo " "
@@ -228,7 +228,7 @@ echo "******** CREATE INVERSION DICTIONARIES****************"
 echo " "
 INV_DICT_LOG_FILE="$LOG_DIR/$EQ_ID.009.Create-Inversion-Dicts.STDOUT"
 echo "Processing logfile: \$INV_DICT_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/inversion_dicts.py -f $EQ_IN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+srun -N1 -n1 python $BIN_DIR/write_inversion_dicts.py -f $EQ_IN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
 echo " "
 echo "Done."
 echo " "

@@ -1,0 +1,27 @@
+name: gcmt3d
+channels:
+  - conda-forge
+dependencies:
+  - obspy
+  - basemap
+  - numpy<=1.16.4
+  - matplotlib
+  - cartopy
+  - mpi4py
+  - h5py
+  - pip
+  - pip:
+    - pyyaml
+    - sphinx
+    - sphinx_rtd_theme
+    - m2r
+    - pytest
+    - py
+    - flake8
+    - pyflex
+    - git+git://github.com/lsawade/pyasdf.git@devel
+    - git+git://github.com/lsawade/spaceweight.git@master
+    - git+git://github.com/lsawade/pycmt3d.git@devel
+
+
+
