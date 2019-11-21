@@ -38,7 +38,7 @@ class PyTest(testcommand):
 
 
 setup(
-    name="GCMT3D",
+    name="gcmt3d",
     description="Global 3D Centroid Moment Tensor Inversion",
     long_description=long_description,
     version="0.0.1",
@@ -61,7 +61,7 @@ setup(
         "Topic :: Utilities",
         "License :: GNU License",
     ],
-    install_requires=parse_requirements("requirements.txt"),
+    #install_requires=parse_requirements("requirements.txt"),
     extras_require={
         "docs": ["sphinx", "sphinx_rtd_theme"],
         "tests": ["pytest", "py"]
