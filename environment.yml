@@ -9,7 +9,6 @@ dependencies:
   - cartopy
   - mpi4py
   - h5py
-  - pandas
   - pip
   - pip:
     - pyyaml
