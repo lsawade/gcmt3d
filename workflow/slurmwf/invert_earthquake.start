@@ -1,15 +1,16 @@
 #!/bin/bash
 
-# Get earthquake path from input
+# Get earthquake path from input filepath
 CMTSOLUTION=$1
 
 if [ -z "$CMTSOLUTION" ]
 then
-      echo "No CMTSOLUTION INPUTcat  is empty. Stopping. Choose earthquake"
+      echo "No CMTSOLUTION INPUT is empty. Stopping. Choose earthquake"
       exit 1
 else
       echo "Inverting $(realpath $CMTSOLUTION)"
 fi
+
 
 # STUFF TO BE SET PRIOR TO RUNNING ANYTHING
 GCMT3D='/home/lsawade/GCMT3D'
