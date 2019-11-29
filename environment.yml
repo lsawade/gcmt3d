@@ -2,7 +2,7 @@ name: gcmt3d
 channels:
   - conda-forge
 dependencies:
-  - obspy
+  - python=3.7
   - basemap
   - numpy<=1.16.4
   - matplotlib
@@ -11,6 +11,7 @@ dependencies:
   - h5py
   - pip
   - pip:
+    - obspy
     - pyyaml
     - sphinx
     - sphinx_rtd_theme
