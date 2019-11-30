@@ -15,6 +15,13 @@ Last Update: June 2019
 
 import argparse
 from ..entk.process_traces import process
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning,
+                        module=r'*.numerictypes')
+warnings.filterwarnings("ignore", category=UserWarning,
+                        module=r'*.asdf_data_set')
+warnings.filterwarnings("ignore", category=FutureWarning,
+                        module=r'*.numerictypes')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

@@ -17,6 +17,7 @@ from glob import glob
 import os
 import numpy as np
 
+
 def create_cmt_matrix(cmt_source_list):
     """Takes in list of CMT sources and transforms it into a
     :class:`numpy.ndarray`
@@ -47,7 +48,6 @@ def create_cmt_matrix(cmt_source_list):
         # Populate id list with ids
         event_id.append(cmt.eventname)
 
-
         # Populate CMT matrix
         cmt_mat[_i, :] = np.array([cmt.cmt_time, cmt.time_shift,
                                    cmt.half_duration,
@@ -55,9 +55,7 @@ def create_cmt_matrix(cmt_source_list):
                                    cmt.m_rr, cmt.m_tt, cmt.m_pp, cmt.m_rt,
                                    cmt.m_rp, cmt.m_tp, cmt.M0])
 
-
     return cmt_mat, event_id
-
 
 
 def load_cmts(database_dir):
@@ -76,7 +74,7 @@ def load_cmts(database_dir):
     """
 
     # Get list of inversion files.
-    eq_list = glob(os.path.join(database_dir, "eq_*"))
+    Clist = glob(os.path.join(database_dir, "C*"))
     print("Looking for earthquakes here: %s" % (database_dir))
 
     # Old CMTs
@@ -84,9 +82,9 @@ def load_cmts(database_dir):
     new_cmts = []
 
     # Loop of files
-    for invdata in eq_list:
+    for invdata in Clist:
 
-        # Get eq_id
+        # Get Cid
         bname = os.path.basename(invdata)
         id = bname[3:]
 
@@ -151,6 +149,7 @@ def get_differences(database_dir):
     # return: dt, dlat, dlon, dd, dM, dM0
     return compute_differences(ocmts, ncmts)
 
+
 def get_difference_stats(dt, dlat, dlon, dd, dM, dM0):
     """
     :param dt: Change in centroid time
@@ -210,4 +209,3 @@ if __name__ == "__main__":
     dt, dlat, dlon, dd, dM, dM0 = compute_differences(ocmts_mat, ncmts_mat)
 
     print(dlat)
-

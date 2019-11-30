@@ -144,7 +144,7 @@ def assertWinAlmostEqual(win1, win2, parameters):
 
         # Check if almost equal of both values
         elif is_numeric(val1) and is_numeric(val2):
-            np.testing.assert_almost_equal(val1, val2)
+            np.testing.assert_almost_equal(val1, val2, decimal=5)
 
         elif type(val1) is UTCDateTime and type(val2) is UTCDateTime:
             assertUTCDateTimeEqual(val1, val2)
@@ -154,7 +154,7 @@ def assertWinAlmostEqual(win1, win2, parameters):
 
         elif type(val1) is not type(val2):
             if is_numeric(val1) and is_numeric(val2):
-                np.testing.assert_almost_equal(val1, val2)
+                np.testing.assert_almost_equal(val1, val2, decimal=5)
             else:
                 raise AssertionError("Too fields are not equal.")
 

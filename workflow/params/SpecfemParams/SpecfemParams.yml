@@ -1,5 +1,5 @@
 # directory where specfem is compiled
-SPECFEM_DIR: "/tigress/lsawade/specfem3d_globe"
+SPECFEM_DIR: "/scratch/gpfs/lsawade/specfem3d_globe"
 
 # Verbose output
 verbose: True

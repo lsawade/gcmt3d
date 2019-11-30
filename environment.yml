@@ -3,7 +3,6 @@ channels:
   - conda-forge
 dependencies:
   - obspy
-  - basemap
   - numpy<=1.16.4
   - matplotlib
   - cartopy

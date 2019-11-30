@@ -22,14 +22,14 @@ DATABASE_DIR='/tigress/lsawade/database'
 
 # EARTHQUAKE PARAMETERS and Paths derived from the file
 # Getting database entry from CMTSOLUTION FILE
-EQ_ID=`cat $CMTSOLUTION | head -2 | tail -1 | cut -d: -f2 | tr -d '[:space:]'`
-EQ_IN_DB="$DATABASE_DIR/eq_$EQ_ID/eq_$EQ_ID.cmt"
-EQ_DIR=`dirname $EQ_IN_DB` # Earthquake Directory
-CMT_SIM_DIR=$EQ_DIR/CMT_SIMs # Simulation directory
-PROCESS_PATHS=$EQ_DIR/seismograms/process_paths # Process Path directory
-LOG_DIR=$EQ_DIR/logs # Logging directory
-INVERSION_OUTPUT_DIR=$EQ_DIR/inversion_output
-WINDOW_PATHS=$EQ_DIR/window_data/window_paths
+CID=`cat $CMTSOLUTION | head -2 | tail -1 | cut -d: -f2 | tr -d '[:space:]'`
+CIN_DB="$DATABASE_DIR/C$CID/C$CID.cmt"
+CDIR=`dirname $CIN_DB` # Earthquake Directory
+CMT_SIM_DIR=$CDIR/CMT_SIMs # Simulation directory
+PROCESS_PATHS=$CDIR/seismograms/process_paths # Process Path directory
+LOG_DIR=$CDIR/logs # Logging directory
+INVERSION_OUTPUT_DIR=$CDIR/inversion_output
+WINDOW_PATHS=$CDIR/window_data/window_paths
 
 echo
 echo "******** PACKAGE INFO ********************************"
@@ -47,9 +47,9 @@ echo
 
 echo "******** EARTHQUAKE INFO *****************************"
 echo "CMTSOLUTION:_____________________ $CMTSOLUTION"
-echo "Earthquake ID:___________________ $EQ_ID"
-echo "Earthquake Directory:____________ $EQ_DIR"
-echo "Earthquake File in Database:_____ $EQ_IN_DB"
+echo "Earthquake ID:___________________ $CID"
+echo "Earthquake Directory:____________ $CDIR"
+echo "Earthquake File in Database:_____ $CIN_DB"
 echo "Inversion Logging Directory:_____ $LOG_DIR"
 echo "Simulation Directory:____________ $CMT_SIM_DIR"
 echo "Process Path Directory:__________ $PROCESS_PATHS"
@@ -65,17 +65,16 @@ conda activate gcmt3d
 python $BIN_DIR/create_entry.py $CMTSOLUTION
 
 # Download data
-python $BIN_DIR/request_data.py $EQ_IN_DB 
+python $BIN_DIR/request_data.py $CIN_DB
 
 # Start slurm script that does the whole shindig
 
 sbatch << EOF
 #!/bin/bash
 #SBATCH --nodes=4
-#SBATCH --ntasks=12
-#SBATCH --ntasks-per-node=3
 #SBATCH --gres=gpu:3
 #SBATCH --mem=200000
+#SBATCH --ntasks-per-node=3
 #SBATCH --time 02:00:00
 #SBATCH -p pReserved
 #SBATCH --mail-user=lsawade@princeton.edu
@@ -98,26 +97,26 @@ conda activate gcmt3d
 CMT_LIST=(CMT CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
 
 ########  Write Sources #######
-WS_LOG=$LOG_DIR/$EQ_ID.003.Write-Sources.STDOUT
+WS_LOG=$LOG_DIR/$CID.003.Write-Sources.STDOUT
 echo " "
 echo "******** Writing Sources  ****************************"
 echo " "
 echo \$WS_LOG
-python $BIN_DIR/write_sources.py $EQ_IN_DB  > \$WS_LOG
+python $BIN_DIR/write_sources.py $CIN_DB  > \$WS_LOG
 echo "Done."
 echo " "
 echo " "
 
 
 ######## SIMULATIONS ########
-SIM_LOG=$LOG_DIR/$EQ_ID.004.Simluations
+SIM_LOG=$LOG_DIR/$CID.004.Simluations
 
 
 echo "******** RUNNING SIMULATIONS *************************"
 echo " "
  for CMT in "\${CMT_LIST[@]}"; do
      echo "Simulation Directory: $CMT_SIM_DIR/\$CMT" && echo "Simulation Logfile \$SIM_LOG.\$CMT.STDOUT" &
-     srun -N2 -n6 --ntasks-per-node=3 --chdir=$CMT_SIM_DIR/\$CMT ./bin/xspecfem3D &
+     # srun -N2 -n6 --chdir=$CMT_SIM_DIR/\$CMT ./bin/xspecfem3D &
  done
 wait
 echo " "
@@ -130,7 +129,7 @@ echo " "
 echo "******** CONVERT TRACES ******************************"
 echo " "
 
-CONV_LOG=$LOG_DIR/$EQ_ID.005.Converting-to-ASDF
+CONV_LOG=$LOG_DIR/$CID.005.Converting-to-ASDF
 
 # Synthetic data
 for CMT in "\${CMT_LIST[@]}"; do
@@ -142,7 +141,7 @@ for CMT in "\${CMT_LIST[@]}"; do
 done                                                   
 
 # Observed data
-CONV_PATH_FILE=$EQ_DIR/seismograms/obs/observed.yml
+CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
 echo "Conversion yml: \$CONV_PATH_FILE"
 CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
 echo "Conversion logfile: \$CONV_LOG_FILE"
@@ -157,16 +156,16 @@ echo " "
 ######## Create Process Paths ########
 echo "******** CREATE PROCESS PATHS ************************"
 echo " "
-CPP_LOG_FILE="$LOG_DIR/$EQ_ID.006.Create-Process-Paths.STDOUT"
+CPP_LOG_FILE="$LOG_DIR/$CID.006.Create-Process-Paths.STDOUT"
 echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/create_path_files.py $EQ_IN_DB > \$CPP_LOG_FILE
+srun -N1 -n1 python $BIN_DIR/create_path_files.py $CIN_DB > \$CPP_LOG_FILE
 echo " "
 
 
 ######## Process Traces ########
 echo "******** PROCESS TRACES ******************************"
 echo " "
-PROCESS_LOG="$LOG_DIR/$EQ_ID.007.Process-Traces"
+PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
 
 # Get the different period bands as they will use the same asdf file
 BAND_LIST=\$(for path in \$(ls $PROCESS_PATHS); do echo \$(echo \$path | cut -d. -f2); done | sort | uniq)
@@ -196,7 +195,7 @@ echo " "
 # Do body and surface waves seperately since they access the same
 # asdf files
 # Body waves
-WINDOW_LOG="$LOG_DIR/$EQ_ID.008.Window-Traces"
+WINDOW_LOG="$LOG_DIR/$CID.008.Window-Traces"
 for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
     if [[ \$WINDOW_PATH != *"#surface"* ]]; then
         WINDOW_PATH_FILE="$WINDOW_PATHS/\$WINDOW_PATH"
@@ -227,9 +226,9 @@ echo " "
 ######## Create Inversion Dictionaries ########
 echo "******** CREATE INVERSION DICTIONARIES****************"
 echo " "
-INV_DICT_LOG_FILE="$LOG_DIR/$EQ_ID.009.Create-Inversion-Dicts.STDOUT"
+INV_DICT_LOG_FILE="$LOG_DIR/$CID.009.Create-Inversion-Dicts.STDOUT"
 echo "Processing logfile: \$INV_DICT_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/write_inversion_dicts.py -f $EQ_IN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
+srun -N1 -n1 python $BIN_DIR/write_inversion_dicts.py -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
 echo " "
 echo "Done."
 echo " "
@@ -239,9 +238,9 @@ echo " "
 ######## Inversion ########
 echo "******** INVERSION ***********************************"
 echo " "
-INVERSION_LOG_FILE="$LOG_DIR/$EQ_ID.010.Create-Inversion-Dicts.STDOUT"
+INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Create-Inversion-Dicts.STDOUT"
 echo "Processing logfile: \$INVERSION_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/inversion.py -f $EQ_IN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+srun -N1 -n1 python $BIN_DIR/inversion.py -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "

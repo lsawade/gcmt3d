@@ -29,7 +29,7 @@
 #
 # 1) Command line arguments: -N, -S, -L, -C, -Q, -s, -e
 #
-# 2) A BREQ_FAST formatted file, http://www.iris.edu/manuals/breq_fast.htm
+# 2) A BRCFAST formatted file, http://www.iris.edu/manuals/brCfast.htm
 #
 # 3) A selection file containing a list of:
 #    Net Sta Loc Chan Start End
@@ -81,7 +81,7 @@
 #  for selection entries.
 #
 # 2011.089
-#  - Fix error message to report unrecognized channels in BREQ_FAST files.
+#  - Fix error message to report unrecognized channels in BRCFAST files.
 #
 # 2011.164
 #  - Add Perl and LWP version to UserAgent and wsclient URL to usage message.
@@ -103,13 +103,13 @@
 # 2012.045
 #  - Print "No data available" when return code is 204 in addition to 404.
 #  - Allow start/end times specified with microsecond resolution, subseconds are currently ignored.
-#  - Allow -- location IDs in BREQ_FAST formatted selections.
+#  - Allow -- location IDs in BRCFAST formatted selections.
 #
 # 2012.061
 #  - Add -resp option to request response level information, no extra parsing
 #  or printing of response level details is included, useful for saving the XML.
 #  - Add index numbers to XML output file if more than one request is submitted
-#  to the server.  Using a selection list or BREQ_FAST file for input can generate
+#  to the server.  Using a selection list or BRCFAST file for input can generate
 #  multiple requests, one request per line in fact.
 #
 # 2012.068:
@@ -267,7 +267,7 @@ if ( ! $getoptsret || $usage || ! $required ) {
   print " -mts              Limit to metadata where criteria match time series data\n";
   print " -X xmlfile        Write raw returned FDSN StationXML to xmlfile\n";
   print " -l listfile       Read list of selections from file\n";
-  print " -b bfastfile      Read list of selections from BREQ_FAST file\n";
+  print " -b bfastfile      Read list of selections from BRCFAST file\n";
   print " -sta              Print station level information, default is channel\n";
   print " -resp             Request response level information, no details printed\n";
   print " -A appname        Application/version string for identification\n";
@@ -317,9 +317,9 @@ if ( $selectfile ) {
   &ReadSelectFile ($selectfile);
 }
 
-# Read BREQ_FAST file
+# Read BRCFAST file
 if ( $bfastfile ) {
-  print STDERR "Reading data selection from BREQ_FAST file '$bfastfile'\n";
+  print STDERR "Reading data selection from BRCFAST file '$bfastfile'\n";
   &ReadBFastFile ($bfastfile);
 }
 
@@ -446,7 +446,7 @@ sub ReadSelectFile {
 ######################################################################
 # ReadBFastFile:
 #
-# Read BREQ_FAST file and add entries to the @selections array.
+# Read BRCFAST file and add entries to the @selections array.
 #
 ######################################################################
 sub ReadBFastFile {
