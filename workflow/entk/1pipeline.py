@@ -8,7 +8,7 @@ from __future__ import nested_scopes, generators, division, absolute_import, \
 from radical.entk import Pipeline, Stage, Task, AppManager
 import os
 import argparse
-from _get_eq_dir import get_eq_entry_path
+from _get_Cdir import get_Centry_path
 
 # Hopefully this changes soon with entk for python 3
 import sys
@@ -71,8 +71,8 @@ def create_entry(cmt_filename, param_path, task_counter):
                                       "Database/DatabaseParameters.yml")
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_filename)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_filename)
 
     # Path to function
     create_database_func = os.path.join(bin_path, "create_entry.py")
@@ -90,14 +90,14 @@ def create_entry(cmt_filename, param_path, task_counter):
                    os.path.abspath(cmt_filename)]
 
     # In the future maybe to database dir as a total log?
-    t1.stdout = os.path.join("%s" % eq_dir, "logs",
+    t1.stdout = os.path.join("%s" % Cdir, "logs",
                              "stdout.pipeline_%s.task_%s.%s"
-                             % (eq_id, str(task_counter).zfill(4),
+                             % (Cid, str(task_counter).zfill(4),
                                 t1.name))
 
-    t1.stderr = os.path.join("%s" % eq_dir, "logs",
+    t1.stderr = os.path.join("%s" % Cdir, "logs",
                              "stderr.pipeline_%s.task_%s.%s"
-                             % (eq_id, str(task_counter).zfill(4),
+                             % (Cid, str(task_counter).zfill(4),
                                 t1.name))
 
     # Increase task-counter
@@ -124,8 +124,8 @@ def call_create_entry(cmt_filename, param_path, task_counter):
                                       "Database/DatabaseParameters.yml")
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_filename)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_filename)
 
     # Path to function
     create_database_func = os.path.join(bin_path, "create_entry.py")
@@ -144,14 +144,14 @@ def call_create_entry(cmt_filename, param_path, task_counter):
     create_entry_t = "database-entry"
 
     # In the future maybe to database dir as a total log?
-    stdout = os.path.join("%s" % eq_dir, "logs",
+    stdout = os.path.join("%s" % Cdir, "logs",
                           "stdout.pipeline_%s.task_%s.%s"
-                          % (eq_id, str(task_counter).zfill(4),
+                          % (Cid, str(task_counter).zfill(4),
                              create_entry_t))
 
-    stderr = os.path.join("%s" % eq_dir, "logs",
+    stderr = os.path.join("%s" % Cdir, "logs",
                           "stderr.pipeline_%s.task_%s.%s"
-                          % (eq_id, str(task_counter).zfill(4),
+                          % (Cid, str(task_counter).zfill(4),
                              create_entry_t))
 
     if DB_params["verbose"]:
@@ -183,8 +183,8 @@ def call_download_data(cmt_file_db, param_path, task_counter):
                                       "Database/DatabaseParameters.yml")
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     # Path to function
     download_data_func = os.path.join(bin_path, "request_data.py")
@@ -203,14 +203,14 @@ def call_download_data(cmt_file_db, param_path, task_counter):
     datarequest_t = "data-request"
 
     # In the future maybe to database dir as a total log?
-    stdout = os.path.join("%s" % eq_dir, "logs",
+    stdout = os.path.join("%s" % Cdir, "logs",
                                         "stdout.pipeline_%s.task_%s.%s"
-                                        % (eq_id, str(task_counter).zfill(4),
+                                        % (Cid, str(task_counter).zfill(4),
                                            datarequest_t))
 
-    stderr = os.path.join("%s" % eq_dir, "logs",
+    stderr = os.path.join("%s" % Cdir, "logs",
                                         "stderr.pipeline_%s.task_%s.%s"
-                                        % (eq_id, str(task_counter).zfill(4),
+                                        % (Cid, str(task_counter).zfill(4),
                                            datarequest_t))
 
     if DB_params["verbose"]:
@@ -243,8 +243,8 @@ def data_request(cmt_file_db, param_path, task_counter):
                                       "Database/DatabaseParameters.yml")
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     # # Path to function
     request_data_func = os.path.join(bin_path, "request_data.py")
@@ -261,14 +261,14 @@ def data_request(cmt_file_db, param_path, task_counter):
     datarequest_t.arguments = [request_data_func, cmt_file_db]
 
     # In the future maybe to database dir as a total log?
-    datarequest_t.stdout = os.path.join("%s" % eq_dir, "logs",
+    datarequest_t.stdout = os.path.join("%s" % Cdir, "logs",
                                         "stdout.pipeline_%s.task_%s.%s"
-                                        % (eq_id, str(task_counter).zfill(4),
+                                        % (Cid, str(task_counter).zfill(4),
                                            datarequest_t.name))
 
-    datarequest_t.stderr = os.path.join("%s" % eq_dir, "logs",
+    datarequest_t.stderr = os.path.join("%s" % Cdir, "logs",
                                         "stderr.pipeline_%s.task_%s.%s"
-                                        % (eq_id, str(task_counter).zfill(4),
+                                        % (Cid, str(task_counter).zfill(4),
                                            datarequest_t.name))
 
     # Add Task to the Stage
@@ -297,8 +297,8 @@ def write_sources(cmt_file_db, param_path, task_counter):
 
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     # Path to function
     write_source_func = os.path.join(bin_path, "write_sources.py")
@@ -319,14 +319,14 @@ def write_sources(cmt_file_db, param_path, task_counter):
     w_sources_t.arguments = [write_source_func, cmt_file_db]
 
     # In the future maybe to database dir as a total log?
-    w_sources_t.stdout = os.path.join("%s" % eq_dir, "logs",
+    w_sources_t.stdout = os.path.join("%s" % Cdir, "logs",
                                       "stdout.pipeline_%s.task_%s.%s"
-                                      % (eq_id, str(task_counter).zfill(4),
+                                      % (Cid, str(task_counter).zfill(4),
                                          w_sources_t.name))
 
-    w_sources_t.stderr = os.path.join("%s"% eq_dir, "logs",
+    w_sources_t.stderr = os.path.join("%s"% Cdir, "logs",
                                       "stderr.pipeline_%s.task_%s.%s"
-                                      % (eq_id, str(task_counter).zfill(4),
+                                      % (Cid, str(task_counter).zfill(4),
                                          w_sources_t.name))
 
     # Add Task to the Stage
@@ -353,8 +353,8 @@ def run_specfem(cmt_file_db, param_path, task_counter):
     # Database parameters.
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     specfemspec_path = os.path.join(param_path,
                                     "SpecfemParams/SpecfemParams.yml")
@@ -398,15 +398,15 @@ def run_specfem(cmt_file_db, param_path, task_counter):
         sf_t.executable = "./bin/xspecfem3D"  # Assigned executable
 
         # In the future maybe to database dir as a total log?
-        sf_t.stdout = os.path.join("%s" % eq_dir, "logs",
+        sf_t.stdout = os.path.join("%s" % Cdir, "logs",
                                    "stdout.pipeline_%s.task_%s.%s"
-                                   % (eq_id,
+                                   % (Cid,
                                       str(task_counter).zfill(4),
                                       sf_t.name))
 
-        sf_t.stderr = os.path.join("%s" % eq_dir, "logs",
+        sf_t.stderr = os.path.join("%s" % Cdir, "logs",
                                    "stderr.pipeline_%s.task_%s.%s"
-                                   % (eq_id,
+                                   % (Cid,
                                       str(task_counter).zfill(4),
                                       sf_t.name))
 
@@ -440,8 +440,8 @@ def specfem_clean_up(cmt_file_db, param_path, task_counter):
     # Database parameters.
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     # Path to function
     clean_up_func = os.path.join(bin_path, "clean_up_simdirs.py")
@@ -460,15 +460,15 @@ def specfem_clean_up(cmt_file_db, param_path, task_counter):
     clean_up_t.arguments = [clean_up_func, cmt_file_db]
 
     # In the future maybe to database dir as a total log?
-    clean_up_t.stdout = os.path.join("%s" % eq_dir, "logs",
+    clean_up_t.stdout = os.path.join("%s" % Cdir, "logs",
                                      "stdout.pipeline_%s.task_%s.%s"
-                                     % (eq_id,
+                                     % (Cid,
                                         str(task_counter).zfill(4),
                                         clean_up_t.name))
 
-    clean_up_t.stderr = os.path.join("%s" % eq_dir, "logs",
+    clean_up_t.stderr = os.path.join("%s" % Cdir, "logs",
                                      "stderr.pipeline_%s.task_%s.%s"
-                                     % (eq_id,
+                                     % (Cid,
                                         str(task_counter).zfill(4),
                                         clean_up_t.name))
 
@@ -495,8 +495,8 @@ def convert_traces(cmt_file_db, param_path, task_counter):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     # File and directory
     cmt_dir = os.path.dirname(cmt_file_db)
@@ -538,14 +538,14 @@ def convert_traces(cmt_file_db, param_path, task_counter):
         c_task.arguments = arguments
 
         # In the future maybe to database dir as a total log?
-        c_task.stdout = os.path.join("%s" % eq_dir, "logs",
+        c_task.stdout = os.path.join("%s" % Cdir, "logs",
                                           "stdout.pipeline_%s.task_%s.%s"
-                                          % (eq_id, str(task_counter).zfill(4),
+                                          % (Cid, str(task_counter).zfill(4),
                                              c_task.name))
 
-        c_task.stderr = os.path.join("%s" % eq_dir, "logs",
+        c_task.stderr = os.path.join("%s" % Cdir, "logs",
                                           "stderr.pipeline_%s.task_%s.%s"
-                                          % (eq_id, str(task_counter).zfill(4),
+                                          % (Cid, str(task_counter).zfill(4),
                                              c_task.name))
 
         # Increase Task counter
@@ -576,14 +576,14 @@ def convert_traces(cmt_file_db, param_path, task_counter):
     c_task.arguments = arguments
 
     # In the future maybe to database dir as a total log?
-    c_task.stdout = os.path.join("%s" % eq_dir, "logs",
+    c_task.stdout = os.path.join("%s" % Cdir, "logs",
                                  "stdout.pipeline_%s.task_%s.%s"
-                                 % (eq_id, str(task_counter).zfill(4),
+                                 % (Cid, str(task_counter).zfill(4),
                                     c_task.name))
 
-    c_task.stderr = os.path.join("%s" % eq_dir, "logs",
+    c_task.stderr = os.path.join("%s" % Cdir, "logs",
                                  "stderr.pipeline_%s.task_%s.%s"
-                                 % (eq_id, str(task_counter).zfill(4),
+                                 % (Cid, str(task_counter).zfill(4),
                                     c_task.name))
     # Increase Task counter
     task_counter += 1
@@ -612,8 +612,8 @@ def create_process_path_files(cmt_file_db, param_path, task_counter):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     # Process path function
     create_process_path_bin = os.path.join(bin_path,
@@ -634,14 +634,14 @@ def create_process_path_files(cmt_file_db, param_path, task_counter):
     cpp_t.arguments = [create_process_path_bin, cmt_file_db]
 
     # In the future maybe to database dir as a total log?
-    cpp_t.stdout = os.path.join("%s" % eq_dir, "logs",
+    cpp_t.stdout = os.path.join("%s" % Cdir, "logs",
                               "stdout.pipeline_%s.task_%s.%s"
-                              % (eq_id, str(task_counter).zfill(4),
+                              % (Cid, str(task_counter).zfill(4),
                                  cpp_t.name))
 
-    cpp_t.stderr = os.path.join("%s" % eq_dir, "logs",
+    cpp_t.stderr = os.path.join("%s" % Cdir, "logs",
                               "stderr.pipeline_%s.task_%s.%s"
-                              % (eq_id, str(task_counter).zfill(4),
+                              % (Cid, str(task_counter).zfill(4),
                                  cpp_t.name))
 
     task_counter += 1
@@ -668,8 +668,8 @@ def create_processing_stage(cmt_file_db, param_path, task_counter):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     # Processing param dir
     process_obs_param_dir = os.path.join(param_path, "ProcessObserved")
@@ -738,14 +738,14 @@ def create_processing_stage(cmt_file_db, param_path, task_counter):
             processing_task.arguments = arguments
 
             # In the future maybe to database dir as a total log?
-            processing_task.stdout = os.path.join("%s" % eq_dir, "logs",
+            processing_task.stdout = os.path.join("%s" % Cdir, "logs",
                                       "stdout.pipeline_%s.task_%s.%s"
-                                      % (eq_id, str(task_counter).zfill(4),
+                                      % (Cid, str(task_counter).zfill(4),
                                          processing_task.name))
 
-            processing_task.stderr = os.path.join("%s" % eq_dir, "logs",
+            processing_task.stderr = os.path.join("%s" % Cdir, "logs",
                                       "stderr.pipeline_%s.task_%s.%s"
-                                      % (eq_id, str(task_counter).zfill(4),
+                                      % (Cid, str(task_counter).zfill(4),
                                          processing_task.name))
 
             processing_task.cpu_reqs = {
@@ -781,8 +781,8 @@ def create_windowing_stage(cmt_file_db, param_path, task_counter):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     # Windowing parameter file directory
     window_process_dir = os.path.join(param_path, "CreateWindows")
@@ -850,15 +850,15 @@ def create_windowing_stage(cmt_file_db, param_path, task_counter):
             window_task.arguments = arguments
 
             # In the future maybe to database dir as a total log?
-            window_task.stdout = os.path.join("%s" % eq_dir, "logs",
+            window_task.stdout = os.path.join("%s" % Cdir, "logs",
                                                   "stdout.pipeline_%s.task_%s.%s"
-                                                  % (eq_id,
+                                                  % (Cid,
                                                      str(task_counter).zfill(4),
                                                      window_task.name))
 
-            window_task.stderr = os.path.join("%s" % eq_dir, "logs",
+            window_task.stderr = os.path.join("%s" % Cdir, "logs",
                                               "stderr.pipeline_%s.task_%s.%s"
-                                              % (eq_id,
+                                              % (Cid,
                                                  str(task_counter).zfill(4),
                                                  window_task.name))
 
@@ -888,8 +888,8 @@ def create_inversion_dict_stage(cmt_file_db, param_path, task_counter):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     # Function
     inv_dict_func = os.path.join(bin_path, "write_inversion_dicts.py")
@@ -916,15 +916,15 @@ def create_inversion_dict_stage(cmt_file_db, param_path, task_counter):
                                "-p", param_path]
 
     # In the future maybe to database dir as a total log?
-    inv_dict_task.stdout = os.path.join("%s" % eq_dir, "logs",
+    inv_dict_task.stdout = os.path.join("%s" % Cdir, "logs",
                                         "stdout.pipeline_%s.task_%s.%s"
-                                        % (eq_id,
+                                        % (Cid,
                                            str(task_counter).zfill(4),
                                            inv_dict_task.name))
 
-    inv_dict_task.stderr = os.path.join("%s" % eq_dir, "logs",
+    inv_dict_task.stderr = os.path.join("%s" % Cdir, "logs",
                                         "stderr.pipeline_%s.task_%s.%s"
-                                        % (eq_id,
+                                        % (Cid,
                                            str(task_counter).zfill(4),
                                            inv_dict_task.name))
 
@@ -950,8 +950,8 @@ def create_inversion_stage(cmt_file_db, param_path, task_counter):
     # Load Parameters
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_file_db)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
 
     # Function
     inversion_func = os.path.join(bin_path, "inversion.py")
@@ -977,15 +977,15 @@ def create_inversion_stage(cmt_file_db, param_path, task_counter):
                                 "-p", param_path]
 
     # In the future maybe to database dir as a total log?
-    inversion_task.stdout = os.path.join("%s" % eq_dir, "logs",
+    inversion_task.stdout = os.path.join("%s" % Cdir, "logs",
                                         "stdout.pipeline_%s.task_%s.%s"
-                                        % (eq_id,
+                                        % (Cid,
                                            str(task_counter).zfill(4),
                                            inversion_task.name))
 
-    inversion_task.stderr = os.path.join("%s" % eq_dir, "logs",
+    inversion_task.stderr = os.path.join("%s" % Cdir, "logs",
                                         "stderr.pipeline_%s.task_%s.%s"
-                                        % (eq_id,
+                                        % (Cid,
                                            str(task_counter).zfill(4),
                                            inversion_task.name))
 
@@ -1024,11 +1024,11 @@ def workflow(cmt_filename):
                                       "Database/DatabaseParameters.yml")
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and eq_id
-    eq_dir, eq_id = get_eq_entry_path(DB_params["databasedir"], cmt_filename)
+    # Earthquake specific database parameters: Dir and Cid
+    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_filename)
 
     # Earthquake file in the database
-    cmt_file_db = os.path.join(eq_dir, "eq_" + eq_id + ".cmt")
+    cmt_file_db = os.path.join(Cdir, "C" + Cid + ".cmt")
 
     # Create a counter for all tasks in one pipeline
     task_counter = 0

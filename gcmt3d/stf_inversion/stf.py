@@ -1,5 +1,4 @@
 """
-
 This file contains functions and classes to perform a sourcetime function
 inversion using the projected landweber method as shown to work for seismology
 by Bertero et al. as well as Valleé et al.
@@ -13,8 +12,7 @@ by Bertero et al. as well as Valleé et al.
 
 """
 
-from numpy.fft import fft, ifft, rfft, irfft, fftfreq
-from numpy import correlate
+from numpy.fft import fft, ifft, fftfreq
 import matplotlib.pyplot as plt
 import numpy as np
 from copy import deepcopy as dc
@@ -28,10 +26,10 @@ def conj_grad(G, u, t, dt, tau_factor=1, iT=0, fT=120, niter=10):
     N = len(G)
 
     # Positive part of t
-    Fs = 1 / (N * dt)
+    # Fs = 1 / (N * dt)
     tshift = -np.min(t)
     freq = fftfreq(N, d=dt)
-    freq_shift = np.exp(-1.j * freq * 2 * np.pi * tshift)
+    eq_shift = np.exp(-1.j * freq * 2 * np.pi * tshift)
 
     # Fourier Transform stuff
     Gw = fft(G)
@@ -39,8 +37,8 @@ def conj_grad(G, u, t, dt, tau_factor=1, iT=0, fT=120, niter=10):
 
     # Create first iteration
     # Create first iteration
-    f = correlate(u, G, 'same')
-    f = np.real(ifft(uw/Gw*freq_shift))
+    # f = correlate(u, G, 'same')
+    f = np.real(ifft(uw/Gw*eq_shift))
 
     plt.figure()
     plt.plot(f)
@@ -59,9 +57,9 @@ def conj_grad(G, u, t, dt, tau_factor=1, iT=0, fT=120, niter=10):
     for i in range(niter):
         ffp = fft(p)
         Ap = Gw * ffp
-        alpha = rsold / (np.conjugate(ffp)* Ap)
+        alpha = rsold / (np.conjugate(ffp) * Ap)
 
-        g = np.real(ifft( (f + alpha * p) * freq_shift) )
+        g = np.real(ifft((f + alpha * p) * eq_shift))
 
         f = lw_projection(g, t, iT=iT, fT=fT)
         ft.append(f)
@@ -82,14 +80,13 @@ def conj_grad(G, u, t, dt, tau_factor=1, iT=0, fT=120, niter=10):
     return fwt, ft
 
 
-
-def landweber(Gw, uw, tau, f, freq_shift):
+def landweber(Gw, uw, tau, f, eq_shift):
     """Computing one landweber iteration of the signal.
     param. Refer back to Bertero et al."""
 
     # We have to shift fw in time to account for the negative part
     # time values in the signal
-    gp1 = f + tau * np.real(ifft((np.conj(Gw) * freq_shift * (uw - Gw * fft(
+    gp1 = f + tau * np.real(ifft((np.conj(Gw) * eq_shift * (uw - Gw * fft(
         f)))))
 
     return gp1
@@ -115,10 +112,10 @@ def projected_landweber(G, u, t, dt, tau_factor=1, iT=0, fT=120, niter=10):
     N = len(G)
 
     # Positive part of t
-    Fs = 1/(N*dt)
+    # Fs = 1/(N*dt)
     tshift = -np.min(t)
     freq = fftfreq(N, d=dt)
-    freq_shift = np.exp(-1.j*freq*2*np.pi*tshift)
+    eq_shift = np.exp(-1.j*freq*2*np.pi*tshift)
 
     # Fourier Transform stuff
     Gw = fft(G)
@@ -137,7 +134,7 @@ def projected_landweber(G, u, t, dt, tau_factor=1, iT=0, fT=120, niter=10):
     for i in range(niter):
 
         # Compute the landweber iteration
-        g = landweber(Gw, uw, tau, fp1, freq_shift)
+        g = landweber(Gw, uw, tau, fp1, eq_shift)
 
         # Compute the projection onto the convex set.
         fp1 = lw_projection(g, t, iT=iT, fT=fT)
@@ -161,7 +158,6 @@ def compute_error(t, dt, stf_list, green, disp):
     """Compute both euclidean norm for every iteration as
     well as relative error between iterations"""
 
-
     N = len(green)
 
     # Positive part of t
@@ -169,13 +165,13 @@ def compute_error(t, dt, stf_list, green, disp):
 
     # Get Frequencies
     freq = fftfreq(N, dt)
-    freq_shift = np.exp(-1.j*freq*2*np.pi*tshift)
+    eq_shift = np.exp(-1.j*freq*2*np.pi*tshift)
 
     euc = np.zeros(len(stf_list))
     relerr = np.zeros(len(stf_list))
     for _i, stf in enumerate(stf_list):
 
-        Ag = np.real(ifft(fft(green) * fft(stf) * freq_shift))
+        Ag = np.real(ifft(fft(green) * fft(stf) * eq_shift))
         # Frobenius norm between data and simulation
         euc[_i] = l2_norm(np.abs(np.real(Ag) - disp)) / l2_norm(disp)
 
@@ -205,13 +201,12 @@ class Operator(object):
         # possible timeshift due to change in from zero
         if np.min(t) != 0:
             self.tshift = -np.min(t)
-            self.freq_shift = np.exp(-1.j*self.freq*2*np.pi*self.tshift)
+            self.eq_shift = np.exp(-1.j*self.freq*2*np.pi*self.tshift)
         else:
-            self.freq_shift = 1
+            self.eq_shift = 1
 
         # Time Vector
         self.wavelet = wavelet
-
 
     def forward(self, m):
         """Forward operator
@@ -219,7 +214,7 @@ class Operator(object):
         :param m: model
         :return: conveolved data
         """
-        return np.real(ifft(fft(self.wavelet)*fft(self.m)*self.freq_shift))
+        return np.real(ifft(fft(self.wavelet)*fft(self.m)*self.eq_shift))
 
     def adjoint(self, m):
         """Adjoint operator
@@ -228,8 +223,8 @@ class Operator(object):
         :return: convolved data
 
         """
-        return np.real(ifft(fft(self.wavelet) * np.conjugate(fft(self.m)) *
-                            self.freq_shift))
+        return np.real(ifft(fft(self.wavelet) * np.conjugate(fft(self.m))
+                            * self.eq_shift))
 
 
 class stf_operator(object):
@@ -253,13 +248,12 @@ class stf_operator(object):
         # possible timeshift due to change in from zero
         if np.min(t) != 0:
             self.tshift = -np.min(t)
-            self.freq_shift = np.exp(-1.j*self.freq*2*np.pi*self.tshift)
+            self.eq_shift = np.exp(-1.j*self.freq*2*np.pi*self.tshift)
         else:
-            self.freq_shift = 1
+            self.eq_shift = 1
 
         # Time Vector
         self.g = g
-
 
     def forward(self, wavelet):
         """Forward operator
@@ -267,7 +261,7 @@ class stf_operator(object):
         :param m: model
         :return: conveolved data
         """
-        return np.real(ifft(fft(wavelet)*fft(self.g)*self.freq_shift))
+        return np.real(ifft(fft(wavelet)*fft(self.g)*self.eq_shift))
 
     def adjoint(self, wavelet):
         """Adjoint operator
@@ -276,8 +270,9 @@ class stf_operator(object):
         :return: convolved data
 
         """
-        return np.real(ifft(fft(wavelet) * np.conjugate(fft(self.g)) *
-                            self.freq_shift))
+        return np.real(ifft(fft(wavelet) * np.conjugate(fft(self.g))
+                            * self.eq_shift))
+
 
 class stf_inversion(object):
     """Defines inversion operation."""
@@ -302,7 +297,6 @@ class stf_inversion(object):
 
         return projected_landweber(self.g, self.d, self.t, self.dt,
                                    tau_factor=1, iT=0, fT=10, niter=20)
-
 
     def conjugate_gradient(self):
         """inverts data"""
@@ -329,11 +323,11 @@ class stf_inversion(object):
             # Compute gradient
             g = self.F.adjoint(r)
 
-            if i != 0:
-                beta = np.dot(g, g) / gamma
-
             #
             gamma = np.dot(g, g)
+
+            if i != 0:
+                beta = np.dot(g, g) / gamma
 
             # Compute decent direction
             s = g + beta * s

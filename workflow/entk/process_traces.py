@@ -19,6 +19,16 @@ import os
 import glob
 import argparse
 
+import warnings
+
+warnings.filterwarnings("ignore", category=DeprecationWarning,
+                        module=r'*.numerictypes')
+warnings.filterwarnings("ignore", category=UserWarning,
+                        module=r'*.asdf_data_set')
+warnings.filterwarnings("ignore", category=FutureWarning,
+                        module=r'*.numerictypes')
+
+
 def process(cmt_filename):
 
     # Define parameter directory
@@ -50,7 +60,7 @@ def process(cmt_filename):
             print("Start processing traces from path file ...\n")
 
         # Load process path file to get parameter file location
-        params =  smart_read_yaml(path_file, mpi_mode=is_mpi_env())\
+        params = smart_read_yaml(path_file, mpi_mode=is_mpi_env())\
             ["process_param_file"]
 
         # Create Smart Process class

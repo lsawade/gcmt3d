@@ -29,7 +29,7 @@ class RunSimulation(object):
         Initializes Run parameters
 
         Args:
-            database_eq_dir: string with directory name
+            database_Cdir: string with directory name
             N: integer with number of Nodes
             n: integer with number of tasks
             npn: integer with tasks per node

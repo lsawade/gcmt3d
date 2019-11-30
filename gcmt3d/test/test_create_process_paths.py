@@ -102,13 +102,13 @@ class TestCreatePaths(unittest.TestCase):
             process_dir = os.path.join(DATA_DIR, "ProcessObserved")
 
             # CMT filename in database
-            cmt_filename = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
+            cmt_filename = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
 
             # Create Processing path files
             create_process_path_obs(cmt_filename, process_dir, verbose=True)
 
             # Solution output path:
-            process_paths = os.path.join(DB.eq_dirs[0], "seismograms",
+            process_paths = os.path.join(DB.Cdirs[0], "seismograms",
                                          "process_paths")
 
             # One solution path file:
@@ -116,10 +116,10 @@ class TestCreatePaths(unittest.TestCase):
                                         "process_observed.040_100.yml")
 
             # Solution should be:
-            input_asdf = os.path.join(DB.eq_dirs[0], "seismograms", "obs",
+            input_asdf = os.path.join(DB.Cdirs[0], "seismograms", "obs",
                                       "raw_observed.h5")
             input_tag = "obs"
-            output_asdf = os.path.join(DB.eq_dirs[0], "seismograms",
+            output_asdf = os.path.join(DB.Cdirs[0], "seismograms",
                                        "processed_seismograms",
                                        "processed_observed.040_100.h5")
 
@@ -156,14 +156,14 @@ class TestCreatePaths(unittest.TestCase):
             process_dir = os.path.join(DATA_DIR, "ProcessSynthetic")
 
             # CMT filename in database
-            cmt_filename = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
+            cmt_filename = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
 
             # Create Processing path files
             create_process_path_syn(cmt_filename, process_dir, npar=9,
                                     verbose=True)
 
             # Solution output path:
-            process_paths = os.path.join(DB.eq_dirs[0], "seismograms",
+            process_paths = os.path.join(DB.Cdirs[0], "seismograms",
                                          "process_paths")
 
             # One solution path file:
@@ -171,10 +171,10 @@ class TestCreatePaths(unittest.TestCase):
                                         "process_synthetic_CMT_rp.040_100.yml")
 
             # Solution should be:
-            input_asdf = os.path.join(DB.eq_dirs[0], "seismograms", "syn",
+            input_asdf = os.path.join(DB.Cdirs[0], "seismograms", "syn",
                                       "CMT_rp.h5")
             input_tag = "syn"
-            output_asdf = os.path.join(DB.eq_dirs[0], "seismograms",
+            output_asdf = os.path.join(DB.Cdirs[0], "seismograms",
                                        "processed_seismograms",
                                        "processed_synthetic_CMT_rp.040_100.h5")
             output_tag = "processed_synthetic"
@@ -211,14 +211,14 @@ class TestCreatePaths(unittest.TestCase):
             window_process_dir = os.path.join(DATA_DIR, "CreateWindows")
 
             # CMT filename in database
-            cmt_filename = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
+            cmt_filename = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
 
             # Create Processing path files
             create_window_path(cmt_filename, window_process_dir,
                                figure_mode=True, verbose=True)
 
             # Outputdir
-            cmt_dir = DB.eq_dirs[0]
+            cmt_dir = DB.Cdirs[0]
 
             # Define observed ASDF
             obsd_asdf = os.path.join(cmt_dir, "seismograms",
@@ -278,14 +278,14 @@ class TestCreatePaths(unittest.TestCase):
             DB.create_all()
 
             # Outputdir
-            cmt_dir = DB.eq_dirs[0]
-            cmt_file_db = os.path.join(cmt_dir, "eq_" + DB.eq_ids[0] + ".cmt")
+            cmt_dir = DB.Cdirs[0]
+            cmt_file_db = os.path.join(cmt_dir, "C" + DB.Cids[0] + ".cmt")
 
             # Read the yaml_file which should be created in the CMT directory
             process_syn_dir = os.path.join(DATA_DIR, "ProcessSynthetic")
 
             # CMT filename in database
-            cmt_filename = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
+            cmt_filename = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
 
             # Create Processing path files
             create_process_path_syn(cmt_filename, process_syn_dir, npar=9,
@@ -299,7 +299,7 @@ class TestCreatePaths(unittest.TestCase):
                                     verbose=True)
 
             # Solution output path:
-            process_paths = os.path.join(DB.eq_dirs[0], "seismograms",
+            process_paths = os.path.join(DB.Cdirs[0], "seismograms",
                                          "process_paths")
 
             # Get processing list
@@ -334,8 +334,8 @@ class TestCreatePaths(unittest.TestCase):
             DB.create_all()
 
             # Outputdir
-            cmt_dir = DB.eq_dirs[0]
-            cmt_file_db = os.path.join(cmt_dir, "eq_" + DB.eq_ids[0] + ".cmt")
+            cmt_dir = DB.Cdirs[0]
+            cmt_file_db = os.path.join(cmt_dir, "C" + DB.Cids[0] + ".cmt")
 
             # Read the yaml_file which should be created in the CMT directory
             window_process_dir = os.path.join(DATA_DIR, "CreateWindows")
@@ -351,7 +351,7 @@ class TestCreatePaths(unittest.TestCase):
                 verbose=True)
 
             # Solution output path:
-            window_paths = os.path.join(DB.eq_dirs[0], "window_data",
+            window_paths = os.path.join(DB.Cdirs[0], "window_data",
                                         "window_paths")
 
             # Files on disk
@@ -378,8 +378,8 @@ class TestCreatePaths(unittest.TestCase):
             DB.create_all()
 
             # Outputdir
-            cmt_dir = DB.eq_dirs[0]
-            cmt_file_db = os.path.join(cmt_dir, "eq_" + DB.eq_ids[0] + ".cmt")
+            cmt_dir = DB.Cdirs[0]
+            cmt_file_db = os.path.join(cmt_dir, "C" + DB.Cids[0] + ".cmt")
 
             # Read the yaml_file which should be created in the CMT directory
             window_process_dir = os.path.join(DATA_DIR, "CreateWindows")
@@ -392,7 +392,7 @@ class TestCreatePaths(unittest.TestCase):
             process_syn_dir = os.path.join(DATA_DIR, "ProcessSynthetic")
 
             # CMT filename in database
-            cmt_filename = os.path.join(DB.eq_dirs[0], "eq_" + DB.eq_ids[0])
+            cmt_filename = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
 
             # Create Processing path files
             create_process_path_syn(cmt_filename, process_syn_dir, npar=9,

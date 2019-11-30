@@ -14,7 +14,7 @@ Last Update: April 2019
 
 import unittest
 from gcmt3d.data.management.skeleton import DataBaseSkeleton
-# from gcmt3d.data.management.skeleton import get_eq_entry_path
+# from gcmt3d.data.management.skeleton import get_Centry_path
 from gcmt3d.source import CMTSource
 from gcmt3d.asdf.utils import smart_read_yaml
 import tempfile
@@ -104,7 +104,7 @@ class TestSkeleton(unittest.TestCase):
 
             self.assertTrue(os.path.exists(os.path.join(tmp_dir, "db")))
 
-    def test_create_eq_dir(self):
+    def test_create_Cdir(self):
         """Tests creation of earthquake directory and copying of the cmt
         solution"""
 
@@ -117,10 +117,10 @@ class TestSkeleton(unittest.TestCase):
             cmt = CMTSource.from_CMTSOLUTION_file(cmtfile)
 
             # Create CMTSource to extract the file name
-            eq_id = cmt.eventname
+            Cid = cmt.eventname
 
             # Earthquake directory
-            eq_dir = os.path.join(tmp_dir, "eq_" + eq_id)
+            Cdir = os.path.join(tmp_dir, "C" + Cid)
 
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
@@ -129,16 +129,16 @@ class TestSkeleton(unittest.TestCase):
                                   verbose=True)
 
             # Create eq directory
-            DB.create_eq_dirs()
+            DB.create_Cdirs()
 
             # check if new path exists
-            new_cmt_path = os.path.join(eq_dir, "eq_" + eq_id + ".cmt")
+            new_cmt_path = os.path.join(Cdir, "C" + Cid + ".cmt")
             self.assertTrue(os.path.exists(new_cmt_path) and os.path.isfile(
                 new_cmt_path))
             self.assertTrue(CMTSource.from_CMTSOLUTION_file(new_cmt_path)
                             == cmt)
 
-    def test_create_eq_dir_mult(self):
+    def test_create_Cdir_mult(self):
         """Tests creation of earthquake directory and copying of the cmt
                 solution for multiple cmt solution files."""
 
@@ -154,12 +154,12 @@ class TestSkeleton(unittest.TestCase):
             cmt2 = CMTSource.from_CMTSOLUTION_file(cmtfile2)
 
             # Create CMTSource to extract the file name
-            eq_id1 = cmt1.eventname
-            eq_id2 = cmt2.eventname
+            Cid1 = cmt1.eventname
+            Cid2 = cmt2.eventname
 
             # Earthquake directory
-            eq_dir1 = os.path.join(tmp_dir, "eq_" + eq_id1)
-            eq_dir2 = os.path.join(tmp_dir, "eq_" + eq_id2)
+            Cdir1 = os.path.join(tmp_dir, "C" + Cid1)
+            Cdir2 = os.path.join(tmp_dir, "C" + Cid2)
 
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
@@ -169,11 +169,11 @@ class TestSkeleton(unittest.TestCase):
                                   verbose=True)
 
             # Create eq directory
-            DB.create_eq_dirs()
+            DB.create_Cdirs()
 
             # check if new path exists
-            new_cmt_path1 = os.path.join(eq_dir1, "eq_" + eq_id1 + ".cmt")
-            new_cmt_path2 = os.path.join(eq_dir2, "eq_" + eq_id2 + ".cmt")
+            new_cmt_path1 = os.path.join(Cdir1, "C" + Cid1 + ".cmt")
+            new_cmt_path2 = os.path.join(Cdir2, "C" + Cid2 + ".cmt")
 
             self.assertTrue(os.path.exists(new_cmt_path1) and os.path.isfile(
                 new_cmt_path1))
@@ -261,10 +261,10 @@ class TestSkeleton(unittest.TestCase):
             cmt = CMTSource.from_CMTSOLUTION_file(cmtfile)
 
             # Create CMTSource to extract the file name
-            eq_id = cmt.eventname
+            Cid = cmt.eventname
 
             # Earthquake directory
-            eq_dir = os.path.join(tmp_dir, "eq_" + eq_id)
+            Cdir = os.path.join(tmp_dir, "C" + Cid)
 
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
@@ -274,7 +274,7 @@ class TestSkeleton(unittest.TestCase):
                                   verbose=True)
 
             # Create earthquake solution directory
-            DB.create_eq_dirs()
+            DB.create_Cdirs()
 
             # Create CMT simulation directory
             DB.create_CMT_SIM_dir()
@@ -290,7 +290,7 @@ class TestSkeleton(unittest.TestCase):
             for at in attr:
 
                 # Attribute path
-                test_dir = os.path.join(eq_dir, "CMT_SIMs", at)
+                test_dir = os.path.join(Cdir, "CMT_SIMs", at)
 
                 self.assertTrue(os.path.isdir(test_dir))
 
@@ -348,17 +348,17 @@ class TestSkeleton(unittest.TestCase):
             DB.create_all()
 
             # Read the yaml_file which should be created in the CMT directory
-            yaml_file = os.path.join(DB.eq_dirs[0], "CMT_SIMs", "CMT_rr",
+            yaml_file = os.path.join(DB.Cdirs[0], "CMT_SIMs", "CMT_rr",
                                      "CMT_rr.yml")
 
             # Solution should be:
-            waveform_dir = os.path.join(DB.eq_dirs[0], "CMT_SIMs", "CMT_rr",
+            waveform_dir = os.path.join(DB.Cdirs[0], "CMT_SIMs", "CMT_rr",
                                         "OUTPUT_FILES")
             tag = 'syn'
             filetype = 'sac'
-            output_file = os.path.join(DB.eq_dirs[0], "seismograms", "syn",
+            output_file = os.path.join(DB.Cdirs[0], "seismograms", "syn",
                                        "CMT_rr.h5")
-            quakeml_file = os.path.join(DB.eq_dirs[0], "CMT_SIMs", "CMT_rr",
+            quakeml_file = os.path.join(DB.Cdirs[0], "CMT_SIMs", "CMT_rr",
                                         "OUTPUT_FILES", "Quake.xml")
 
             d = smart_read_yaml(yaml_file, mpi_mode=False)
@@ -387,18 +387,18 @@ class TestSkeleton(unittest.TestCase):
             DB.create_all()
 
             # Read the yaml_file which should be created in the CMT directory
-            yaml_file = os.path.join(DB.eq_dirs[0], "seismograms", "obs",
+            yaml_file = os.path.join(DB.Cdirs[0], "seismograms", "obs",
                                      "observed.yml")
 
             # Solution should be:
-            waveform_files = os.path.join(DB.eq_dirs[0], "seismograms", "obs",
-                                          DB.eq_ids[0] + ".mseed")
-            staxml = os.path.join(DB.eq_dirs[0], "station_data", "station.xml")
+            waveform_files = os.path.join(DB.Cdirs[0], "seismograms", "obs",
+                                          DB.Cids[0] + ".mseed")
+            staxml = os.path.join(DB.Cdirs[0], "station_data", "station.xml")
             tag = 'obs'
-            output_file = os.path.join(DB.eq_dirs[0], "seismograms", "obs",
+            output_file = os.path.join(DB.Cdirs[0], "seismograms", "obs",
                                        "raw_observed.h5")
-            quakeml_file = os.path.join(DB.eq_dirs[0],
-                                        "eq_" + DB.eq_ids[0] + ".xml")
+            quakeml_file = os.path.join(DB.Cdirs[0],
+                                        "C" + DB.Cids[0] + ".xml")
 
             d = smart_read_yaml(yaml_file, mpi_mode=False)
 

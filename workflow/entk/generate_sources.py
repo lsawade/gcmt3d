@@ -57,9 +57,9 @@ def write_sources(cmt_filename):
         print("  " + 50 * "*" + "\n")
 
     # Create source creation class
-    sfsource = SpecfemSources(cmt, npar=DB_params['npar'], dm=dm, dx=dz,
-                              ddeg=ddeg, verbose=DB_params['verbose'],
-                              outdir=outdir)
+    sfsource = SpecfemSources(cmt, cmt_dir, npar=DB_params['npar'],
+                              dm=dm, dx=dz, ddeg=ddeg,
+                              verbose=DB_params['verbose'], outdir=outdir)
 
     # Write sources
     sfsource.write_sources()

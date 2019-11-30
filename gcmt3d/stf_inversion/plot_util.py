@@ -45,7 +45,8 @@ def plot_stf(t, ft, fwt, iT, fT, skip=5):
     # Frequency spectrum
     freq = fftshift(fftfreq(len(fwt[0]), (t[1]-t[0])))
     for _i, fw in enumerate(fwt[::skip]):
-        ax[1].plot(freq, np.real(np.abs(fftshift(fw))), c=(0.25, 0.25, 0.25, 1),
+        ax[1].plot(freq, np.real(np.abs(fftshift(fw))),
+                   c=(0.25, 0.25, 0.25, 1),
                    alpha=(len(fwt[::skip])*0.05+_i)/(len(fwt[::skip])*10))
 
     ax[1].plot(freq, np.real(np.abs(fftshift(fwt[-1]))), c=(0.8, 0.2, 0.2, 1))
