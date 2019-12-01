@@ -116,7 +116,7 @@ echo "******** RUNNING SIMULATIONS *************************"
 echo " "
  for CMT in "\${CMT_LIST[@]}"; do
      echo "Simulation Directory: $CMT_SIM_DIR/\$CMT" && echo "Simulation Logfile \$SIM_LOG.\$CMT.STDOUT" &
-     # srun -N2 -n6 --chdir=$CMT_SIM_DIR/\$CMT ./bin/xspecfem3D &
+     srun -N2 -n6 --chdir=$CMT_SIM_DIR/\$CMT ./bin/xspecfem3D &
  done
 wait
 echo " "
