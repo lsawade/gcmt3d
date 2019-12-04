@@ -9,7 +9,7 @@ parameter file. The structure of the Database looks as follows:
 .. code-block::
 
     database
-    ├──eq_<eq_ID_1>
+    ├──C<CID_1>
     │   ├──CMT_SIMs/
     │   │   ├──CMT/
     │   │   │   ├──DATA/
@@ -29,8 +29,8 @@ parameter file. The structure of the Database looks as follows:
     │   │   ├──CMT_depth/
     │   │   ├──CMT_lat/
     │   │   └──CMT_lon/
-    │   ├──eq_9703873.cmt  # CMTSOLUTION
-    │   ├──eq_9703873.xml  # QuakeML
+    │   ├──C9703873.cmt  # CMTSOLUTION
+    │   ├──C9703873.xml  # QuakeML
     │   ├──station_data/
     │   │   ├──STATIONS
     │   │   ├──station.xml
@@ -87,11 +87,11 @@ parameter file. The structure of the Database looks as follows:
     │           ├──processed_synthetic_CMT_lon.<lT2>_<hT2>.h5
     │           :
     │
-    ├──eq_<eq_ID_2>/
+    ├──C<CID_2>/
     │   ├──CMT_SIMs/
     │   :
     │
-    ├──eq_<eq_ID_3>/
+    ├──C<CID_3>/
     :
 
 

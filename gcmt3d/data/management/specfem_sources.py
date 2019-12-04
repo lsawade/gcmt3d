@@ -18,19 +18,28 @@ from obspy import read_events
 import os
 import warnings
 from copy import deepcopy
+import shutil
 
+def replace_file(source, destination):
+    """Mini function that replaces a file"""
+    if os.path.exists(destination) and os.path.isfile(destination):
+        os.remove(destination)
+    shutil.copyfile(source, destination)
 
 class SpecfemSources(object):
     '''
     This class handles the writing of specfem sources in form of CMT solutions
+    and the stations
     '''
 
-    def __init__(self, cmt, npar, dm=10.0*24, dx=2., ddeg=0.02,
+    def __init__(self, cmt, cmt_dir, npar, dm=10.0*24, dx=2., ddeg=0.02,
                  hdur0=False, outdir=None, verbose=False):
         '''
-
         :param cmt: The original CMT source loaded using CMTSource
         :type cmt: CMTSource
+        :param cmt: Directory in which the cmt solution resides within the
+                    database
+        :type cmt: str
         :param npar: Number of parameters to be inverted for: 6 - only moment
                      tensor, 7 - moment tensor and depth, 9 moment tensor,
                      depth and geolocation.
@@ -84,6 +93,8 @@ class SpecfemSources(object):
             os.makedirs(outdir)
             warnings.warn("The chosen output directory does not exist.\n"
                           + "A new one will be created.")
+
+        self.station_dir = os.path.join(cmt_dir, 'station_data')
         self.outdir = outdir
 
         self.hdur0 = hdur0
@@ -123,6 +134,11 @@ class SpecfemSources(object):
         # Print info if verbose flag is True
         if self.v:
             print("%s has been written." % dst)
+
+        # Replace STATIONS FILE
+        station_source = os.path.join(self.station_dir, "STATIONS")
+        replace_file(station_source, os.path.join(cmtsim_outdir,
+                                                  "STATIONS"))
 
         # Attribute list
         attr = ["m_rr", "m_tt", "m_pp", "m_rt", "m_rp", "m_tp"]
@@ -168,6 +184,11 @@ class SpecfemSources(object):
             if self.v:
                 print("%s has been written." % dst)
 
+            # Replace STATIONS FILE
+            station_source = os.path.join(self.station_dir, "STATIONS")
+            replace_file(station_source, os.path.join(cmtsim_outdir,
+                                                        "STATIONS"))
+
         if self.npar > 6:
 
             # Attribute name
@@ -207,6 +228,11 @@ class SpecfemSources(object):
             if self.v:
                 print("%s has been written." % dst)
 
+            # Replace STATIONS FILE
+            station_source = os.path.join(self.station_dir, "STATIONS")
+            replace_file(station_source, os.path.join(cmtsim_outdir,
+                                                      "STATIONS"))
+
         if self.npar == 9:
 
             # Attribute name
@@ -242,6 +268,11 @@ class SpecfemSources(object):
             dst = os.path.join(outfiles, "Quake.xml")
 
             self._write_quakeml(src, dst)
+
+            # Replace STATIONS FILE
+            station_source = os.path.join(self.station_dir, "STATIONS")
+            replace_file(station_source, os.path.join(cmtsim_outdir,
+                                                      "STATIONS"))
 
             # Print info if verbose flag is True
             if self.v:
@@ -279,6 +310,11 @@ class SpecfemSources(object):
             # Print info if verbose flag is True
             if self.v:
                 print("%s has been written." % dst)
+
+            # Replace STATIONS FILE
+            station_source = os.path.join(self.station_dir, "STATIONS")
+            replace_file(station_source, os.path.join(cmtsim_outdir,
+                                                      "STATIONS"))
 
     def _write_quakeml(self, source, destination):
         """ Copies CMT solution from source to QuakeML destination."""

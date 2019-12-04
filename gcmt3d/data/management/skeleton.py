@@ -7,7 +7,7 @@ database of Earthquakes. If wanted.
     Lucas Sawade (lsawade@princeton.edu)
 :license:
     GNU General Public License, Version 3
-    (http://www.gnu.org/copyleft/gpl.html)
+    (http://www.gnu.orcopyleft/gpl.html)
 
 Last Update: June 2019
 
@@ -71,8 +71,8 @@ class DataBaseSkeleton(object):
             raise ValueError("No CMTSOLUTION file exists of that name.")
 
         # Create empty earthquake directory list
-        self.eq_dirs = []
-        self.eq_ids = []
+        self.Cdirs = []
+        self.Cids = []
 
         # List of possible attributes
         # Parameters
@@ -87,7 +87,7 @@ class DataBaseSkeleton(object):
                   self.basedir)
 
         # Create earthquake directory
-        self.create_eq_dirs()
+        self.create_Cdirs()
 
         # Create station metadata directory
         self.create_station_dir()
@@ -120,48 +120,48 @@ class DataBaseSkeleton(object):
         else:
             self._create_dir(self.basedir, False)
 
-    def create_eq_dirs(self):
+    def create_Cdirs(self):
         """ If more than one earthquake exist with regex, call all of them"""
         for cmtfile in self.cmtfile_list:
 
             # Create directory
-            self.create_1_eq_dir(cmtfile)
+            self.create_1_Cdir(cmtfile)
 
-    def create_1_eq_dir(self, cmtfile):
+    def create_1_Cdir(self, cmtfile):
         """Creates 1 Earthquake directory"""
 
         # create CMT
         cmt = CMTSource.from_CMTSOLUTION_file(cmtfile)
 
         # Create CMTSource to extract the file name
-        eq_id = cmt.eventname
-        self.eq_ids.append(eq_id)
+        Cid = cmt.eventname
+        self.Cids.append(Cid)
 
         # Earthquake directory
-        eq_dir = os.path.join(self.basedir, "eq_" + eq_id)
+        Cdir = os.path.join(self.basedir, "C" + Cid)
 
         # Create directory
         if self.ow in [0, 1] and type(self.ow) is not bool:
-            self._create_dir(eq_dir, True)
+            self._create_dir(Cdir, True)
         else:
-            self._create_dir(eq_dir, False)
+            self._create_dir(Cdir, False)
 
         # Append directory path to the list.
-        self.eq_dirs.append(eq_dir)
+        self.Cdirs.append(Cdir)
 
         # Create new CMT path
-        cmt_path = os.path.join(eq_dir, "eq_" + eq_id + ".cmt")
+        cmt_path = os.path.join(Cdir, "C" + Cid + ".cmt")
 
         # Create new CMT path
-        xml_path = os.path.join(eq_dir, "eq_" + eq_id + ".xml")
+        xml_path = os.path.join(Cdir, "C" + Cid + ".xml")
 
-        # Copy the Earthquake file into the directory with eq_<ID>.cmt
+        # Copy the Earthquake file into the directory with C<ID>.cmt
         if self.ow in [0, 1] and type(self.ow) is not bool:
             self._copy_file(cmtfile, cmt_path, True)
         else:
             self._copy_file(cmtfile, cmt_path, False)
 
-        # Copy the Earthquake file into the directory with eq_<ID>.xml
+        # Copy the Earthquake file into the directory with C<ID>.xml
         if self.ow in [0, 1] and type(self.ow) is not bool:
             self._write_quakeml(cmtfile, xml_path, True)
         else:
@@ -170,10 +170,10 @@ class DataBaseSkeleton(object):
     def create_station_dir(self):
         """Creates station_data directory for station metadata."""
 
-        for _i, _eq_dir in enumerate(self.eq_dirs):
+        for _i, _Cdir in enumerate(self.Cdirs):
 
             # Create station_data dirs
-            station_dir = os.path.join(_eq_dir, "station_data")
+            station_dir = os.path.join(_Cdir, "station_data")
 
             if self.ow in [0, 1, 2] and type(self.ow) is not bool:
                 # Create new directory
@@ -184,10 +184,10 @@ class DataBaseSkeleton(object):
     def create_log_dir(self):
         """Creates station_data directory for station metadata."""
 
-        for _i, _eq_dir in enumerate(self.eq_dirs):
+        for _i, _Cdir in enumerate(self.Cdirs):
 
             # Create station_data dirs
-            log_dir = os.path.join(_eq_dir, "logs")
+            log_dir = os.path.join(_Cdir, "logs")
 
             if self.ow in [0, 1, 2] and type(self.ow) is not bool:
                 # Create new directory
@@ -198,10 +198,10 @@ class DataBaseSkeleton(object):
     def create_inversion_dir(self):
         """Creates station_data directory for station metadata."""
 
-        for _i, _eq_dir in enumerate(self.eq_dirs):
+        for _i, _Cdir in enumerate(self.Cdirs):
 
             # Create station_data dirs
-            inv_dir = os.path.join(_eq_dir, "inversion")
+            inv_dir = os.path.join(_Cdir, "inversion")
 
             if self.ow in [0, 1, 2] and type(self.ow) is not bool:
                 # Create new directory
@@ -245,10 +245,10 @@ class DataBaseSkeleton(object):
     def create_window_dir(self):
         """Creates window_data directory for pyflex window data metadata."""
 
-        for _i, _eq_dir in enumerate(self.eq_dirs):
+        for _i, _Cdir in enumerate(self.Cdirs):
 
             # Create window_data dirs
-            window_dir = os.path.join(_eq_dir, "window_data")
+            window_dir = os.path.join(_Cdir, "window_data")
 
             if self.ow in [0, 1, 2] and type(self.ow) is not bool:
                 # Create new directory
@@ -273,7 +273,7 @@ class DataBaseSkeleton(object):
         GCMT.
         """
 
-        for _i, _eq in enumerate(self.eq_dirs):
+        for _i, _eq in enumerate(self.Cdirs):
 
             # First create main directory
             sim_path = os.path.join(_eq, "CMT_SIMs")
@@ -353,9 +353,9 @@ class DataBaseSkeleton(object):
                                target_is_directory=True)
 
                 # Create symbolic link to destination folders
-                if not os.path.islink((os.path.join(cmt_der_path, 
+                if not os.path.islink((os.path.join(cmt_der_path,
                                                     "DATABASES_MPI"))):
-                    os.symlink(os.path.join(self.specfem_dir, 
+                    os.symlink(os.path.join(self.specfem_dir,
                                             "DATABASES_MPI"),
                                os.path.join(cmt_der_path,
                                             "DATABASES_MPI"),
@@ -364,9 +364,9 @@ class DataBaseSkeleton(object):
     def create_seismogram_dir(self):
         """Creates response subdirectory"""
 
-        for _i, _eq_dir in enumerate(self.eq_dirs):
+        for _i, _Cdir in enumerate(self.Cdirs):
             # Create response path
-            seismogram_dir = os.path.join(_eq_dir, "seismograms")
+            seismogram_dir = os.path.join(_Cdir, "seismograms")
 
             if self.ow in [0, 1, 2] and type(self.ow) is not bool:
                 # Create new directory
@@ -396,7 +396,7 @@ class DataBaseSkeleton(object):
             if self.v:
                 print("Writing the YAML path file to %s" %
                       os.path.join(obs_dir_path, "observed.yml"))
-            self._create_obs_path_yaml(self.eq_ids[_i], _eq_dir)
+            self._create_obs_path_yaml(self.Cids[_i], _Cdir)
 
             # Create the subdirectory for processing pathfiles
             process_dir_path = os.path.join(seismogram_dir, 'process_paths')
@@ -497,7 +497,7 @@ class DataBaseSkeleton(object):
         * the QuakeML file is located in the OUTPUT_FILES directory with the
           name `Quake.xml`
         * The output directory name is the
-          `../database/eq_<id>/seismograms/syn/<attr>.h5
+          `../database/C<id>/seismograms/syn/<attr>.h5
 
         Args:
               waveform_dir: path to OUTPUT_FILES
@@ -515,9 +515,9 @@ class DataBaseSkeleton(object):
 
         # Outputfile
         cmt_sim_dir = os.path.dirname(waveform_dir)
-        eq_dir = os.path.dirname(os.path.dirname(cmt_sim_dir))
+        Cdir = os.path.dirname(os.path.dirname(cmt_sim_dir))
         cmt_name = os.path.basename(cmt_sim_dir)
-        output_file = os.path.join(eq_dir, "seismograms", "syn",
+        output_file = os.path.join(Cdir, "seismograms", "syn",
                                    cmt_name + ".h5")
 
         # Pathfile directory
@@ -536,16 +536,16 @@ class DataBaseSkeleton(object):
         # Writing the directory to file
         write_yaml_file(d, yaml_file_path)
 
-    def _create_obs_path_yaml(self, eq_id, eq_dir):
+    def _create_obs_path_yaml(self, Cid, Cdir):
         """ This function writes a yaml path file for 1 Simulation file. This
         file is later on need for the creation of ASDF files and the
         processing involved ASDF files.
 
         The function assumes that
         * the QuakeML file is located in the main EQ directory with the
-          name `eq_<id>.xml`
+          name `C<id>.xml`
         * The output file name is the
-          `../database/eq_<id>/seismograms/obs/raw_observed.h5
+          `../database/C<id>/seismograms/obs/raw_observed.h5
 
         Args:
               waveform_dir: path to OUTPUT_FILES
@@ -556,21 +556,21 @@ class DataBaseSkeleton(object):
         tag = "obs"
 
         # Waveform file
-        waveform_files = os.path.join(eq_dir, "seismograms", "obs",
-                                      eq_id + ".mseed")
+        waveform_files = os.path.join(Cdir, "seismograms", "obs",
+                                      Cid + ".mseed")
 
         # QuakeML file path
-        quakeml_file = os.path.join(eq_dir, "eq_" + eq_id + ".xml")
+        quakeml_file = os.path.join(Cdir, "C" + Cid + ".xml")
 
         # Station file
-        staxml_file = os.path.join(eq_dir, "station_data", "station.xml")
+        staxml_file = os.path.join(Cdir, "station_data", "station.xml")
 
         # Outputfile
-        output_file = os.path.join(eq_dir, "seismograms",
+        output_file = os.path.join(Cdir, "seismograms",
                                    "obs", "raw_observed.h5")
 
         # Pathfile directory
-        yaml_file_path = os.path.join(eq_dir, "seismograms",
+        yaml_file_path = os.path.join(Cdir, "seismograms",
                                       "obs", "observed.yml")
 
         # Create dictionary

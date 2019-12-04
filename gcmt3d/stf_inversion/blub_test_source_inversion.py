@@ -1,5 +1,4 @@
 """
-
 This file contains functions and classes to check whether the source
 inversion works
 
@@ -12,8 +11,7 @@ inversion works
 
 """
 
-
-import forward as fw
+from .. stf_inversion import forward as fw
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -34,7 +32,6 @@ def main():
     dt = 0.05
     nr = 20
     dx = 10.
-
 
     green_vel = np.array([20,  19,  19, 10, 13])
 
@@ -91,9 +88,8 @@ def main():
     stf_decon, syn_decon1 = fw.deconvolution(obs, G, lambd)
 
     # Compute source time function with iterative landweber
-    astf_lw, stf_list, chi_list = fw.landweber(obs, G, dt, maxT=50, crit=0.01,
+    stf_lw, stf_list, chi_list = fw.landweber(obs, G, dt, maxT=50, crit=0.01,
                                               lamb=0.001, type="2")
-
 
     # Compare Source Time functions
     fw.plot_source_comparison(t, wavelet, [stf_decon, stf_lw],

@@ -109,8 +109,9 @@ class DataRequest(object):
 
     @classmethod
     def from_file(cls, cmtfname,
-                  stationlistfname=None,
-                  sfstationlist=True,
+                  stationlistfname=os.path.join(os.path.dirname(__file__),
+                                                'resources', 'stations.txt'),
+                  sfstationlist=False,
                   duration=0.,
                   channels=["BHZ"],
                   locations=["00"],
@@ -178,7 +179,7 @@ class DataRequest(object):
                 line = line.split()
 
                 newline = [line[1], line[0], line[2], line[3], line[4],
-                           line[5]]
+                           line[5], 0]
                 # Append the [network station latitude longitude elevation]
                 # to the station list
                 stationlist.append(newline)
@@ -298,7 +299,6 @@ class DataRequest(object):
 
         with open(specfemfile, 'w') as file:
             for k, line in enumerate(self.stationlist):
-                print(line)
                 file.write('{0:11s}{1:4s}{2:12.4f}{3:12.4f}{4:10.1f}{5:8.1f}\n'
                            .format(line[1], line[0], float(line[2]),
                                    float(line[3]), float(line[4]), 0.))

@@ -4,6 +4,16 @@ mpl.use('Agg')  # NOQA
 import argparse
 from gcmt3d.asdf.window import WindowASDF
 import yaml
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning,
+                        module=r'.*numerictypes')
+warnings.filterwarnings("ignore", category=UserWarning,
+                        module=r'.*asdf_data_set')
+warnings.filterwarnings("ignore", category=FutureWarning,
+                        module=r'.*numerictypes')
+warnings.filterwarnings("ignore", category=RuntimeWarning,
+                        module=r'.*pyplot')
+
 
 def read_yaml_file(filename):
     """read yaml file"""

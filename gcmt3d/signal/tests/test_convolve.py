@@ -4,6 +4,7 @@ import unittest
 import numpy as np
 import gcmt3d.signal.convolve as cv
 
+
 def _upper_level(path, nlevel=4):
     """
     Go the nlevel dir up
@@ -19,9 +20,7 @@ TESTBASE_DIR = _upper_level(os.path.abspath(
 DATA_DIR = os.path.join(TESTBASE_DIR, "tests", "data")
 
 
-
 class TestWavelets(unittest.TestCase):
-
 
     def test_gaussian(self):
         """Tests gaussian function in convolve.py """

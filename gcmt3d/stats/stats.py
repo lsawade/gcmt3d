@@ -13,201 +13,261 @@ Last Update: November 2019
 """
 
 from gcmt3d.source import CMTSource
+from gcmt3d.plot.stats import PlotStats
 from glob import glob
 import os
 import numpy as np
 
-def create_cmt_matrix(cmt_source_list):
-    """Takes in list of CMT sources and transforms it into a
-    :class:`numpy.ndarray`
+
+
+def read_specfem_station_list(filename):
+    """Gets stationlist from file
 
     Args:
-    -----
-        CMT source list
+        filename (string): specfem station filename
 
     Returns:
-    --------
+        list of arguments for each station
+
+    Station list:
+        [network station latitude longitude elevation]
+    """
+
+    stationlist = []
+    with open(filename, 'r') as specfemfile:
+
+        for line in specfemfile:
+                # Read stations into list of stations
+                line = line.split()
+                # Append the [network station latitude longitude elevation]
+                newline = [line[1], line[0], float(line[2]), float(line[3]), float(line[4]),
+                           float(line[5])]
+                # to the station list
+                stationlist.append(newline)
+
+    return stationlist
+
+class Statistics(object):
+    """Governs the statistics of multiple inversions"""
+
+    def __init__(self, old_cmts, old_ids, new_cmts, new_ids, stations,
+                 npar=9, verbose=True):
+        """ Initialize Statistics class
+
+        Args:
+        -----
+        old_cmts (numpy.ndarray): matrix with old CMT data
+        old_ids (list): List of event ids corresponding to matrix rows
+        new_cmts (numpy.ndarray): matrix with new CMT data
+        new_ids (list): List of event ids corresponding to matrix rows
+        stations: list of stations
+        npar: number of parameters to perform the analysis on
+        verbose: Set verbosity
+
+        Returns:
+        --------
+        Statistics class containing all necessary data and tools to perform
+        an analysis on the data.
+
+        The matrices below should have following columns:
+        -------------------------------------------------
+        M0, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, depth, lat, lon, CMT, t_shift, hdur
+
+        """
+        self.ocmt = old_cmts
+        self.oids = old_ids
+        self.ncmt = new_cmts
+        self.nids = new_ids
+        self.npar = npar
+        # Sanity check
+        if any([False for a, b in zip(self.oids, self.nids) if a == b]):
+            raise ValueError("Can only compare equal earthquakes.")
+
+        self.ids = self.nids
+        self.stations = stations
+
+        # Compute difference/evolution
+        self.dCMT = self.ncmt - self.ocmt
+
+        # Compute Correlation Coefficients
+        self.xcorr_mat = np.corrcoef(self.dCMT.T)
+
+        # Compute Mean
+        self.mean_mat = np.mean(self.dCMT, axis=0)
+
+        # Compute Standard deviation
+        self.std_mat = np.std(self.dCMT, axis=0)
+
+        # Create labels
+        self.labels = ["$M_0$",
+                       "$M_{rr}$", "$M_{tt}$",
+                       "$M_{pp}$", "$\\delta M_{rt}$",
+                       "$M_{rp}$", "$M_{tp}$",
+                       "$z$", "Lat", "Lon",
+                       "$t_{CMT}$", "$t_{shift}$", "$hdur$"]
+
+        self.dlabels = ["$\\delta M_0$",
+                        "$\\delta M_{rr}$", "$\\delta M_{tt}$",
+                        "$\\delta M_{pp}$", "$\\delta M_{rt}$",
+                        "$\\delta M_{rp}$", "$\\delta M_{tp}$",
+                        "$\\delta z$", "$\\delta$Lat", "$\\delta$Lon",
+                        "$\\delta t_{CMT}$", "$\\delta t_{shift}$",
+                        "$\\delta hdur$"]
+
+        self.verbose = verbose
+
+    @classmethod
+    def _from_dir(cls, directory, npar=9, verbose=True):
+        """Load old and new inverted CMTSOLUTIONS into lists of CMTSources.
+
+        Args:
+        -----
+            database_dir (string): database directory containing all the CMT
+                                    solutions
+
+        Returns:
+        --------
+            tuple of two lists containing the original cmtsolution and its
+            corresponding inversion
+
+        """
+
+        # Get list of inversion files.
+        Clist = glob(os.path.join(database_dir, "C*"))
+
+        if verbose:
+            print("Looking for earthquakes here: %s" % (database_dir))
+
+        # Old CMTs
+        old_cmts = []
+        new_cmts = []
+        station_list = set()
+
+        # Loop of files
+        for invdata in Clist:
+
+            if verbose:
+                print(invdata)
+
+            # Get Cid
+            bname = os.path.basename(invdata)
+            # print(invdata)
+            id = bname[1:]
+
+            # Original CMT file name
+            cmt_file = os.path.join(invdata, bname + ".cmt")
+            # print(cmt_file)
+
+            # Inverted CMT filename
+            glob_path = os.path.join(invdata,
+                                        'inversion',
+                                        'inversion_output', id + "*.inv")
+            inv_cmt = glob(glob_path)
+            # print(inv_cmt)
+
+            try:
+                # Reading the CMT solutions
+                old_cmt = CMTSource.from_CMTSOLUTION_file(cmt_file)
+                new_cmt = CMTSource.from_CMTSOLUTION_file(inv_cmt[0])
+
+                if verbose:
+                    print("Got both for %s" % bname)
+
+                # Append CMT files
+                old_cmts.append(old_cmt)
+                new_cmts.append(new_cmt)
+
+            except Exception:
+                if verbose:
+                    print("Got nothing for %s" % bname)
+
+            # Get stations file
+            try:
+                station_list = list(station_list)
+
+                for row in read_specfem_station_list(
+                    os.path.join(invdata, 'station_data', 'STATIONS')):
+
+                    station_list.append(tuple(row))
+                
+                station_list = set(station_list)
+
+            except Exception as e:
+                print(e)
+                
+        old_cmt_mat, old_ids = Statistics.create_cmt_matrix(old_cmts)
+        new_cmt_mat, new_ids = Statistics.create_cmt_matrix(new_cmts)
+
+        print(len(station_list))
+
+        return cls(old_cmt_mat, old_ids, new_cmt_mat, new_ids, list(station_list),
+                   npar=npar, verbose=verbose)
+
+    def plot_changes(self, savedir=None):
+        """This function plots and saves the plots with the statistics.
+
+        Args:
+            savedir (str, optional): Sets directory where to save the
+                                     plots. If None the plots will be
+                                     displayed. Defaults to None.
+        """
+
+        PS = PlotStats(ocmt=self.ocmt, ncmt=self.ncmt, dCMT=self.dCMT, 
+                       xcorr_mat=self.xcorr_mat, mean_mat=self.mean_mat, 
+                       std_mat=self.std_mat, labels=self.labels,
+                       dlabels=self.dlabels, stations=self.stations,
+                       npar=self.npar, verbose=self.verbose,
+                       savedir=savedir)
+
+        PS.plot_changes()
+        PS.plot_xcorr_matrix()
+        PS.plot_xcorr_heat()
+
+    @staticmethod
+    def create_cmt_matrix(cmt_source_list):
+        """Takes in list of CMT sources and transforms it into a
         :class:`numpy.ndarray`
 
-    """
+        Args:
+        -----
+            CMT source list
 
-    # Number of Earthquakes
-    N = len(cmt_source_list)
+        Returns:
+        --------
+            :class:`numpy.ndarray`
 
-    # Create empty array for the values
-    event_id = []
+        """
 
-    # Initialize empty matrix
-    cmt_mat = np.zeros((N, 13))
+        # Number of Earthquakes
+        N = len(cmt_source_list)
 
-    # time_shift, hdur, lat, lon, depth, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, M0
+        # Create empty array for the values
+        event_id = []
 
-    for _i, cmt in enumerate(cmt_source_list):
+        # Initialize empty matrix
+        cmt_mat = np.zeros((N, 13))
 
-        # Populate id list with ids
-        event_id.append(cmt.eventname)
+        for _i, cmt in enumerate(cmt_source_list):
 
+            # Populate id list with ids
+            event_id.append(cmt.eventname)
 
-        # Populate CMT matrix
-        cmt_mat[_i, :] = np.array([cmt.cmt_time, cmt.time_shift,
-                                   cmt.half_duration,
-                                   cmt.latitude, cmt.longitude, cmt.depth_in_m,
-                                   cmt.m_rr, cmt.m_tt, cmt.m_pp, cmt.m_rt,
-                                   cmt.m_rp, cmt.m_tp, cmt.M0])
+            # Populate CMT matrix
+            cmt_mat[_i, :] = np.array([cmt.M0, cmt.m_rr, cmt.m_tt, cmt.m_pp, cmt.m_rt,
+                                       cmt.m_rp, cmt.m_tp, cmt.depth_in_m,
+                                       cmt.latitude, cmt.longitude,
+                                       cmt.cmt_time,
+                                       cmt.half_duration,
+                                       cmt.time_shift,
+                                       ])
 
-
-    return cmt_mat, event_id
-
-
-
-def load_cmts(database_dir):
-    """Load old and new inverted CMTSOLUTIONS into lists of CMTSources.
-
-    Args:
-    -----
-        database_dir (string): database directory containing all the CMT
-                               solutions
-
-    Returns:
-    --------
-        tuple of two lists containing the original cmtsolution and its
-        corresponding inversion
-
-    """
-
-    # Get list of inversion files.
-    eq_list = glob(os.path.join(database_dir, "eq_*"))
-    print("Looking for earthquakes here: %s" % (database_dir))
-
-    # Old CMTs
-    old_cmts = []
-    new_cmts = []
-
-    # Loop of files
-    for invdata in eq_list:
-
-        # Get eq_id
-        bname = os.path.basename(invdata)
-        id = bname[3:]
-
-        # Original CMT file name
-        cmt_file = os.path.join(invdata, bname + ".cmt")
-        print(cmt_file)
-
-        # Inverted CMT filename
-        inv_cmt = glob(os.path.join(invdata,
-                                    'inversion',
-                                    'inversion_output', id + ".*.inv"))
-        print(inv_cmt)
-
-        try:
-            # Reading the CMT solutions
-
-            print('ocmt')
-            old_cmt = CMTSource.from_CMTSOLUTION_file(cmt_file)
-
-            print('ncmt')
-            new_cmt = CMTSource.from_CMTSOLUTION_file(inv_cmt[0])
-
-            # Append CMT files
-            old_cmts.append(old_cmt)
-            new_cmts.append(new_cmt)
-
-        except Exception as e:
-            print(e)
-
-    return old_cmts, new_cmts
-
-
-def compute_differences(ocmts_mat, ncmts_mat):
-    """
-    :param ocmts: List of global :class:`gmct3d.source.CMTSource`'s
-    :param ncmts: List of inverted :class:`gmct3d.source.CMTSource`'s
-    :return:
-    """
-
-    # Difference in time
-    dt = ncmts_mat[:, 0] - ocmts_mat[:, 0]
-
-    # Difference in location
-    dlat = ncmts_mat[:, 3] - ocmts_mat[:, 3]
-    dlon = ncmts_mat[:, 4] - ocmts_mat[:, 4]
-    dd = ncmts_mat[:, 5] - ocmts_mat[:, 5]
-
-    # Difference in Moment tensor compononents
-    dm = ncmts_mat[:, 6:12] - ocmts_mat[:, 6:12]
-
-    # Compute Scalar Moment difference
-    dm0 = ncmts_mat[:, 12] - ocmts_mat[:, 12]
-
-    return dt, dlat, dlon, dd, dm, dm0
-
-
-def get_differences(database_dir):
-    """Use above functions to output differences"""
-
-    ocmts, ncmts = load_cmts(database_dir)
-
-    # return: dt, dlat, dlon, dd, dM, dM0
-    return compute_differences(ocmts, ncmts)
-
-def get_difference_stats(dt, dlat, dlon, dd, dM, dM0):
-    """
-    :param dt: Change in centroid time
-    :param dlat: Change in latitude
-    :param dlon: Change in latitude
-    :param dd: Change in depth
-    :param dM: Change in moment tensor elements
-    :param dM0: Change in scalar magnitude
-    :return:
-    """
-
-    # Mean,std Change in Time
-    mean_dt = np.mean(dt)
-    std_dt = np.std(dt)
-
-    # Mean,std Change in latitude
-    mean_dlat = np.mean(dlat)
-    std_dlat = np.std(dlat)
-
-    # Mean,std Change in longitude
-    mean_dlon = np.mean(dlon)
-    std_dlon = np.std(dlon)
-
-    # Mean,std Change in depth
-    mean_dd = np.mean(dd)
-    std_dd = np.std(dd)
-
-    # Mean,std change in scalar moment
-    mean_dM0 = np.mean(dM0)
-    std_dM0 = np.std(dM0)
-
-    # Mean,std change in moment tensor elements
-    mean_dm = np.mean(dM, axis=0)
-    std_dm = np.std(dM, axis=0)
-
-    return [[mean_dt, std_dt], [mean_dlat, std_dlat], [mean_dlon, std_dlon],
-            [mean_dd, std_dd], [mean_dM0, std_dM0], [mean_dm, std_dm]]
+        return cmt_mat, event_id
 
 
 if __name__ == "__main__":
 
+    # Load shit
     database_dir = "/Users/lucassawade/tigress/database"
-    ocmts, ncmts = load_cmts(database_dir)
-
-    print(len(ocmts))
-    print(len(ncmts))
-
-    # Create matrices:    cmt_time = origin time + time shift
-    # cmt_time, time_shift, hdur, lat, lon, depth, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp
-    # o = old, n = new
-    ocmts_mat, ocmt_ids = create_cmt_matrix(ocmts)
-    ncmts_mat, ncmt_ids = create_cmt_matrix(ncmts)
-
-    print(ocmts_mat[:, 0])
-    print(ncmts_mat[:, 0])
-
-    dt, dlat, dlon, dd, dM, dM0 = compute_differences(ocmts_mat, ncmts_mat)
-
-    print(dlat)
-
+    
+    ST = Statistics._from_dir(database_dir)
+    ST.plot_changes(savedir="/Users/lucassawade")
