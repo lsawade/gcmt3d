@@ -4,6 +4,13 @@ import argparse
 
 from gcmt3d.asdf.process import ProcASDF
 import yaml
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning,
+                        module=r'.*numerictypes')
+warnings.filterwarnings("ignore", category=UserWarning,
+                        module=r'.*asdf_data_set')
+warnings.filterwarnings("ignore", category=FutureWarning,
+                        module=r'.*numerictypes')
 
 def read_yaml_file(filename):
     """read yaml file"""

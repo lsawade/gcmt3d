@@ -37,7 +37,7 @@
 #
 # 1) Command line arguments: -N, -S, -L, -C, -Q, -s, -e
 #
-# 2) A BREQ_FAST formatted file, http://ds.iris.edu/manuals/breq_fast.htm
+# 2) A BRCFAST formatted file, http://ds.iris.edu/manuals/brCfast.htm
 #
 # 3) A selection file containing a list of:
 #    Net Sta Loc Chan Start End
@@ -152,7 +152,7 @@
 # 2014.129:
 #  - Convert metadata fetching to use POST capability of fdsnws-station.
 #  This allows making a single metadata request when the request is a list of
-#  many selections (selection list file or BREQ_FAST), instead of generating a
+#  many selections (selection list file or BRCFAST), instead of generating a
 #  request for each selection line.  More efficient.
 #  - Code simplification: separately manage request list for secondary metadata
 #  such as SACPZ or RESP, track and request a range from earliest to latest
@@ -226,7 +226,7 @@
 #  - Avoid undefined reference by checking for metadata before trying to access it.
 #
 # 2015.014:
-#  - Change validation of channel codes in breq_fast parsing to accept
+#  - Change validation of channel codes in brCfast parsing to accept
 #  values less than 3 characters, this will allow single '*' wildcards.
 #  - Add support for matching metadata using exclusions as supported by
 #  the DMC's fdsnws-station service.
@@ -464,7 +464,7 @@ if ( ! $getoptsret || $usage || ! $required ) {
   print " --radius lat:lon:maxradius[:minradius]\n";
   print "                     Specify circular region with optional minimum radius\n";
   print " -l listfile       Read list of selections from file\n";
-  print " -b bfastfile      Read list of selections from BREQ_FAST file\n";
+  print " -b bfastfile      Read list of selections from BRCFAST file\n";
   print " -a user:pass      User and password for access to restricted data\n";
   print "\n";
   print " -F [DC1[,DC2]]    Federate the request to multiple data centers if needed\n";
@@ -646,9 +646,9 @@ if ( $selectfile ) {
   &ReadSelectFile ($selectfile);
 }
 
-# Read BREQ_FAST file
+# Read BRCFAST file
 if ( $bfastfile ) {
-  print STDERR "Reading data selection from BREQ_FAST file '$bfastfile'\n";
+  print STDERR "Reading data selection from BRCFAST file '$bfastfile'\n";
   &ReadBFastFile ($bfastfile);
 }
 
@@ -960,7 +960,7 @@ sub ReadSelectFile {
 ######################################################################
 # ReadBFastFile:
 #
-# Read BREQ_FAST file and add entries to the @selections array.
+# Read BRCFAST file and add entries to the @selections array.
 #
 ######################################################################
 sub ReadBFastFile {

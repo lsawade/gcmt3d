@@ -15,6 +15,7 @@ Last Update: November 2019
 
 import numpy as np
 
+
 def gaussian(t, to, sig, amp):
     """Create Gaussian pulse.
 
@@ -46,6 +47,7 @@ def bimodal_gaussian(t, amp1=2.5, to1=20, sig1=5, amp2=1.75, to2=32, sig2=3):
 
     return g1 + g2
 
+
 class Wavelet(object):
     """Contains wavelet"""
 
@@ -68,12 +70,9 @@ class Wavelet(object):
             self.data = data
             self.type = 'self-defined'
         else:
-            if type=='gaussian':
+            if type == 'gaussian':
                 self.wavefun = gaussian
-                self.data = self.wavefun(t, *args)
-
-
-
+                self.data = self.wavefun(t, *kwargs)
 
     @classmethod
     def wavelet_from_SAC(cls, filename):
@@ -87,8 +86,6 @@ class Wavelet(object):
         pass
 
         # return cls()
-
-
 
 
 def convolve_stream(st, wavelet):

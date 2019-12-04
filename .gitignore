@@ -1,9 +1,7 @@
 .idea
 .pytest_cache
 __pycache__
-*.xml
 *.ipynb_checkpoints
-CMTSOLUTION_*
 .DS_Store
 *.pdf
 *.egg-info
@@ -22,3 +20,5 @@ slurm-*
 *.stdout
 STDERR
 STDOUT
+CMTSOLUTION_*
+*.xml

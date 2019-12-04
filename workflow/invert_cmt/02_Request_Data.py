@@ -25,18 +25,18 @@ def main(cmt_filename):
                                       "RequestParams/RequestParams.yml")
 
     # Read the parameter file
-    req_params = smart_read_yaml(request_param_path, mpi_mode=is_mpi_env())
+    rCparams = smart_read_yaml(request_param_path, mpi_mode=is_mpi_env())
 
     # Earthquake and Station parameters
     cmt_dir = os.path.dirname(cmt_filename)
 
     # Create Request Object
     Request = DataRequest.from_file(cmt_filename,
-                                    duration=req_params['duration'],
-                                    channels=req_params['channels'],
-                                    locations=req_params['locations'],
+                                    duration=rCparams['duration'],
+                                    channels=rCparams['channels'],
+                                    locations=rCparams['locations'],
                                     starttime_offset=\
-                                    req_params['starttime_offset'],
+                                    rCparams['starttime_offset'],
                                     outputdir=cmt_dir)
 
     # Print Earthquake Download Info

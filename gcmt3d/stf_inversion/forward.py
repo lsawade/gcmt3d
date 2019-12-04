@@ -17,6 +17,7 @@ from numpy.fft import fft, ifft, fftfreq, fftshift
 
 import matplotlib.pyplot as plt
 
+
 def gaussian(t, to, sig, amp):
     """Create Gaussian pulse.
 
@@ -82,6 +83,7 @@ def synthetic_seismogram(green, wavelet):
     """
     return np.real(ifft(fft(wavelet) * fft(green)))
 
+
 def noisy_seismogram(t, seismogram, noise_amp=5):
     """ Takes in t and a seismogram to compute the
 
@@ -108,7 +110,6 @@ def noisy_seismogram(t, seismogram, noise_amp=5):
     noisemogram = seismogram + filtnoise
 
     return noisemogram
-
 
 
 def synthetic_traces(nr=20, dx=10, nt=3001, dt=0.01, green_vel=None,
@@ -369,7 +370,7 @@ def landweber(obs, G, dt, maxT, crit, lamb, type="2"):
     it = 1
     perc = 0.05
     chip = chi0
-    llb = 0.1
+    # llb = 0.1
 
     # Initialize list to save iterations
     src_list = []
@@ -380,7 +381,7 @@ def landweber(obs, G, dt, maxT, crit, lamb, type="2"):
         # Regularized gradient
         gradreg = grad
 
-        if type=="1":
+        if type == "1":
             srctmp = src + gradreg
         else:
             srctmp = src + perc * gradreg
@@ -417,6 +418,7 @@ def landweber(obs, G, dt, maxT, crit, lamb, type="2"):
 
     return src, src_list, chi_list
 
+
 def compute_gradient_newton(resid, green, lamb):
     """ Compute Gradient using the waterlevel deconvolution which computes
     the Newton Step.
@@ -445,6 +447,7 @@ def compute_gradient_newton(resid, green, lamb):
     hmax = 1
 
     return grad, hmax
+
 
 def compute_gradient_sd(resid, green, lamb):
     """ Compute the Gradient using the steepest decent method
@@ -511,14 +514,12 @@ def plot_comparison_section(t, obs, syn, syn_decon, syn_lw):
         ax[1].set_xlim([np.min(t), np.max(t)])
         ax[1].set_ylim([-1, syn_lw.shape[0] + 1.5])
 
-
     plt.figlegend(frameon=True, fancybox=False, loc='lower center', ncol=3,
                   framealpha=1, edgecolor='k', facecolor='w',
                   bbox_to_anchor=(0.52, 0.925))
     plt.tight_layout()
 
     plt.show(block=False)
-
 
 
 def plot_stf_evolution(t, stf, stf_list, skip=5):
