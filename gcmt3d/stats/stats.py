@@ -12,68 +12,46 @@ Last Update: November 2019
 
 """
 
-from ..source import CMTSource
-from ..plot.stats import PlotStats
+from gcmt3d.source import CMTSource
+from gcmt3d.plot.stats import PlotStats
 from glob import glob
 import os
 import numpy as np
 
 
-def compute_differences(ocmts_mat, ncmts_mat):
-    """
-    :param ocmts: List of global :class:`gmct3d.source.CMTSource`'s
-    :param ncmts: List of inverted :class:`gmct3d.source.CMTSource`'s
-    :return:
-    """
 
-    # Difference in time
-    dt = ncmts_mat[:, 0] - ocmts_mat[:, 0]
+def read_specfem_station_list(filename):
+    """Gets stationlist from file
 
-    # Difference in location
-    dlat = ncmts_mat[:, 3] - ocmts_mat[:, 3]
-    dlon = ncmts_mat[:, 4] - ocmts_mat[:, 4]
-    dd = ncmts_mat[:, 5] - ocmts_mat[:, 5]
+    Args:
+        filename (string): specfem station filename
 
-    # Difference in Moment tensor compononents
-    dm = ncmts_mat[:, 6:12] - ocmts_mat[:, 6:12]
+    Returns:
+        list of arguments for each station
 
-    # Compute Scalar Moment difference
-    dm0 = ncmts_mat[:, 12] - ocmts_mat[:, 12]
-
-    return dt, dlat, dlon, dd, dm, dm0
-
-
-def get_differences(database_dir):
-    """Use above functions to output differences"""
-
-    ocmts, ncmts = load_cmts(database_dir)
-
-    # return: dt, dlat, dlon, dd, dM, dM0
-    return compute_differences(ocmts, ncmts)
-
-def compute_correlation_matrix(dlat, dlon, dd, dm, dm0):
-    """This takse in the computed differences and computes the correlation
-    matrix
-
-    :param dlat:
-    :param dlon:
-    :param dd:
-    :param dm:
-    :param dm0:
-    :return:
+    Station list:
+        [network station latitude longitude elevation]
     """
 
-    # Create one large Matrix
-    M = np.stack(dd, dlat, dlon, dm0, dm.T).T
+    stationlist = []
+    with open(filename, 'r') as specfemfile:
 
-    return M, np.corrcoef(M)
+        for line in specfemfile:
+                # Read stations into list of stations
+                line = line.split()
+                # Append the [network station latitude longitude elevation]
+                newline = [line[1], line[0], float(line[2]), float(line[3]), float(line[4]),
+                           float(line[5])]
+                # to the station list
+                stationlist.append(newline)
 
+    return stationlist
 
 class Statistics(object):
     """Governs the statistics of multiple inversions"""
 
-    def __init__(self, old_cmts, old_ids, new_cmts, new_ids, npar=9,
-                 verbose=True):
+    def __init__(self, old_cmts, old_ids, new_cmts, new_ids, stations,
+                 npar=9, verbose=True):
         """ Initialize Statistics class
 
         Args:
@@ -82,6 +60,7 @@ class Statistics(object):
         old_ids (list): List of event ids corresponding to matrix rows
         new_cmts (numpy.ndarray): matrix with new CMT data
         new_ids (list): List of event ids corresponding to matrix rows
+        stations: list of stations
         npar: number of parameters to perform the analysis on
         verbose: Set verbosity
 
@@ -99,12 +78,13 @@ class Statistics(object):
         self.oids = old_ids
         self.ncmt = new_cmts
         self.nids = new_ids
-
+        self.npar = npar
         # Sanity check
         if any([False for a, b in zip(self.oids, self.nids) if a == b]):
             raise ValueError("Can only compare equal earthquakes.")
 
         self.ids = self.nids
+        self.stations = stations
 
         # Compute difference/evolution
         self.dCMT = self.ncmt - self.ocmt
@@ -118,21 +98,20 @@ class Statistics(object):
         # Compute Standard deviation
         self.std_mat = np.std(self.dCMT, axis=0)
 
-
         # Create labels
-        self.labels = ["$M_0",
+        self.labels = ["$M_0$",
                        "$M_{rr}$", "$M_{tt}$",
                        "$M_{pp}$", "$\\delta M_{rt}$",
-                       "$M_{rp}", "$M_{tp}$",
+                       "$M_{rp}$", "$M_{tp}$",
                        "$z$", "Lat", "Lon",
-                       "t_{CMT}", "$t_{shift}$", "$hdur$"]
+                       "$t_{CMT}$", "$t_{shift}$", "$hdur$"]
 
-        self.dlabels = ["$\\delta M_0",
+        self.dlabels = ["$\\delta M_0$",
                         "$\\delta M_{rr}$", "$\\delta M_{tt}$",
                         "$\\delta M_{pp}$", "$\\delta M_{rt}$",
-                        "$\\delta M_{rp}", "$\\delta M_{tp}$",
+                        "$\\delta M_{rp}$", "$\\delta M_{tp}$",
                         "$\\delta z$", "$\\delta$Lat", "$\\delta$Lon",
-                        "\\delta t_{CMT}", "$\\delta t_{shift}$",
+                        "$\\delta t_{CMT}$", "$\\delta t_{shift}$",
                         "$\\delta hdur$"]
 
         self.verbose = verbose
@@ -162,6 +141,7 @@ class Statistics(object):
         # Old CMTs
         old_cmts = []
         new_cmts = []
+        station_list = set()
 
         # Loop of files
         for invdata in Clist:
@@ -197,29 +177,51 @@ class Statistics(object):
                 old_cmts.append(old_cmt)
                 new_cmts.append(new_cmt)
 
-            except Exception as e:
+            except Exception:
                 if verbose:
                     print("Got nothing for %s" % bname)
-                # print(e)
 
-        old_cmt_mat, old_ids = create_cmt_matrix(old_cmts)
-        new_cmt_mat, new_ids = create_cmt_matrix(new_cmts)
+            # Get stations file
+            try:
+                station_list = list(station_list)
 
-        return cls(old_cmt_mat, old_ids, new_cmt_mat, new_ids, npar=npar,
-                    verbose=verbose)
+                for row in read_specfem_station_list(
+                    os.path.join(invdata, 'station_data', 'STATIONS')):
+
+                    station_list.append(tuple(row))
+                
+                station_list = set(station_list)
+
+            except Exception as e:
+                print(e)
+                
+        old_cmt_mat, old_ids = Statistics.create_cmt_matrix(old_cmts)
+        new_cmt_mat, new_ids = Statistics.create_cmt_matrix(new_cmts)
+
+        print(len(station_list))
+
+        return cls(old_cmt_mat, old_ids, new_cmt_mat, new_ids, list(station_list),
+                   npar=npar, verbose=verbose)
 
     def plot_changes(self, savedir=None):
-        """
-        Plots changes or saves figure to given directory.
-        
+        """This function plots and saves the plots with the statistics.
+
+        Args:
+            savedir (str, optional): Sets directory where to save the
+                                     plots. If None the plots will be
+                                     displayed. Defaults to None.
         """
 
-        PS = PlotStats(ocmt=self.ocmt, ncmt=self.ncmt, dCMT=self.sCMT, 
+        PS = PlotStats(ocmt=self.ocmt, ncmt=self.ncmt, dCMT=self.dCMT, 
                        xcorr_mat=self.xcorr_mat, mean_mat=self.mean_mat, 
                        std_mat=self.std_mat, labels=self.labels,
-                       dlabels=self.dlabels, npar= self.npar,
-                       verbose=self.verbose, savedir=savedir)
+                       dlabels=self.dlabels, stations=self.stations,
+                       npar=self.npar, verbose=self.verbose,
+                       savedir=savedir)
+
         PS.plot_changes()
+        PS.plot_xcorr_matrix()
+        PS.plot_xcorr_heat()
 
     @staticmethod
     def create_cmt_matrix(cmt_source_list):
@@ -245,8 +247,6 @@ class Statistics(object):
         # Initialize empty matrix
         cmt_mat = np.zeros((N, 13))
 
-        #
-
         for _i, cmt in enumerate(cmt_source_list):
 
             # Populate id list with ids
@@ -270,4 +270,4 @@ if __name__ == "__main__":
     database_dir = "/Users/lucassawade/tigress/database"
     
     ST = Statistics._from_dir(database_dir)
-    ST.plot_changes()
+    ST.plot_changes(savedir="/Users/lucassawade")
