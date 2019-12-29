@@ -21,4 +21,4 @@ slurm-*
 STDERR
 STDOUT
 CMTSOLUTION_*
-*.xml
+*.xmlcore.*
