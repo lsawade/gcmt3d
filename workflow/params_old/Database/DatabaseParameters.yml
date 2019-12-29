@@ -1,0 +1,40 @@
+# Database directory
+databasedir: "/scratch/gpfs/lsawade/database"
+
+# Number of parameters to invert for
+# 6: only the moment tensor
+# 7: Moment tensor and depth
+# 9: Moment tensor, depth and location (This way around since the location
+#    doesnt really change)
+npar: 9
+
+# Chose verbose output
+verbose: True
+
+# Overwriting the database? Here I have to implement what should be overwritten
+# Not yet implemented, but will be in the future:
+# 0: Everything will be overwritten including the database
+# 1: Earthquake directories will be overwritten
+# 2: CMT simulations and downloaded seismograms will be overwritten.
+# 3: Only simulations will be overwritten.
+# False: Nothing will be overwritten.
+overwrite: False
+
+# Status bar for ASDF operations
+status_bar: False
+
+# When windowing traces create figures?
+figure_mode: True
+
+
+
+####### EnTK parameters
+# This will be obsolete (hopefully) by the end of this year as EnTK will roll
+# out in python 3 and I will be able to install both in one environment.
+
+# activate conda environment
+conda-activate: '/home/lsawade/.miniconda3/bin/activate gcmt3d'
+conda-deactivate: 'source /home/lsawade/.miniconda3/bin/activate'
+
+# python location
+bin-python: '/home/lsawade/.miniconda3/envs/gcmt3d/bin/python'

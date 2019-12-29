@@ -21,4 +21,15 @@ slurm-*
 STDERR
 STDOUT
 CMTSOLUTION_*
+<<<<<<< HEAD
+<<<<<<< HEAD
+*.xmlcore.*
 *.xml
+core.*
+=======
+*.xml
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
+workflow/slurmwf_dt
+=======
+*.xml
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
