@@ -79,6 +79,7 @@ class Statistics(object):
         self.ncmt = new_cmts
         self.nids = new_ids
         self.npar = npar
+
         # Sanity check
         if any([False for a, b in zip(self.oids, self.nids) if a == b]):
             raise ValueError("Can only compare equal earthquakes.")
@@ -94,6 +95,9 @@ class Statistics(object):
 
         # Compute Mean
         self.mean_mat = np.mean(self.dCMT, axis=0)
+
+        self.mean_dabs = np.mean(np.abs(self.dCMT), axis=0)
+        print(self.mean_dabs)
 
         # Compute Standard deviation
         self.std_mat = np.std(self.dCMT, axis=0)
