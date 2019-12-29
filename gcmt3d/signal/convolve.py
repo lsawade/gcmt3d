@@ -75,7 +75,7 @@ class Wavelet(object):
                 self.data = self.wavefun(t, *kwargs)
 
     @classmethod
-    def wavelet_from_SAC(cls, filename):
+    def _from_SAC(cls, filename):
         """ Creates
 
         :param filename: filename to create wavelet from
@@ -85,10 +85,48 @@ class Wavelet(object):
         """
         pass
 
-        # return cls()
+    @classmethod
+    def _from_cmtsource(cmtsource, dt)
+        """CMTSource object provides halfduration and time shift,
+        as well as approximation of the Gaussian.
+
+        From Specfem Manual:
+
+            The zero time of the simulation corresponds to the center 
+            of the triangle/Gaussian, or the centroid time of the 
+            earthquake. The start time of the simulation is 
+            t = −1.5 ∗ half duration (the 1.5 is to make sure the 
+            moment rate function is very close to zero when starting 
+            the simulation). To convert to absolute time tabs, set
+            
+                t_abs = tpde + time shift + tsynthetic
+
+            where tpde is the time given in the first line of 
+            the CMTSOLUTION, time shift is the corresponding 
+            value from the original CMTSOLUTION file and tsynthetic 
+            is the time in the first column of the output seismogram.
+
+        Arguments:
+            cmtsource (CMTSource object): Input CMTSource object inlcuding
+                                          necessary info such as the half 
+                                          duration, time shift, and, of
+                                          course, origin time.
+        
+        Returns:
+            Wavelet class: [description]
+        """
+
+        return cls()
 
 
-def convolve_stream(st, wavelet):
-    """Takes in a wavelet"""
+def convolve_trace(tr: obspy.trace, wavelet):
+    """Takes in a wavelet and an obspy Trace object and convolves the
+    wavelet with the Trace objectss
+
+    Args:
+        tr (obspy.Trace): Trace object
+        wavelet ([type]): wavelet
+    """
+
 
     pass
