@@ -22,3 +22,5 @@ STDERR
 STDOUT
 CMTSOLUTION_*
 *.xmlcore.*
+*.xml
+core.*
