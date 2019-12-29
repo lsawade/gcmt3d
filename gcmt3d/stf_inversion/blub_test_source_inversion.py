@@ -13,7 +13,6 @@ inversion works
 
 from .. stf_inversion import forward as fw
 from .plot import PlotSTFInversion
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -81,6 +80,7 @@ def main():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     # # Plot one trace
     # fw.plot_one_trace_set(t, wavelet, G[0, :], syn[0, :], obs[0, :])
 
@@ -89,12 +89,17 @@ def main():
 =======
 =======
 >>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
+=======
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
     # Plot one trace
     fw.plot_one_trace_set(t, wavelet, G[0, :], syn[0, :], obs[0, :])
 
     # Plot section
     fw.plot_section(t, syn, obs)
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
+=======
 >>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
 =======
 >>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
@@ -107,6 +112,7 @@ def main():
     stf_lw, stf_list, chi_list = fw.landweber(obs, G, dt, maxT=50, crit=0.01,
                                               lamb=0.001, type="2")
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     # # Compare Source Time functions
@@ -122,11 +128,17 @@ def main():
     fw.plot_source_comparison(t, wavelet, [stf_decon, stf_lw],
                               ['Estimate LS', 'Landweber'])
 >>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
+=======
+    # Compare Source Time functions
+    fw.plot_source_comparison(t, wavelet, [stf_decon, stf_lw],
+                              ['Estimate LS', 'Landweber'])
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
 
     # Compute new synthetics
     syn_decon = fw.compute_synth(G, stf_decon)
     syn_lw = fw.compute_synth(G, stf_lw)
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     # # Plot section comparison
@@ -145,12 +157,17 @@ def main():
 =======
 =======
 >>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
+=======
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
     # Plot section comparison
     fw.plot_comparison_section(t, obs, syn, syn_decon, syn_lw)
 
     # Plot Stf evolution
     fw.plot_stf_evolution(t, wavelet, stf_list, skip=5)
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
+=======
 >>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
 =======
 >>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
