@@ -435,7 +435,11 @@ class PlotStats(object):
 
         columns = ('$\\overline{d}$', '$\\sigma$')
 <<<<<<< HEAD
+<<<<<<< HEAD
         rows = ['$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',  # '$\\delta t$',
+=======
+        rows = ['$\\delta t$', '$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
 =======
         rows = ['$\\delta t$', '$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',
 >>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
@@ -447,8 +451,13 @@ class PlotStats(object):
 
         # dt
 <<<<<<< HEAD
+<<<<<<< HEAD
         # cell_text.append(["%3.3f" % (self.mean_mat[10]),
         #                   "%3.3f" % (self.std_mat[10])])
+=======
+        cell_text.append(["%3.3f" % (self.mean_mat[10]),
+                          "%3.3f" % (self.std_mat[10])])
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
 =======
         cell_text.append(["%3.3f" % (self.mean_mat[10]),
                           "%3.3f" % (self.std_mat[10])])
@@ -479,4 +488,8 @@ class PlotStats(object):
 
 if __name__ == "__main__":
 
+<<<<<<< HEAD
     pass
+=======
+    pass
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
