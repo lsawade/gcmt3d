@@ -434,7 +434,11 @@ class PlotStats(object):
         """Plots minimal summary"""
 
         columns = ('$\\overline{d}$', '$\\sigma$')
+<<<<<<< HEAD
         rows = ['$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',  # '$\\delta t$',
+=======
+        rows = ['$\\delta t$', '$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
                 '$\\delta M_0$', "$\\delta M_{rr}$", "$\\delta M_{tt}$",
                 "$\\delta M_{pp}$", "$\\delta M_{rt}$", "$\\delta M_{rp}$",
                 "$\\delta M_{tp}$"]
@@ -442,8 +446,13 @@ class PlotStats(object):
         cell_text = []
 
         # dt
+<<<<<<< HEAD
         # cell_text.append(["%3.3f" % (self.mean_mat[10]),
         #                   "%3.3f" % (self.std_mat[10])])
+=======
+        cell_text.append(["%3.3f" % (self.mean_mat[10]),
+                          "%3.3f" % (self.std_mat[10])])
+>>>>>>> 211bcfe6dfc095697f10dad6e389757639ab9632
         # dLat
         cell_text.append(["%3.3f" % (self.mean_mat[8]),
                           "%3.3f" % (self.std_mat[8])])
