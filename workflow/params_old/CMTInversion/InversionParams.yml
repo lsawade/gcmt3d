@@ -23,8 +23,7 @@ config:
   bootstrap: True
   bootstrap_repeat: 100
   bootstrap_subset_ratio: 0.4
-  dtx: True
-  dM0: True
+
 
 # Grid3D Configuration for pycmt3d
 grid3d_config:

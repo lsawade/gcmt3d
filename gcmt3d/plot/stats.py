@@ -340,14 +340,22 @@ class PlotStats(object):
                     # OLS fit
                     A = np.vstack([self.dCMT[:, _j],
                                    np.ones(len(self.dCMT[:, _j]))]).T
-                    m, c = np.linalg.lstsq(A, self.dCMT[:, _i], rcond=None)[0]
-                    # Different option to compute the OLS fit by computing the 
-                    # perpendicular distance
-                    # m, c = fit_xy(self.dCMT[:, _j], self.dCMT[:, _i])
 
-                    # Plot polyline
-                    ax[_i][_j].plot(self.dCMT[:, _j], c + m * self.dCMT[:, _j],
-                                    '-', c=(0.85, 0.2, 0.2))
+                    m, c = np.linalg.lstsq(A, self.dCMT[:, _i], rcond=None)[0]
+
+                    res = np.sqrt( np.sum( ((c + m * self.dCMT[:, _j]) 
+                                             - self.dCMT[:, _j]) ** 2))
+                    print(res, np.sqrt(self.mean_mat[_j]**2 + self.mean_mat[_i]**2))
+
+                    if res <  0.25 * self.N*np.sqrt(self.mean_mat[_j]**2 + self.mean_mat[_i]**2):
+                            
+                            # Different option to compute the OLS fit by computing the 
+                            # perpendicular distance
+                            # m, c = fit_xy(self.dCMT[:, _j], self.dCMT[:, _i])
+
+                            # Plot polyline
+                            ax[_i][_j].plot(self.dCMT[:, _j], c + m * self.dCMT[:, _j],
+                                            '-', c=(0.85, 0.2, 0.2))
 
         plt.tight_layout()
         for _i in range(10):
@@ -426,7 +434,7 @@ class PlotStats(object):
         """Plots minimal summary"""
 
         columns = ('$\\overline{d}$', '$\\sigma$')
-        rows = ['$\\delta t$', '$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',
+        rows = ['$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',  # '$\\delta t$',
                 '$\\delta M_0$', "$\\delta M_{rr}$", "$\\delta M_{tt}$",
                 "$\\delta M_{pp}$", "$\\delta M_{rt}$", "$\\delta M_{rp}$",
                 "$\\delta M_{tp}$"]
@@ -434,8 +442,8 @@ class PlotStats(object):
         cell_text = []
 
         # dt
-        cell_text.append(["%3.3f" % (self.mean_mat[10]),
-                          "%3.3f" % (self.std_mat[10])])
+        # cell_text.append(["%3.3f" % (self.mean_mat[10]),
+        #                   "%3.3f" % (self.std_mat[10])])
         # dLat
         cell_text.append(["%3.3f" % (self.mean_mat[8]),
                           "%3.3f" % (self.std_mat[8])])
