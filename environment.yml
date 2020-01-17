@@ -3,13 +3,14 @@ channels:
   - conda-forge
 dependencies:
   - numpy<=1.16.4
+  - obspy
+  - numpy<=1.16.6
   - matplotlib
   - cartopy
   - mpi4py
   - h5py
   - pip
   - pip:
-    - obspy
     - pyyaml
     - sphinx
     - sphinx_rtd_theme

@@ -171,7 +171,9 @@ def invert(cmt_file_db, param_path):
         zero_trace=bool(inv_config["zero_trace"]),
         double_couple=bool(inv_config["double_couple"]),
         bootstrap=bool(inv_config["bootstrap"]),
-        bootstrap_repeat=int(inv_config["bootstrap_repeat"]),
+        bootstrap_repeat=int(inv_config["bootstrap_repeat"])
+        dtx=bool(inv_config["dtx"]),
+        dtx=bool(inv_config["dM0"]),
         weight_config=weight_config)
 
     if DB_params["verbose"]:
