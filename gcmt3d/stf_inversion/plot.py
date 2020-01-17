@@ -22,6 +22,7 @@ matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['mathtext.fontset'] = 'cm'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
+
 def gaussian(t, to, sig, amp):
     """Create Gaussian pulse.
 
@@ -483,7 +484,7 @@ class PlotSTFInversion(object):
     results."""
 
     def __init__(self, t=None, stf=None, G=None, obs=None, syn=None,
-                 syn_decon=None, syn_lw=None, 
+                 syn_decon=None, syn_lw=None,
                  stf_decon=None, stf_lw=None,
                  stf_list=None, skip=5, save_dir=None):
 
@@ -541,17 +542,17 @@ class PlotSTFInversion(object):
         ax_evo.set_xlabel('Time in [s]')
         ax_evo.legend(frameon=False, ncol=3)
 
-        # Plot 
+        # Plot
         ax_misfit = fig.add_subplot(GS[5, 4:])
         self.plot_misfit_reduction()
         ax_misfit.set_ylim(0, 1)
         ax_misfit.legend(frameon=False, ncol=1)
-# 
+
         plt.tight_layout()
         if self.save_dir is None:
             plt.show()
         else:
-            plt.savefig(os.path.join(self.save_dir, 
+            plt.savefig(os.path.join(self.save_dir,
                                      'stfinversion.pdf'))
 
     def plot_STF(self):
@@ -587,7 +588,8 @@ class PlotSTFInversion(object):
                                / (len(self.stf_list[::self.skip]) * 2)),
                         label=None)
 
-        ax.plot(self.t, self.stf_list[-1], c=(0.8, 0.2, 0.2, 1), label="$LW_f$")
+        ax.plot(self.t, self.stf_list[-1], c=(0.8, 0.2, 0.2, 1),
+                label="$LW_f$")
         ax.plot(self.t, self.stf, c=(0.2, 0.2, 0.8, 1), label="STF")
         # ax[0].set_xlim([iT, fT])
         ax.set_xlabel('Time in [s]')
@@ -608,7 +610,8 @@ class PlotSTFInversion(object):
         ax.set_xlim(0, len(misfit))
         ax.set_ylim(0, 1)
         ax.set_xlabel("Iteration [N]")
-        ax.set_ylabel("$\\frac{\\int_t \\left[ stf(t)-stf_N(t) \\right]^2\\, dt}{\\int_t stf(t)^2\\, dt}$")
+        ax.set_ylabel("$\\frac{\\int_t \\left[ stf(t)-stf_N(t) "
+                      "\\right]^2\\, dt}{\\int_t stf(t)^2\\, dt}$")
 
     def plot_stf_freq_evolution(self):
         """Plots STF evolution throughout iterations."""
@@ -634,28 +637,27 @@ class PlotSTFInversion(object):
                 c=(0.2, 0.2, 0.8, 1),
                 label="Original")
         ax.legend()
-        ax.set_xlim([0, .5*np.max(1/(t[1]-t[0]))])
-        ax.set_ylim([0, np.max(stf_list)])
+        ax.set_xlim([0, .5*np.max(1/(self.t[1]-self.t[0]))])
+        ax.set_ylim([0, np.max(self.stf_list)])
         ax.set_xlabel('Frequency in [Hz]')
-    
+
     def plot_waterlevel_section(self):
         """Plots section of inversion results using the Deconvolution"""
-        
-        ax = plt.gca()
 
         self.plot_section(self.t, self.obs, self.syn,
-                          self.syn_decon, title="Waterlevel Deconvolution (WL)")
-        # ax.figlegend(frameon=True, fancybox=False, loc='lower center', ncol=3,
-        #             framealpha=1, edgecolor='k', facecolor='w',
-        #             bbox_to_anchor=(0.52, 0.925))
+                          self.syn_decon,
+                          title="Waterlevel Deconvolution (WL)")
+        # ax.figlegend(frameon=True, fancybox=False, loc='lower center',
+        #              ncol=3,
+        #              framealpha=1, edgecolor='k', facecolor='w',
+        #              bbox_to_anchor=(0.52, 0.925))
 
     def plot_landweber_section(self):
         """Plots section of inversion results using the Deconvolution"""
 
-        ax = plt.gca()
-
         self.plot_section(self.t, self.obs, self.syn,
-                          self.syn_lw, title="Projected Conjugate Gradient Method (LW)")
+                          self.syn_lw,
+                          title="Projected Conjugate Gradient Method (LW)")
 
     @staticmethod
     def plot_section(t, obs, syn, syn_decon, title=""):
@@ -686,7 +688,6 @@ class PlotSTFInversion(object):
             ax.plot(t, ir + syn_decon[ir, :], c=(0.2, 0.2, 0.85),
                     label=label_syn_decon)
             ax.set_title(title)
-
 
 
 if __name__ == "__main__":

@@ -24,17 +24,16 @@ import cartopy
 # from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from obspy.imaging.beachball import beach
 import matplotlib
+from scipy.odr import RealData, ODR, Model
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['mathtext.fontset'] = 'cm'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-from scipy.odr import RealData, ODR, Model
-
 
 # Define a function (quadratic in our case) to fit the data with.
 def linear_func(p, x):
-   m, c = p
-   return m*x + c
+    m, c = p
+    return m*x + c
 
 
 def fit_xy(x, y):
@@ -63,22 +62,22 @@ def format_exponent(ax, axis='y'):
         ax_axis = ax.yaxis
         x_pos = 0.0
         y_pos = 1.0
-        horizontalalignment='left'
-        verticalalignment='bottom'
+        horizontalalignment = 'left'
+        verticalalignment = 'bottom'
     else:
         ax_axis = ax.xaxis
         x_pos = 1.0
         y_pos = -0.05
-        horizontalalignment='right'
-        verticalalignment='top'
+        horizontalalignment = 'right'
+        verticalalignment = 'top'
 
     # Run plt.tight_layout() because otherwise the offset text doesn't update
     plt.tight_layout()
-    ##### THIS IS A BUG
-    ##### Well, at least it's sub-optimal because you might not
-    ##### want to use tight_layout(). If anyone has a better way of
-    ##### ensuring the offset text is updated appropriately
-    ##### please comment!
+    # THIS IS A BUG
+    # Well, at least it's sub-optimal because you might not
+    # want to use tight_layout(). If anyone has a better way of
+    # ensuring the offset text is updated appropriately
+    # please comment!
 
     # Get the offset value
     offset = ax_axis.get_offset_text().get_text()
@@ -87,16 +86,17 @@ def format_exponent(ax, axis='y'):
         # Get that exponent value and change it into latex format
         minus_sign = u'\u2212'
         expo = np.float(offset.replace(minus_sign, '-').split('e')[-1])
-        offset_text = '$\times\mathregular{10^{%d}}$' % expo
+        offset_text = '$\\times\\mathregular{10^{%d}}$' % expo
 
         # Turn off the offset text that's calculated automatically
         ax_axis.offsetText.set_visible(False)
 
         # Add in a text box at the top of the y axis
         ax.text(x_pos, y_pos, offset_text, transform=ax.transAxes,
-               horizontalalignment=horizontalalignment,
-               verticalalignment=verticalalignment)
+                horizontalalignment=horizontalalignment,
+                verticalalignment=verticalalignment)
     return ax
+
 
 def plot_cmts(ax, latitude, longitude, depth, mt, nmmt, alpha):
 
@@ -152,10 +152,10 @@ class PlotStats(object):
             nbins: bins in the histograms
             savedir: directory to save the figure output
             verbose: verbosity
-            
+
         The matrices below should have following columns:
-            M0, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, depth, lat, lon, CMT, t_shift, hdur
-        
+            M0, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, depth, lat, lon, CMT, t_shift
+
         Station list rows have following content
             [network station latitude longitude elevation]
         """
@@ -306,7 +306,7 @@ class PlotStats(object):
         slon = [station[3] for station in self.stations]
 
         ax = plt.gca()
-        ax.scatter(slon, slat, s=20, marker='v', c=((0.85, 0.2, 0.2),), 
+        ax.scatter(slon, slat, s=20, marker='v', c=((0.85, 0.2, 0.2),),
                    edgecolors='k', linewidths=0.25, zorder=20)
 
     def plot_histogram(self, ddata, n_bins, facecolor=(0.8, 0.3, 0.3)):
@@ -343,19 +343,22 @@ class PlotStats(object):
 
                     m, c = np.linalg.lstsq(A, self.dCMT[:, _i], rcond=None)[0]
 
-                    res = np.sqrt( np.sum( ((c + m * self.dCMT[:, _j]) 
-                                             - self.dCMT[:, _j]) ** 2))
-                    print(res, np.sqrt(self.mean_mat[_j]**2 + self.mean_mat[_i]**2))
+                    res = np.sqrt(np.sum(((c + m * self.dCMT[:, _j])
+                                          - self.dCMT[:, _j]) ** 2))
 
-                    if res <  0.25 * self.N*np.sqrt(self.mean_mat[_j]**2 + self.mean_mat[_i]**2):
-                            
-                            # Different option to compute the OLS fit by computing the 
-                            # perpendicular distance
-                            # m, c = fit_xy(self.dCMT[:, _j], self.dCMT[:, _i])
+                    print(res, np.sqrt(self.mean_mat[_j]**2
+                                       + self.mean_mat[_i]**2))
 
-                            # Plot polyline
-                            ax[_i][_j].plot(self.dCMT[:, _j], c + m * self.dCMT[:, _j],
-                                            '-', c=(0.85, 0.2, 0.2))
+                    if res < 0.25 * self.N*np.sqrt(self.mean_mat[_j]**2
+                                                   + self.mean_mat[_i]**2):
+                        # Different option to compute the OLS fit by computing
+                        # the perpendicular distance
+                        # m, c = fit_xy(self.dCMT[:, _j], self.dCMT[:, _i])
+
+                        # Plot polyline
+                        ax[_i][_j].plot(self.dCMT[:, _j],
+                                        c + m * self.dCMT[:, _j],
+                                        '-', c=(0.85, 0.2, 0.2))
 
         plt.tight_layout()
         for _i in range(10):
@@ -372,7 +375,8 @@ class PlotStats(object):
                         ax[_i][_j].ticklabel_format(axis="y", style='sci')
                         offset_text = \
                             ax[_i][_j].yaxis.get_offset_text().get_text()
-                        ax[_i][_j].text(-.375, 0.85, offset_text, rotation='vertical',
+                        ax[_i][_j].text(-.375, 0.85, offset_text,
+                                        rotation='vertical',
                                         ha='center', va='center',
                                         transform=ax[_i][_j].transAxes)
                         ax[_i][_j].yaxis.get_offset_text().set_visible(False)
@@ -434,7 +438,8 @@ class PlotStats(object):
         """Plots minimal summary"""
 
         columns = ('$\\overline{d}$', '$\\sigma$')
-        rows = ['$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',  # '$\\delta t$',
+        rows = ['$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',
+                # '$\\delta t$',
                 '$\\delta M_0$', "$\\delta M_{rr}$", "$\\delta M_{tt}$",
                 "$\\delta M_{pp}$", "$\\delta M_{rt}$", "$\\delta M_{rp}$",
                 "$\\delta M_{tp}$"]
@@ -447,7 +452,7 @@ class PlotStats(object):
         # dLat
         cell_text.append(["%3.3f" % (self.mean_mat[8]),
                           "%3.3f" % (self.std_mat[8])])
-        # dLon                        
+        # dLon
         cell_text.append(["%3.3f" % (self.mean_mat[9]),
                           "%3.3f" % (self.std_mat[9])])
         # dz

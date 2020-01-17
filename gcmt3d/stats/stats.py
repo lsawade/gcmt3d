@@ -19,7 +19,6 @@ import os
 import numpy as np
 
 
-
 def read_specfem_station_list(filename):
     """Gets stationlist from file
 
@@ -37,15 +36,16 @@ def read_specfem_station_list(filename):
     with open(filename, 'r') as specfemfile:
 
         for line in specfemfile:
-                # Read stations into list of stations
-                line = line.split()
-                # Append the [network station latitude longitude elevation]
-                newline = [line[1], line[0], float(line[2]), float(line[3]), float(line[4]),
-                           float(line[5])]
-                # to the station list
-                stationlist.append(newline)
+            # Read stations into list of stations
+            line = line.split()
+            # Append the [network station latitude longitude elevation]
+            newline = [line[1], line[0], float(line[2]), float(line[3]),
+                       float(line[4]), float(line[5])]
+            # to the station list
+            stationlist.append(newline)
 
     return stationlist
+
 
 class Statistics(object):
     """Governs the statistics of multiple inversions"""
@@ -164,8 +164,8 @@ class Statistics(object):
 
             # Inverted CMT filename
             glob_path = os.path.join(invdata,
-                                        'inversion',
-                                        'inversion_output', id + "*.inv")
+                                     'inversion',
+                                     'inversion_output', id + "*.inv")
             inv_cmt = glob(glob_path)
             # print(inv_cmt)
 
@@ -190,21 +190,22 @@ class Statistics(object):
                 station_list = list(station_list)
 
                 for row in read_specfem_station_list(
-                    os.path.join(invdata, 'station_data', 'STATIONS')):
+                        os.path.join(invdata, 'station_data', 'STATIONS')):
 
                     station_list.append(tuple(row))
-                
+
                 station_list = set(station_list)
 
             except Exception as e:
                 print(e)
-                
+
         old_cmt_mat, old_ids = Statistics.create_cmt_matrix(old_cmts)
         new_cmt_mat, new_ids = Statistics.create_cmt_matrix(new_cmts)
 
         print(len(station_list))
 
-        return cls(old_cmt_mat, old_ids, new_cmt_mat, new_ids, list(station_list),
+        return cls(old_cmt_mat, old_ids, new_cmt_mat, new_ids,
+                   list(station_list),
                    npar=npar, verbose=verbose)
 
     def plot_changes(self, savedir=None):
@@ -216,8 +217,8 @@ class Statistics(object):
                                      displayed. Defaults to None.
         """
 
-        PS = PlotStats(ocmt=self.ocmt, ncmt=self.ncmt, dCMT=self.dCMT, 
-                       xcorr_mat=self.xcorr_mat, mean_mat=self.mean_mat, 
+        PS = PlotStats(ocmt=self.ocmt, ncmt=self.ncmt, dCMT=self.dCMT,
+                       xcorr_mat=self.xcorr_mat, mean_mat=self.mean_mat,
                        std_mat=self.std_mat, labels=self.labels,
                        dlabels=self.dlabels, stations=self.stations,
                        npar=self.npar, verbose=self.verbose,
@@ -257,7 +258,8 @@ class Statistics(object):
             event_id.append(cmt.eventname)
 
             # Populate CMT matrix
-            cmt_mat[_i, :] = np.array([cmt.M0, cmt.m_rr, cmt.m_tt, cmt.m_pp, cmt.m_rt,
+            cmt_mat[_i, :] = np.array([cmt.M0, cmt.m_rr, cmt.m_tt, cmt.m_pp,
+                                       cmt.m_rt,
                                        cmt.m_rp, cmt.m_tp, cmt.depth_in_m,
                                        cmt.latitude, cmt.longitude,
                                        cmt.cmt_time,
@@ -272,6 +274,6 @@ if __name__ == "__main__":
 
     # Load shit
     database_dir = "/Users/lucassawade/tigress/database"
-    
+
     ST = Statistics._from_dir(database_dir)
     ST.plot_changes(savedir="/Users/lucassawade")

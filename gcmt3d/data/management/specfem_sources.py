@@ -20,11 +20,13 @@ import warnings
 from copy import deepcopy
 import shutil
 
+
 def replace_file(source, destination):
     """Mini function that replaces a file"""
     if os.path.exists(destination) and os.path.isfile(destination):
         os.remove(destination)
     shutil.copyfile(source, destination)
+
 
 class SpecfemSources(object):
     '''
@@ -187,7 +189,7 @@ class SpecfemSources(object):
             # Replace STATIONS FILE
             station_source = os.path.join(self.station_dir, "STATIONS")
             replace_file(station_source, os.path.join(cmtsim_outdir,
-                                                        "STATIONS"))
+                                                      "STATIONS"))
 
         if self.npar > 6:
 
