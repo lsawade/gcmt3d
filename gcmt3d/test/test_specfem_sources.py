@@ -58,31 +58,34 @@ class Test_SpecfemSources(unittest.TestCase):
         """Testing no input.
         """
         cmt = 3
+        cmt_dir = os.path.dirname(CMTFILE)
         npar = 2
         with self.assertRaises(ValueError):
-            SpecfemSources(cmt, npar)
+            SpecfemSources(cmt, cmt_dir, npar=npar)
 
     def test_bad_npar_input(self):
         """Testing no input.
         """
         cmt = self.cmt
+        cmt_dir = os.path.dirname(CMTFILE)
         npar = 2
         with self.assertRaises(ValueError):
-            SpecfemSources(cmt, npar)
+            SpecfemSources(cmt, cmt_dir, npar=npar)
 
     def test_standard_init(self):
         """Testing basic initalization. How does the tmpdir thing work???"""
 
         # Basic standard parameters
         cmt = self.cmt
+        cmt_dir = os.path.dirname(CMTFILE)
         npar = 9
         dm = 10.0 ** 24
         dx = 2.
         ddeg = 0.01
         outputdir = self.tmpdir
 
-        sfsource = SpecfemSources(cmt, npar=npar, dm=dm, dx=dx, ddeg=ddeg,
-                                  outdir=outputdir)
+        sfsource = SpecfemSources(cmt, cmt_dir, npar=npar, dm=dm, dx=dx,
+                                  ddeg=ddeg, outdir=outputdir)
 
         # Assert that correct values are assigned.
         self.assertEqual(sfsource.cmt, cmt)
@@ -97,14 +100,15 @@ class Test_SpecfemSources(unittest.TestCase):
 
         # Basic standard parameters
         cmt = CMTSource.from_CMTSOLUTION_file(CMTFILE)
+        cmt_dir = os.path.dirname(CMTFILE)
         npar = 6
         dm = 10.0 ** 24
         dx = 2000.
         ddeg = 0.01
         outputdir = self.tmpdir
 
-        sfsource = SpecfemSources(cmt, npar=npar, dm=dm, dx=dx, ddeg=ddeg,
-                                  outdir=outputdir)
+        sfsource = SpecfemSources(cmt, cmt_dir, npar=npar, dm=dm, dx=dx,
+                                  ddeg=ddeg, outdir=outputdir)
 
         sfsource.write_sources()
 
@@ -144,13 +148,15 @@ class Test_SpecfemSources(unittest.TestCase):
 
         # Basic standard parameters
         cmt = CMTSource.from_CMTSOLUTION_file(CMTFILE)
+        cmt_dir = os.path.dirname(CMTFILE)
         npar = 9
         dm = 10.0 ** 24
         dx = 2000.
         ddeg = 0.02
         outputdir = self.tmpdir
 
-        sfsource = SpecfemSources(cmt, npar=npar, dm=dm, dx=dx, ddeg=ddeg,
+        sfsource = SpecfemSources(cmt, cmt_dir, npar=npar, dm=dm, dx=dx,
+                                  ddeg=ddeg,
                                   outdir=outputdir)
 
         sfsource.write_sources()
