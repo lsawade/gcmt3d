@@ -20,6 +20,7 @@ from pycmt3d import DataContainer
 from pycmt3d import DefaultWeightConfig, Config
 from pycmt3d.constant import PARLIST
 from pycmt3d import Cmt3D
+from pycmt3d import Inversion
 
 # GRID3D
 from pycmt3d import Grid3d
@@ -33,8 +34,6 @@ def read_yaml_file(filename):
     """read yaml file"""
     with open(filename) as fh:
         return yaml.load(fh, Loader=yaml.FullLoader)
-
-
 
 
 def invert(cmt_file_db, param_path):
@@ -139,80 +138,67 @@ def invert(cmt_file_db, param_path):
         azi_exp_idx=inv_weight_config["azi_exp_idx"])
 
     # Setting up general inversion config
-    grid3d_config = INV_params["grid3d_config"]
+    grid3d_params = INV_params["grid3d_config"]
 
-    g3d_config = Grid3dConfig(
-        origin_time_inv=bool(grid3d_config["origin_time_inv"]),
-        time_start=float(grid3d_config["time_start"]),
-        time_end=float(grid3d_config["time_end"]),
-        dt_over_delta=float(grid3d_config["dt_over_delta"]),
-        energy_inv=bool(grid3d_config["energy_inv"]),
-        energy_start=float(grid3d_config["energy_start"]),
-        energy_end=float(grid3d_config["energy_end"]),
-        denergy=float(grid3d_config["denergy"]),
-        energy_keys=grid3d_config['energy_keys'],
-        energy_misfit_coef=grid3d_config["energy_misfit_coef"],
-        weight_data=bool(grid3d_config["weight_data"]),
-        taper_type=grid3d_config["taper_type"],
+    grid3d_config = Grid3dConfig(
+        origin_time_inv=bool(grid3d_params["origin_time_inv"]),
+        time_start=float(grid3d_params["time_start"]),
+        time_end=float(grid3d_params["time_end"]),
+        dt_over_delta=float(grid3d_params["dt_over_delta"]),
+        energy_inv=bool(grid3d_params["energy_inv"]),
+        energy_start=float(grid3d_params["energy_start"]),
+        energy_end=float(grid3d_params["energy_end"]),
+        denergy=float(grid3d_params["denergy"]),
+        energy_keys=grid3d_params['energy_keys'],
+        energy_misfit_coef=grid3d_params["energy_misfit_coef"],
+        weight_data=bool(grid3d_params["weight_data"]),
+        taper_type=grid3d_params["taper_type"],
         weight_config=weight_config)
 
     print(grid3d_config['energy_keys'])
 
     # Setting up general inversion config
-    inv_config = INV_params["config"]
+    inv_params = INV_params["config"]
 
-    config = Config(
+    cmt3d_config = Config(
         DB_params["npar"],
-        dlocation=float(inv_config["dlocation"]),
-        ddepth=float(inv_config["ddepth"]),
-        dmoment=float(inv_config["dmoment"]),
-        weight_data=bool(inv_config["weight_data"]),
-        station_correction=bool(inv_config["station_correction"]),
-        zero_trace=bool(inv_config["zero_trace"]),
-        double_couple=bool(inv_config["double_couple"]),
-        bootstrap=bool(inv_config["bootstrap"]),
-        bootstrap_repeat=int(inv_config["bootstrap_repeat"])
-        dtx=bool(inv_config["dtx"]),
-        dtx=bool(inv_config["dM0"]),
+        dlocation=float(inv_params["dlocation"]),
+        ddepth=float(inv_params["ddepth"]),
+        dmoment=float(inv_params["dmoment"]),
+        weight_data=bool(inv_params["weight_data"]),
+        station_correction=bool(inv_params["station_correction"]),
+        zero_trace=bool(inv_params["zero_trace"]),
+        double_couple=bool(inv_params["double_couple"]),
+        bootstrap=bool(inv_params["bootstrap"]),
+        bootstrap_repeat=int(inv_params["bootstrap_repeat"]),
         weight_config=weight_config)
-
-    if DB_params["verbose"]:
-        print("  Grid3d is finding better moment and origin time .... ")
-        print("  " + 54 * "*" + "\n\n")
-
-    grid3d = Grid3d(cmtsource, dcon, g3d_config)
-    grid3d.search()
-
-    # Plot Statistics
-    grid3d.plot_stats_histogram(outputdir=inv_out_dir, figure_format="pdf")
-
-    # Plot Misfit
-    grid3d.plot_misfit_summary(outputdir=inv_out_dir, figure_format="pdf")
 
     if DB_params["verbose"]:
         print("  PyCMT3D is finding an improved CMTSOLUTION .... ")
         print("  " + 54 * "*" + "\n\n")
 
-    srcinv = Cmt3D(cmtsource, dcon, config)
-    srcinv.source_inversion()
+    # Create inversion class
+    inv = Inversion(cmtsource, dcon, cmt3d_config, grid3d_config)
 
-    # Plot result
-    srcinv.plot_summary(inv_out_dir, figure_format="pdf")
+    # Run inversion
+    inv.source_inversion()
 
-    # Plot Statistics
-    srcinv.plot_stats_histogram(outputdir=inv_out_dir,
-                                figure_format="pdf")
-
-    srcinv.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,
-                                                            "waveform_plots"),
-                                     figure_format="pdf")
-
-    # Write new CMT file
-    srcinv.write_new_cmtfile(outputdir=inv_out_dir)
-
-    # Compute and write new synthetics.
-    srcinv.compute_new_syn()
-    srcinv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
+    # Plot results
+    inv.plot_summary(inv_out_dir, figure_format="pdf")
+    inv.plot_grid()
+    inv.write_new_cmtfile(outputdir=inv_out_dir)
+    inv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
                          file_format="asdf")
+    inv.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,
+                                                         "waveform_plots"),
+                                  figure_format="pdf")
 
+    # Plot Statistics for Gridsearch
+    inv.grid3d.plot_stats_histogram(outputdir=inv_out_dir, figure_format="pdf")
 
+    # Plot Statistics for inversion
+    inv.cmt3d.plot_stats_histogram(outputdir=inv_out_dir,
+                                   figure_format="pdf")
+
+    # Plot Misfit summary
+    inv.grid3d.plot_misfit_summary(outputdir=inv_out_dir, figure_format="pdf")
