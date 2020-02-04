@@ -10,6 +10,8 @@ directories.
 :license:
     GNU Lesser General Public License, version 3 (LGPLv3)
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
+
+Last Update: January 2020
 """
 
 import sys
