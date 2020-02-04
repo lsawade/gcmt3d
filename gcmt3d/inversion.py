@@ -15,9 +15,6 @@ Last Update: January 2020
 import pycmt3d
 
 
-
-
-
 class GCMT3D(object):
 
     def __init__(self, dcon: pycmt3d.data_container.DataContainer,
@@ -26,4 +23,4 @@ class GCMT3D(object):
                  weight_config: pycmt3d.config.WeightConfig,
                  npar=9):
 
-    pass
+        pass
