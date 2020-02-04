@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - obspy
-  - numpy<=1.16.6
+  - numpy<=1.16.6ZZ
   - matplotlib
   - cartopy
   - mpi4py

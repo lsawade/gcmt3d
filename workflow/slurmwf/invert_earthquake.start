@@ -239,7 +239,7 @@ echo " "
 ######## Inversion ########
 echo "******** INVERSION ***********************************"
 echo " "
-INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Create-Inversion-Dicts.STDOUT"
+INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
 echo "Processing logfile: \$INVERSION_LOG_FILE"
 srun -N1 -n1 python $BIN_DIR/inversion.py -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
 echo " "
