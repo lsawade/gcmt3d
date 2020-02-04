@@ -4,7 +4,7 @@ channels:
 dependencies:
   - numpy<=1.16.4
   - obspy
-  - numpy<=1.16.6
+  - numpy<=1.16.6ZZ
   - matplotlib
   - cartopy
   - mpi4py
