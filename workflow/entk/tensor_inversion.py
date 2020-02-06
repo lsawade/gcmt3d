@@ -152,10 +152,8 @@ def invert(cmt_file_db, param_path):
         energy_keys=grid3d_params['energy_keys'],
         energy_misfit_coef=grid3d_params["energy_misfit_coef"],
         weight_data=bool(grid3d_params["weight_data"]),
-        taper_type=grid3d_params["taper_type"],
+        taper_type=grid3d_params["taper_type"], use_new=True,
         weight_config=weight_config)
-
-    print(grid3d_config['energy_keys'])
 
     # Setting up general inversion config
     inv_params = INV_params["config"]
@@ -185,7 +183,6 @@ def invert(cmt_file_db, param_path):
 
     # Plot results
     inv.plot_summary(inv_out_dir, figure_format="pdf")
-    inv.plot_grid()
     inv.write_new_cmtfile(outputdir=inv_out_dir)
     inv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
                          file_format="asdf")

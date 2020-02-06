@@ -389,6 +389,10 @@ def test_plot_window_figure(tmpdir):
     cat = read_events(quakeml)
     inv = read_inventory(staxml)
 
+    from obspy.taup import TauPyModel
+    model = TauPyModel(model='iasp91')
+    arrivals = model.get_ray_paths(500, 140, phase_list=['Pdiff', 'SS'])
+    print(arrivals)
     ws = WindowSelector(obs_tr, syn_tr, config, event=cat, station=inv)
     windows = ws.select_windows()
 
