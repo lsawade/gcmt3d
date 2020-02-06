@@ -63,35 +63,37 @@ module load anaconda
 conda activate gcmt3d
 
 # Create database structure
-#python $BIN_DIR/create_entry.py $CMTSOLUTION
+# python $BIN_DIR/create_entry.py $CMTSOLUTION
 
 # Download data
-#python $BIN_DIR/request_data.py $CIN_DB
+# python $BIN_DIR/request_data.py $CIN_DB
 
 # Start slurm script that does the whole shindig
 
 sbatch << EOF
 #!/bin/bash
+#SBATCH --job-name=invert_C$CID
 #SBATCH --nodes=4
 #SBATCH --gres=gpu:3
 #SBATCH --mem=200000
-#SBATCH --ntasks-per-node=3
-#SBATCH --time 02:00:00
+#SBATCH --time=02:00:00
 #SBATCH -p pReserved
 #SBATCH --mail-user=lsawade@princeton.edu
 #SBATCH --mail-type=END
+
 
 
 # #WHAT???????? #SBATCH --requeue 
 
 # Load the compilers and shit
 module purge
-module load openmpi/gcc
-module load cudatoolkit/10.0
 
 # Load anaconda and set environment
 module load anaconda
 conda activate gcmt3d
+
+module load openmpi/gcc
+module load cudatoolkit/10.0
 
 # Define the parameters
 CMT_LIST=(CMT CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
@@ -102,7 +104,7 @@ echo " "
 echo "******** Writing Sources  ****************************"
 echo " "
 echo \$WS_LOG
-#python $BIN_DIR/write_sources.py $CIN_DB  > \$WS_LOG
+srun -N1 -n1 python $BIN_DIR/write_sources.py $CIN_DB > \$WS_LOG
 echo "Done."
 echo " "
 echo " "
@@ -116,7 +118,7 @@ echo "******** RUNNING SIMULATIONS *************************"
 echo " "
  for CMT in "\${CMT_LIST[@]}"; do
      echo "Simulation Directory: $CMT_SIM_DIR/\$CMT" && echo "Simulation Logfile \$SIM_LOG.\$CMT.STDOUT" &
-     #srun -N2 -n6 --chdir=$CMT_SIM_DIR/\$CMT ./bin/xspecfem3D &
+     srun -N2 -n6 --ntasks-per-node=3 --chdir=$CMT_SIM_DIR/\$CMT ./bin/xspecfem3D &
  done
 wait
 echo " "
@@ -137,7 +139,7 @@ for CMT in "\${CMT_LIST[@]}"; do
     echo "Conversion yml: \$CONV_PATH_FILE"
     CONV_LOG_FILE=\$CONV_LOG.\$CMT.STDOUT
     echo "Conversion logfile: \$CONV_LOG_FILE"
-    # srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
+    srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
 done                                                   
 
 # Observed data
@@ -145,7 +147,7 @@ CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
 echo "Conversion yml: \$CONV_PATH_FILE"
 CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
 echo "Conversion logfile: \$CONV_LOG_FILE"
-# srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
+srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
 wait
 echo " "
 echo "Done."
@@ -158,7 +160,7 @@ echo "******** CREATE PROCESS PATHS ************************"
 echo " "
 CPP_LOG_FILE="$LOG_DIR/$CID.006.Create-Process-Paths.STDOUT"
 echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
-# srun -N1 -n1 python $BIN_DIR/create_path_files.py $CIN_DB > \$CPP_LOG_FILE
+srun -N1 -n1 python $BIN_DIR/create_path_files.py $CIN_DB > \$CPP_LOG_FILE
 echo " "
 
 
@@ -178,7 +180,7 @@ for BAND in \$BAND_LIST; do
             echo "Processing yml: \$PROCESS_PATH_FILE"
             PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
             echo "Processing logfile: \$PROC_LOG_FILE"
-            srun -N1 -n1 -c1 python $BIN_DIR/process_asdf.py -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
+            srun -N1 -n1 python $BIN_DIR/process_asdf.py -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
         fi
     done
     wait
@@ -202,7 +204,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        srun -N1 -n1 -c1 python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
+        python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
     fi
 done 
 wait
@@ -214,7 +216,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        srun -N1 -n1 -c1 python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
+        python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
     fi
 done
 echo " "
@@ -228,7 +230,7 @@ echo "******** CREATE INVERSION DICTIONARIES****************"
 echo " "
 INV_DICT_LOG_FILE="$LOG_DIR/$CID.009.Create-Inversion-Dicts.STDOUT"
 echo "Processing logfile: \$INV_DICT_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/write_inversion_dicts.py -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
+python $BIN_DIR/write_inversion_dicts.py -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
 echo " "
 echo "Done."
 echo " "
@@ -239,30 +241,30 @@ echo " "
 echo "******** INVERSION ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
-echo "Processing logfile: \$INVERSION_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/inversion.py -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+echo "Inversion logfile: \$INVERSION_LOG_FILE"
+python $BIN_DIR/inversion.py -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "
 echo " "
 
 
-# If inversion successful, clear out synthetic and processed data
-for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
-do 
-    if [[ -e \$invfile ]]; then
-        echo 'Looks like inversion was successful.'
-        for file in \$(find $CMT_SIM_DIR -type f -name "*.sac")
-        do
-            rm \$file &
-        done
+# # If inversion successful, clear out synthetic and processed data
+# for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
+# do 
+#     if [[ -e \$invfile ]]; then
+#         echo 'Looks like inversion was successful.'
+#         for file in \$(find $CMT_SIM_DIR -type f -name "*.sac")
+#         do
+#             rm \$file &
+#         done
 
-        for file in \$(find $PROCESSED -type f -name "processed*.h5")
-        do
-            rm \$file &
-        done
-    fi
-done
+#         for file in \$(find $PROCESSED -type f -name "processed*.h5")
+#         do
+#             rm \$file &
+#         done
+#     fi
+# done
    
 
 exit 0

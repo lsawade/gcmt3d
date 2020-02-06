@@ -3,15 +3,15 @@ channels:
   - conda-forge
 dependencies:
   - numpy<=1.16.4
-  - obspy
-  - numpy<=1.16.6ZZ
   - matplotlib
   - cartopy
   - mpi4py
   - h5py
   - pip
   - pip:
+    - obspy
     - pyyaml
+    - pyproj<2.0
     - sphinx
     - sphinx_rtd_theme
     - m2r

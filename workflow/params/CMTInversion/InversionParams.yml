@@ -31,11 +31,11 @@ grid3d_config:
   origin_time_inv: True
   time_start: -5.0
   time_end: 5.0
-  dt_over_delta: 1
+  dt_over_delta: 5
   energy_inv: True
-  energy_start: 8.0
-  energy_end: 9.0
-  denergy: 0.1
+  energy_start: 0.5
+  energy_end: 1.5
+  denergy: 0.05
   energy_keys: None
   energy_misfit_coef: None
   weight_data: False
