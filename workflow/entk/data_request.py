@@ -13,6 +13,7 @@ This script will download the observed data. To the necessary places.
 
 
 from gcmt3d.data import DataRequest
+from gcmt3d.utils import download
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import os
 
@@ -29,9 +30,15 @@ def data_request(cmt_filename):
 
     # Earthquake and Station parameters
     cmt_dir = os.path.dirname(cmt_filename)
+    station_dir = os.path.join(cmt_dir, "station_data")
+
+    # Get STATIONS file from CMT directory
+    stationsfile = os.path.join(station_dir, "STATIONS")
 
     # Create Request Object
     Request = DataRequest.from_file(cmt_filename,
+                                    stationlistfname=stationsfile,
+                                    sfstationlist=True,
                                     duration=rCparams['duration'],
                                     channels=rCparams['channels'],
                                     locations=rCparams['locations'],
@@ -44,6 +51,3 @@ def data_request(cmt_filename):
 
     # Request download
     Request.download()
-
-    # Create Specfem List
-    Request.specfem_list()

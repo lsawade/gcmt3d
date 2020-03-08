@@ -224,9 +224,12 @@ class WindowASDF(ProcASDFBase):
                           user_modules=user_modules,
                           event=event, figure_mode=figure_mode,
                           figure_dir=figure_dir, _verbose=self._verbose)
+        
+        # windows = \
+        #     obsd_ds.process_two_files_no_mpi(synt_ds, winfunc)
 
         windows = \
-            obsd_ds.process_two_files_no_mpi(synt_ds, winfunc)
+            obsd_ds.process_two_files_without_parallel_output(synt_ds, winfunc)
 
         if instrument_merge_flag:
             # merge multiple instruments

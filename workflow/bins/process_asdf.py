@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import argparse
 
 from gcmt3d.asdf.process import ProcASDF
-import yaml
+from gcmt3d.utils.io import smart_read_yaml
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning,
                         module=r'.*numerictypes')
@@ -12,13 +13,9 @@ warnings.filterwarnings("ignore", category=UserWarning,
 warnings.filterwarnings("ignore", category=FutureWarning,
                         module=r'.*numerictypes')
 
-def read_yaml_file(filename):
-    """read yaml file"""
-    with open(filename) as fh:
-        return yaml.load(fh, Loader=yaml.FullLoader)
-
 
 def main():
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', action='store', dest='params_file',
                         required=False, help="parameter file", default=None)
@@ -32,7 +29,7 @@ def main():
     if args.params_file is None:
         # Load process path file to get parameter file location
         try:
-            params_file = read_yaml_file(args.path_file)["process_param_file"]
+            params_file = smart_read_yaml(args.path_file)["process_param_file"]
         except KeyError:
             print("The given path file does not contain a parameter file "
                   "destination.")
@@ -40,7 +37,8 @@ def main():
     else:
         params_file = args.params_file
 
-    proc = ProcASDF(args.path_file, params_file, args.verbose)
+    proc = ProcASDF(args.path_file, params_file, 
+                    verbose=args.verbose)
     proc.smart_run()
 
 

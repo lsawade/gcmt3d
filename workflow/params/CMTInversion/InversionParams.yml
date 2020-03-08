@@ -17,7 +17,7 @@ config:
   ddepth: 0.5
   dmoment: 1.0e22
   double_couple: False
-  zero_trace: True
+  zero_trace: False
   weight_data: True
   station_correction: True
   bootstrap: True
@@ -29,13 +29,13 @@ config:
 # Grid3D Configuration for pycmt3d
 grid3d_config:
   origin_time_inv: True
-  time_start: -5.0
-  time_end: 5.0
-  dt_over_delta: 1
+  time_start: -25
+  time_end: 25.0
+  dt_over_delta: 20
   energy_inv: True
-  energy_start: 8.0
-  energy_end: 9.0
-  denergy: 0.1
+  energy_start: 0.1
+  energy_end: 2.0
+  denergy: 0.2
   energy_keys: None
   energy_misfit_coef: None
   weight_data: False

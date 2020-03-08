@@ -12,7 +12,7 @@ and parallel I/O so they are invisible to users.
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 from __future__ import (absolute_import, division, print_function)
-import os
+import os, sys
 import warnings
 from pyasdf import ASDFDataSet
 from .utils import smart_read_yaml, smart_read_json, is_mpi_env
@@ -22,7 +22,7 @@ from .utils import smart_check_path, smart_remove_file, smart_mkdir
 class ProcASDFBase(object):
 
     def __init__(self, path, param, verbose=False, debug=False):
-
+        
         self.comm = None
         self.rank = None
 
@@ -83,7 +83,6 @@ class ProcASDFBase(object):
         """
         self.mpi_mode = is_mpi_env()
         if not self.mpi_mode:
-            print(self.mpi_mode)
             warnings.warn("MPI environment required for parallel processing or"
                           " window selection.")
         else:
@@ -126,7 +125,7 @@ class ProcASDFBase(object):
         """
         if self.mpi_mode:
             return ASDFDataSet(filename, compression=None, debug=self._debug,
-                               mode=mode)
+                               mode=mode, mpi=self.mpi_mode)
         else:
             return ASDFDataSet(filename, mode=mode)
 
@@ -156,9 +155,9 @@ class ProcASDFBase(object):
                 if self.rank == 0:
                     print("Output file already exists and removed:%s"
                           % filename)
-                    os.remove(filename)
                 else:
-                    smart_remove_file(filename)
+                    pass
+                smart_remove_file(filename)
 
     @staticmethod
     def clean_memory(asdf_ds):
@@ -205,13 +204,21 @@ class ProcASDFBase(object):
 
         :return:
         """
+        
+        
         self.detect_env()
+        
 
         path = self._parse_path()
         self.print_info(path, title="Path Info")
+        
         self._validate_path(path)
+        
 
         param = self._parse_param()
+
+        
+
         self.print_info(param, title="Param Info")
         self._validate_param(param)
 

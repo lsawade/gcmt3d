@@ -2,15 +2,16 @@ name: gcmt3d
 channels:
   - conda-forge
 dependencies:
-  - obspy
-  - numpy<=1.16.6ZZ
+  - numpy<=1.16.4
   - matplotlib
   - cartopy
   - mpi4py
   - h5py
   - pip
   - pip:
+    - obspy
     - pyyaml
+    - pyproj<2.0
     - sphinx
     - sphinx_rtd_theme
     - m2r

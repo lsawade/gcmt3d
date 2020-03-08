@@ -104,7 +104,7 @@ def write_yaml_file(d, filename, **kwargs):
 
 
 def read_yaml_file(filename):
-    with open(filename) as fh:
+    with open(filename, "rb") as fh:
         return yaml.load(fh, Loader=yaml.FullLoader)
 
 

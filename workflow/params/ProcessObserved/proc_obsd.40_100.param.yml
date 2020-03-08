@@ -1,3 +1,4 @@
+
 # remove response flag to remove the instrument response from the
 # seismogram. For observed seismogram, you probably want to set this
 # flag to True to get real gound displacement. For synthetic data,
