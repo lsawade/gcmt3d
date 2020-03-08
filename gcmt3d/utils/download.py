@@ -10,19 +10,22 @@ utils for seismic data download
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 from obspy.clients.fdsn import Client
+from obspy import UTCDateTime
 import os
 
 
-def read_station_file(station_filename):
+def read_station_file(station_filename: str):
     stations = []
     with open(station_filename, "rt") as fh:
         for line in fh:
-            line = line.split()
-            stations.append((line[1], line[0]))
+            line_r = line.split() # line actually byte type
+                                  # therefore reassignment 
+                                  # to string
+            stations.append((line_r[1], line_r[0]))
     return stations
 
 
-def _parse_station_id(station_id):
+def _parse_station_id(station_id: str):
     content = station_id.split("_")
     if len(content) == 2:
         nw, sta = content
@@ -35,7 +38,8 @@ def _parse_station_id(station_id):
     return nw, sta, loc, comp
 
 
-def download_waveform(stations, starttime, endtime, outputdir=None,
+def download_waveform(stations: list, starttime: UTCDateTime, 
+                      endtime: UTCDateTime, outputdir=None,
                       client=None):
     """
     download wavefrom data from IRIS data center
@@ -84,8 +88,9 @@ def download_waveform(stations, starttime, endtime, outputdir=None,
     return {"stream": st, "status": _status}
 
 
-def download_stationxml(stations, starttime, endtime, outputdir=None,
-                        client=None, level="response"):
+def download_stationxml(stations: list, starttime: UTCDateTime, 
+                        endtime: UTCDateTime, outputdir: str = None,
+                        client: str = None, level: str = "response"):
 
     if client is None:
         client = Client("IRIS")
@@ -98,6 +103,7 @@ def download_stationxml(stations, starttime, endtime, outputdir=None,
         raise ValueError("Outputdir not exists: %s" % outputdir)
 
     _status = {}
+    refined_stations = []
     for station_id in stations:
         error_code = "None"
         network, station, location, channel = _parse_station_id(station_id)
@@ -118,6 +124,10 @@ def download_stationxml(stations, starttime, endtime, outputdir=None,
                 error_code = "Inventory Empty"
             if filename is not None and len(inv) > 0:
                 inv.write(filename, format="STATIONXML")
+            
+            # Add station to refined list to use for waveform download
+            refined_stations.append(station_id)
+
         except Exception as e:
             error_code = "Failed to download StationXML '%s' due to: %s" \
                 % (station_id, str(e))
@@ -125,4 +135,4 @@ def download_stationxml(stations, starttime, endtime, outputdir=None,
 
         _status[station_id] = error_code
 
-    return {"inventory": inv, "status": _status}
+    return inv, _status, refined_stations

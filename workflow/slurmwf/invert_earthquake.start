@@ -18,7 +18,7 @@ WORKFLOW_DIR="$GCMT3D/workflow"
 PARAMETER_PATH="$WORKFLOW_DIR/params"
 SLURM_DIR="$WORKFLOW_DIR/slurmwf"
 BIN_DIR="$WORKFLOW_DIR/bins"
-DATABASE_DIR='/tigress/lsawade/database'
+DATABASE_DIR='/scratch/gpfs/lsawade/database'
 
 # EARTHQUAKE PARAMETERS and Paths derived from the file
 # Getting database entry from CMTSOLUTION FILE
@@ -28,8 +28,10 @@ CDIR=`dirname $CIN_DB` # Earthquake Directory
 CMT_SIM_DIR=$CDIR/CMT_SIMs # Simulation directory
 PROCESS_PATHS=$CDIR/seismograms/process_paths # Process Path directory
 PROCESSED=$CDIR/seismograms/processed_seismograms # Processed dir
+SEISMOGRAMS=$CDIR/seismograms # Seismos
+STATION_DATA=$CDIR/station_data
 LOG_DIR=$CDIR/logs # Logging directory
-INVERSION_OUTPUT_DIR=$CDIR//inversion/inversion_output
+INVERSION_OUTPUT_DIR=$CDIR/inversion/inversion_output
 WINDOW_PATHS=$CDIR/window_data/window_paths
 
 echo
@@ -72,38 +74,41 @@ python $BIN_DIR/request_data.py $CIN_DB
 
 sbatch << EOF
 #!/bin/bash
+#SBATCH --job-name=invert_C$CID
+#SBATCH --output=$LOG_DIR/C$CID.out
 #SBATCH --nodes=4
+#SBATCH --ntasks-per-node=30
 #SBATCH --gres=gpu:3
-#SBATCH --mem=200000
-#SBATCH --ntasks-per-node=3
-#SBATCH --time 02:00:00
-#SBATCH -p pReserved
+#SBATCH --mem=200GB
+#SBATCH --time=02:00:00
+# SBATCH --reservation=test
 #SBATCH --mail-user=lsawade@princeton.edu
 #SBATCH --mail-type=END
+
 
 
 # #WHAT???????? #SBATCH --requeue 
 
 # Load the compilers and shit
 module purge
-module load intel
-module load openmpi
-module load cudatoolkit/10.0
 
 # Load anaconda and set environment
-module load anaconda
+module load anaconda3
 conda activate gcmt3d
+
+module load openmpi/gcc
+module load cudatoolkit/10.0
 
 # Define the parameters
 CMT_LIST=(CMT CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
 
-########  Write Sources #######
+#######  Write Sources #######
 WS_LOG=$LOG_DIR/$CID.003.Write-Sources.STDOUT
 echo " "
 echo "******** Writing Sources  ****************************"
 echo " "
 echo \$WS_LOG
-python $BIN_DIR/write_sources.py $CIN_DB  > \$WS_LOG
+srun -N1 -n1 python $BIN_DIR/write_sources.py $CIN_DB > \$WS_LOG
 echo "Done."
 echo " "
 echo " "
@@ -117,7 +122,7 @@ echo "******** RUNNING SIMULATIONS *************************"
 echo " "
  for CMT in "\${CMT_LIST[@]}"; do
      echo "Simulation Directory: $CMT_SIM_DIR/\$CMT" && echo "Simulation Logfile \$SIM_LOG.\$CMT.STDOUT" &
-     srun -N2 -n6 --chdir=$CMT_SIM_DIR/\$CMT ./bin/xspecfem3D &
+     srun -N2 -n6 --ntasks-per-node=3 --chdir=$CMT_SIM_DIR/\$CMT ./bin/xspecfem3D &
  done
 wait
 echo " "
@@ -146,7 +151,7 @@ CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
 echo "Conversion yml: \$CONV_PATH_FILE"
 CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
 echo "Conversion logfile: \$CONV_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
+srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
 wait
 echo " "
 echo "Done."
@@ -167,6 +172,8 @@ echo " "
 echo "******** PROCESS TRACES ******************************"
 echo " "
 PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
+
+export OMP_NUM_THREADS=1
 
 # Get the different period bands as they will use the same asdf file
 BAND_LIST=\$(for path in \$(ls $PROCESS_PATHS); do echo \$(echo \$path | cut -d. -f2); done | sort | uniq)
@@ -203,7 +210,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        srun -N1 -n1 --cpus-per-task=1 python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
+        srun -N1 -n25 python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
     fi
 done 
 wait
@@ -215,7 +222,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        srun -N1 -n1 python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
+        srun -N1 -n25 python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
     fi
 done
 echo " "
@@ -229,7 +236,7 @@ echo "******** CREATE INVERSION DICTIONARIES****************"
 echo " "
 INV_DICT_LOG_FILE="$LOG_DIR/$CID.009.Create-Inversion-Dicts.STDOUT"
 echo "Processing logfile: \$INV_DICT_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/write_inversion_dicts.py -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
+python $BIN_DIR/write_inversion_dicts.py -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
 echo " "
 echo "Done."
 echo " "
@@ -240,8 +247,8 @@ echo " "
 echo "******** INVERSION ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
-echo "Processing logfile: \$INVERSION_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/inversion.py -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+echo "Inversion logfile: \$INVERSION_LOG_FILE"
+python $BIN_DIR/inversion.py -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "
@@ -253,15 +260,12 @@ for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
 do 
     if [[ -e \$invfile ]]; then
         echo 'Looks like inversion was successful.'
-        for file in \$(find $CMT_SIM_DIR -type f -name "*.sac")
-        do
-            rm \$file &
-        done
 
-        for file in \$(find $PROCESSED -type f -name "processed*.h5")
-        do
-            rm \$file &
-        done
+        echo 'Removing files...'
+        rm -rf $SEISMOGRAMS
+        rm -rf $CMT_SIM_DIR
+        rm -rf $STATION_DATA
+        echo 'Done.'
     fi
 done
    

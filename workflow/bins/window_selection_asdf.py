@@ -3,7 +3,7 @@ import matplotlib as mpl
 mpl.use('Agg')  # NOQA
 import argparse
 from gcmt3d.asdf.window import WindowASDF
-import yaml
+from gcmt3d.utils.io import smart_read_yaml
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning,
                         module=r'.*numerictypes')
@@ -15,13 +15,8 @@ warnings.filterwarnings("ignore", category=RuntimeWarning,
                         module=r'.*pyplot')
 
 
-def read_yaml_file(filename):
-    """read yaml file"""
-    with open(filename) as fh:
-        return yaml.load(fh, Loader=yaml.FullLoader)
-
-
 def main():
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', action='store', dest='params_file',
                         required=False, help="parameter file", default=None)
@@ -35,7 +30,7 @@ def main():
     if args.params_file is None:
         # Load process path file to get parameter file location
         try:
-            params_file = read_yaml_file(args.path_file)["window_param_file"]
+            params_file = smart_read_yaml(args.path_file)["window_param_file"]
         except KeyError:
             print("The given path file does not contain a parameter file "
                   "destination.")
