@@ -15,8 +15,6 @@ import inspect
 from functools import partial
 from ..signal.process import process_stream
 from .procbase import ProcASDFBase
-import pyasdf
-import sys
 
 
 def check_param_keywords(param):
@@ -87,7 +85,7 @@ class ProcASDF(ProcASDFBase):
         self._missing_keys(necessary_keys, param)
 
     def _core(self, path, param):
-        
+
         input_asdf = path["input_asdf"]
         input_tag = path["input_tag"]
         output_asdf = path["output_asdf"]
@@ -102,12 +100,12 @@ class ProcASDF(ProcASDFBase):
         # part. So give it 'a' permission to add the part.
         # otherwise, it there will be errors
         ds = self.load_asdf(input_asdf, mode='a')
-        
+
         # update param based on event information
         update_param(ds.events[0], param)
         # check final param to see if the keys are right
         check_param_keywords(param)
-        
+
         process_function = \
             partial(process_wrapper, param=param)
 

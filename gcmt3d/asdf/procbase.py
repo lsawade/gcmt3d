@@ -12,7 +12,7 @@ and parallel I/O so they are invisible to users.
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 from __future__ import (absolute_import, division, print_function)
-import os, sys
+import os
 import warnings
 from pyasdf import ASDFDataSet
 from .utils import smart_read_yaml, smart_read_json, is_mpi_env
@@ -22,7 +22,7 @@ from .utils import smart_check_path, smart_remove_file, smart_mkdir
 class ProcASDFBase(object):
 
     def __init__(self, path, param, verbose=False, debug=False):
-        
+
         self.comm = None
         self.rank = None
 
@@ -204,20 +204,15 @@ class ProcASDFBase(object):
 
         :return:
         """
-        
-        
+
         self.detect_env()
-        
 
         path = self._parse_path()
         self.print_info(path, title="Path Info")
-        
+
         self._validate_path(path)
-        
 
         param = self._parse_param()
-
-        
 
         self.print_info(param, title="Param Info")
         self._validate_param(param)

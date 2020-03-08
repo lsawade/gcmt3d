@@ -224,7 +224,7 @@ class WindowASDF(ProcASDFBase):
                           user_modules=user_modules,
                           event=event, figure_mode=figure_mode,
                           figure_dir=figure_dir, _verbose=self._verbose)
-        
+
         # windows = \
         #     obsd_ds.process_two_files_no_mpi(synt_ds, winfunc)
 
