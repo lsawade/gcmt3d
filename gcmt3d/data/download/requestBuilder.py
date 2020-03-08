@@ -170,7 +170,7 @@ class DataRequest(object):
                     if line[0] == "NETWORK":
                         continue
                     else:
-                        # Append the [network station latitude longitude elevation]
+                        # Append [network station latitude longitude elevation]
                         # to the station list
                         stationlist.append(line)
             elif sfstationlist is True:
@@ -180,7 +180,7 @@ class DataRequest(object):
                     line = line.split()
 
                     newline = [line[1], line[0], line[2], line[3], line[4],
-                            line[5], 0]
+                               line[5], 0]
                     # Append the [network station latitude longitude elevation]
                     # to the station list
                     stationlist.append(newline)
@@ -203,7 +203,8 @@ class DataRequest(object):
         """
 
         # Open file for writing in the earthquake directory
-        path_to_file = os.path.join(self.outputdir, 'station_data', 'request.txt')
+        path_to_file = os.path.join(self.outputdir,
+                                    'station_data', 'request.txt')
         with open(path_to_file, 'w') as requestfile:
 
             # Writing for each parameter overarching of all is the station
@@ -212,12 +213,12 @@ class DataRequest(object):
             for station in self.stationlist:
                 for location in self.locations:
                     for channel in self.channels:
-                        #                                     joining just the
-                        #                                     network   & station
+                        # joining just the network   & station
                         requestfile.write(
                             " ".join([" ".join([station[0], station[1]]),
-                                    location, channel, self.starttime.__str__(),
-                                    self.endtime.__str__()]))
+                                      location, channel,
+                                      self.starttime.__str__(),
+                                      self.endtime.__str__()]))
                         requestfile.write("\n")
 
         return path_to_file

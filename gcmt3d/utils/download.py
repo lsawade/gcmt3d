@@ -18,9 +18,9 @@ def read_station_file(station_filename: str):
     stations = []
     with open(station_filename, "rt") as fh:
         for line in fh:
-            line_r = line.split() # line actually byte type
-                                  # therefore reassignment 
-                                  # to string
+            line_r = line.split()
+            # line actually byte type
+            # therefore reassignment to string
             stations.append((line_r[1], line_r[0]))
     return stations
 
@@ -38,7 +38,7 @@ def _parse_station_id(station_id: str):
     return nw, sta, loc, comp
 
 
-def download_waveform(stations: list, starttime: UTCDateTime, 
+def download_waveform(stations: list, starttime: UTCDateTime,
                       endtime: UTCDateTime, outputdir=None,
                       client=None):
     """
@@ -88,7 +88,7 @@ def download_waveform(stations: list, starttime: UTCDateTime,
     return {"stream": st, "status": _status}
 
 
-def download_stationxml(stations: list, starttime: UTCDateTime, 
+def download_stationxml(stations: list, starttime: UTCDateTime,
                         endtime: UTCDateTime, outputdir: str = None,
                         client: str = None, level: str = "response"):
 
@@ -124,7 +124,7 @@ def download_stationxml(stations: list, starttime: UTCDateTime,
                 error_code = "Inventory Empty"
             if filename is not None and len(inv) > 0:
                 inv.write(filename, format="STATIONXML")
-            
+
             # Add station to refined list to use for waveform download
             refined_stations.append(station_id)
 

@@ -24,6 +24,7 @@ from obspy import read_events
 
 STATIONS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "STATIONS")
 
+
 class DataBaseSkeleton(object):
     """Class to handle data skeleton creation. If specfem directory is given,
     the class copies the necessary data from the specfem folder."""
@@ -191,12 +192,11 @@ class DataBaseSkeleton(object):
             # Set new destination path
             dst_path0 = os.path.join(station_dir, "STATIONS")
 
-            if self.ow in [0, 1, 2, 3] and type(
-                self.ow) is not bool:
+            if self.ow in [0, 1, 2, 3] \
+                    and type(self.ow) is not bool:
                 self._copy_file(self.stations_file, dst_path0, True)
             else:
                 self._copy_file(self.stations_file, dst_path0, False)
-
 
     def create_log_dir(self):
         """Creates station_data directory for station metadata."""
@@ -347,15 +347,17 @@ class DataBaseSkeleton(object):
                                 self._copy_file(src_path0, dst_path0, True)
                             else:
                                 self._copy_file(src_path0, dst_path0, False)
-                        
+
                         # Set new destination path
                         dst_path0 = os.path.join(dst_path, "STATIONS")
 
-                        if self.ow in [0, 1, 2, 3] and type(
-                            self.ow) is not bool:
-                            self._copy_file(self.stations_file, dst_path0, True)
+                        if self.ow in [0, 1, 2, 3] \
+                                and type(self.ow) is not bool:
+                            self._copy_file(self.stations_file,
+                                            dst_path0, True)
                         else:
-                            self._copy_file(self.stations_file, dst_path0, False)
+                            self._copy_file(self.stations_file,
+                                            dst_path0, False)
 
                     else:
                         if self.ow in [0, 1, 2, 3] and type(
