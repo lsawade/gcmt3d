@@ -22,13 +22,15 @@ import warnings
 from distutils.dir_util import copy_tree
 from obspy import read_events
 
+STATIONS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "STATIONS")
 
 class DataBaseSkeleton(object):
     """Class to handle data skeleton creation. If specfem directory is given,
     the class copies the necessary data from the specfem folder."""
 
     def __init__(self, basedir=None, cmt_fn=None, specfem_dir=None,
-                 npar=9, verbose=False, overwrite=False):
+                 stations_file=None, npar=9, verbose=False,
+                 overwrite=False):
         """
         Args:
             basedir: str with path to database directory, e.g
@@ -78,6 +80,11 @@ class DataBaseSkeleton(object):
         # Parameters
         self.attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
                      "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
+
+        if stations_file is None:
+            self.stations_file = STATIONS
+        else:
+            self.stations_file = stations_file
 
     def create_all(self):
         """ Writes complete database structure."""
@@ -180,6 +187,16 @@ class DataBaseSkeleton(object):
                 self._create_dir(station_dir, True)
             else:
                 self._create_dir(station_dir, False)
+
+            # Set new destination path
+            dst_path0 = os.path.join(station_dir, "STATIONS")
+
+            if self.ow in [0, 1, 2, 3] and type(
+                self.ow) is not bool:
+                self._copy_file(self.stations_file, dst_path0, True)
+            else:
+                self._copy_file(self.stations_file, dst_path0, False)
+
 
     def create_log_dir(self):
         """Creates station_data directory for station metadata."""
@@ -315,7 +332,7 @@ class DataBaseSkeleton(object):
                             self._create_dir(dst_path, False)
 
                         # Set files to be copied into directory
-                        files = ["STATIONS", "Par_file", "CMTSOLUTION"]
+                        files = ["Par_file", "CMTSOLUTION"]
 
                         for file in files:
 
@@ -330,6 +347,15 @@ class DataBaseSkeleton(object):
                                 self._copy_file(src_path0, dst_path0, True)
                             else:
                                 self._copy_file(src_path0, dst_path0, False)
+                        
+                        # Set new destination path
+                        dst_path0 = os.path.join(dst_path, "STATIONS")
+
+                        if self.ow in [0, 1, 2, 3] and type(
+                            self.ow) is not bool:
+                            self._copy_file(self.stations_file, dst_path0, True)
+                        else:
+                            self._copy_file(self.stations_file, dst_path0, False)
 
                     else:
                         if self.ow in [0, 1, 2, 3] and type(
@@ -557,13 +583,13 @@ class DataBaseSkeleton(object):
 
         # Waveform file
         waveform_files = os.path.join(Cdir, "seismograms", "obs",
-                                      Cid + ".mseed")
+                                      "*.mseed")
 
         # QuakeML file path
         quakeml_file = os.path.join(Cdir, "C" + Cid + ".xml")
 
         # Station file
-        staxml_file = os.path.join(Cdir, "station_data", "station.xml")
+        staxml_file = os.path.join(Cdir, "station_data", "*.xml")
 
         # Outputfile
         output_file = os.path.join(Cdir, "seismograms",

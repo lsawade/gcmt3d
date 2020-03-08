@@ -26,15 +26,28 @@ def create_entry(cmt_filename):
                                     "Database/DatabaseParameters.yml")
     specfemspec_path = os.path.join(param_path,
                                     "SpecfemParams/SpecfemParams.yml")
+    stations_path = os.path.join(param_path,
+                                      "RequestParams/STATIONS")
+
 
     # Load Parameters
     DB_params = smart_read_yaml(databaseparam_path, mpi_mode=is_mpi_env())
     specfemspecs = smart_read_yaml(specfemspec_path, mpi_mode=is_mpi_env())
 
+    # Check whether stationsfile in Parampath
+    if os.path.exists(stations_path):
+        stations_file = stations_path
+    else:
+        # if no stations file in the parameter directory, 
+        # the standard stations file is going to be used
+        stations_file = None
+    
+
     # Database Setup.
     DB = DataBaseSkeleton(basedir=DB_params["databasedir"],
                           cmt_fn=cmt_filename,
                           specfem_dir=specfemspecs["SPECFEM_DIR"],
+                          stations_file=stations_file,
                           verbose=DB_params['verbose'],
                           overwrite=DB_params['overwrite'])
 

@@ -149,6 +149,7 @@ class DataRequest(object):
         cmt = CMTSource.from_CMTSOLUTION_file(cmtfname)
 
         if stationlistfname is None:
+
             # Get module directory
             mod_dir, __ = os.path.split(__file__)
 
@@ -157,32 +158,32 @@ class DataRequest(object):
                                             "STATIONS")
 
         # Read station list file with two columns and whitespace separation
-        statfile = open(stationlistfname, 'r')
+        with open(stationlistfname, 'r') as statfile:
 
-        if sfstationlist is False:
-            # For loop to add all stations to the station list
-            stationlist = []
-            for line in statfile:
-                # Read stations into list of stations
-                line = line.split()
+            if sfstationlist is False:
+                # For loop to add all stations to the station list
+                stationlist = []
+                for line in statfile:
+                    # Read stations into list of stations
+                    line = line.split()
 
-                if line[0] == "NETWORK":
-                    continue
-                else:
+                    if line[0] == "NETWORK":
+                        continue
+                    else:
+                        # Append the [network station latitude longitude elevation]
+                        # to the station list
+                        stationlist.append(line)
+            elif sfstationlist is True:
+                stationlist = []
+                for line in statfile:
+                    # Read stations into list of stations
+                    line = line.split()
+
+                    newline = [line[1], line[0], line[2], line[3], line[4],
+                            line[5], 0]
                     # Append the [network station latitude longitude elevation]
                     # to the station list
-                    stationlist.append(line)
-        elif sfstationlist is True:
-            stationlist = []
-            for line in statfile:
-                # Read stations into list of stations
-                line = line.split()
-
-                newline = [line[1], line[0], line[2], line[3], line[4],
-                           line[5], 0]
-                # Append the [network station latitude longitude elevation]
-                # to the station list
-                stationlist.append(newline)
+                    stationlist.append(newline)
 
         return cls(cmt=cmt,
                    stationlist=stationlist,
@@ -202,22 +203,22 @@ class DataRequest(object):
         """
 
         # Open file for writing in the earthquake directory
-        path_to_file = self.outputdir + '/request.txt'
-        requestfile = open(path_to_file, 'w')
+        path_to_file = os.path.join(self.outputdir, 'station_data', 'request.txt')
+        with open(path_to_file, 'w') as requestfile:
 
-        # Writing for each parameter overarching of all is the station
-        # parameter, of course
+            # Writing for each parameter overarching of all is the station
+            # parameter, of course
 
-        for station in self.stationlist:
-            for location in self.locations:
-                for channel in self.channels:
-                    #                                     joining just the
-                    #                                     network   & station
-                    requestfile.write(
-                        " ".join([" ".join([station[0], station[1]]),
-                                  location, channel, self.starttime.__str__(),
-                                  self.endtime.__str__()]))
-                    requestfile.write("\n")
+            for station in self.stationlist:
+                for location in self.locations:
+                    for channel in self.channels:
+                        #                                     joining just the
+                        #                                     network   & station
+                        requestfile.write(
+                            " ".join([" ".join([station[0], station[1]]),
+                                    location, channel, self.starttime.__str__(),
+                                    self.endtime.__str__()]))
+                        requestfile.write("\n")
 
         return path_to_file
 
@@ -232,7 +233,9 @@ class DataRequest(object):
         # Create download log file in Earthquake directory if no other
         # directory is specified
         if download_log_file == "":
-            download_log_file = self.outputdir + "/download_log.txt"
+            download_log_file = os.path.join(self.outputdir,
+                                             "station_data",
+                                             "download_log.txt")
 
         # If doesn't exist, create directory for responses and seismograms
         seis_path = os.path.join(self.outputdir, "seismograms/obs/")
