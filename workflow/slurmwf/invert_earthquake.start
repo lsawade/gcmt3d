@@ -28,6 +28,8 @@ CDIR=`dirname $CIN_DB` # Earthquake Directory
 CMT_SIM_DIR=$CDIR/CMT_SIMs # Simulation directory
 PROCESS_PATHS=$CDIR/seismograms/process_paths # Process Path directory
 PROCESSED=$CDIR/seismograms/processed_seismograms # Processed dir
+SEISMOGRAMS=$CDIR/seismograms # Seismos
+STATION_DATA=$CDIR/station_data
 LOG_DIR=$CDIR/logs # Logging directory
 INVERSION_OUTPUT_DIR=$CDIR/inversion/inversion_output
 WINDOW_PATHS=$CDIR/window_data/window_paths
@@ -63,21 +65,23 @@ module load anaconda
 conda activate gcmt3d
 
 # Create database structure
-# python $BIN_DIR/create_entry.py $CMTSOLUTION
+python $BIN_DIR/create_entry.py $CMTSOLUTION
 
 # Download data
-# python $BIN_DIR/request_data.py $CIN_DB
+python $BIN_DIR/request_data.py $CIN_DB
 
 # Start slurm script that does the whole shindig
 
 sbatch << EOF
 #!/bin/bash
 #SBATCH --job-name=invert_C$CID
+#SBATCH --output=$LOG_DIR/C$CID.out
 #SBATCH --nodes=4
+#SBATCH --ntasks-per-node=30
 #SBATCH --gres=gpu:3
-#SBATCH --mem=200000
+#SBATCH --mem=200GB
 #SBATCH --time=02:00:00
-#SBATCH -p pReserved
+# SBATCH --reservation=test
 #SBATCH --mail-user=lsawade@princeton.edu
 #SBATCH --mail-type=END
 
@@ -89,7 +93,7 @@ sbatch << EOF
 module purge
 
 # Load anaconda and set environment
-module load anaconda
+module load anaconda3
 conda activate gcmt3d
 
 module load openmpi/gcc
@@ -98,7 +102,7 @@ module load cudatoolkit/10.0
 # Define the parameters
 CMT_LIST=(CMT CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
 
-########  Write Sources #######
+#######  Write Sources #######
 WS_LOG=$LOG_DIR/$CID.003.Write-Sources.STDOUT
 echo " "
 echo "******** Writing Sources  ****************************"
@@ -169,6 +173,8 @@ echo "******** PROCESS TRACES ******************************"
 echo " "
 PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
 
+export OMP_NUM_THREADS=1
+
 # Get the different period bands as they will use the same asdf file
 BAND_LIST=\$(for path in \$(ls $PROCESS_PATHS); do echo \$(echo \$path | cut -d. -f2); done | sort | uniq)
 echo \$BAND_LIST
@@ -204,7 +210,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
+        srun -N1 -n25 python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
     fi
 done 
 wait
@@ -216,7 +222,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
+        srun -N1 -n25 python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
     fi
 done
 echo " "
@@ -249,22 +255,19 @@ echo " "
 echo " "
 
 
-# # If inversion successful, clear out synthetic and processed data
-# for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
-# do 
-#     if [[ -e \$invfile ]]; then
-#         echo 'Looks like inversion was successful.'
-#         for file in \$(find $CMT_SIM_DIR -type f -name "*.sac")
-#         do
-#             rm \$file &
-#         done
+# If inversion successful, clear out synthetic and processed data
+for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
+do 
+    if [[ -e \$invfile ]]; then
+        echo 'Looks like inversion was successful.'
 
-#         for file in \$(find $PROCESSED -type f -name "processed*.h5")
-#         do
-#             rm \$file &
-#         done
-#     fi
-# done
+        echo 'Removing files...'
+        rm -rf $SEISMOGRAMS
+        rm -rf $CMT_SIM_DIR
+        rm -rf $STATION_DATA
+        echo 'Done.'
+    fi
+done
    
 
 exit 0

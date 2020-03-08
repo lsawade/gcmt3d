@@ -273,7 +273,7 @@ class Statistics(object):
 if __name__ == "__main__":
 
     # Load shit
-    database_dir = "/Users/lucassawade/tigress/database"
+    database_dir = "/Users/lucassawade/straverse/database"
 
     ST = Statistics._from_dir(database_dir)
     ST.plot_changes(savedir="/Users/lucassawade")

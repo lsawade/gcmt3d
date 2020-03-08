@@ -26,6 +26,10 @@ from pycmt3d import Inversion
 from pycmt3d import Grid3d
 from pycmt3d import Grid3dConfig
 
+# Gradient3D
+from pycmt3d.gradient3d_mpi import Gradient3d
+from pycmt3d.gradient3d_mpi import Gradient3dConfig
+
 import os
 import glob
 
@@ -171,21 +175,31 @@ def invert(cmt_file_db, param_path):
         bootstrap_repeat=int(inv_params["bootstrap_repeat"]),
         weight_config=weight_config)
 
+    grad3d_config = Gradient3dConfig(
+        method="gn", weight_data=True, weight_config=weight_config, 
+        use_new=True, taper_type="tukey",
+        c1=1e-4, c2=0.9, idt=0.0, ia = 1.,
+        nt=20, nls=10, crit=0.1,
+        precond=False, reg=False, 
+        bootstrap=True, bootstrap_repeat=25,
+        bootstrap_subset_ratio=0.4)
+
     if DB_params["verbose"]:
         print("  PyCMT3D is finding an improved CMTSOLUTION .... ")
         print("  " + 54 * "*" + "\n\n")
 
     # Create inversion class
-    inv = Inversion(cmtsource, dcon, cmt3d_config, grid3d_config)
+    inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)
 
     # Run inversion
     inv.source_inversion()
 
     # Plot results
     inv.plot_summary(inv_out_dir, figure_format="pdf")
+    inv.write_summary_json(outputdir=inv_out_dir, mode="global")
     inv.write_new_cmtfile(outputdir=inv_out_dir)
-    inv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
-                         file_format="asdf")
+    # inv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
+    #                      file_format="asdf")
     inv.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,
                                                          "waveform_plots"),
                                   figure_format="pdf")
