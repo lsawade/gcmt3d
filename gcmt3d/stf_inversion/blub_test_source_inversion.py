@@ -11,7 +11,7 @@ inversion works
 
 """
 
-from .. stf_inversion import forward as fw
+from . import forward as fw
 from .plot import PlotSTFInversion
 import numpy as np
 import matplotlib.pyplot as plt
