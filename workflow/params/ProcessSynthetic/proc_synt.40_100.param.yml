@@ -17,7 +17,7 @@ pre_filt: [0.0075, 0.0100, 0.0250, 0.0313]
 # cut time relative to CMT time. The final seismogram will be at
 # time range: [cmt_time + relative_starttime, cmt_time + relative_endtime]
 relative_starttime: 0
-relative_endtime: 7150
+relative_endtime: 3600
 
 # resample the seismogram. Sampling_rate in unit Hz.
 resample_flag: True
