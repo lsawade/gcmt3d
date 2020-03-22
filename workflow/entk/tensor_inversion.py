@@ -175,7 +175,7 @@ def invert(cmt_file_db, param_path):
         bootstrap=bool(inv_params["bootstrap"]),
         bootstrap_repeat=int(inv_params["bootstrap_repeat"]),
         weight_config=weight_config,
-        lamda_damping=float(inv_params["lamda_damping"]))
+        lamda_damping=float(inv_params["lambda_damping"]))
 
     grad3d_params = INV_params["grad3d_config"]
 
