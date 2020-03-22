@@ -12,11 +12,12 @@ Last Update: November 2019
 
 """
 
-from gcmt3d.source import CMTSource
+from pycmt3d.source import CMTSource
 from gcmt3d.plot.stats import PlotStats
 from glob import glob
 import os
 import numpy as np
+from ..utils.io import load_json
 
 
 def read_specfem_station_list(filename):
@@ -45,6 +46,39 @@ def read_specfem_station_list(filename):
             stationlist.append(newline)
 
     return stationlist
+
+
+class Struct(object):
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+        for k, v in self.__dict__.items():
+            if isinstance(v, dict):
+                self.__dict__[k] = Struct(**v)
+
+
+def get_stats_json(filename):
+    """Reads the stats json and outputs dictionary with
+    all the necessary data
+    """
+    d = load_json(os.path.abspath(filename))
+    data_container = {"sta_lon": np.array(d["sta_lon"]),
+                      "sta_lat": np.array(d["sta_lat"]),
+                      "nwindows": d["nwindows"],
+                      "nwin_on_trace": d["nwin_on_trace"]}
+    cmtsource = CMTSource.from_dictionary(d["oldcmt"])
+    new_cmtsource = CMTSource.from_dictionary(d["newcmt"])
+    config = Struct(**d["config"])
+    nregions = d["nregions"]
+    bootstrap_mean = np.array(d["bootstrap_mean"])
+    bootstrap_std = np.array(d["bootstrap_std"])
+    var_reduction = d["var_reduction"]
+    mode = d["mode"]
+    G = d["G"]
+
+    return (data_container, cmtsource, new_cmtsource,
+            config, nregions, bootstrap_mean,
+            bootstrap_std, var_reduction, mode,
+            G)
 
 
 class Statistics(object):
@@ -89,6 +123,17 @@ class Statistics(object):
 
         # Compute difference/evolution
         self.dCMT = self.ncmt - self.ocmt
+        self.dCMT[:, :7] /= self.ocmt[:, 0, None]
+
+        for _i, (dcmt, id) in enumerate(zip(self.dCMT, self.ids)):
+            if dcmt[0] > 0.5 or dcmt[0] < -0.5 or \
+                    dcmt[7] > 20000 or dcmt[7] < -20000:
+
+                print("ID:", id,
+                      "M0_0:", self.ocmt[_i, 0],
+                      "M0_1:", self.ncmt[_i, 0],
+                      "dCMT:", dcmt[0],
+                      "dz:", dcmt[7])
 
         # Compute Correlation Coefficients
         self.xcorr_mat = np.corrcoef(self.dCMT.T)
@@ -97,26 +142,26 @@ class Statistics(object):
         self.mean_mat = np.mean(self.dCMT, axis=0)
 
         self.mean_dabs = np.mean(np.abs(self.dCMT), axis=0)
-        print(self.mean_dabs)
+        # print(self.mean_dabs)
 
         # Compute Standard deviation
         self.std_mat = np.std(self.dCMT, axis=0)
 
         # Create labels
-        self.labels = ["$M_0$",
-                       "$M_{rr}$", "$M_{tt}$",
-                       "$M_{pp}$", "$\\delta M_{rt}$",
-                       "$M_{rp}$", "$M_{tp}$",
-                       "$z$", "Lat", "Lon",
-                       "$t_{CMT}$", "$t_{shift}$", "$hdur$"]
+        self.labels = [r"$M_0$",
+                       r"$M_{rr}$", r"$M_{tt}$",
+                       r"$M_{pp}$", r"$\delta M_{rt}$",
+                       r"$M_{rp}$", r"$M_{tp}$",
+                       r"$z$", r"Lat", r"Lon",
+                       r"$t_{CMT}$", r"$t_{shift}$", r"$hdur$"]
 
-        self.dlabels = ["$\\delta M_0$",
-                        "$\\delta M_{rr}$", "$\\delta M_{tt}$",
-                        "$\\delta M_{pp}$", "$\\delta M_{rt}$",
-                        "$\\delta M_{rp}$", "$\\delta M_{tp}$",
-                        "$\\delta z$", "$\\delta$Lat", "$\\delta$Lon",
-                        "$\\delta t_{CMT}$", "$\\delta t_{shift}$",
-                        "$\\delta hdur$"]
+        self.dlabels = [r"$\delta M_0/M_0$",
+                        r"$\delta M_{rr}/M_0$", r"$\delta M_{tt}/M_0$",
+                        r"$\delta M_{pp}/M_0$", r"$\delta M_{rt}/M_0$",
+                        r"$\delta M_{rp}/M_0$", r"$\delta M_{tp}/M_0$",
+                        r"$\delta z$", r"$\delta$Lat", r"$\delta$Lon",
+                        r"$\delta t_{CMT}$", r"$\delta t_{shift}$",
+                        r"$\delta hdur$"]
 
         self.verbose = verbose
 
@@ -136,11 +181,15 @@ class Statistics(object):
 
         """
 
-        # Get list of inversion files.
-        Clist = glob(os.path.join(database_dir, "C*"))
-
         if verbose:
             print("Looking for earthquakes here: %s" % (database_dir))
+        # Get list of inversion files.
+        Clist = glob(os.path.join(database_dir, "C*",
+                                  "inversion", "inversion_output",
+                                  "*.json"))
+
+        if verbose:
+            print("glob done")
 
         # Old CMTs
         old_cmts = []
@@ -149,60 +198,36 @@ class Statistics(object):
 
         # Loop of files
         for invdata in Clist:
-
-            if verbose:
-                print(invdata)
-
-            # Get Cid
-            bname = os.path.basename(invdata)
-            # print(invdata)
-            id = bname[1:]
-
-            # Original CMT file name
-            cmt_file = os.path.join(invdata, bname + ".cmt")
-            # print(cmt_file)
-
-            # Inverted CMT filename
-            glob_path = os.path.join(invdata,
-                                     'inversion',
-                                     'inversion_output', id + "*.inv")
-            inv_cmt = glob(glob_path)
-            # print(inv_cmt)
+            # # print(invdata)
+            # id = bname[1:]
 
             try:
-                # Reading the CMT solutions
-                old_cmt = CMTSource.from_CMTSOLUTION_file(cmt_file)
-                new_cmt = CMTSource.from_CMTSOLUTION_file(inv_cmt[0])
-
-                if verbose:
-                    print("Got both for %s" % bname)
+                print(invdata)
+                (data_container,
+                 cmtsource,
+                 new_cmtsource,
+                 config,
+                 nregions,
+                 bootstrap_mean,
+                 bootstrap_std,
+                 var_reduction,
+                 mode,
+                 G) = get_stats_json(invdata)
 
                 # Append CMT files
-                old_cmts.append(old_cmt)
-                new_cmts.append(new_cmt)
+                old_cmts.append(cmtsource)
+                new_cmts.append(new_cmtsource)
 
-            except Exception:
-                if verbose:
-                    print("Got nothing for %s" % bname)
-
-            # Get stations file
-            try:
-                station_list = list(station_list)
-
-                for row in read_specfem_station_list(
-                        os.path.join(invdata, 'station_data', 'STATIONS')):
-
-                    station_list.append(tuple(row))
-
-                station_list = set(station_list)
+                # stations
+                for lat, lon in zip(data_container["sta_lat"],
+                                    data_container["sta_lon"]):
+                    station_list.add((lat, lon))
 
             except Exception as e:
                 print(e)
 
         old_cmt_mat, old_ids = Statistics.create_cmt_matrix(old_cmts)
         new_cmt_mat, new_ids = Statistics.create_cmt_matrix(new_cmts)
-
-        print(len(station_list))
 
         return cls(old_cmt_mat, old_ids, new_cmt_mat, new_ids,
                    list(station_list),
@@ -225,8 +250,23 @@ class Statistics(object):
                        savedir=savedir)
 
         PS.plot_changes()
-        PS.plot_xcorr_matrix()
+        # PS.plot_xcorr_matrix()
         PS.plot_xcorr_heat()
+
+    @staticmethod
+    def get_PTI_from_cmts(cmt_mat):
+        """ Computes the Principal axes and components
+        and gets the Isotropic component
+
+        Args:
+            cmt_mat (numpy.ndarray): Matrix of of cmt solution.
+                                     Nx6
+        Returns: Nx3x3 matrix and
+        """
+        pass
+
+        """  for cmt in cmt_mat:
+        m = np.array([cmt[0]]) """
 
     @staticmethod
     def create_cmt_matrix(cmt_source_list):
@@ -256,6 +296,10 @@ class Statistics(object):
 
             # Populate id list with ids
             event_id.append(cmt.eventname)
+
+            if cmt.eventname == "C201005051629A":
+                print(cmt.eventname, cmt.M0)
+                print(cmt)
 
             # Populate CMT matrix
             cmt_mat[_i, :] = np.array([cmt.M0, cmt.m_rr, cmt.m_tt, cmt.m_pp,

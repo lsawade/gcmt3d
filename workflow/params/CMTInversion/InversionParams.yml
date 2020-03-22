@@ -1,7 +1,7 @@
 # Weight configuration for pycmt3d
 weight_config:
-  normalize_by_energy: False
-  normalize_by_category: False
+  normalize_by_energy: True  # Check on/off
+  normalize_by_category: True  # usually True 
   comp_weight:
     Z: 1.0
     R: 1.0
@@ -9,22 +9,40 @@ weight_config:
   love_dist_weight: 1.0
   pnl_dist_weight: 1.0
   rayleigh_dist_weight: 1.0
-  azi_exp_idx: 0.5
+  azi_exp_idx: 0.5  # azimuthal Not fully normalized by azimuth
 
 # Source Inversion Configuration for pycmt3d
 config:
-  dlocation: 0.5
-  ddepth: 0.5
-  dmoment: 1.0e22
+  dlocation: 0.03  # change in location  also mean
+  ddepth: 3.0  # change in depth mean 
+  dmoment: 2.0e23  # 
   double_couple: False
-  zero_trace: False
+  zero_trace: True
   weight_data: True
   station_correction: True
   bootstrap: True
-  bootstrap_repeat: 100
-  bootstrap_subset_ratio: 0.4
-  dtx: True
-  dM0: True
+  bootstrap_repeat: 300
+  bootstrap_subset_ratio: 0.6 
+  lambda_damping: 0.01 # One hundredth of the trace
+
+# Gradient method
+grad3d_config:
+  method: "gn"
+  weight_data: True
+  use_new: True
+  taper_type: "tukey"
+  c1: 1e-4  # Wolfe conditions
+  c2: 0.0
+  idt: 0.0
+  ia: 1.
+  nt: 20
+  nls: 10
+  crit: 0.1
+  precond: False
+  reg: False 
+  bootstrap: True
+  bootstrap_repeat: 25
+  bootstrap_subset_ratio: 0.6
 
 # Grid3D Configuration for pycmt3d
 grid3d_config:

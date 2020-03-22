@@ -156,12 +156,13 @@ def invert(cmt_file_db, param_path):
         energy_keys=grid3d_params['energy_keys'],
         energy_misfit_coef=grid3d_params["energy_misfit_coef"],
         weight_data=bool(grid3d_params["weight_data"]),
-        taper_type=grid3d_params["taper_type"], use_new=True,
+        taper_type=grid3d_params["taper_type"],
+        use_new=True,
         weight_config=weight_config)
 
     # Setting up general inversion config
     inv_params = INV_params["config"]
-
+    
     cmt3d_config = Config(
         DB_params["npar"],
         dlocation=float(inv_params["dlocation"]),
@@ -173,16 +174,29 @@ def invert(cmt_file_db, param_path):
         double_couple=bool(inv_params["double_couple"]),
         bootstrap=bool(inv_params["bootstrap"]),
         bootstrap_repeat=int(inv_params["bootstrap_repeat"]),
-        weight_config=weight_config)
+        weight_config=weight_config,
+        lamda_damping=float(inv_params["lamda_damping"]))
+
+    grad3d_params = INV_params["grad3d_config"]
 
     grad3d_config = Gradient3dConfig(
-        method="gn", weight_data=True, weight_config=weight_config, 
-        use_new=True, taper_type="tukey",
-        c1=1e-4, c2=0.9, idt=0.0, ia = 1.,
-        nt=20, nls=10, crit=0.1,
-        precond=False, reg=False, 
-        bootstrap=True, bootstrap_repeat=25,
-        bootstrap_subset_ratio=0.4)
+        method=grad3d_config["method"], 
+        weight_data=bool(grad3d_config["weight_data"]),
+        weight_config=weight_config, 
+        use_new=bool(grad3d_config["use_new"]),  # flag to use the gradient method on inverted traces.
+        taper_type=grad3d_config["taper_type"],
+        c1=float(grad3d_config["c1"]), 
+        c2=float(grad3d_config["c2"]), 
+        idt=float(grad3d_config["idt"]), 
+        ia =float(grad3d_config["ia"]),
+        nt=int(grad3d_config["nt"]), 
+        nls=int(grad3d_config["nls"]), 
+        crit=float(grad3d_config["crit"]),
+        precond=bool(grad3d_config["precond"]), 
+        reg=bool(grad3d_config["reg"]), 
+        bootstrap=bool(grad3d_config["bootstrap"]), 
+        bootstrap_repeat=int(grad3d_config["bootstrap_repeat"]),
+        bootstrap_subset_ratio=float(grad3d_config["bootstrap_subset_ratio"]))
 
     if DB_params["verbose"]:
         print("  PyCMT3D is finding an improved CMTSOLUTION .... ")
