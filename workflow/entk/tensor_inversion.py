@@ -180,23 +180,23 @@ def invert(cmt_file_db, param_path):
     grad3d_params = INV_params["grad3d_config"]
 
     grad3d_config = Gradient3dConfig(
-        method=grad3d_config["method"], 
-        weight_data=bool(grad3d_config["weight_data"]),
+        method=grad3d_params["method"], 
+        weight_data=bool(grad3d_params["weight_data"]),
         weight_config=weight_config, 
-        use_new=bool(grad3d_config["use_new"]),  # flag to use the gradient method on inverted traces.
-        taper_type=grad3d_config["taper_type"],
-        c1=float(grad3d_config["c1"]), 
-        c2=float(grad3d_config["c2"]), 
-        idt=float(grad3d_config["idt"]), 
-        ia =float(grad3d_config["ia"]),
-        nt=int(grad3d_config["nt"]), 
-        nls=int(grad3d_config["nls"]), 
-        crit=float(grad3d_config["crit"]),
-        precond=bool(grad3d_config["precond"]), 
-        reg=bool(grad3d_config["reg"]), 
-        bootstrap=bool(grad3d_config["bootstrap"]), 
-        bootstrap_repeat=int(grad3d_config["bootstrap_repeat"]),
-        bootstrap_subset_ratio=float(grad3d_config["bootstrap_subset_ratio"]))
+        use_new=bool(grad3d_params["use_new"]),  # flag to use the gradient method on inverted traces.
+        taper_type=grad3d_params["taper_type"],
+        c1=float(grad3d_params["c1"]), 
+        c2=float(grad3d_params["c2"]), 
+        idt=float(grad3d_params["idt"]), 
+        ia =float(grad3d_params["ia"]),
+        nt=int(grad3d_params["nt"]), 
+        nls=int(grad3d_params["nls"]), 
+        crit=float(grad3d_params["crit"]),
+        precond=bool(grad3d_params["precond"]), 
+        reg=bool(grad3d_params["reg"]), 
+        bootstrap=bool(grad3d_params["bootstrap"]), 
+        bootstrap_repeat=int(grad3d_params["bootstrap_repeat"]),
+        bootstrap_subset_ratio=float(grad3d_params["bootstrap_subset_ratio"]))
 
     if DB_params["verbose"]:
         print("  PyCMT3D is finding an improved CMTSOLUTION .... ")
