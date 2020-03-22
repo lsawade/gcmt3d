@@ -1,0 +1,159 @@
+#!/bin/bash
+
+# Get earthquake path from input filepath
+CMTSOLUTION=$1
+
+if [ -z "$CMTSOLUTION" ]
+then
+      echo "No CMTSOLUTION INPUT is empty. Stopping. Choose earthquake"
+      exit 1
+else
+      echo "Inverting $(realpath $CMTSOLUTION)"
+fi
+
+
+# STUFF TO BE SET PRIOR TO RUNNING ANYTHING
+GCMT3D='/home/lsawade/GCMT3D'
+WORKFLOW_DIR="$GCMT3D/workflow"
+PARAMETER_PATH="$WORKFLOW_DIR/params"
+SLURM_DIR="$WORKFLOW_DIR/slurmwf"
+BIN_DIR="$WORKFLOW_DIR/bins"
+DATABASE_DIR='/scratch/gpfs/lsawade/database'
+
+# EARTHQUAKE PARAMETERS and Paths derived from the file
+# Getting database entry from CMTSOLUTION FILE
+CID=`cat $CMTSOLUTION | head -2 | tail -1 | cut -d: -f2 | tr -d '[:space:]'`
+CIN_DB="$DATABASE_DIR/C$CID/C$CID.cmt"
+CDIR=`dirname $CIN_DB` # Earthquake Directory
+CMT_SIM_DIR=$CDIR/CMT_SIMs # Simulation directory
+PROCESS_PATHS=$CDIR/seismograms/process_paths # Process Path directory
+PROCESSED=$CDIR/seismograms/processed_seismograms # Processed dir
+SEISMOGRAMS=$CDIR/seismograms # Seismos
+STATION_DATA=$CDIR/station_data
+LOG_DIR=$CDIR/logs # Logging directory
+INVERSION_OUTPUT_DIR=$CDIR/inversion/inversion_output
+WINDOW_PATHS=$CDIR/window_data/window_paths
+
+echo
+echo "******** PACKAGE INFO ********************************"
+echo "GCMT3D Location:_________________ $GCMT3D"
+echo "Workflow Directory:______________ $WORKFLOW_DIR"
+echo "Slurmjob Directory:______________ $SLURM_DIR"
+echo "Bin directory (important):_______ $BIN_DIR" 
+echo
+echo
+
+echo "******** DATABASE INFO *******************************"
+echo "Database directory:______________ $DATABASE_DIR"
+echo
+echo
+
+echo "******** EARTHQUAKE INFO *****************************"
+echo "CMTSOLUTION:_____________________ $CMTSOLUTION"
+echo "Earthquake ID:___________________ $CID"
+echo "Earthquake Directory:____________ $CDIR"
+echo "Earthquake File in Database:_____ $CIN_DB"
+echo "Inversion Logging Directory:_____ $LOG_DIR"
+echo "Simulation Directory:____________ $CMT_SIM_DIR"
+echo "Process Path Directory:__________ $PROCESS_PATHS"
+echo "Window Path Directory:___________ $WINDOW_PATHS"
+echo
+echo
+
+sbatch << EOF
+#!/bin/bash
+#SBATCH --job-name=invert_C$CID
+#SBATCH --output=$LOG_DIR/C$CID.out
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=30
+#SBATCH --gres=gpu:3
+#SBATCH --mem=100GB
+#SBATCH --time=00:10:00
+# SBATCH --reservation=test
+
+
+
+
+# #WHAT???????? #SBATCH --requeue 
+
+# Load the compilers and shit
+module purge
+
+# Load anaconda and set environment
+module load anaconda3
+conda activate gcmt3d
+
+module load openmpi/gcc
+module load cudatoolkit/10.0
+
+# Define the parameters
+CMT_LIST=(CMT CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
+
+
+######## CONVERT TRACES ########
+echo "******** CONVERT TRACES ******************************"
+echo " "
+
+CONV_LOG=$LOG_DIR/$CID.005.Converting-to-ASDF
+
+# Synthetic data
+for CMT in "\${CMT_LIST[@]}"; do
+    CONV_PATH_FILE=$CMT_SIM_DIR/\$CMT/\$CMT.yml
+    echo "Conversion yml: \$CONV_PATH_FILE"
+    CONV_LOG_FILE=\$CONV_LOG.\$CMT.STDOUT
+    echo "Conversion logfile: \$CONV_LOG_FILE"
+    srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
+done                                                   
+
+# Observed data
+CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
+echo "Conversion yml: \$CONV_PATH_FILE"
+CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
+echo "Conversion logfile: \$CONV_LOG_FILE"
+srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
+wait
+echo " "
+echo "Done."
+echo " "
+echo " "
+
+
+######## Create Process Paths ########
+echo "******** CREATE PROCESS PATHS ************************"
+echo " "
+CPP_LOG_FILE="$LOG_DIR/$CID.006.Create-Process-Paths.STDOUT"
+echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
+srun -N1 -n1 python $BIN_DIR/create_path_files.py $CIN_DB > \$CPP_LOG_FILE
+echo " "
+
+
+######## Process Traces ########
+echo "******** PROCESS TRACES ******************************"
+echo " "
+PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
+
+export OMP_NUM_THREADS=1
+
+# Get the different period bands as they will use the same asdf file
+BAND_LIST=\$(for path in \$(ls $PROCESS_PATHS); do echo \$(echo \$path | cut -d. -f2); done | sort | uniq)
+echo \$BAND_LIST
+for BAND in \$BAND_LIST; do
+
+    for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
+        if [[ \$PROCESS_PATH == *"\$BAND"* ]]; then
+            PROCESS_PATH_FILE="$PROCESS_PATHS/\$PROCESS_PATH"
+            echo "Processing yml: \$PROCESS_PATH_FILE"
+            PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
+            echo "Processing logfile: \$PROC_LOG_FILE"
+            srun -N1 -n1 python $BIN_DIR/process_asdf.py -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
+        fi
+    done
+    wait
+done
+echo " "
+echo "Done."
+echo " "
+echo " "   
+
+exit 0
+EOF
