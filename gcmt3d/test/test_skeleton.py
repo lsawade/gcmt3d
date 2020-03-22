@@ -401,7 +401,7 @@ class TestSkeleton(unittest.TestCase):
                                         "C" + DB.Cids[0] + ".xml")
 
             d = smart_read_yaml(yaml_file, mpi_mode=False)
-            
+
             # Assessing correctness of yaml file
             self.assertTrue(d["quakeml_file"] == quakeml_file)
             self.assertTrue(d["tag"] == tag)

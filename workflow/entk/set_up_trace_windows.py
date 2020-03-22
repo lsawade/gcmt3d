@@ -19,6 +19,8 @@ import os
 import glob
 import argparse
 import warnings
+import logging
+
 warnings.filterwarnings("ignore", category=DeprecationWarning,
                         module=r'*.numerictypes')
 warnings.filterwarnings("ignore", category=UserWarning,
@@ -57,6 +59,9 @@ def windowing(cmt_filename):
         # Load process path file to get parameter file location
         params = smart_read_yaml(path_file, mpi_mode=is_mpi_env())\
             ["window_param_file"]
+
+        logger = logging.getLogger("pyflex")
+        logger.setLevel(logging.DEBUG)
 
         # Create Smart Process class
         proc = WindowASDF(path_file, params, verbose=DB_params["verbose"],

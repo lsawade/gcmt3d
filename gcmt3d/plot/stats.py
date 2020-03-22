@@ -24,6 +24,8 @@ import cartopy
 # from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from obspy.imaging.beachball import beach
 import matplotlib
+from matplotlib import cm
+from matplotlib import colors
 from scipy.odr import RealData, ODR, Model
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['mathtext.fontset'] = 'cm'
@@ -138,7 +140,7 @@ class PlotStats(object):
 
     def __init__(self, ocmt=None, ncmt=None, dCMT=None, xcorr_mat=None,
                  mean_mat=None, std_mat=None, labels=None, dlabels=None,
-                 stations=None, nbins=15, npar=9, verbose=True, savedir=None):
+                 stations=None, nbins=20, npar=9, verbose=True, savedir=None):
         """
         Parameters:
             ocmt: old cmt matrix
@@ -154,7 +156,8 @@ class PlotStats(object):
             verbose: verbosity
 
         The matrices below should have following columns:
-            M0, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, depth, lat, lon, CMT, t_shift
+            M0, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp,
+            depth, lat, lon, CMT, hdur, t_shift
 
         Station list rows have following content
             [network station latitude longitude elevation]
@@ -174,6 +177,11 @@ class PlotStats(object):
         self.dlabels = dlabels
         self.stations = stations
         self.nbins = nbins
+        self.dmbins = np.linspace(-1.5, 1.5 + 1.5/self.nbins, self.nbins)
+        self.ddegbins = np.linspace(-0.2, 0.2 + 0.2/self.nbins, self.nbins)
+        self.dzbins = np.linspace(-30, 30 + 30/self.nbins, self.nbins)
+        self.dtbins = np.linspace(-10, 10 + 100/self.nbins, self.nbins)
+
         self.verbose = verbose
         self.savedir = savedir
 
@@ -208,8 +216,13 @@ class PlotStats(object):
         plt.title("Stations used in the inversion")
 
         # table axes
-        fig.add_subplot(GS[2:4, 3])
-        self.plot_table()
+        # fig.add_subplot(GS[2:4, 3])
+        # self.plot_table()
+
+        # change in cmttime
+        fig.add_subplot(GS[2, 3])
+        self.plot_histogram(self.dCMT[:, 10], self.dtbins)
+        plt.xlabel(r"$\delta t$")
 
         # MT
         counter = 1
@@ -217,43 +230,63 @@ class PlotStats(object):
             for _j in range(3):
                 fig.add_subplot(GS[0 + _i, 3 + _j])
                 self.plot_histogram(self.dCMT[:, counter],
-                                    self.nbins, facecolor=(0.8, 0.8, 0.8))
+                                    self.dmbins, facecolor=(0.8, 0.8, 0.8))
                 plt.xlabel("%s" % (self.dlabels[counter]))
                 counter += 1
 
         # loc_ax
-        fig.add_subplot(GS[2, 4])
-        self.plot_histogram(self.dCMT[:, 8], self.nbins)
-        plt.xlabel("$\\delta$Lat [$^{\\circ}$]")
-        fig.add_subplot(GS[2, 5])
-        self.plot_histogram(self.dCMT[:, 9], self.nbins)
-        plt.xlabel("$\\delta$Lon [$^{\\circ}$]")
         fig.add_subplot(GS[3, 4])
-        self.plot_histogram(self.dCMT[:, 7], self.nbins)
-        plt.xlabel("$\\delta z$ [km]")
+        self.plot_histogram(self.dCMT[:, 8], self.ddegbins)
+        plt.xlabel("$\\delta$Lat [$^{\\circ}$]")
         fig.add_subplot(GS[3, 5])
-        self.plot_histogram(self.dCMT[:, 0], self.nbins)
+        self.plot_histogram(self.dCMT[:, 9], self.ddegbins)
+        plt.xlabel("$\\delta$Lon [$^{\\circ}$]")
+        fig.add_subplot(GS[2, 4])
+        self.plot_histogram(self.dCMT[:, 7], self.dzbins)
+        plt.xlabel("$\\delta z$ [km]")
+        fig.add_subplot(GS[2, 5])
+        self.plot_histogram(self.dCMT[:, 0], self.dmbins)
         plt.xlabel("$\\delta M_0$")
+
+        vmin = 10**(25.75)
+        vmax = 10**(26.5)
+        msize = 10
 
         # Change of parameter as function of depth
         fig.add_subplot(GS[4:, 0:2])  # moment vs depth
-        plt.plot(self.dCMT[:, 0], self.ocmt[:, 7], "ko")
+        sc = plt.scatter(self.dCMT[:, 0], self.ocmt[:, 7], c=self.ocmt[:, 0],
+                         s=msize, marker='o', cmap=cm.rainbow,
+                         norm=colors.LogNorm(vmin=vmin, vmax=vmax))
+        cbar = plt.colorbar(sc, orientation="horizontal")
+        cbar.ax.set_ylabel(r"$M_0$")
+        plt.xlim([-0.5, 0.5])
         plt.gca().invert_yaxis()
         plt.xlabel("$\\delta M_0$")
         plt.ylabel("$z$ [km]")
 
         # ddepth vs depth
         fig.add_subplot(GS[4:, 2:4])
-        plt.plot(self.dCMT[:, 7], self.ocmt[:, 7], "ko")
-        plt.xlabel("$\\delta z$ [km]")
-        plt.ylabel("$z$ [km]")
+        sc1 = plt.scatter(self.dCMT[:, 7], self.ocmt[:, 7], c=self.ocmt[:, 0],
+                          s=msize, marker='o', cmap=cm.rainbow,
+                          norm=colors.LogNorm(vmin=vmin, vmax=vmax))
+        cbar = plt.colorbar(sc1, orientation="horizontal")
+        cbar.ax.set_ylabel(r"$M_0$")
+        plt.xlim([-20, 10])
+        plt.xlabel(r"$\delta z$ [km]")
+        plt.ylabel(r"$z$ [km]")
         plt.gca().invert_yaxis()
 
         # ddepth vs dM0
         fig.add_subplot(GS[4:, 4:])
-        plt.plot(self.dCMT[:, 0], self.dCMT[:, 7], "ko")
-        plt.ylabel("$\\delta z$ [km]")
-        plt.xlabel("$\\delta M_0$")
+        sc2 = plt.scatter(self.dCMT[:, 0], self.dCMT[:, 7], c=self.ocmt[:, 7],
+                          s=msize, marker='o', cmap=cm.rainbow,
+                          norm=colors.LogNorm())
+        cbar = plt.colorbar(sc2, orientation="horizontal")
+        cbar.ax.set_ylabel(r"$z$ [km]")
+        plt.xlim([-0.5, 0.5])
+        plt.ylim([-20, 10])
+        plt.ylabel(r"$\delta z$ [km]")
+        plt.xlabel(r"$\delta M_0$")
         plt.gca().invert_yaxis()
 
         # Finally plot shot
@@ -302,8 +335,8 @@ class PlotStats(object):
         """Plots stations into a map
         """
 
-        slat = [station[2] for station in self.stations]
-        slon = [station[3] for station in self.stations]
+        slat = [station[0] for station in self.stations]
+        slon = [station[1] for station in self.stations]
 
         ax = plt.gca()
         ax.scatter(slon, slat, s=20, marker='v', c=((0.85, 0.2, 0.2),),
@@ -438,8 +471,7 @@ class PlotStats(object):
         """Plots minimal summary"""
 
         columns = ('$\\overline{d}$', '$\\sigma$')
-        rows = ['$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',
-                # '$\\delta t$',
+        rows = ['$\\delta t$', '$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',
                 '$\\delta M_0$', "$\\delta M_{rr}$", "$\\delta M_{tt}$",
                 "$\\delta M_{pp}$", "$\\delta M_{rt}$", "$\\delta M_{rp}$",
                 "$\\delta M_{tp}$"]
@@ -447,8 +479,8 @@ class PlotStats(object):
         cell_text = []
 
         # dt
-        # cell_text.append(["%3.3f" % (self.mean_mat[10]),
-        #                   "%3.3f" % (self.std_mat[10])])
+        cell_text.append(["%3.3f" % (self.mean_mat[10]),
+                          "%3.3f" % (self.std_mat[10])])
         # dLat
         cell_text.append(["%3.3f" % (self.mean_mat[8]),
                           "%3.3f" % (self.std_mat[8])])
