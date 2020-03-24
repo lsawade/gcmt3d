@@ -41,7 +41,7 @@ grad3d_config:
   precond: False
   reg: False 
   bootstrap: True
-  bootstrap_repeat: 100
+  bootstrap_repeat: 25
   bootstrap_subset_ratio: 0.6
 
 # Grid3D Configuration for pycmt3d
