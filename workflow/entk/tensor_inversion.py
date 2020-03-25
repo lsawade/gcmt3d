@@ -179,10 +179,19 @@ def invert(cmt_file_db, param_path):
 
     grad3d_params = INV_params["grad3d_config"]
 
+    weight_config_grad3d = DefaultWeightConfig(
+        normalize_by_energy=False,  # Fixes issue
+        normalize_by_category=False,  # Fixes issue
+        comp_weight=inv_weight_config["comp_weight"],
+        love_dist_weight=inv_weight_config["love_dist_weight"],
+        pnl_dist_weight=inv_weight_config["pnl_dist_weight"],
+        rayleigh_dist_weight=inv_weight_config["rayleigh_dist_weight"],
+        azi_exp_idx=inv_weight_config["azi_exp_idx"])
+
     grad3d_config = Gradient3dConfig(
         method=grad3d_params["method"], 
         weight_data=bool(grad3d_params["weight_data"]),
-        weight_config=weight_config, 
+        weight_config=weight_config_grad3d,
         use_new=bool(grad3d_params["use_new"]),  # flag to use the gradient method on inverted traces.
         taper_type=grad3d_params["taper_type"],
         c1=float(grad3d_params["c1"]), 
