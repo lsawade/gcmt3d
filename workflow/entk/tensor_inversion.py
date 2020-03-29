@@ -15,7 +15,7 @@ Last Update: June 2019
 import yaml
 
 # CMT3D
-from gcmt3d.source import CMTSource
+from pycmt3d.source import CMTSource
 from pycmt3d import DataContainer
 from pycmt3d import DefaultWeightConfig, Config
 from pycmt3d.constant import PARLIST
@@ -88,7 +88,7 @@ def invert(cmt_file_db, param_path):
 
         # Get processing band
         bandstring = str(os.path.basename(inv_dict_file).split(".")[1])
-        if "surface" in bandstring  or "body" in bandstring:
+        if "surface" in bandstring or "body" in bandstring:
             bandstring = bandstring.split("#")[0]
         band = [float(x) for x in bandstring.split("_")]
 
@@ -116,6 +116,7 @@ def invert(cmt_file_db, param_path):
             print("\n  ASDF files:")
             for key, value in asdf_dict.items():
                 print("    ", key + ":", value)
+
         dcon.add_measurements_from_asdf(window_file, asdf_dict)
 
         if DB_params["verbose"]:
@@ -175,6 +176,7 @@ def invert(cmt_file_db, param_path):
         bootstrap=bool(inv_params["bootstrap"]),
         bootstrap_repeat=int(inv_params["bootstrap_repeat"]),
         weight_config=weight_config,
+        taper_type=inv_params["taper_type"],
         damping=float(inv_params["damping"]))
 
     grad3d_params = INV_params["grad3d_config"]
@@ -237,3 +239,17 @@ def invert(cmt_file_db, param_path):
 
     # # Plot Misfit summary
     # inv.grid3d.plot_misfit_summary(outputdir=inv_out_dir, figure_format="pdf")
+
+
+
+if __name__ == "__main__":
+
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', action='store', dest='cmt_file',
+                        required=True, help="Path to CMT file in database")
+    parser.add_argument('-p', action='store', dest='param_path', required=True,
+                        help="Path to Parameter Directory")
+    args = parser.parse_args()
+
+    invert(args.cmt_file, args.param_path)

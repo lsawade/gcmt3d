@@ -22,7 +22,8 @@ config:
   station_correction: True
   bootstrap: True
   bootstrap_repeat: 300
-  bootstrap_subset_ratio: 0.6 
+  bootstrap_subset_ratio: 0.6
+  taper_type: "boxcar"
   damping: 0.01 # One hundredth of the trace
 
 # Gradient method
