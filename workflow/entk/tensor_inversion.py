@@ -117,8 +117,7 @@ def invert(cmt_file_db, param_path):
             for key, value in asdf_dict.items():
                 print("    ", key + ":", value)
 
-        dcon.add_measurements_from_asdf(window_file, asdf_dict,
-                                        obsd_tag=bandstring1)
+        dcon.add_measurements_from_asdf(window_file, asdf_dict)
 
         if DB_params["verbose"]:
             print(
