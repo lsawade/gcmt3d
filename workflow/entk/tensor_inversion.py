@@ -87,9 +87,9 @@ def invert(cmt_file_db, param_path):
     for _i, inv_dict_file in enumerate(inv_dict_files):
 
         # Get processing band
-        bandstring = str(os.path.basename(inv_dict_file).split(".")[1])
-        if "surface" in bandstring or "body" in bandstring:
-            bandstring = bandstring.split("#")[0]
+        bandstring1 = str(os.path.basename(inv_dict_file).split(".")[1])
+        if "surface" in bandstring1 or "body" in bandstring1:
+            bandstring = bandstring1.split("#")[0]
         band = [float(x) for x in bandstring.split("_")]
 
         if DB_params["verbose"]:
@@ -117,7 +117,8 @@ def invert(cmt_file_db, param_path):
             for key, value in asdf_dict.items():
                 print("    ", key + ":", value)
 
-        dcon.add_measurements_from_asdf(window_file, asdf_dict)
+        dcon.add_measurements_from_asdf(window_file, asdf_dict,
+                                        obsd_tag=bandstring1)
 
         if DB_params["verbose"]:
             print(
