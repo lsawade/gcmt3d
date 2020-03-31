@@ -17,6 +17,13 @@ import os
 import glob
 import yaml
 
+import logging
+from ...log_util import modify_logger
+
+# Create logger
+logger = logging.getLogger(__name__)
+modify_logger(logger)
+
 
 def is_mpi_env():
     """
@@ -86,7 +93,7 @@ attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp", "CMT_tp",
         "CMT_depth", "CMT_lat", "CMT_lon"]
 
 
-def create_process_path_obs(cmt_filename, process_dir, verbose=True):
+def create_process_path_obs(cmt_filename, process_dir):
     """ This function writes a yaml conversion path file for 1 simulation
     file. This file is later on need for the creation of ASDF files and the
     processing involved ASDF files.
@@ -108,9 +115,11 @@ def create_process_path_obs(cmt_filename, process_dir, verbose=True):
     # Get all process possibilities
     process_param_files = glob.glob(os.path.join(process_dir, "*"))
 
-    if verbose:
-        print("Processing parameter files to be used:")
-        print(process_param_files)
+    logger.verbose("Processing parameter files to be used:")
+    logger.verbose(" ")
+    for file in process_param_files:
+        logger.verbose("    " + file)
+    logger.verbose(" ")
 
     for _i, process_param_file in enumerate(process_param_files):
 
@@ -139,8 +148,7 @@ def create_process_path_obs(cmt_filename, process_dir, verbose=True):
                                       % (lP, hP))
 
         # Create dictionary
-        if verbose:
-            print("Writing path file %s." % yaml_file_path)
+        logger.verbose("Writing path file %s." % yaml_file_path)
 
         d = {"input_asdf": input_asdf,
              "input_tag": input_tag,
@@ -174,9 +182,11 @@ def create_process_path_syn(cmt_filename, process_dir, npar, verbose=True):
     # Get all process possibilities
     process_param_files = glob.glob(os.path.join(process_dir, "*"))
 
-    if verbose:
-        print("Processing parameter files to be used:")
-        print(process_param_files)
+    logger.verbose("Processing parameter files to be used:")
+    logger.verbose(" ")
+    for file in process_param_files:
+        logger.verbose("    " + file)
+    logger.verbose(" ")
 
     for _i, process_param_file in enumerate(process_param_files):
 
@@ -209,8 +219,7 @@ def create_process_path_syn(cmt_filename, process_dir, npar, verbose=True):
                                           % (at, lP, hP))
 
             # Create dictionary
-            if verbose:
-                print("Writing path file %s." % yaml_file_path)
+            logger.verbose("Writing path file %s." % yaml_file_path)
 
             d = {"input_asdf": input_asdf,
                  "input_tag": input_tag,
@@ -243,9 +252,12 @@ def create_window_path(cmt_filename, window_process_dir,
     # Get all process possibilities
     window_param_files = glob.glob(os.path.join(window_process_dir, "*"))
 
-    if verbose:
-        print("Processing parameter files to be used:")
-        print(window_param_files)
+    logger.info("Window parameter files to be used:")
+    logger.info("--------------------------------")
+    logger.info(" ")
+    for file in window_param_files:
+        logger.info("   " + file)
+    logger.info(" ")
 
     for _i, window_param_file in enumerate(window_param_files):
 
@@ -289,8 +301,7 @@ def create_window_path(cmt_filename, window_process_dir,
                                       % (lP, hP, wave_type))
 
         # Create dictionary
-        if verbose:
-            print("Writing path file %s." % yaml_file_path)
+        logger.verbose("Writing path file %s." % yaml_file_path)
 
         d = {"obsd_asdf": obsd_asdf,
              "obsd_tag": obsd_tag,
@@ -339,15 +350,16 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
     process_syn_param_files = glob.glob(os.path.join(process_syn_dir, "*"))
 
     # If verbose print all used observed and synthetic files
-    if verbose:
-        print("Processing parameter files to be used:\n")
-        print("    Observed:\n")
-        for process_file in process_obs_param_files:
-            print("    " + process_file)
-        print("\n    Synthetic:\n")
-        for process_file in process_syn_param_files:
-            print("    " + process_file)
-        print(" ")
+    logger.info("Processing parameter files to be used:")
+    logger.info("--------------------------------------")
+    logger.info(" ")
+    logger.info("  Observed:")
+    for process_file in process_obs_param_files:
+        logger.info("    " + process_file)
+    logger.info("  Synthetic:")
+    for process_file in process_syn_param_files:
+        logger.info("    " + process_file)
+    logger.info(" ")
 
     # Create empty process_path file list
     process_path_file_list = []
@@ -403,12 +415,12 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
             # Add the path file to list
             process_path_file_list.append(yaml_file_path)
 
-    if verbose:
-        print("Resulting Processing Path files:")
-        print("--------------------------------\n")
-        for process_file in process_path_file_list:
-            print("    " + process_file)
-        print(" ")
+    logger.info("Resulting Processing Path files:")
+    logger.info("--------------------------------")
+    logger.info(" ")
+    for process_file in process_path_file_list:
+        logger.info("    " + process_file)
+    logger.info(" ")
 
     return process_path_file_list, obs_output_file_list, syn_output_file_list
 
@@ -437,12 +449,12 @@ def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
     # Get all process possibilities
     window_param_files = glob.glob(os.path.join(window_process_dir, "*"))
 
-    if verbose:
-        print("Processing parameter files to be used:")
-        print("--------------------------------------\n")
-        for param_file in window_param_files:
-            print(param_file)
-        print(" ")
+    logger.info("Windowing parameter files to be used:")
+    logger.info("--------------------------------------")
+    logger.info(" ")
+    for param_file in window_param_files:
+        logger.info(param_file)
+    logger.info(" ")
 
     window_processing_list = []
     output_file_list = []
@@ -477,11 +489,11 @@ def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
         window_processing_list.append(yaml_file_path)
 
     # Create dictionary
-    if verbose:
-        print("Resulting Windowing Path files:")
-        print("--------------------------------\n")
-        for process_file in window_processing_list:
-            print("    " + process_file)
-        print(" ")
+    logger.info("Resulting Windowing Path files:")
+    logger.info("--------------------------------")
+    logger.info(" ")
+    for process_file in window_processing_list:
+        logger.info("    " + process_file)
+    logger.info(" ")
 
     return window_processing_list, output_file_list

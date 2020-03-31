@@ -17,6 +17,9 @@ from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 from gcmt3d.asdf.convert import ConvertASDF
 import os
 import argparse
+# Get logger to log progress
+from gcmt3d import logger
+
 
 def convert(cmt_filename):
 
@@ -38,8 +41,7 @@ def convert(cmt_filename):
             "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
 
     ##### Converting the synthetic data
-    if DB_params['verbose']:
-        print("\nConverting synthetic traces to ASDF ... \n")
+    logger.info("\nConverting synthetic traces to ASDF ... \n")
 
     for _i, at in enumerate(attr[:DB_params["npar"]+1]):
 
@@ -51,8 +53,7 @@ def convert(cmt_filename):
         converter.run()
 
     ##### Converting the observed data
-    if DB_params['verbose']:
-        print("\nConverting observed traces to ASDF ... \n")
+    logger.info("\nConverting observed traces to ASDF ... \n")
 
     obs_path_file = os.path.join(cmt_dir, "seismograms", "obs", "observed.yml")
 
@@ -61,5 +62,4 @@ def convert(cmt_filename):
     converter.run()
 
 
-    if DB_params['verbose']:
-        print("\nConversion to ASDF DONE.\n")
+    logger.info("\nConversion to ASDF DONE.\n")

@@ -17,6 +17,9 @@ from gcmt3d.utils import download
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import os
 
+# Get logger to log progress
+from gcmt3d import logger
+
 def data_request(cmt_filename):
 
     # Set directories of the parameter files
@@ -47,7 +50,8 @@ def data_request(cmt_filename):
                                     outputdir=cmt_dir)
 
     # Print Earthquake Download Info
-    print(Request)
+    for line in Request.__str__.splitlines():
+        logger.info(line)
 
     # Request download
     Request.download()
