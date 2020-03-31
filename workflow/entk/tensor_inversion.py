@@ -104,7 +104,8 @@ def invert(cmt_file_db, param_path):
         logger.info("  " + 54 * "*")
         logger.info("  Getting data for inversion from period band:")
         logger.info("  Low: %d s || High: %d s" % tuple(band))
-        logger.info("  " + 54 * "*" + "\n")
+        logger.info("  " + 54 * "*")
+        logger.info(" ")
 
         # Load inversion file dictionary
         inv_dict = read_yaml_file(inv_dict_file)
@@ -118,18 +119,23 @@ def invert(cmt_file_db, param_path):
         logger.info(" ")
 
         # Add measurements from ASDF file and windowfile
-        logger.info("  Window file:\n", "  ", window_file)
-        logger.info("\n  ASDF files:")
+        logger.info("  Window file:")
+        logger.info("   " + window_file)
+        logger.info(" ")
+        logger.info("  ASDF files:")
         for key, value in asdf_dict.items():
-            logger.info("    ", key + ":", value)
+            logger.info("     " + key + ": " + value)
 
         dcon.add_measurements_from_asdf(window_file, asdf_dict)
 
         logger.info("  _____________________________________________________")
-        logger.info("  ... \n\n")
+        logger.info("  ... ")
+        logger.info("  ")
+        logger.info("  ... ")
 
     logger.info("  Setting up inversion classes .... ")
-    logger.info("  " + 54 * "*" + "\n\n")
+    logger.info("  " + 54 * "*")
+    logger.info("  ... ")
 
 
 
