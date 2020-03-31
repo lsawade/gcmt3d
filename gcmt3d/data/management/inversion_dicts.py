@@ -26,6 +26,13 @@ from .create_process_paths import get_processing_list
 from .create_process_paths import get_windowing_list
 from gcmt3d.asdf.utils import write_yaml_file
 
+import logging
+from ...log_util import modify_logger
+
+# Create logger
+logger = logging.getLogger(__name__)
+modify_logger(logger)
+
 PARMAP = {"Mrr": "CMT_rr",
           "Mtt": "CMT_tt",
           "Mpp": "CMT_pp",
@@ -88,7 +95,7 @@ def create_inversion_dict(processed_dir, bandstring):
 
 def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
                                     process_syn_dir, window_process_dir,
-                                    npar=9, verbose=False):
+                                    npar=9):
     """
     :param cmt_file_db: the cmtsolution file in the database.
     :type cmt_file_db: str
@@ -139,14 +146,12 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
 
     # Get the window file list
     window_path_list, win_list = get_windowing_list(cmt_file_db,
-                                                    window_process_dir,
-                                                    verbose=verbose)
+                                                    window_process_dir)
 
     # Get the processing list
     processing_list, obs_list, syn_list = get_processing_list(cmt_file_db,
                                                               process_obs_dir,
-                                                              process_syn_dir,
-                                                              verbose=verbose)
+                                                              process_syn_dir)
 
     # Create empty list of dictionaries
     inv_dict_list = []
@@ -192,8 +197,8 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
                               in os.path.basename(s))]
 
             if len(pert_file) > 1:
-                print("Found %d synthetic perturbation files."
-                      % len(pert_file))
+                logger.error("Found %d synthetic perturbation files."
+                             % len(pert_file))
                 raise ValueError
 
             elif len(pert_file) != 0:

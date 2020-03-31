@@ -13,8 +13,7 @@ Last Update: April 2019
 """
 
 import unittest
-from gcmt3d.data.management.skeleton import DataBaseSkeleton
-# from gcmt3d.data.management.skeleton import get_Centry_path
+from gcmt3d import DataBaseSkeleton
 from gcmt3d.source import CMTSource
 from gcmt3d.asdf.utils import smart_read_yaml
 import tempfile
@@ -70,7 +69,7 @@ class TestSkeleton(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=os.path.join(DATA_DIR, "CMTSOLUTION"),
-                                  specfem_dir=self.specfem_dir, verbose=False)
+                                  specfem_dir=self.specfem_dir)
 
             self.assertEqual(DB.specfem_dir, self.specfem_dir)
             self.assertEqual(DB.cmt_fn, os.path.join(DATA_DIR, "CMTSOLUTION"))
@@ -85,8 +84,7 @@ class TestSkeleton(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=os.path.join(DATA_DIR, "CMTSOLUTION"),
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             DB.create_base()
 
@@ -97,8 +95,7 @@ class TestSkeleton(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=os.path.join(tmp_dir, "db"),
                                   cmt_fn=os.path.join(DATA_DIR, "CMTSOLUTION"),
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             DB.create_base()
 
@@ -125,8 +122,7 @@ class TestSkeleton(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # Create eq directory
             DB.create_Cdirs()
@@ -165,8 +161,7 @@ class TestSkeleton(unittest.TestCase):
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=os.path.join(DATA_DIR,
                                                       "CMTSOLUTION_*"),
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # Create eq directory
             DB.create_Cdirs()
@@ -190,8 +185,7 @@ class TestSkeleton(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # create new directory
             test_dir = os.path.join(tmp_dir, "test")
@@ -210,8 +204,7 @@ class TestSkeleton(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # create new directory
             new_cmt_path = os.path.join(tmp_dir, "blub.cmt")
@@ -233,8 +226,7 @@ class TestSkeleton(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # create new directory
             new_cmt_path = os.path.join(tmp_dir, "blub.xml")
@@ -270,8 +262,7 @@ class TestSkeleton(unittest.TestCase):
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
                                   specfem_dir=self.specfem_dir,
-                                  overwrite=0,
-                                  verbose=True)
+                                  overwrite=0)
 
             # Create earthquake solution directory
             DB.create_Cdirs()
@@ -323,8 +314,7 @@ class TestSkeleton(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             DB._copy_dir(test_dir1, test_dir2, False)
 
@@ -341,8 +331,7 @@ class TestSkeleton(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # Create database
             DB.create_all()
@@ -380,8 +369,7 @@ class TestSkeleton(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # Create database
             DB.create_all()

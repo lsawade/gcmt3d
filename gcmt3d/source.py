@@ -9,9 +9,11 @@ Source and Receiver classes of Instaseis.
     Martin van Driel (Martin@vanDriel.de), 2014
     Wenjie Lei (lei@princeton.edu), 2016
     Lucas Sawade (lsawade@princeton.edu), 2019
+
 :license:
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lgpl.html)
+
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)

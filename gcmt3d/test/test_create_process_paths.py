@@ -76,7 +76,7 @@ class TestCreatePaths(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=os.path.join(DATA_DIR, "CMTSOLUTION"),
-                                  specfem_dir=self.specfem_dir, verbose=False)
+                                  specfem_dir=self.specfem_dir)
 
             self.assertEqual(DB.specfem_dir, self.specfem_dir)
             self.assertEqual(DB.cmt_fn, os.path.join(DATA_DIR, "CMTSOLUTION"))
@@ -92,8 +92,7 @@ class TestCreatePaths(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # Create database
             DB.create_all()
@@ -105,7 +104,7 @@ class TestCreatePaths(unittest.TestCase):
             cmt_filename = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
 
             # Create Processing path files
-            create_process_path_obs(cmt_filename, process_dir, verbose=True)
+            create_process_path_obs(cmt_filename, process_dir)
 
             # Solution output path:
             process_paths = os.path.join(DB.Cdirs[0], "seismograms",
@@ -146,8 +145,7 @@ class TestCreatePaths(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # Create database
             DB.create_all()
@@ -159,8 +157,7 @@ class TestCreatePaths(unittest.TestCase):
             cmt_filename = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
 
             # Create Processing path files
-            create_process_path_syn(cmt_filename, process_dir, npar=9,
-                                    verbose=True)
+            create_process_path_syn(cmt_filename, process_dir, npar=9)
 
             # Solution output path:
             process_paths = os.path.join(DB.Cdirs[0], "seismograms",
@@ -201,8 +198,7 @@ class TestCreatePaths(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # Create database
             DB.create_all()
@@ -215,7 +211,7 @@ class TestCreatePaths(unittest.TestCase):
 
             # Create Processing path files
             create_window_path(cmt_filename, window_process_dir,
-                               figure_mode=True, verbose=True)
+                               figure_mode=True)
 
             # Outputdir
             cmt_dir = DB.Cdirs[0]
@@ -271,8 +267,7 @@ class TestCreatePaths(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # Create database
             DB.create_all()
@@ -288,15 +283,13 @@ class TestCreatePaths(unittest.TestCase):
             cmt_filename = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
 
             # Create Processing path files
-            create_process_path_syn(cmt_filename, process_syn_dir, npar=9,
-                                    verbose=True)
+            create_process_path_syn(cmt_filename, process_syn_dir, npar=9)
 
             # Read the yaml_file which should be created in the CMT directory
             process_obs_dir = os.path.join(DATA_DIR, "ProcessObserved")
 
             # Create Processing path files
-            create_process_path_obs(cmt_filename, process_obs_dir,
-                                    verbose=True)
+            create_process_path_obs(cmt_filename, process_obs_dir)
 
             # Solution output path:
             process_paths = os.path.join(DB.Cdirs[0], "seismograms",
@@ -306,8 +299,7 @@ class TestCreatePaths(unittest.TestCase):
             processing_list, obs_list, syn_list = get_processing_list(
                 cmt_file_db,
                 process_obs_dir,
-                process_syn_dir,
-                verbose=True)
+                process_syn_dir)
 
             # Files on disk
             solution_list = glob.glob(os.path.join(process_paths, "*"))
@@ -327,8 +319,7 @@ class TestCreatePaths(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # Create database
             DB.create_all()
@@ -342,13 +333,12 @@ class TestCreatePaths(unittest.TestCase):
 
             # Create Window path files
             create_window_path(cmt_file_db, window_process_dir,
-                               figure_mode=True, verbose=True)
+                               figure_mode=True)
 
             # Get windowing list
             windowing_list, outputfile_list = get_windowing_list(
                 cmt_file_db,
-                window_process_dir,
-                verbose=True)
+                window_process_dir)
 
             # Solution output path:
             window_paths = os.path.join(DB.Cdirs[0], "window_data",
@@ -371,8 +361,7 @@ class TestCreatePaths(unittest.TestCase):
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
                                   cmt_fn=cmtfile,
-                                  specfem_dir=self.specfem_dir,
-                                  verbose=True)
+                                  specfem_dir=self.specfem_dir)
 
             # Create database
             DB.create_all()
@@ -386,7 +375,7 @@ class TestCreatePaths(unittest.TestCase):
 
             # Create Window path files
             create_window_path(cmt_file_db, window_process_dir,
-                               figure_mode=True, verbose=True)
+                               figure_mode=True)
 
             # Read the yaml_file which should be created in the CMT directory
             process_syn_dir = os.path.join(DATA_DIR, "ProcessSynthetic")
@@ -395,15 +384,13 @@ class TestCreatePaths(unittest.TestCase):
             cmt_filename = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
 
             # Create Processing path files
-            create_process_path_syn(cmt_filename, process_syn_dir, npar=9,
-                                    verbose=True)
+            create_process_path_syn(cmt_filename, process_syn_dir, npar=9)
 
             # Read the yaml_file which should be created in the CMT directory
             process_obs_dir = os.path.join(DATA_DIR, "ProcessObserved")
 
             # Create Processing path files
-            create_process_path_obs(cmt_filename, process_obs_dir,
-                                    verbose=True)
+            create_process_path_obs(cmt_filename, process_obs_dir)
 
             # Create dict list
             inv_dict_list, filenames = create_full_inversion_dict_list(
@@ -411,8 +398,7 @@ class TestCreatePaths(unittest.TestCase):
                 process_obs_dir,
                 process_syn_dir,
                 window_process_dir,
-                npar=9,
-                verbose=True)
+                npar=9)
 
             write_inversion_dicts(inv_dict_list, filenames)
 

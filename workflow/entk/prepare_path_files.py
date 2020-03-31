@@ -20,6 +20,9 @@ from gcmt3d.data.management.create_process_paths import create_window_path
 import os
 import argparse
 
+# Get logger to log progress
+from gcmt3d import logger
+
 
 def make_paths(cmt_filename):
 
@@ -33,24 +36,20 @@ def make_paths(cmt_filename):
     DB_params = smart_read_yaml(databaseparam_path,
                                 mpi_mode=is_mpi_env())
 
-    if DB_params["verbose"]:
-        print("Creating processing path files for the observed data...")
+    logger.info("Creating processing path files for the observed data...")
 
     # Create Processing path files observed
     process_obs_dir = os.path.join(param_path, "ProcessObserved")
-    create_process_path_obs(cmt_filename, process_obs_dir, verbose=True)
+    create_process_path_obs(cmt_filename, process_obs_dir)
 
-    if DB_params["verbose"]:
-        print("Creating processing path files for the synthetic data...")
+    logger.info("Creating processing path files for the synthetic data...")
 
     # Create Processing path files synthetics
     process_syn_dir = os.path.join(param_path, "ProcessSynthetic")
 
-    create_process_path_syn(cmt_filename, process_syn_dir, DB_params["npar"],
-                            verbose=True)
+    create_process_path_syn(cmt_filename, process_syn_dir, DB_params["npar"])
 
-    if DB_params["verbose"]:
-        print("Creating processing path files for windowing the data...")
+    logger.info("Creating processing path files for windowing the data...")
 
     # Create Window Path Files:
     window_dir = os.path.join(param_path, "CreateWindows")

@@ -11,11 +11,16 @@ request from an input CMT source object and List of stations.
 
 """
 
-from ...source import CMTSource
 import os
 from subprocess import Popen, PIPE, STDOUT
 import warnings
-import sys
+from ...source import CMTSource
+import logging
+from ...log_util import modify_logger
+
+# Make logger
+logger = logging.getLogger(__name__)
+modify_logger(logger)
 
 
 # Input Error
@@ -48,7 +53,7 @@ class DataRequest(object):
 
     def __init__(self, cmt=None, stationlist=None, channels=['BHZ'],
                  locations=['00'], duration=0.0, starttime_offset=0,
-                 outputdir="", verbose=1):
+                 outputdir=""):
         """
         :param cmt: CMTSource object from cmt Source
         :param stationlist: list of station in format
@@ -93,9 +98,6 @@ class DataRequest(object):
         self.locations = locations
         self.outputdir = outputdir
 
-        # Verbose output
-        self.verbose = verbose
-
         # Name of the output directory:
         # Can't be also parsed input since it's dependent on the provided
         # filename
@@ -116,8 +118,7 @@ class DataRequest(object):
                   channels=["BHZ"],
                   locations=["00"],
                   starttime_offset=0,
-                  outputdir="",
-                  verbose=1):
+                  outputdir=""):
         """Creates a downloader class from an input file
         This downloader class also needs to contain the output directory for
         the traces.
@@ -191,8 +192,7 @@ class DataRequest(object):
                    locations=locations,
                    duration=duration,
                    starttime_offset=starttime_offset,
-                   outputdir=outputdir,
-                   verbose=verbose)
+                   outputdir=outputdir)
 
     def request(self):
         """
@@ -264,8 +264,7 @@ class DataRequest(object):
 
             for line in Proc.stdout:
                 # write to standard out
-                if self.verbose:
-                    sys.stdout.write(line.decode('utf-8'))
+                logger.verbose(line.decode('utf-8'))
 
                 # write to logfile
                 out.write(line.decode('utf-8'))
@@ -307,8 +306,7 @@ class DataRequest(object):
                            .format(line[1], line[0], float(line[2]),
                                    float(line[3]), float(line[4]), 0.))
 
-        if self.verbose:
-            print("\nSTATIONS FILE WRITTEN.\n")
+        logger.verbose("\nSTATIONS FILE WRITTEN.\n")
 
     def __str__(self):
         """
