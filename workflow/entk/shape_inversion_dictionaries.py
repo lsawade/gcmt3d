@@ -52,8 +52,7 @@ def inversion_dictionaries(cmt_file_db, param_path):
                                         process_obs_dir,
                                         process_syn_dir,
                                         window_process_dir,
-                                        npar=DB_params['npar'],
-                                        verbose=DB_params['verbose'])
+                                        npar=DB_params['npar'])
 
     # Write the dictionaries
     write_inversion_dicts(inv_dict_list, filename_list)
