@@ -94,6 +94,9 @@ def invert(cmt_file_db, param_path):
         bandstring1 = str(os.path.basename(inv_dict_file).split(".")[1])
         if "surface" in bandstring1 or "body" in bandstring1:
             bandstring = bandstring1.split("#")[0]
+        else:
+            bandstring = bandstring1
+
         band = [float(x) for x in bandstring.split("_")]
 
 
