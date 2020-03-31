@@ -21,6 +21,9 @@ import argparse
 import warnings
 import logging
 
+# Get logger to log progress
+from gcmt3d import logger
+
 warnings.filterwarnings("ignore", category=DeprecationWarning,
                         module=r'*.numerictypes')
 warnings.filterwarnings("ignore", category=UserWarning,
@@ -46,30 +49,26 @@ def windowing(cmt_filename):
     # Get all files to be processed
     window_pathfiles = glob.glob(os.path.join(window_path_dir, "*"))
 
-    if DB_params["verbose"]:
-        print("\nStart windowing all trace pairs ...\n")
+    logger.info("\nStart windowing all trace pairs ...\n")
 
     for _i, path_file in enumerate(window_pathfiles):
 
-        if DB_params["verbose"]:
-            print("\nWindowing path file:\n")
-            print(path_file + "\n")
-            print("Start windowing traces from path file ...\n")
+        logger.info("\nWindowing path file:\n")
+        logger.info(path_file + "\n")
+        logger.info("Start windowing traces from path file ...\n")
 
         # Load process path file to get parameter file location
         params = smart_read_yaml(path_file, mpi_mode=is_mpi_env())\
             ["window_param_file"]
 
-        logger = logging.getLogger("pyflex")
-        logger.setLevel(logging.DEBUG)
+        pyflex_logger = logging.getLogger("pyflex")
+        pyflex_logger.setLevel(logging.DEBUG)
 
         # Create Smart Process class
         proc = WindowASDF(path_file, params, verbose=DB_params["verbose"],
                           debug=False)
         proc.smart_run()
 
-        if DB_params["verbose"]:
-            print("\nDONE windowing traces file.\n")
+        logger.info("\nDONE windowing traces file.\n")
 
-    if DB_params["verbose"]:
-        print("\nDONE windowed all data!\n")
+    logger.info("\nDONE windowed all data!\n")

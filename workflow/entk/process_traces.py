@@ -18,8 +18,10 @@ from gcmt3d.asdf.process import ProcASDF
 import os
 import glob
 import argparse
-
 import warnings
+
+# Get logger to log progress
+from gcmt3d import logger
 
 warnings.filterwarnings("ignore", category=DeprecationWarning,
                         module=r'*.numerictypes')
@@ -49,15 +51,13 @@ def process(cmt_filename):
     # Get all files to be processed
     process_pathfiles = glob.glob(os.path.join(process_path_dir, "*"))
 
-    if DB_params["verbose"]:
-        print("\nStart processing all data ...\n")
+    logger.info("\nStart processing all data ...\n")
 
     for _i, path_file in enumerate(process_pathfiles):
 
-        if DB_params["verbose"]:
-            print("\nProcessing path file:\n")
-            print(path_file + "\n")
-            print("Start processing traces from path file ...\n")
+        logger.info("\nProcessing path file:\n")
+        logger.info(path_file + "\n")
+        logger.info("Start processing traces from path file ...\n")
 
         # Load process path file to get parameter file location
         params = smart_read_yaml(path_file, mpi_mode=is_mpi_env())\
@@ -67,11 +67,9 @@ def process(cmt_filename):
         proc = ProcASDF(path_file, params, verbose=DB_params["verbose"])
         proc.smart_run()
 
-        if DB_params["verbose"]:
-            print("\nDONE processing path file.\n")
+        logger.info("\nDONE processing path file.\n")
 
-    if DB_params["verbose"]:
-        print("\nDONE processing all data!\n")
+    logger.info("\nDONE processing all data!\n")
 
 
 if __name__ == "__main__":
