@@ -33,6 +33,9 @@ from pycmt3d.gradient3d_mpi import Gradient3dConfig
 import os
 import glob
 
+# Get logger to log progress
+from gcmt3d import logger
+
 
 def read_yaml_file(filename):
     """read yaml file"""
@@ -73,13 +76,14 @@ def invert(cmt_file_db, param_path):
     # Inversion output directory
     inv_out_dir = os.path.join(cmt_dir, "inversion", "inversion_output")
 
-
-    if DB_params["verbose"]:
-        print("\n#######################################################")
-        print("#                                                     #")
-        print("#      Starting inversion ...                         #")
-        print("#                                                     #")
-        print("#######################################################\n")
+    # WRite start of inversion process
+    logger.info(" ")
+    logger.info("#######################################################")
+    logger.info("#                                                     #")
+    logger.info("#      Starting inversion ...                         #")
+    logger.info("#                                                     #")
+    logger.info("#######################################################")
+    logger.info(" ")
 
     # Creating Data container
     dcon = DataContainer(parlist=PARLIST[:DB_params["npar"]])
@@ -87,17 +91,17 @@ def invert(cmt_file_db, param_path):
     for _i, inv_dict_file in enumerate(inv_dict_files):
 
         # Get processing band
-        bandstring = str(os.path.basename(inv_dict_file).split(".")[1])
-        if "surface" in bandstring or "body" in bandstring:
-            bandstring = bandstring.split("#")[0]
+        bandstring1 = str(os.path.basename(inv_dict_file).split(".")[1])
+        if "surface" in bandstring1 or "body" in bandstring1:
+            bandstring = bandstring1.split("#")[0]
         band = [float(x) for x in bandstring.split("_")]
 
-        if DB_params["verbose"]:
-            print("\n")
-            print("  " + 54 * "*")
-            print("  Getting data for inversion from period band:")
-            print("  Low: %d s || High: %d s" % tuple(band))
-            print("  " + 54 * "*" + "\n")
+
+        logger.info(" ")
+        logger.info("  " + 54 * "*")
+        logger.info("  Getting data for inversion from period band:")
+        logger.info("  Low: %d s || High: %d s" % tuple(band))
+        logger.info("  " + 54 * "*" + "\n")
 
         # Load inversion file dictionary
         inv_dict = read_yaml_file(inv_dict_file)
@@ -106,27 +110,23 @@ def invert(cmt_file_db, param_path):
 
         # Adding measurements
         # Print Inversion parameters:
-        if DB_params["verbose"]:
-            print("  Adding measurements to data container:")
-            print("  _____________________________________________________\n")
+        logger.info("  Adding measurements to data container:")
+        logger.info("  _____________________________________________________")
+        logger.info(" ")
 
         # Add measurements from ASDF file and windowfile
-        if DB_params["verbose"]:
-            print("  Window file:\n", "  ", window_file)
-            print("\n  ASDF files:")
-            for key, value in asdf_dict.items():
-                print("    ", key + ":", value)
+        logger.info("  Window file:\n", "  ", window_file)
+        logger.info("\n  ASDF files:")
+        for key, value in asdf_dict.items():
+            logger.info("    ", key + ":", value)
 
         dcon.add_measurements_from_asdf(window_file, asdf_dict)
 
-        if DB_params["verbose"]:
-            print(
-                "  _____________________________________________________\n")
-            print("   ... \n\n")
+        logger.info("  _____________________________________________________")
+        logger.info("  ... \n\n")
 
-    if DB_params["verbose"]:
-        print("  Setting up inversion classes .... ")
-        print("  " + 54 * "*" + "\n\n")
+    logger.info("  Setting up inversion classes .... ")
+    logger.info("  " + 54 * "*" + "\n\n")
 
 
 
@@ -209,9 +209,11 @@ def invert(cmt_file_db, param_path):
         bootstrap_repeat=int(grad3d_params["bootstrap_repeat"]),
         bootstrap_subset_ratio=float(grad3d_params["bootstrap_subset_ratio"]))
 
-    if DB_params["verbose"]:
-        print("  PyCMT3D is finding an improved CMTSOLUTION .... ")
-        print("  " + 54 * "*" + "\n\n")
+
+    logger.info("  PyCMT3D is finding an improved CMTSOLUTION .... ")
+    logger.info("  " + 54 * "*")
+    logger.info(" ")
+    logger.info(" ")
 
     # Create inversion class
     # inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)

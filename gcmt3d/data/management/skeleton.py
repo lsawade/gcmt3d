@@ -13,14 +13,22 @@ Last Update: June 2019
 
 """
 
-from ...source import CMTSource
-from ...asdf.utils import write_yaml_file
 import glob
 import os
 import shutil
 import warnings
 from distutils.dir_util import copy_tree
 from obspy import read_events
+from time import time
+from ...source import CMTSource
+from ...asdf.utils import write_yaml_file
+
+import logging
+from ...log_util import modify_logger
+
+# Create logger
+logger = logging.getLogger(__name__)
+modify_logger(logger)
 
 STATIONS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "STATIONS")
 
@@ -30,7 +38,7 @@ class DataBaseSkeleton(object):
     the class copies the necessary data from the specfem folder."""
 
     def __init__(self, basedir=None, cmt_fn=None, specfem_dir=None,
-                 stations_file=None, npar=9, verbose=False,
+                 stations_file=None, npar=9,
                  overwrite=False):
         """
         Args:
@@ -60,7 +68,6 @@ class DataBaseSkeleton(object):
         self.npar = npar
 
         # Modifiers
-        self.v = verbose
         self.ow = overwrite
 
         # Check if things exists
@@ -90,34 +97,39 @@ class DataBaseSkeleton(object):
     def create_all(self):
         """ Writes complete database structure."""
 
-        if self.v:
-            print("Creating earthquake entry in database %s ... " %
-                  self.basedir)
+        logger.info("Creating earthquake entry in database %s ... "
+                    % self.basedir)
+        t1 = time()
 
         # Create earthquake directory
+        logger.info("Creating simulation directories...")
         self.create_Cdirs()
 
         # Create station metadata directory
+        logger.info("Creating station directory...")
         self.create_station_dir()
 
         # Create Log directory
+        logger.info("Creating log directory...")
         self.create_log_dir()
 
         # Create window data directory
+        logger.info("Creating window...")
         self.create_window_dir()
 
         # Create Seismogram directory
+        logger.info("Creating seismogram directories")
         self.create_seismogram_dir()
 
         # Create Inversion directory
+        logger.info("Creating inversion directories")
         self.create_inversion_dir()
 
         if self.specfem_dir is not None:
             # Create
             self.create_CMT_SIM_dir()
 
-        if self.v:
-            print("Done.")
+        logger.info("Done. Time Elapsed %.1f s" % (time() - t1))
 
     def create_base(self):
         """Creates Base directory if it doesn't exist."""
@@ -369,9 +381,9 @@ class DataBaseSkeleton(object):
                     # Create the Path file for later usage of the ASDF
                     # conversion
                     if _subdir == "OUTPUT_FILES":
-                        if self.v:
-                            print("Writing YAML path file from waveform dir "
-                                  "%s" % dst_path)
+                        logger.verbose("Writing YAML path file "
+                                       "from waveform dir "
+                                       "%s" % dst_path)
                         self._create_syn_path_yaml(dst_path)
 
                 # Create symbolic link to destination folders
@@ -421,9 +433,9 @@ class DataBaseSkeleton(object):
                 self._create_dir(obs_dir_path, False)
 
             # write Observed path file
-            if self.v:
-                print("Writing the YAML path file to %s" %
-                      os.path.join(obs_dir_path, "observed.yml"))
+            logger.verbose("Writing the YAML path file to %s" %
+                           os.path.join(obs_dir_path, "observed.yml"))
+
             self._create_obs_path_yaml(self.Cids[_i], _Cdir)
 
             # Create the subdirectory for processing pathfiles
@@ -450,39 +462,33 @@ class DataBaseSkeleton(object):
         potential duplicates in the same place."""
 
         if os.path.isdir(destination) and ow:
-            if self.v:
-                print("Directory %s exists already. It will "
-                      "be overwritten." % destination)
+            logger.verbose("Directory %s exists already. It will "
+                           "be overwritten." % destination)
             shutil.rmtree(destination)
             copy_tree(source, destination, **kwargs)
 
         elif os.path.isdir(destination) and ow is False:
-            if self.v:
-                print("Directory %s exists already. It will "
-                      "NOT be overwritten." % destination)
+            logger.verbose("Directory %s exists already. It will "
+                           "NOT be overwritten." % destination)
         else:
-            if self.v:
-                print("Copying directory %s file to %s"
-                      % (source, destination))
+            logger.verbose("Copying directory %s file to %s"
+                           % (source, destination))
             copy_tree(source, destination)
 
     def _copy_file(self, source, destination, ow):
         """ Copies file from source to destination. """
 
         if os.path.isfile(destination) and ow:
-            if self.v:
-                print("File %s exists already. It will "
-                      "be overwritten." % destination)
+            logger.verbose("File %s exists already. It will "
+                           "be overwritten." % destination)
             self._replace_file(source, destination)
 
         elif os.path.isfile(destination) and ow is False:
-            if self.v:
-                print("File %s exists already. It will "
-                      "NOT be overwritten." % destination)
-
+            logger.verbose("File %s exists already. It will "
+                           "NOT be overwritten." % destination)
         else:
-            if self.v:
-                print("Copying file %s file to %s." % (source, destination))
+            logger.verbose("Copying file %s file to %s."
+                           % (source, destination))
             shutil.copyfile(source, destination)
 
     def _write_quakeml(self, source, destination, ow):
@@ -494,16 +500,14 @@ class DataBaseSkeleton(object):
         catalog = read_events(source)
 
         if os.path.isfile(destination) and ow:
-            if self.v:
-                print("Earthquake file %s exists already. It will "
-                      "be overwritten." % destination)
+            logger.verbose("Earthquake file %s exists already. It will "
+                           "be overwritten." % destination)
             os.remove(destination)
             catalog.write(destination, format="QUAKEML")
 
         elif os.path.isfile(destination) and ow is False:
-            if self.v:
-                print("Earthquake file %s exists already. It will "
-                      "NOT be overwritten." % destination)
+            logger.verbose("Earthquake file %s exists already. It will "
+                           "NOT be overwritten." % destination)
 
             # Warn if destination eq is not equal to new eq
             if not CMTSource.from_CMTSOLUTION_file(source) \
@@ -511,9 +515,8 @@ class DataBaseSkeleton(object):
                 warnings.warn("CMT solution in the database is not "
                               "the same as the file with the same ID.")
         else:
-            if self.v:
-                print("Writing earthquake %s file to %s." % (source,
-                                                             destination))
+            logger.verbose("Writing earthquake %s file to %s." % (source,
+                                                                  destination))
             catalog.write(destination, format="QUAKEML")
 
     def _create_syn_path_yaml(self, waveform_dir):
@@ -552,8 +555,7 @@ class DataBaseSkeleton(object):
         yaml_file_path = os.path.join(cmt_sim_dir, cmt_name + ".yml")
 
         # Create dictionary
-        if self.v:
-            print("Writing path file %s." % yaml_file_path)
+        logger.verbose("Writing path file %s." % yaml_file_path)
 
         d = {"waveform_dir": waveform_dir,
              "filetype": filetype,
@@ -602,8 +604,7 @@ class DataBaseSkeleton(object):
                                       "obs", "observed.yml")
 
         # Create dictionary
-        if self.v:
-            print("Writing path file %s." % yaml_file_path)
+        logger.verbose("Writing path file %s." % yaml_file_path)
 
         d = {"waveform_files": waveform_files,
              "quakeml_file": quakeml_file,
@@ -618,18 +619,14 @@ class DataBaseSkeleton(object):
         """Create subdirectory"""
         if os.path.exists(directory) and os.path.isdir(directory) \
                 and ow is False:
-            if self.v:
-                print("%s exists already. Not overwritten." % directory)
+            logger.verbose("%s exists already. Not overwritten." % directory)
 
         elif os.path.exists(directory) and os.path.isdir(directory) \
                 and ow is True:
-            if self.v:
-                print(
-                    "%s exists already, but overwritten." % directory)
-                self._replace_dir(directory)
+            logger.verbose("%s exists already, but overwritten." % directory)
+            self._replace_dir(directory)
         else:
-            if self.v:
-                print("Creating directory %s." % directory)
+            logger.verbose("Creating directory %s." % directory)
             os.makedirs(directory)
 
     @staticmethod

@@ -19,6 +19,8 @@ from gcmt3d.data import SpecfemSources
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import os
 import argparse
+# Get logger to log progress
+from gcmt3d import logger
 
 def write_sources(cmt_filename):
 
@@ -47,14 +49,13 @@ def write_sources(cmt_filename):
     dz = float(INV_params["config"]["ddepth"])       # 1000 m
     ddeg = float(INV_params["config"]["dlocation"])  # 0.001 deg
 
-    if DB_params["verbose"]:
-        print("\n")
-        print("  Perturbation parameters")
-        print("  " + 50 * "*")
-        print("  𝚫M: %g" % dm)
-        print("  𝚫z: %g" % dz)
-        print("  𝚫deg: %g" % ddeg)
-        print("  " + 50 * "*" + "\n")
+    logger.info(" ")
+    logger.info("  Perturbation parameters")
+    logger.info("  " + 50 * "*")
+    logger.info("  𝚫M: %g" % dm)
+    logger.info("  𝚫z: %g" % dz)
+    logger.info("  𝚫deg: %g" % ddeg)
+    logger.info("  " + 50 * "*" + "\n")
 
     # Create source creation class
     sfsource = SpecfemSources(cmt, cmt_dir, npar=DB_params['npar'],

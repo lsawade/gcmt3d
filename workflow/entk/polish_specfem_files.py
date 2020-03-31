@@ -21,7 +21,8 @@ from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import argparse
 import os
 
-
+# Get logger to log progress
+from gcmt3d import logger
 
 def clean_up(cmt_filename):
 
@@ -47,8 +48,7 @@ def clean_up(cmt_filename):
                        modules=cm_dict['modulelist'],
                        gpu_module=cm_dict['gpu_module'],
                        GPU_MODE=specfemspecs["GPU_MODE"],
-                       walltime=specfemspecs['walltime_solver'],
-                       verbose=specfemspecs['verbose'])
+                       walltime=specfemspecs['walltime_solver'])
 
     if specfemspecs["verbose"]:
         print("Deleting unnecessary stuff ...")
