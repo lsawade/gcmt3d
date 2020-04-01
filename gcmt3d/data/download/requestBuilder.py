@@ -103,9 +103,9 @@ class DataRequest(object):
         # filename
         if self.outputdir == "":
             self.outputdir = "."
-            warnings.warn("No output directory chosen. Seismograms will be "
-                          + "saved\nin current location in subdirectory "
-                          + "'seismograms/'.")
+            logger.warning("No output directory chosen. Seismograms will be ")
+            logger.warning("saved in current location in subdirectory ")
+            logger.warning("'seismograms/'.")
         elif not os.path.exists(self.outputdir):
             os.makedirs(self.outputdir)
 
@@ -264,7 +264,7 @@ class DataRequest(object):
 
             for line in Proc.stdout:
                 # write to standard out
-                logger.verbose(line.decode('utf-8'))
+                logger.verbose(line.decode('utf-8').strip())
 
                 # write to logfile
                 out.write(line.decode('utf-8'))
@@ -305,8 +305,9 @@ class DataRequest(object):
                 file.write('{0:11s}{1:4s}{2:12.4f}{3:12.4f}{4:10.1f}{5:8.1f}\n'
                            .format(line[1], line[0], float(line[2]),
                                    float(line[3]), float(line[4]), 0.))
-
-        logger.verbose("\nSTATIONS FILE WRITTEN.\n")
+        logger.verbose(" ")
+        logger.verbose("STATIONS FILE WRITTEN.")
+        logger.verbose(" ")
 
     def __str__(self):
         """
