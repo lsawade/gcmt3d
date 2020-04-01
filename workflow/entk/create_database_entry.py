@@ -48,7 +48,6 @@ def create_entry(cmt_filename):
                           cmt_fn=cmt_filename,
                           specfem_dir=specfemspecs["SPECFEM_DIR"],
                           stations_file=stations_file,
-                          verbose=DB_params['verbose'],
                           overwrite=DB_params['overwrite'])
 
     # Database Create entry
