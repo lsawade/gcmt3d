@@ -50,7 +50,7 @@ def data_request(cmt_filename):
                                     outputdir=cmt_dir)
 
     # Print Earthquake Download Info
-    for line in Request.__str__.splitlines():
+    for line in Request.__str__().splitlines():
         logger.info(line)
 
     # Request download
