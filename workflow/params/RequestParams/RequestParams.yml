@@ -5,7 +5,7 @@ duration: 7600  # Remember to change simulation length if you change this
 channels: ['BHN','BHE','BHZ']
 
 # location 00 is the primary location for most seismometers
-locations: ['00', '10']
+locations: ['00']
 
 # -60 seconds is 1 min before the earthquakes inverted cmt solution
 starttime_offset: -60
