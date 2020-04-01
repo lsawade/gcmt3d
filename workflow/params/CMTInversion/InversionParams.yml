@@ -1,7 +1,7 @@
 # Weight configuration for pycmt3d
 weight_config:
   normalize_by_energy: True # Check on/off
-  normalize_by_category: False  # usually True
+  normalize_by_category: True  # usually True
   comp_weight:
     Z: 1.0
     R: 1.0
