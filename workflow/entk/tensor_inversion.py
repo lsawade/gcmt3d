@@ -225,15 +225,15 @@ def invert(cmt_file_db, param_path):
     logger.info(" ")
 
     # Create inversion class
-    # inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)
-    inv = Inversion(cmtsource, dcon, cmt3d_config, mt_config=None)
+    inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)
+    # inv = Inversion(cmtsource, dcon, cmt3d_config, mt_config=None)
 
     # Run inversion
     inv.source_inversion()
 
     # Plot results
     inv.plot_summary(inv_out_dir, figure_format="pdf")
-    # inv.write_summary_json(outputdir=inv_out_dir, mode="global")
+    inv.write_summary_json(outputdir=inv_out_dir, mode="global")
     inv.write_new_cmtfile(outputdir=inv_out_dir)
     # inv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
     #                      file_format="asdf")
