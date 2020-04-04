@@ -140,7 +140,7 @@ def test_rotate_ne_12():
 
 
 def test_rotate_ne_and_12():
-    # test if rotate_NE_12 and rotate_12_NE are reversable
+    # tests if rotate_NE_12 and rotate_12_NE are reversable
 
     n = np.array([1.0, 0.0])
     e = np.array([0.0, 1.0])

@@ -24,7 +24,7 @@ long_description = "%s" % read("README.md")
 
 
 class PyTest(testcommand):
-    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
+    user_options = [('pytest-args=', 'a', "Arguments to pass to py.tests")]
 
     def initialize_options(self):
         testcommand.initialize_options(self)
@@ -56,7 +56,7 @@ setup(
     package_data={'gcmt3d/data/download/resources/': ['Fetchdata',
                                                       'stations.txt']},
     tests_require=['pytest'],
-    cmdclass={'test': PyTest},
+    cmdclass={'tests': PyTest},
     zip_safe=False,
     classifiers=[
         "Development Status :: Alpha",
@@ -67,5 +67,6 @@ setup(
     extras_require={
         "docs": ["sphinx", "sphinx_rtd_theme"],
         "tests": ["pytest", "py"]
-    }
+    },
+    scripts=['bins/clean_up_simdirs']
 )
