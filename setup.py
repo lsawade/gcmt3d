@@ -69,9 +69,8 @@ setup(
         "tests": ["pytest", "py"]
     },
     entry_points={'console_scripts': [
-        'clean-up-sim-dirs = gcmt3d.bins.clean_up_simdirs:main',
-        'convert-to-asdf = gcmt3d.bins.convert_to_asdf:main'
-        'convert-to-sac = gcmt3d.bins.convert_to_sac:main',
+        'convert2asdf = gcmt3d.bins.convert_to_asdf:main',
+        'convert2sac = gcmt3d.bins.convert_to_sac:main',
         'count-windows = gcmt3d.bins.count_overall_windows:main',
         'create-entry = gcmt3d.bins.create_entry:main',
         'extract-station-info = gcmt3d.bins.extract_station_info:main',
@@ -80,7 +79,7 @@ setup(
         'inversion = gcmt3d.bins.inversion:main',
         'process-asdf = gcmt3d.bins.process_asdf:main',
         'request-data = gcmt3d.bins.request_data:main',
-        'select-windows = gcmt3d.bins.window_selection_asdf:main'
+        'select-windows = gcmt3d.bins.window_selection_asdf:main',
         'write-sources = gcmt3d.bins.write_sources:main',
     ]}
 )
