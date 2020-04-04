@@ -13,12 +13,12 @@ This script will download the observed data. To the necessary places.
 
 
 from gcmt3d.data import DataRequest
-from gcmt3d.utils import download
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import os
 
 # Get logger to log progress
 from gcmt3d import logger
+
 
 def data_request(cmt_filename):
 
@@ -45,8 +45,8 @@ def data_request(cmt_filename):
                                     duration=rCparams['duration'],
                                     channels=rCparams['channels'],
                                     locations=rCparams['locations'],
-                                    starttime_offset=\
-                                    rCparams['starttime_offset'],
+                                    starttime_offset=rCparams[
+                                        'starttime_offset'],
                                     outputdir=cmt_dir)
 
     # Print Earthquake Download Info

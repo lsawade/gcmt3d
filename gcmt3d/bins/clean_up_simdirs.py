@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-This script will create the perturbed Moment tensors in the perturbation
-directories.
-
+This script will clean up the simulation directories
 
 :copyright:
     Lucas Sawade (lsawade@princeton.edu)
@@ -12,11 +10,11 @@ directories.
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 
-from gcmt3d.workflow import convert
+from ..workflow.polish_specfem_files import clean_up
 import argparse
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('filename', help='Path to CMTSOLUTION file',
@@ -24,4 +22,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Run
-    convert(args.filename)
+    clean_up(args.filename)
+
+
+if __name__ == '__main__':
+    main()

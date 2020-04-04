@@ -38,8 +38,7 @@ def main():
     else:
         params_file = args.params_file
 
-    proc = ProcASDF(args.path_file, params_file, 
-                    verbose=args.verbose)
+    proc = ProcASDF(args.path_file, params_file, verbose=args.verbose)
     proc.smart_run()
 
 

@@ -13,7 +13,6 @@ request from an input CMT source object and List of stations.
 
 import os
 from subprocess import Popen, PIPE, STDOUT
-import warnings
 from ...source import CMTSource
 import logging
 from ...log_util import modify_logger

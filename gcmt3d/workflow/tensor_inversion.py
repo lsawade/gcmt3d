@@ -19,15 +19,9 @@ from pycmt3d.source import CMTSource
 from pycmt3d import DataContainer
 from pycmt3d import DefaultWeightConfig, Config
 from pycmt3d.constant import PARLIST
-from pycmt3d import Cmt3D
 from pycmt3d import Inversion
 
-# GRID3D
-from pycmt3d import Grid3d
-from pycmt3d import Grid3dConfig
-
 # Gradient3D
-from pycmt3d.gradient3d_mpi import Gradient3d
 from pycmt3d.gradient3d_mpi import Gradient3dConfig
 
 import os
@@ -99,7 +93,6 @@ def invert(cmt_file_db, param_path):
 
         band = [float(x) for x in bandstring.split("_")]
 
-
         logger.info(" ")
         logger.info("  " + 54 * "*")
         logger.info("  Getting data for inversion from period band:")
@@ -137,8 +130,6 @@ def invert(cmt_file_db, param_path):
     logger.info("  " + 54 * "*")
     logger.info("  ... ")
 
-
-
     # Setting up weight config
     inv_weight_config = INV_params["weight_config"]
 
@@ -152,27 +143,8 @@ def invert(cmt_file_db, param_path):
         azi_exp_idx=inv_weight_config["azi_exp_idx"])
 
     # Setting up general inversion config
-    grid3d_params = INV_params["grid3d_config"]
-
-    grid3d_config = Grid3dConfig(
-        origin_time_inv=bool(grid3d_params["origin_time_inv"]),
-        time_start=float(grid3d_params["time_start"]),
-        time_end=float(grid3d_params["time_end"]),
-        dt_over_delta=float(grid3d_params["dt_over_delta"]),
-        energy_inv=bool(grid3d_params["energy_inv"]),
-        energy_start=float(grid3d_params["energy_start"]),
-        energy_end=float(grid3d_params["energy_end"]),
-        denergy=float(grid3d_params["denergy"]),
-        energy_keys=grid3d_params['energy_keys'],
-        energy_misfit_coef=grid3d_params["energy_misfit_coef"],
-        weight_data=bool(grid3d_params["weight_data"]),
-        taper_type=grid3d_params["taper_type"],
-        use_new=True,
-        weight_config=weight_config)
-
-    # Setting up general inversion config
     inv_params = INV_params["config"]
-    
+
     cmt3d_config = Config(
         DB_params["npar"],
         dlocation=float(inv_params["dlocation"]),
@@ -200,24 +172,24 @@ def invert(cmt_file_db, param_path):
         azi_exp_idx=inv_weight_config["azi_exp_idx"])
 
     grad3d_config = Gradient3dConfig(
-        method=grad3d_params["method"], 
+        method=grad3d_params["method"],
         weight_data=bool(grad3d_params["weight_data"]),
         weight_config=weight_config_grad3d,
-        use_new=bool(grad3d_params["use_new"]),  # flag to use the gradient method on inverted traces.
+        use_new=bool(grad3d_params["use_new"]),
+        # flag to use the gradient method on inverted traces.
         taper_type=grad3d_params["taper_type"],
-        c1=float(grad3d_params["c1"]), 
-        c2=float(grad3d_params["c2"]), 
-        idt=float(grad3d_params["idt"]), 
-        ia =float(grad3d_params["ia"]),
-        nt=int(grad3d_params["nt"]), 
-        nls=int(grad3d_params["nls"]), 
+        c1=float(grad3d_params["c1"]),
+        c2=float(grad3d_params["c2"]),
+        idt=float(grad3d_params["idt"]),
+        ia=float(grad3d_params["ia"]),
+        nt=int(grad3d_params["nt"]),
+        nls=int(grad3d_params["nls"]),
         crit=float(grad3d_params["crit"]),
-        precond=bool(grad3d_params["precond"]), 
-        reg=bool(grad3d_params["reg"]), 
-        bootstrap=bool(grad3d_params["bootstrap"]), 
+        precond=bool(grad3d_params["precond"]),
+        reg=bool(grad3d_params["reg"]),
+        bootstrap=bool(grad3d_params["bootstrap"]),
         bootstrap_repeat=int(grad3d_params["bootstrap_repeat"]),
         bootstrap_subset_ratio=float(grad3d_params["bootstrap_subset_ratio"]))
-
 
     logger.info("  PyCMT3D is finding an improved CMTSOLUTION .... ")
     logger.info("  " + 54 * "*")
@@ -242,20 +214,21 @@ def invert(cmt_file_db, param_path):
                                   figure_format="pdf")
 
     # # Plot Statistics for Gridsearch
-    # inv.grid3d.plot_stats_histogram(outputdir=inv_out_dir, figure_format="pdf")
+    # inv.grid3d.plot_stats_histogram(outputdir=inv_out_dir,
+    #                                 figure_format="pdf")
 
     # Plot Statistics for inversion
     inv.cmt3d.plot_stats_histogram(outputdir=inv_out_dir,
                                    figure_format="pdf")
 
     # # Plot Misfit summary
-    # inv.grid3d.plot_misfit_summary(outputdir=inv_out_dir, figure_format="pdf")
-
+    # inv.grid3d.plot_misfit_summary(outputdir=inv_out_dir,
+    #                                figure_format="pdf")
 
 
 if __name__ == "__main__":
-
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', action='store', dest='cmt_file',
                         required=True, help="Path to CMT file in database")
