@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+This is a script that will create a database entry given a cmt solution in the
+
+
+:copyright:
+    Lucas Sawade (lsawade@princeton.edu)
+:license:
+    GNU Lesser General Public License, version 3 (LGPLv3)
+    (http://www.gnu.org/licenses/lgpl-3.0.en.html)
+"""
+
+import os
+from gcmt3d.data.management.skeleton import DataBaseSkeleton
+from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
+
+
+def create_entry(cmt_filename):
+    # Define parameter directory
+    param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+        __file__))), "params")
+    databaseparam_path = os.path.join(param_path,
+                                      "Database/DatabaseParameters.yml")
+    specfemspec_path = os.path.join(param_path,
+                                    "SpecfemParams/SpecfemParams.yml")
+    stations_path = os.path.join(param_path,
+                                 "RequestParams/STATIONS")
+
+    # Load Parameters
+    DB_params = smart_read_yaml(databaseparam_path, mpi_mode=is_mpi_env())
+    specfemspecs = smart_read_yaml(specfemspec_path, mpi_mode=is_mpi_env())
+
+    # Check whether stationsfile in Parampath
+    if os.path.exists(stations_path):
+        stations_file = stations_path
+    else:
+        # if no stations file in the parameter directory,
+        # the standard stations file is going to be used
+        stations_file = None
+
+    # Database Setup.
+    DB = DataBaseSkeleton(basedir=DB_params["databasedir"],
+                          cmt_fn=cmt_filename,
+                          specfem_dir=specfemspecs["SPECFEM_DIR"],
+                          stations_file=stations_file,
+                          overwrite=DB_params['overwrite'])
+
+    # Database Create entry
+    DB.create_all()
+
+    # Return new earthquake location.
+    cmt_in_database = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
+
+    return cmt_in_database
