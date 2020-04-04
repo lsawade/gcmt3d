@@ -112,9 +112,9 @@ def update_user_levels(user_module, config, station, event, obsd, synt):
 
 
 def window_on_trace(obs_tr, syn_tr, config, station=None,
-                    event=None, user_module=None, _verbose=False,
-                    figure_mode=False, figure_dir=None,
-                    figure_format="pdf"):
+                event=None, user_module=None, _verbose=False,
+                figure_mode=False, figure_dir=None,
+                figure_format="pdf"):
     """
     Window selection on a trace(obspy.Trace)
 
