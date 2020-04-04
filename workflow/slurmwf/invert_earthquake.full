@@ -210,7 +210,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        srun -N1 -n25 window-selection-asdf -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
+        srun -N1 -n25 select-windows -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
     fi
 done 
 wait
@@ -222,7 +222,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        srun -N1 -n25 window-selection-asdf -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
+        srun -N1 -n25 select-windows -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
     fi
 done
 echo " "
