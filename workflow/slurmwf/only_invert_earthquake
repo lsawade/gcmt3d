@@ -17,7 +17,6 @@ GCMT3D='/home/lsawade/GCMT3D'
 WORKFLOW_DIR="$GCMT3D/workflow"
 PARAMETER_PATH="$WORKFLOW_DIR/params"
 SLURM_DIR="$WORKFLOW_DIR/slurmwf"
-BIN_DIR="$WORKFLOW_DIR/bins"
 DATABASE_DIR='/scratch/gpfs/lsawade/database'
 
 # EARTHQUAKE PARAMETERS and Paths derived from the file
@@ -93,7 +92,7 @@ echo "******** CREATE INVERSION DICTIONARIES****************"
 echo " "
 INV_DICT_LOG_FILE="$LOG_DIR/$CID.009.Create-Inversion-Dicts.STDOUT"
 echo "Processing logfile: \$INV_DICT_LOG_FILE"
-python $BIN_DIR/write_inversion_dicts.py -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
+python write-inversion-dicts -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
 echo " "
 echo "Done."
 echo " "
@@ -105,7 +104,7 @@ echo "******** INVERSION ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
 echo "Inversion logfile: \$INVERSION_LOG_FILE"
-python $BIN_DIR/inversion.py -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+python inversion -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "

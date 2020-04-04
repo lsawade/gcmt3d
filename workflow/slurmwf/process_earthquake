@@ -17,7 +17,6 @@ GCMT3D='/home/lsawade/GCMT3D'
 WORKFLOW_DIR="$GCMT3D/workflow"
 PARAMETER_PATH="$WORKFLOW_DIR/params"
 SLURM_DIR="$WORKFLOW_DIR/slurmwf"
-BIN_DIR="$WORKFLOW_DIR/bins"
 DATABASE_DIR='/scratch/gpfs/lsawade/database'
 
 # EARTHQUAKE PARAMETERS and Paths derived from the file
@@ -102,7 +101,7 @@ for CMT in "\${CMT_LIST[@]}"; do
     echo "Conversion yml: \$CONV_PATH_FILE"
     CONV_LOG_FILE=\$CONV_LOG.\$CMT.STDOUT
     echo "Conversion logfile: \$CONV_LOG_FILE"
-    srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
+    srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
 done                                                   
 
 # Observed data
@@ -110,7 +109,7 @@ CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
 echo "Conversion yml: \$CONV_PATH_FILE"
 CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
 echo "Conversion logfile: \$CONV_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
+srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
 wait
 echo " "
 echo "Done."
@@ -123,7 +122,7 @@ echo "******** CREATE PROCESS PATHS ************************"
 echo " "
 CPP_LOG_FILE="$LOG_DIR/$CID.006.Create-Process-Paths.STDOUT"
 echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/create_path_files.py $CIN_DB > \$CPP_LOG_FILE
+srun -N1 -n1 create-path-files $CIN_DB > \$CPP_LOG_FILE
 echo " "
 
 
@@ -145,7 +144,7 @@ for BAND in \$BAND_LIST; do
             echo "Processing yml: \$PROCESS_PATH_FILE"
             PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
             echo "Processing logfile: \$PROC_LOG_FILE"
-            srun -N1 -n1 python $BIN_DIR/process_asdf.py -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
+            srun -N1 -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
         fi
     done
     wait
