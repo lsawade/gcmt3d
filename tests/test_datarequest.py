@@ -14,8 +14,7 @@ Run with pytest.
     27.02.2019
 
 """
-# from __future__ import print_function, division
-# import inspect
+from __future__ import print_function, division
 from gcmt3d.data.download import DataRequest
 from gcmt3d.data.download import InputError
 import unittest
