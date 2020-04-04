@@ -108,7 +108,7 @@ echo " "
 echo "******** Writing Sources  ****************************"
 echo " "
 echo \$WS_LOG
-srun -N1 -n1 python $BIN_DIR/write_sources.py $CIN_DB > \$WS_LOG
+srun -N1 -n1 write-sources $CIN_DB > \$WS_LOG
 echo "Done."
 echo " "
 echo " "
@@ -143,7 +143,7 @@ for CMT in "\${CMT_LIST[@]}"; do
     echo "Conversion yml: \$CONV_PATH_FILE"
     CONV_LOG_FILE=\$CONV_LOG.\$CMT.STDOUT
     echo "Conversion logfile: \$CONV_LOG_FILE"
-    srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
+    srun -N1 -n1 convert-to-asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
 done                                                   
 
 # Observed data
@@ -151,7 +151,7 @@ CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
 echo "Conversion yml: \$CONV_PATH_FILE"
 CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
 echo "Conversion logfile: \$CONV_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/convert_to_asdf.py -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
+srun -N1 -n1 convert-to-asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
 wait
 echo " "
 echo "Done."
@@ -164,7 +164,7 @@ echo "******** CREATE PROCESS PATHS ************************"
 echo " "
 CPP_LOG_FILE="$LOG_DIR/$CID.006.Create-Process-Paths.STDOUT"
 echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
-srun -N1 -n1 python $BIN_DIR/create_path_files.py $CIN_DB > \$CPP_LOG_FILE
+srun -N1 -n1 create-path-files $CIN_DB > \$CPP_LOG_FILE
 echo " "
 
 
@@ -186,7 +186,7 @@ for BAND in \$BAND_LIST; do
             echo "Processing yml: \$PROCESS_PATH_FILE"
             PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
             echo "Processing logfile: \$PROC_LOG_FILE"
-            srun -N1 -n1 python $BIN_DIR/process_asdf.py -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
+            srun -N1 -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
         fi
     done
     wait
@@ -210,7 +210,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        srun -N1 -n25 python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
+        srun -N1 -n25 window-selection-asdf -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
     fi
 done 
 wait
@@ -222,7 +222,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        srun -N1 -n25 python $BIN_DIR/window_selection_asdf.py -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
+        srun -N1 -n25 window-selection-asdf -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
     fi
 done
 echo " "
@@ -236,7 +236,7 @@ echo "******** CREATE INVERSION DICTIONARIES****************"
 echo " "
 INV_DICT_LOG_FILE="$LOG_DIR/$CID.009.Create-Inversion-Dicts.STDOUT"
 echo "Processing logfile: \$INV_DICT_LOG_FILE"
-python $BIN_DIR/write_inversion_dicts.py -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
+write-inversion-dicts -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
 echo " "
 echo "Done."
 echo " "
@@ -248,7 +248,7 @@ echo "******** INVERSION ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
 echo "Inversion logfile: \$INVERSION_LOG_FILE"
-python $BIN_DIR/inversion.py -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+inversion -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "
@@ -266,8 +266,7 @@ echo " "
 #         rm -rf $STATION_DATA
 #         echo 'Done.'
 #     fi
-# done
-   
+# done   
 
 exit 0
 EOF

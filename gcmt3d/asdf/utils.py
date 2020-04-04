@@ -16,6 +16,7 @@ import json
 import os
 import time
 import yaml
+import matplotlib.pyplot as plt
 
 
 def is_mpi_env():
@@ -216,3 +217,22 @@ def isclose(a, b, rel_tol=1.0e-09, abs_tol=0.0):
     tolerance level
     """
     return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+
+def load_json(filename):
+    with open(filename, 'r') as fh:
+        return json.load(fh)
+
+
+def load_yaml(filename):
+    with open(filename, 'r') as fh:
+        return yaml.load(fh)
+
+
+def dump_yaml(content, filename):
+    with open(filename, 'w') as fh:
+        yaml.dump(content, fh, indent=2)
+
+
+def reset_matplotlib():
+    plt.switch_backend('agg')

@@ -21,7 +21,7 @@ def least_square_error(data1, data2):
     :param data2:
     :return:
     """
-    # least square test
+    # least square tests
     err_max = 0.0
     norm = np.linalg.norm
     err = norm(data1 - data2) / np.sqrt(norm(data1) * norm(data2))
@@ -35,7 +35,7 @@ def cross_correlation(data1, data2):
     :param data2:
     :return:
     """
-    # correlation test
+    # correlation tests
     corr_min = 1.0
     corr_mat = np.corrcoef(data1, data2)
     corr = np.min(corr_mat)

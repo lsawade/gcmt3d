@@ -10,7 +10,7 @@ import os
 import argparse
 from _get_Cdir import get_Centry_path
 
-# Hopefully this changes soon with entk for python 3
+# Hopefully this changes soon with workflow for python 3
 import sys
 sys.path.append(os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),  # GCMT3D DIR
