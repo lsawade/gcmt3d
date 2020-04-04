@@ -11,17 +11,12 @@ This script will download the observed data. To the necessary places.
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 
-
-from gcmt3d.data import DataRequest
-from gcmt3d.utils.download import download_waveform
-from gcmt3d.utils.download import download_stationxml
 from gcmt3d.utils.download import read_station_file
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 from gcmt3d.source import CMTSource
 import os
-import obspy
-from obspy.clients.fdsn.mass_downloader import RectangularDomain,\
-     Restrictions, MassDownloader
+from obspy.clients.fdsn.mass_downloader import RectangularDomain, \
+    Restrictions, MassDownloader
 
 
 def data_request(cmt_filename):
@@ -30,10 +25,6 @@ def data_request(cmt_filename):
     param_path = os.path.join(os.path.dirname(
         os.path.dirname(os.path.abspath(__file__))), "params")
 
-    # Get stations file
-    STATIONS = os.path.join(param_path,
-                                      "RequestParams/STATIONS")
-    
     request_param_path = os.path.join(param_path,
                                       "RequestParams/RequestParams.yml")
 
@@ -54,20 +45,16 @@ def data_request(cmt_filename):
     cmt = CMTSource.from_CMTSOLUTION_file(cmt_filename)
     duration = rCparams['duration']
     starttime_offset = rCparams['starttime_offset']
-    
+
     starttime = cmt.origin_time + starttime_offset
-    endtime = starttime + duration 
+    endtime = starttime + duration
 
     # Get station_list from station_file in database entry
     stations = read_station_file(stationsfile)
-    station_ids = [station[0] + "_" + station[1] 
-                   for station in stations]
-    
+
     # Create list of networks to download from
     networks = list(set([station[0] for station in stations]))
     network_string = ",".join(networks)
-    print(network_string)
-
 
     # Set domain containing all locations
     # Rectangular domain containing parts of southern Germany.
@@ -82,11 +69,10 @@ def data_request(cmt_filename):
         minimum_length=0.975,  # Trace needs to be almost full length
         network=network_string,  # Only certain networks
         channel="BHZ, BHE, BHN",  # ",".join(rCparams['channels']),
-        location="00"
-        )
+        location="00")
 
     # No specified providers will result in all known ones being queried.
-    providers=["IRIS"]
+    providers = ["IRIS"]
     mdl = MassDownloader(providers=providers)
     # The data will be downloaded to the ``./waveforms/`` and ``./stations/``
     # folders with automatically chosen file n
@@ -95,17 +81,5 @@ def data_request(cmt_filename):
     print(stationxml_storage)
     print(waveform_storage)
 
-
     mdl.download(domain, restrictions, mseed_storage=waveform_storage,
                  stationxml_storage=stationxml_storage)
-
-
-    # # Download Station Data
-    # _, _, filtered_station_ids = \
-    #     download_stationxml(station_ids, starttime, endtime, 
-    #                         outputdir=station_dir, client=None,
-    #                         level="response")
-    
-    # # Download waveform
-    # download_waveform(filtered_station_ids, starttime, endtime, 
-    #                   outputdir=obsd_dir, client=None)

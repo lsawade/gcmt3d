@@ -68,5 +68,19 @@ setup(
         "docs": ["sphinx", "sphinx_rtd_theme"],
         "tests": ["pytest", "py"]
     },
-    scripts=['bins/clean_up_simdirs']
+    entry_points={'console_scripts': [
+        'clean-up-sim-dirs = gcmt3d.bins.clean_up_simdirs:main',
+        'convert-to-asdf = gcmt3d.bins.convert_to_asdf:main'
+        'convert-to-sac = gcmt3d.bins.convert_to_sac:main',
+        'count-windows = gcmt3d.bins.count_overall_windows:main',
+        'create-entry = gcmt3d.bins.create_entry:main',
+        'extract-station-info = gcmt3d.bins.extract_station_info:main',
+        'filter-windows = gcmt3d.bins.filter_windows:main',
+        'generate-stations-asdf = gcmt3d.bins.generate_stations_asdf:main',
+        'inversion = gcmt3d.bins.inversion:main',
+        'process-asdf = gcmt3d.bins.process_asdf:main',
+        'request-data = gcmt3d.bins.request_data:main',
+        'select-windows = gcmt3d.bins.window_selection_asdf:main'
+        'write-sources = gcmt3d.bins.write_sources:main',
+    ]}
 )

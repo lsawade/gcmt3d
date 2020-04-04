@@ -12,15 +12,14 @@ This script writes specfem sources into the respective simulation directories.
 
 """
 
-
-
 from gcmt3d.source import CMTSource
 from gcmt3d.data import SpecfemSources
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 import os
-import argparse
+
 # Get logger to log progress
 from gcmt3d import logger
+
 
 def write_sources(cmt_filename):
 

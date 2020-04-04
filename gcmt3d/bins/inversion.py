@@ -16,7 +16,8 @@ from gcmt3d.workflow.tensor_inversion import invert
 
 import argparse
 
-if __name__ == "__main__":
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', action='store', dest='cmt_file',
                         required=True, help="Path to CMT file in database")
@@ -25,3 +26,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     invert(args.cmt_file, args.param_path)
+
+
+if __name__ == "__main__":
+    main()

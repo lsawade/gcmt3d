@@ -18,6 +18,7 @@ import time
 import yaml
 import matplotlib.pyplot as plt
 
+
 def is_mpi_env():
     """
     Test if current environment is MPI or not
@@ -221,11 +222,6 @@ def isclose(a, b, rel_tol=1.0e-09, abs_tol=0.0):
 def load_json(filename):
     with open(filename, 'r') as fh:
         return json.load(fh)
-
-
-def dump_json(content, filename):
-    with open(filename, 'w') as fh:
-        json.dump(content, fh, indent=2, sort_keys=True)
 
 
 def load_yaml(filename):

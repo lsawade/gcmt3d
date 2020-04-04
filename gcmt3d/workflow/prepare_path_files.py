@@ -18,7 +18,6 @@ from gcmt3d.data.management.create_process_paths import create_process_path_obs
 from gcmt3d.data.management.create_process_paths import create_process_path_syn
 from gcmt3d.data.management.create_process_paths import create_window_path
 import os
-import argparse
 
 # Get logger to log progress
 from gcmt3d import logger

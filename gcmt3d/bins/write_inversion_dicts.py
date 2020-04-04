@@ -15,7 +15,8 @@ Last Update: June 2019
 from gcmt3d.workflow.shape_inversion_dictionaries import inversion_dictionaries
 import argparse
 
-if __name__ == "__main__":
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', action='store', dest='cmt_file',
                         required=True, help="Path to CMT file in database")
@@ -24,3 +25,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     inversion_dictionaries(args.cmt_file, args.param_path)
+
+
+if __name__ == "__main__":
+    main()
