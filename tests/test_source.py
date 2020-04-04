@@ -20,8 +20,7 @@ from obspy import read_events
 from .functions_for_testing import assertDictAlmostEqual
 
 # Most generic way to get the data folder path.
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(
-    inspect.getfile(inspect.currentframe()))), "data")
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 CMTFILE = os.path.join(DATA_DIR, "CMTSOLUTION")
 
 
