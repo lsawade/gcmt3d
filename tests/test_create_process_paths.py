@@ -122,7 +122,7 @@ class TestCreatePaths(unittest.TestCase):
                                        "processed_seismograms",
                                        "processed_observed.040_100.h5")
 
-            output_tag = "processed_observed"
+            output_tag = "040_100.obsd"
             process_param_file = os.path.join(process_dir,
                                               "proc_obsd.40_100.param.yml")
 
@@ -174,7 +174,7 @@ class TestCreatePaths(unittest.TestCase):
             output_asdf = os.path.join(DB.Cdirs[0], "seismograms",
                                        "processed_seismograms",
                                        "processed_synthetic_CMT_rp.040_100.h5")
-            output_tag = "processed_synthetic"
+            output_tag = "040_100.synt"
             process_param_file = os.path.join(process_dir,
                                               "proc_synt.40_100.param.yml")
 
@@ -220,13 +220,13 @@ class TestCreatePaths(unittest.TestCase):
             obsd_asdf = os.path.join(cmt_dir, "seismograms",
                                      "processed_seismograms",
                                      "processed_observed.040_100.h5")
-            obsd_tag = "processed_observed"
+            obsd_tag = "040_100.obsd"
 
             # Synthetic ASDF
             synt_asdf = os.path.join(cmt_dir, "seismograms",
                                      "processed_seismograms",
                                      "processed_synthetic_CMT.040_100.h5")
-            synt_tag = "processed_synthetic"
+            synt_tag = "040_100.synt"
 
             # Output file parameters
             output_file = os.path.join(cmt_dir, "window_data",

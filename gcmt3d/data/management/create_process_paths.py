@@ -140,7 +140,7 @@ def create_process_path_obs(cmt_filename, process_dir):
                                    "processed_seismograms",
                                    "processed_observed.%03.0f_%03.0f.h5"
                                    % (lP, hP))
-        output_tag = "processed_observed"
+        output_tag = "%03.0f_%03.0f.obsd" % (lP, hP)
 
         # Pathfile directory
         yaml_file_path = os.path.join(process_path_dir,
@@ -210,7 +210,7 @@ def create_process_path_syn(cmt_filename, process_dir, npar, verbose=True):
                                        'processed_synthetic_'
                                        '%s.%03.0f_%03.0f.h5'
                                        % (at, lP, hP))
-            output_tag = "processed_synthetic"
+            output_tag = "%03.0f_%03.0f.synt" % (lP, hP)
 
             # Pathfile directory
             yaml_file_path = os.path.join(process_path_dir,
@@ -281,14 +281,14 @@ def create_window_path(cmt_filename, window_process_dir,
                                  "processed_seismograms",
                                  "processed_observed.%03.0f_%03.0f.h5"
                                  % (lP, hP))
-        obsd_tag = "processed_observed"
+        obsd_tag = "%03.0f_%03.0f.obsd" % (lP, hP)
 
         # Synthetic ASDF
         synt_asdf = os.path.join(cmt_dir, "seismograms",
                                  "processed_seismograms",
                                  "processed_synthetic_CMT.%03.0f_%03.0f.h5"
                                  % (lP, hP))
-        synt_tag = "processed_synthetic"
+        synt_tag = "%03.0f_%03.0f.synt" % (lP, hP)
 
         # Output file parameters
         output_file = os.path.join(cmt_dir, "window_data",
@@ -315,8 +315,7 @@ def create_window_path(cmt_filename, window_process_dir,
         write_yaml_file(d, yaml_file_path)
 
 
-def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
-                        verbose=False):
+def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9):
     """This function returns a list of all process path files. It is needed
     for the EnTK workflow. This way the processing of each ASDF file can be
     assigned to one task.
@@ -425,7 +424,7 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9,
     return process_path_file_list, obs_output_file_list, syn_output_file_list
 
 
-def get_windowing_list(cmt_file_db, window_process_dir, verbose=False):
+def get_windowing_list(cmt_file_db, window_process_dir):
     """This function returns a list of all windowing path files. It is needed
     for the EnTK workflow. This way the windowing of each passband ASDF file
     can be assigned to one task.

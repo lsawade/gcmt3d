@@ -197,8 +197,12 @@ def invert(cmt_file_db, param_path):
     logger.info(" ")
 
     # Create inversion class
-    # inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)
-    inv = Inversion(cmtsource, dcon, cmt3d_config, mt_config=None)
+    gridsearch = False
+
+    if gridsearch:
+        inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)
+    else:
+        inv = Inversion(cmtsource, dcon, cmt3d_config, mt_config=None)
 
     # Run inversion
     inv.source_inversion()
