@@ -1,7 +1,7 @@
 # Weight configuration for pycmt3d
 weight_config:
-  normalize_by_energy: False # Check on/off
-  normalize_by_category: False  # usually True
+  normalize_by_energy: True # Check on/off
+  normalize_by_category: True  # usually True
   comp_weight:
     Z: 1.0
     R: 1.0
@@ -26,8 +26,8 @@ config:
   taper_type: "boxcar"
   damping: 0.01 # One hundredth of the trace
 
-gridsearch: False
-plot_new_synthetics: False
+gridsearch: True
+plot_new_synthetics: True
 summary_json: True
 summary_plot: True
 statistics_plot: True
@@ -50,7 +50,7 @@ grad3d_config:
   precond: False
   reg: False 
   bootstrap: True
-  bootstrap_repeat: 150
+  bootstrap_repeat: 100
   bootstrap_subset_ratio: 0.6
 
 # Grid3D Configuration for pycmt3d
