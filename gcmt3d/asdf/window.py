@@ -176,7 +176,7 @@ class WindowASDF(ProcASDFBase):
 
     def _validate_path(self, path):
         necessary_keys = ["obsd_asdf", "obsd_tag", "synt_asdf", "synt_tag",
-                          "output_file", "figure_mode"]
+                          "output_file", "figure_mode", "figure_dir"]
         self._missing_keys(necessary_keys, path)
 
     def _validate_param(self, param):
@@ -204,7 +204,9 @@ class WindowASDF(ProcASDFBase):
         obsd_tag = path["obsd_tag"]
         synt_tag = path["synt_tag"]
         figure_mode = path["figure_mode"]
-        figure_dir = output_dir
+        figure_dir = path["figure_dir"]
+        smart_mkdir(figure_dir, mpi_mode=self.mpi_mode,
+                    comm=self.comm)
 
         obsd_ds = self.load_asdf(obsd_file)
         synt_ds = self.load_asdf(synt_file)
