@@ -30,6 +30,7 @@ gridsearch: False
 plot_new_synthetics: False
 summary_json: True
 summary_plot: True
+statistics_plot: True
 write_new_synt: False
 write_new_cmt: True
 
