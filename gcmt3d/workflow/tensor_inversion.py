@@ -221,8 +221,8 @@ def invert(cmt_file_db, param_path):
 
     if bool(INV_params["plot_new_synthetics"]):
         inv.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,
-                                                         "waveform_plots"),
-                                  figure_format="pdf")
+                                                             "waveform_plots"),
+                                      figure_format="pdf")
     if bool(INV_params["plot_stats"]):
         # Plot Statistics for inversion
         inv.cmt3d.plot_stats_histogram(outputdir=inv_out_dir,
