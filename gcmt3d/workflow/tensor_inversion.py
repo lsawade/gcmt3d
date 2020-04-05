@@ -197,9 +197,7 @@ def invert(cmt_file_db, param_path):
     logger.info(" ")
 
     # Create inversion class
-    gridsearch = False
-
-    if gridsearch:
+    if bool(INV_params["gridsearch"]):
         inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)
     else:
         inv = Inversion(cmtsource, dcon, cmt3d_config, mt_config=None)
@@ -208,26 +206,27 @@ def invert(cmt_file_db, param_path):
     inv.source_inversion()
 
     # Plot results
-    inv.plot_summary(inv_out_dir, figure_format="pdf")
-    inv.write_summary_json(outputdir=inv_out_dir, mode="global")
-    inv.write_new_cmtfile(outputdir=inv_out_dir)
-    # inv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
-    #                      file_format="asdf")
-    inv.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,
+    if bool(INV_params["summary_plot"]):
+        inv.plot_summary(inv_out_dir, figure_format="pdf")
+
+    if bool(INV_params["summary_json"]):
+        inv.write_summary_json(outputdir=inv_out_dir, mode="global")
+
+    if bool(INV_params["write_new_cmt"]):
+        inv.write_new_cmtfile(outputdir=inv_out_dir)
+
+    if bool(INV_params["write_new_synt"]):
+        inv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
+                          file_format="asdf")
+
+    if bool(INV_params["plot_new_synthetics"]):
+        inv.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,
                                                          "waveform_plots"),
                                   figure_format="pdf")
-
-    # # Plot Statistics for Gridsearch
-    # inv.grid3d.plot_stats_histogram(outputdir=inv_out_dir,
-    #                                 figure_format="pdf")
-
-    # Plot Statistics for inversion
-    inv.cmt3d.plot_stats_histogram(outputdir=inv_out_dir,
-                                   figure_format="pdf")
-
-    # # Plot Misfit summary
-    # inv.grid3d.plot_misfit_summary(outputdir=inv_out_dir,
-    #                                figure_format="pdf")
+    if bool(INV_params["plot_stats"]):
+        # Plot Statistics for inversion
+        inv.cmt3d.plot_stats_histogram(outputdir=inv_out_dir,
+                                       figure_format="pdf")
 
 
 if __name__ == "__main__":

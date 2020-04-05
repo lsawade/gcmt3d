@@ -1,7 +1,7 @@
 # Weight configuration for pycmt3d
 weight_config:
-  normalize_by_energy: True # Check on/off
-  normalize_by_category: True  # usually True
+  normalize_by_energy: False # Check on/off
+  normalize_by_category: False  # usually True
   comp_weight:
     Z: 1.0
     R: 1.0
@@ -25,6 +25,13 @@ config:
   bootstrap_subset_ratio: 0.6
   taper_type: "boxcar"
   damping: 0.01 # One hundredth of the trace
+
+gridsearch: False
+plot_waveforms: False
+summary_json: True
+summary_plot: True
+write_new_synt: False
+write_new_cmt: True
 
 # Gradient method
 grad3d_config:
