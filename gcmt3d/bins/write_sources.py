@@ -21,12 +21,14 @@ import argparse
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('filename', help='Path to CMTSOLUTION file',
-                        type=str)
+    parser.add_argument('-f', dest='filename', help='Path to CMTSOLUTION file',
+                        required=True, type=str)
+    parser.add_argument('-p', dest='param_path', help='Path to param directory',
+                        required=True, type=str)
     args = parser.parse_args()
 
     # Run
-    write_sources(args.filename)
+    write_sources(args.filename, args.param_path)
 
 
 if __name__ == "__main__":

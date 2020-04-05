@@ -16,10 +16,8 @@ from gcmt3d.data.management.skeleton import DataBaseSkeleton
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 
 
-def create_entry(cmt_filename):
+def create_entry(cmt_filename, param_path):
     # Define parameter directory
-    param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        __file__))), "params")
     databaseparam_path = os.path.join(param_path,
                                       "Database/DatabaseParameters.yml")
     specfemspec_path = os.path.join(param_path,

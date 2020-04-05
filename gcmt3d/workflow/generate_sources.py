@@ -21,11 +21,9 @@ import os
 from gcmt3d import logger
 
 
-def write_sources(cmt_filename):
+def write_sources(cmt_filename, param_path):
 
     # Define parameter directory
-    param_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        __file__))), "params")
     databaseparam_path = os.path.join(param_path,
                                       "Database/DatabaseParameters.yml")
     inversionparam_path = os.path.join(param_path,

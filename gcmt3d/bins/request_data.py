@@ -20,14 +20,18 @@ def main():
     parser = argparse.ArgumentParser()
 
     # Set arguments
-    parser.add_argument('filename',
+    parser.add_argument('-f', dest='filename',
                         help='Path to CMTSOLUTION file in database',
+                        type=str)
+
+    parser.add_argument('-p', dest='param_path',
+                        help='Path to parameter directory',
                         type=str)
 
     # Get Arguments
     args = parser.parse_args()
 
-    data_request(args.filename)
+    data_request(args.filename, args.param_path)
 
 
 if __name__ == "__main__":

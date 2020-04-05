@@ -65,10 +65,10 @@ module load anaconda
 conda activate gcmt3d
 
 # Create database structure
-create-entry $CMTSOLUTION
+create-entry -f $CMTSOLUTION -p $PARAMETER_PATH
 
 # Download data
-request-data $CIN_DB
+request-data -f $CIN_DB -p $PARAMETER_PATH
 
 # Start slurm script that does the whole shindig
 
@@ -108,7 +108,7 @@ echo " "
 echo "******** Writing Sources  ****************************"
 echo " "
 echo \$WS_LOG
-srun -N1 -n1 write-sources $CIN_DB > \$WS_LOG
+srun -N1 -n1 write-sources -f $CIN_DB -p $PARAMETER_PATH > \$WS_LOG
 echo "Done."
 echo " "
 echo " "
