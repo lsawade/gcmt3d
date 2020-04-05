@@ -65,10 +65,10 @@ module load anaconda
 conda activate gcmt3d
 
 # Create database structure
-python $BIN_DIR/create_entry.py $CMTSOLUTION
+create-entry $CMTSOLUTION
 
 # Download data
-python $BIN_DIR/request_data.py $CIN_DB
+request-data $CIN_DB
 
 # Start slurm script that does the whole shindig
 
