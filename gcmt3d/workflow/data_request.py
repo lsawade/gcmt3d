@@ -20,11 +20,9 @@ import os
 from gcmt3d import logger
 
 
-def data_request(cmt_filename):
+def data_request(cmt_filename, param_path):
 
     # Set directories of the parameter files
-    param_path = os.path.join(os.path.dirname(
-        os.path.dirname(os.path.abspath(__file__))), "params")
     request_param_path = os.path.join(param_path,
                                       "RequestParams/RequestParams.yml")
 
