@@ -19,9 +19,11 @@ import argparse
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-f', dest='filename', help='Path to CMTSOLUTION file',
+    parser.add_argument('-f', dest='filename',
+                        help='Path to CMTSOLUTION file',
                         required=True, type=str)
-    parser.add_argument('-p', dest='param_path', help='Path to param directory',
+    parser.add_argument('-p', dest='param_path',
+                        help='Path to param directory',
                         required=True, type=str)
     args = parser.parse_args()
 

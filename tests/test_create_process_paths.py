@@ -232,6 +232,9 @@ class TestCreatePaths(unittest.TestCase):
             output_file = os.path.join(cmt_dir, "window_data",
                                        "windows.040_100#surface_wave.json")
 
+            figure_dir = os.path.join(cmt_dir, "window_data",
+                                      "window_plots.040_100#surface_wave")
+
             # window paramfile
             window_param_file = os.path.join(window_process_dir,
                                              "window.40_100#surface_wave."
@@ -253,6 +256,7 @@ class TestCreatePaths(unittest.TestCase):
             self.assertTrue(d["synt_asdf"] == synt_asdf)
             self.assertTrue(d["synt_tag"] == synt_tag)
             self.assertTrue(d["figure_mode"])
+            self.assertTrue(d["figure_dir"] == figure_dir)
             self.assertTrue(d["output_file"] == output_file)
             self.assertTrue(d["window_param_file"] == window_param_file)
 

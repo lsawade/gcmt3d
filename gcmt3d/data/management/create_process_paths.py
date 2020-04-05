@@ -294,6 +294,9 @@ def create_window_path(cmt_filename, window_process_dir,
         output_file = os.path.join(cmt_dir, "window_data",
                                    'windows.%03.0f_%03.0f%s.json'
                                    % (lP, hP, wave_type))
+        figure_dir = os.path.join(cmt_dir, "window_data",
+                                  'window_plots.%03.0f_%03.0f%s'
+                                  % (lP, hP, wave_type))
 
         # Pathfile directory
         yaml_file_path = os.path.join(window_path_dir,
@@ -309,6 +312,7 @@ def create_window_path(cmt_filename, window_process_dir,
              "synt_tag": synt_tag,
              "output_file": output_file,
              "figure_mode": figure_mode,
+             "figure_dir": figure_dir,
              "window_param_file": window_param_file}
 
         # Writing the directory to file
