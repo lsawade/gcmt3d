@@ -60,16 +60,6 @@ echo "Window Path Directory:___________ $WINDOW_PATHS"
 echo
 echo
 
-# Activate conda environment
-module load anaconda
-conda activate gcmt3d
-
-# Create database structure
-create-entry -f $CMTSOLUTION -p $PARAMETER_PATH
-
-# Download data
-request-data -f $CIN_DB -p $PARAMETER_PATH
-
 # Start slurm script that does the whole shindig
 
 sbatch << EOF
