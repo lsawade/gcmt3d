@@ -140,7 +140,7 @@ def create_process_path_obs(cmt_filename, process_dir):
                                    "processed_seismograms",
                                    "processed_observed.%03.0f_%03.0f.h5"
                                    % (lP, hP))
-        output_tag = "%03.0f_%03.0f.obsd" % (lP, hP)
+        output_tag = "%03.0f_%03.0f_obsd" % (lP, hP)
 
         # Pathfile directory
         yaml_file_path = os.path.join(process_path_dir,
@@ -210,7 +210,7 @@ def create_process_path_syn(cmt_filename, process_dir, npar, verbose=True):
                                        'processed_synthetic_'
                                        '%s.%03.0f_%03.0f.h5'
                                        % (at, lP, hP))
-            output_tag = "%03.0f_%03.0f.synt" % (lP, hP)
+            output_tag = "%03.0f_%03.0f_synt" % (lP, hP)
 
             # Pathfile directory
             yaml_file_path = os.path.join(process_path_dir,
@@ -281,14 +281,14 @@ def create_window_path(cmt_filename, window_process_dir,
                                  "processed_seismograms",
                                  "processed_observed.%03.0f_%03.0f.h5"
                                  % (lP, hP))
-        obsd_tag = "%03.0f_%03.0f.obsd" % (lP, hP)
+        obsd_tag = "%03.0f_%03.0f_obsd" % (lP, hP)
 
         # Synthetic ASDF
         synt_asdf = os.path.join(cmt_dir, "seismograms",
                                  "processed_seismograms",
                                  "processed_synthetic_CMT.%03.0f_%03.0f.h5"
                                  % (lP, hP))
-        synt_tag = "%03.0f_%03.0f.synt" % (lP, hP)
+        synt_tag = "%03.0f_%03.0f_synt" % (lP, hP)
 
         # Output file parameters
         output_file = os.path.join(cmt_dir, "window_data",
