@@ -122,7 +122,7 @@ echo "******** CREATE PROCESS PATHS ************************"
 echo " "
 CPP_LOG_FILE="$LOG_DIR/$CID.006.Create-Process-Paths.STDOUT"
 echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
-srun -N1 -n1 create-path-files $CIN_DB > \$CPP_LOG_FILE
+srun -N1 -n1 create-path-files -f $CIN_DB -p $PARAMETER_PATH > \$CPP_LOG_FILE
 echo " "
 
 
