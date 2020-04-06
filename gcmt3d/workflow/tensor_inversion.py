@@ -189,7 +189,9 @@ def invert(cmt_file_db, param_path):
         reg=bool(grad3d_params["reg"]),
         bootstrap=bool(grad3d_params["bootstrap"]),
         bootstrap_repeat=int(grad3d_params["bootstrap_repeat"]),
-        bootstrap_subset_ratio=float(grad3d_params["bootstrap_subset_ratio"]))
+        bootstrap_subset_ratio=float(grad3d_params["bootstrap_subset_ratio"]),
+        mpi_env=bool(grad3d_params["mpi_env"]),
+        parallel=bool(grad3d_params["parallel"]))
 
     logger.info("  PyCMT3D is finding an improved CMTSOLUTION .... ")
     logger.info("  " + 54 * "*")
