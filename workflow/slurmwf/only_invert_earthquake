@@ -92,7 +92,7 @@ echo "******** CREATE INVERSION DICTIONARIES****************"
 echo " "
 INV_DICT_LOG_FILE="$LOG_DIR/$CID.009.Create-Inversion-Dicts.STDOUT"
 echo "Processing logfile: \$INV_DICT_LOG_FILE"
-python write-inversion-dicts -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
+create-inversion-dicts -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
 echo " "
 echo "Done."
 echo " "
@@ -104,7 +104,7 @@ echo "******** INVERSION ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
 echo "Inversion logfile: \$INVERSION_LOG_FILE"
-python inversion -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+inversion -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "
