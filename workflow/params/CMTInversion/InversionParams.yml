@@ -26,7 +26,7 @@ config:
   taper_type: "boxcar"
   damping: 0.01 # One hundredth of the trace
 
-gridsearch: False
+gridsearch: True
 plot_new_synthetics: True
 summary_json: True
 summary_plot: True
