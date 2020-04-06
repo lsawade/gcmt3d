@@ -52,6 +52,8 @@ grad3d_config:
   bootstrap: True
   bootstrap_repeat: 150
   bootstrap_subset_ratio: 0.6
+  parallel: True
+  mpi_env: True
 
 # Grid3D Configuration for pycmt3d
 grid3d_config:
