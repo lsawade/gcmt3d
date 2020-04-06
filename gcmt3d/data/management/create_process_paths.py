@@ -418,7 +418,7 @@ def get_processing_list(cmt_file_db, process_obs_dir, process_syn_dir, npar=9):
             # Add the path file to list
             process_path_file_list.append(yaml_file_path)
 
-    logger.info("Resulting Processing Path files:")
+    logger.info("Processing Path files:")
     logger.info("--------------------------------")
     logger.info(" ")
     for process_file in process_path_file_list:
@@ -492,7 +492,7 @@ def get_windowing_list(cmt_file_db, window_process_dir):
         window_processing_list.append(yaml_file_path)
 
     # Create dictionary
-    logger.info("Resulting Windowing Path files:")
+    logger.info("Windowing Path files:")
     logger.info("--------------------------------")
     logger.info(" ")
     for process_file in window_processing_list:

@@ -32,7 +32,9 @@ SEISMOGRAMS=$CDIR/seismograms # Seismos
 STATION_DATA=$CDIR/station_data
 LOG_DIR=$CDIR/logs # Logging directory
 INVERSION_OUTPUT_DIR=$CDIR/inversion/inversion_output
-WINDOW_PATHS=$CDIR/window_data/window_paths
+WINDOW_DATA=$CDIR/window_data
+WINDOW_PATHS=$WINDOW_DATA/xwindow_paths
+
 
 echo
 echo "******** PACKAGE INFO ********************************"
@@ -253,18 +255,19 @@ echo " "
 echo " "
 
 
-# # If inversion successful, clear out synthetic and processed data
-# for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
-# do 
-#     if [[ -e \$invfile ]]; then
-#         echo 'Looks like inversion was successful.'
-#         echo 'Removing files...'
-#         rm -rf $SEISMOGRAMS
-#         rm -rf $CMT_SIM_DIR
-#         rm -rf $STATION_DATA
-#         echo 'Done.'
-#     fi
-# done   
+# If inversion successful, clear out synthetic and processed data
+for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
+do
+   if [[ -e \$invfile ]]; then
+       echo 'Looks like inversion was successful.'
+       echo 'Removing files...'
+       rm -rf $SEISMOGRAMS
+       rm -rf $CMT_SIM_DIR
+       rm -rf $STATION_DATA
+       rm -rf $WINDOW_DATA/window_plots*
+       echo 'Done.'
+   fi
+done
 
 exit 0
 EOF
