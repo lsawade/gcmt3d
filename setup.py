@@ -73,7 +73,7 @@ setup(
         'convert2sac = gcmt3d.bins.convert_to_sac:main',
         'count-windows = gcmt3d.bins.count_overall_windows:main',
         'create-entry = gcmt3d.bins.create_entry:main',
-        'create-inversion-dicts = gcmt.bins.write_inversion_dicts:main',
+        'create-inversion-dicts = gcmt3d.bins.write_inversion_dicts:main',
         'create-path-files = gcmt3d.bins.create_path_files:main',
         'extract-station-info = gcmt3d.bins.extract_station_info:main',
         'filter-windows = gcmt3d.bins.filter_windows:main',
