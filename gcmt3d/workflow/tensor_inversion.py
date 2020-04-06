@@ -22,7 +22,7 @@ from pycmt3d.constant import PARLIST
 from pycmt3d import Inversion
 
 # Gradient3D
-from pycmt3d.gradient3d_mpi import Gradient3dConfig
+from pycmt3d.gradient3d import Gradient3dConfig
 
 import os
 import glob
