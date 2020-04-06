@@ -85,8 +85,6 @@ sbatch << EOF
 #SBATCH --mail-user=lsawade@princeton.edu
 #SBATCH --mail-type=END
 
-
-
 # #WHAT???????? #SBATCH --requeue 
 
 # Load the compilers and shit
@@ -143,7 +141,7 @@ for CMT in "\${CMT_LIST[@]}"; do
     echo "Conversion yml: \$CONV_PATH_FILE"
     CONV_LOG_FILE=\$CONV_LOG.\$CMT.STDOUT
     echo "Conversion logfile: \$CONV_LOG_FILE"
-    srun -N1 -n1 convert-to-asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
+    srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
 done                                                   
 
 # Observed data
@@ -236,7 +234,7 @@ echo "******** CREATE INVERSION DICTIONARIES****************"
 echo " "
 INV_DICT_LOG_FILE="$LOG_DIR/$CID.009.Create-Inversion-Dicts.STDOUT"
 echo "Processing logfile: \$INV_DICT_LOG_FILE"
-write-inversion-dicts -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
+create-inversion-dicts -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
 echo " "
 echo "Done."
 echo " "

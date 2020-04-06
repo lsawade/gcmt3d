@@ -60,16 +60,32 @@ echo "Window Path Directory:___________ $WINDOW_PATHS"
 echo
 echo
 
+# Activate conda environment
+module load anaconda
+conda activate gcmt3d
+
+# Create database structure
+create-entry -f $CMTSOLUTION -p $PARAMETER_PATH
+
+# Download data
+request-data -f $CIN_DB -p $PARAMETER_PATH
+
 # Start slurm script that does the whole shindig
 
 sbatch << EOF
 #!/bin/bash
 #SBATCH --job-name=invert_C$CID
 #SBATCH --output=$LOG_DIR/C$CID.out
-#SBATCH --nodes=1
+#SBATCH --nodes=4
 #SBATCH --ntasks-per-node=30
+#SBATCH --gres=gpu:3
 #SBATCH --mem=200GB
-#SBATCH --time=00:45:00
+#SBATCH --time=02:00:00
+# SBATCH --reservation=test
+#SBATCH --mail-user=lsawade@princeton.edu
+#SBATCH --mail-type=END
+
+# #WHAT???????? #SBATCH --requeue 
 
 # Load the compilers and shit
 module purge
@@ -117,7 +133,7 @@ echo "******** CREATE PROCESS PATHS ************************"
 echo " "
 CPP_LOG_FILE="$LOG_DIR/$CID.006.Create-Process-Paths.STDOUT"
 echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
-srun -N1 -n1 create-path-files $CIN_DB > \$CPP_LOG_FILE
+srun -N1 -n1 create-path-files -f $CIN_DB -p $PARAMETER_PATH > \$CPP_LOG_FILE
 echo " "
 
 
@@ -163,8 +179,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
         echo "Processing yml: \$WINDOW_PATH_FILE"
         WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
         echo "Processing logfile: \$WIND_LOG_FILE"
-        srun -N1 -n25 select-windows -f \$WINDOW_PATH_FILE >
-        \$WIND_LOG_FILE &
+        srun -N1 -n25 select-windows -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE &
     fi
 done 
 wait
@@ -190,7 +205,7 @@ echo "******** CREATE INVERSION DICTIONARIES****************"
 echo " "
 INV_DICT_LOG_FILE="$LOG_DIR/$CID.009.Create-Inversion-Dicts.STDOUT"
 echo "Processing logfile: \$INV_DICT_LOG_FILE"
-python write-inversion-dicts -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
+create-inversion-dicts -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
 echo " "
 echo "Done."
 echo " "
@@ -202,11 +217,25 @@ echo "******** INVERSION ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
 echo "Inversion logfile: \$INVERSION_LOG_FILE"
-python inversion -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+inversion -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "
-echo " "   
+echo " "
+
+
+# # If inversion successful, clear out synthetic and processed data
+# for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
+# do 
+#     if [[ -e \$invfile ]]; then
+#         echo 'Looks like inversion was successful.'
+#         echo 'Removing files...'
+#         rm -rf $SEISMOGRAMS
+#         rm -rf $CMT_SIM_DIR
+#         rm -rf $STATION_DATA
+#         echo 'Done.'
+#     fi
+# done   
 
 exit 0
 EOF
