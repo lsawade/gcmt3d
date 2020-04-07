@@ -33,7 +33,7 @@ STATION_DATA=$CDIR/station_data
 LOG_DIR=$CDIR/logs # Logging directory
 INVERSION_OUTPUT_DIR=$CDIR/inversion/inversion_output
 WINDOW_DATA=$CDIR/window_data
-WINDOW_PATHS=$WINDOW_DATA/xwindow_paths
+WINDOW_PATHS=$WINDOW_DATA/window_paths
 
 
 echo
