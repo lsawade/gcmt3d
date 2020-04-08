@@ -12,12 +12,17 @@ Last Update: November 2019
 
 """
 
-from pycmt3d.source import CMTSource
-from gcmt3d.plot.stats import PlotStats
+import logging
 from glob import glob
 import os
 import numpy as np
+from pycmt3d.source import CMTSource
+from ..plot.stats import PlotStats
 from ..utils.io import load_json
+from ..log_util import modify_logger
+
+logger = logging.getLogger(__name__)
+modify_logger(logger)
 
 
 def read_specfem_station_list(filename):
@@ -74,18 +79,19 @@ def get_stats_json(filename):
     var_reduction = d["var_reduction"]
     mode = d["mode"]
     G = d["G"]
+    stats = d["stats"]
 
     return (data_container, cmtsource, new_cmtsource,
             config, nregions, bootstrap_mean,
             bootstrap_std, var_reduction, mode,
-            G)
+            G, stats)
 
 
 class Statistics(object):
     """Governs the statistics of multiple inversions"""
 
     def __init__(self, old_cmts, old_ids, new_cmts, new_ids, stations,
-                 npar=9, verbose=True):
+                 npar=9, stat_dict: dict or None = None):
         """ Initialize Statistics class
 
         Args:
@@ -129,11 +135,12 @@ class Statistics(object):
             if dcmt[0] > 0.5 or dcmt[0] < -0.5 or \
                     dcmt[7] > 20000 or dcmt[7] < -20000:
 
-                print("ID:", id,
-                      "M0_0:", self.ocmt[_i, 0],
-                      "M0_1:", self.ncmt[_i, 0],
-                      "dCMT:", dcmt[0],
-                      "dz:", dcmt[7])
+                logger.info("ID: %s" % id)
+                logger.info("  M0_0: %e" % self.ocmt[_i, 0])
+                logger.info("  M0_1: %e" % self.ncmt[_i, 0])
+                logger.info("  dCMT: %f" % dcmt[0])
+                logger.info("  dz: %f" % dcmt[7])
+                logger.info(" ")
 
         # Compute Correlation Coefficients
         self.xcorr_mat = np.corrcoef(self.dCMT.T)
@@ -163,10 +170,10 @@ class Statistics(object):
                         r"$\delta t_{CMT}$", r"$\delta t_{shift}$",
                         r"$\delta hdur$"]
 
-        self.verbose = verbose
+        self.stat_dict = stat_dict
 
     @classmethod
-    def _from_dir(cls, directory, npar=9, verbose=True):
+    def _from_dir(self, directory, npar=9):
         """Load old and new inverted CMTSOLUTIONS into lists of CMTSources.
 
         Args:
@@ -181,28 +188,30 @@ class Statistics(object):
 
         """
 
-        if verbose:
-            print("Looking for earthquakes here: %s" % (database_dir))
+        logger.info("Looking for earthquakes here: %s" % directory)
         # Get list of inversion files.
-        Clist = glob(os.path.join(database_dir, "C*",
+        clist = glob(os.path.join(directory, "C*",
                                   "inversion", "inversion_output",
                                   "*.json"))
 
-        if verbose:
-            print("glob done")
+        logger.info("Found all files.")
+        logger.info(" ")
 
         # Old CMTs
         old_cmts = []
         new_cmts = []
+        stat_dicts = []
         station_list = set()
 
+        logger.info("Reading individual files ...")
+        logger.info(" ")
+
         # Loop of files
-        for invdata in Clist:
-            # # print(invdata)
-            # id = bname[1:]
+        for invdata in clist:
 
             try:
-                print(invdata)
+                logger.info("  File: %s" % invdata)
+
                 (data_container,
                  cmtsource,
                  new_cmtsource,
@@ -212,11 +221,13 @@ class Statistics(object):
                  bootstrap_std,
                  var_reduction,
                  mode,
-                 G) = get_stats_json(invdata)
+                 G,
+                 stats) = get_stats_json(invdata)
 
                 # Append CMT files
                 old_cmts.append(cmtsource)
                 new_cmts.append(new_cmtsource)
+                stat_dicts.append(stats)
 
                 # stations
                 for lat, lon in zip(data_container["sta_lat"],
@@ -224,14 +235,19 @@ class Statistics(object):
                     station_list.add((lat, lon))
 
             except Exception as e:
-                print(e)
+                logging.warning(e)
+
+        logger.info(" ")
+        logger.info("Done.")
+        logger.info(" ")
 
         old_cmt_mat, old_ids = Statistics.create_cmt_matrix(old_cmts)
         new_cmt_mat, new_ids = Statistics.create_cmt_matrix(new_cmts)
 
-        return cls(old_cmt_mat, old_ids, new_cmt_mat, new_ids,
-                   list(station_list),
-                   npar=npar, verbose=verbose)
+        complete_dict = self.compute_change(stat_dicts)
+
+        return self(old_cmt_mat, old_ids, new_cmt_mat, new_ids,
+                    list(station_list), npar=npar, stat_dict=complete_dict)
 
     def plot_changes(self, savedir=None):
         """This function plots and saves the plots with the statistics.
@@ -244,14 +260,17 @@ class Statistics(object):
 
         PS = PlotStats(ocmt=self.ocmt, ncmt=self.ncmt, dCMT=self.dCMT,
                        xcorr_mat=self.xcorr_mat, mean_mat=self.mean_mat,
-                       std_mat=self.std_mat, labels=self.labels,
-                       dlabels=self.dlabels, stations=self.stations,
-                       npar=self.npar, verbose=self.verbose,
+                       std_mat=self.std_mat, stat_dict=self.stat_dict,
+                       labels=self.labels, dlabels=self.dlabels,
+                       stations=self.stations, npar=self.npar,
                        savedir=savedir)
 
         PS.plot_changes()
         # PS.plot_xcorr_matrix()
         PS.plot_xcorr_heat()
+        PS.plot_measurement_changes()
+        PS.plot_mean_measurement_change_stats()
+        PS.save_table()
 
     @staticmethod
     def get_PTI_from_cmts(cmt_mat):
@@ -267,6 +286,38 @@ class Statistics(object):
 
         """  for cmt in cmt_mat:
         m = np.array([cmt[0]]) """
+
+    @staticmethod
+    def compute_change(stat_dicts: list):
+        """ Takes in the measurement statistics for and compiles them in
+        vectors.
+
+        :param stat_dicts:
+        :return: tuple of dicts with before and after data
+
+        """
+
+        complete_dict = dict()
+
+        for _sdict in stat_dicts:
+            for tag, measurement_dict in _sdict.items():
+                if tag not in complete_dict.keys():
+                    complete_dict[tag] = dict()
+
+                for measurement, ba_dict in measurement_dict.items():
+                    if measurement not in complete_dict[tag].keys():
+                        complete_dict[tag][measurement] = \
+                            {"before": {"std": [], "mean": []},
+                             "after": {"std": [], "mean": []}}
+
+                    # Add STD
+                    for time in ['before', 'after']:
+                        complete_dict[tag][measurement][time]["std"].append(
+                            ba_dict[time]["std"])
+                        complete_dict[tag][measurement][time]["mean"].append(
+                            ba_dict[time]["mean"])
+
+        return complete_dict
 
     @staticmethod
     def create_cmt_matrix(cmt_source_list):
@@ -296,10 +347,6 @@ class Statistics(object):
 
             # Populate id list with ids
             event_id.append(cmt.eventname)
-
-            if cmt.eventname == "C201005051629A":
-                print(cmt.eventname, cmt.M0)
-                print(cmt)
 
             # Populate CMT matrix
             cmt_mat[_i, :] = np.array([cmt.M0, cmt.m_rr, cmt.m_tt, cmt.m_pp,
