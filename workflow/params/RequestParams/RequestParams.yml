@@ -7,6 +7,9 @@ channels: ['BHN','BHE','BHZ']
 # location 00 is the primary location for most seismometers
 locations: ['00']
 
+# Trace needs to be full trace
+minimum_length: 0.975
+
 # -60 seconds is 1 min before the earthquakes inverted cmt solution
 starttime_offset: -60
 

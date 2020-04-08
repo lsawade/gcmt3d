@@ -19,12 +19,9 @@ from obspy.clients.fdsn.mass_downloader import RectangularDomain, \
     Restrictions, MassDownloader
 
 
-def data_request(cmt_filename):
+def data_request(cmt_filename, param_path):
 
-    # Set directories of the parameter files
-    param_path = os.path.join(os.path.dirname(
-        os.path.dirname(os.path.abspath(__file__))), "params")
-
+    # Request config_file
     request_param_path = os.path.join(param_path,
                                       "RequestParams/RequestParams.yml")
 
@@ -66,10 +63,11 @@ def data_request(cmt_filename):
         starttime=starttime,
         endtime=endtime,
         reject_channels_with_gaps=False,
-        minimum_length=0.975,  # Trace needs to be almost full length
+        minimum_length=float(rCparams['minimum_length']),
+        # Trace needs to be almost full length
         network=network_string,  # Only certain networks
-        channel="BHZ, BHE, BHN",  # ",".join(rCparams['channels']),
-        location="00")
+        channel=",".join(rCparams['channels']),
+        location=",".join(rCparams['locations']))
 
     # No specified providers will result in all known ones being queried.
     providers = ["IRIS"]
