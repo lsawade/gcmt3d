@@ -14,6 +14,7 @@ Last Update: November 2019
 
 
 import os
+import logging
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.gridspec import GridSpec
@@ -27,6 +28,11 @@ import matplotlib
 from matplotlib import cm
 from matplotlib import colors
 from scipy.odr import RealData, ODR, Model
+from ..log_util import modify_logger
+
+logger = logging.getLogger(__name__)
+modify_logger(logger)
+
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['mathtext.fontset'] = 'cm'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
@@ -116,31 +122,12 @@ def plot_cmts(ax, latitude, longitude, depth, mt, nmmt, alpha):
             print(e)
 
 
-# def plot_histogram(ddata, n_bins, facecolor=(0.8, 0.3, 0.3)):
-#     """Plots histogram of input data."""
-
-#     # the histogram of the data
-#     ax = plt.gca()
-#     n, bins, patches = ax.hist(ddata, n_bins, facecolor=facecolor, alpha=1)
-
-
-def plot_cross_correlation_matrix(M, xcorrcoeff):
-    """
-
-    :param M: Data matrix
-    :param xcorrcoeff: cross-correlation coefficient
-    :return:
-    """
-
-    plt.figure()
-
-
 class PlotStats(object):
     """Plots statistics given the necessary variables."""
 
     def __init__(self, ocmt=None, ncmt=None, dCMT=None, xcorr_mat=None,
-                 mean_mat=None, std_mat=None, labels=None, dlabels=None,
-                 stations=None, nbins=20, npar=9, verbose=True, savedir=None):
+                 mean_mat=None, std_mat=None, stat_dict=None, labels=None,
+                 dlabels=None, stations=None, nbins=15, npar=9, savedir=None):
         """
         Parameters:
             ocmt: old cmt matrix
@@ -176,13 +163,9 @@ class PlotStats(object):
         self.labels = labels
         self.dlabels = dlabels
         self.stations = stations
-        self.nbins = nbins
-        self.dmbins = np.linspace(-1.5, 1.5 + 1.5/self.nbins, self.nbins)
-        self.ddegbins = np.linspace(-0.2, 0.2 + 0.2/self.nbins, self.nbins)
-        self.dzbins = np.linspace(-30, 30 + 30/self.nbins, self.nbins)
-        self.dtbins = np.linspace(-10, 10 + 100/self.nbins, self.nbins)
+        self.stat_dict = stat_dict
 
-        self.verbose = verbose
+        # Save destination
         self.savedir = savedir
 
         # Fix depth
@@ -191,6 +174,26 @@ class PlotStats(object):
         self.dCMT[:, 7] = self.dCMT[:, 7]/1000
         self.mean_mat[7] = self.mean_mat[7]/1000
         self.std_mat[7] = self.std_mat[7]/1000
+
+        self.nbins = nbins
+        self.dmbins = np.linspace(-0.5, 0.5 + 0.5 / self.nbins, self.nbins)
+        self.ddegbins = np.linspace(-0.1, 0.1 + 0.1 / self.nbins, self.nbins)
+        self.dzbins = np.linspace(-25, 25 + 25 / self.nbins, self.nbins)
+        self.dtbins = np.linspace(-10, 10 + 10 / self.nbins, self.nbins)
+
+        # Measurement label and tag dictionary
+        self.vtype_dict = {r'Time-shift: ${\Delta t}_{CC}$': "tshift",
+                           r'$CC_{max} = _{max}|\frac{(d \star s)(\tau)}'
+                           r'{\sqrt{(d_i^2) * (s_i^2)}}|$': "cc",
+                           r'$P{L_1} = 10\log\left(\frac{d_i}'
+                           r'{s_i}\right)$ [dB]':
+                               "power_l1",
+                           r'$P{L_2} = 10\log\left(\frac{d_i^2}'
+                           r'{s_i^2}\right)$ [dB]':
+                               "power_l2",
+                           r'$P_{CC} = 10\log\frac{(d_i s_i)}'
+                           r'{s_i^2}$ [dB]': "cc_amp",
+                           r'$\frac{1}{2}\left|  d_i - s_i \right|^2$': "chi"}
 
     def plot_changes(self):
         """Plots figure with statistics."""
@@ -421,6 +424,189 @@ class PlotStats(object):
         else:
             plt.show()
 
+    def plot_measurement_changes(self):
+        """ Uses the stat_dict to compute measurement statistics.
+
+        """
+
+        # Create figure
+        if self.stat_dict is None:
+            logger.info("No statistics dictionary here...")
+            return
+
+        # Get number of rows and columns
+        nrows = len(self.stat_dict)
+        ncols = len(self.vtype_dict)
+
+        stats = ["mean", "std"]
+        # Create figure
+
+        for _stat in stats:
+
+            fig = plt.figure(figsize=(4 * ncols, 4 * nrows))
+            G = GridSpec(nrows, ncols)
+
+            for irow, cat in enumerate(self.stat_dict.keys()):
+                for icol, (label, vtype) in enumerate(self.vtype_dict.items()):
+                    ax = fig.add_subplot(G[irow, icol])
+                    if irow == 0 and icol == 0:
+                        fontsize = 20
+                        ax.text(0.025, 0.975, _stat,
+                                fontsize=fontsize,
+                                horizontalalignment='left',
+                                verticalalignment='top',
+                                transform=ax.transAxes)
+
+                    self._hist_sub(self.stat_dict[cat][vtype], cat, vtype,
+                                   label, _stat, self.nbins)
+
+            plt.tight_layout()
+            plt.savefig(os.path.join(self.savedir,
+                                     "measurement_changes_" + _stat + ".pdf"))
+            plt.close(fig)
+
+    def plot_mean_measurement_change_stats(self):
+        """ Uses the stat_dict to compute measurement statistics.
+
+        """
+
+        # Create figure
+        if self.stat_dict is None:
+            logger.info("No statistics dictionary here...")
+            return
+
+        # Get number of rows and columns
+        nrows = len(self.stat_dict)
+        ncols = len(self.vtype_dict)
+
+        # Create figure
+        fig = plt.figure(figsize=(4 * ncols, 4 * nrows))
+        G = GridSpec(nrows, ncols)
+
+        for irow, cat in enumerate(self.stat_dict.keys()):
+            for icol, (label, vtype) in enumerate(self.vtype_dict.items()):
+                ax = fig.add_subplot(G[irow, icol])
+                if irow == 0 and icol == 0:
+                    fontsize = 20
+                    ax.text(0.025, 0.975, r"$\Delta$Mean",
+                            fontsize=fontsize,
+                            horizontalalignment='left',
+                            verticalalignment='top',
+                            transform=ax.transAxes)
+
+                self._hist_sub_change(self.stat_dict[cat][vtype], cat, vtype,
+                                      label, self.nbins)
+
+        plt.tight_layout()
+        plt.savefig(os.path.join(self.savedir,
+                                 "mean_measurement_change_stats.pdf"))
+        plt.close(fig)
+
+    @staticmethod
+    def _hist_sub(measurement_dict, cat, vtype, label, stat, num_bin):
+        """
+
+        :param measurement_dict: {after: {mean: list, std: list},
+                                  before: {mean: list, std: list}}
+        :param label:
+        :param stat:
+        :return:
+        """
+        # Get axes
+        ax = plt.gca()
+
+        plt.xlabel(label, fontsize=15)
+        plt.ylabel(r"%s" % cat.replace("_", r"\_"), fontsize=15)
+
+        data_b = measurement_dict['before'][stat]
+        data_a = measurement_dict['after'][stat]
+
+        if vtype == "cc":
+            ax_min = min(min(data_b), min(data_a))
+            ax_max = max(max(data_b), max(data_a))
+        elif vtype == "chi":
+            ax_min = 0.0
+            ax_max = max(max(data_b), max(data_a))
+        else:
+            ax_min = min(min(data_b), min(data_a))
+            ax_max = max(max(data_b), max(data_a))
+            abs_max = max(abs(ax_min), abs(ax_max))
+            ax_min = -abs_max
+            ax_max = abs_max
+
+        if stat == "std":
+            ax_min = 0.0
+
+        binwidth = (ax_max - ax_min) / num_bin
+
+        # Stats
+        a_mean = np.mean(data_a)
+        a_std = np.std(data_a)
+        b_mean = np.mean(data_b)
+        b_std = np.std(data_b)
+
+        nb, _, _ = ax.hist(
+            data_b, bins=np.arange(ax_min, ax_max + binwidth / 2., binwidth),
+            facecolor='blue', alpha=0.3)
+        nb_max = np.max(nb)
+        ax.plot([b_mean, b_mean], [0, nb_max], "b--")
+        ax.plot([b_mean - b_std, b_mean + b_std],
+                [nb_max / 2, nb_max / 2], "b--")
+        na, _, _ = ax.hist(
+            data_a, bins=np.arange(ax_min, ax_max + binwidth / 2., binwidth),
+            facecolor='red', alpha=0.5)
+        na_max = np.max(na)
+        ax.plot([a_mean, a_mean], [0, na_max], "r-")
+        ax.plot([a_mean - a_std, a_mean + a_std],
+                [na_max / 2, na_max / 2], "r-")
+
+    @staticmethod
+    def _hist_sub_change(measurement_dict, cat, vtype, label, num_bin):
+        """
+
+        :param measurement_dict: {after: {mean: list, std: list},
+                                  before: {mean: list, std: list}}
+        :param label:
+        :param stat:
+        :return:
+        """
+        # Get axes
+        ax = plt.gca()
+
+        plt.xlabel(label, fontsize=15)
+        plt.ylabel(r"%s" % cat.replace("_", r"\_"), fontsize=15)
+
+        data_b = measurement_dict['before']["mean"]
+        data_a = measurement_dict['after']["mean"]
+
+        data = (np.array(data_a) - np.array(data_b)).tolist()
+
+        if vtype == "cc":
+            ax_min = min(min(data_b), min(data_a))
+            ax_max = max(max(data_b), max(data_a))
+        elif vtype == "chi":
+            ax_min = 0.0
+            ax_max = max(max(data_b), max(data_a))
+        else:
+            ax_min = min(min(data_b), min(data_a))
+            ax_max = max(max(data_b), max(data_a))
+            abs_max = max(abs(ax_min), abs(ax_max))
+            ax_min = -abs_max
+            ax_max = abs_max
+        binwidth = (ax_max - ax_min) / num_bin
+
+        # Stats
+        d_mean = np.mean(data)
+        d_std = np.std(data)
+
+        nd, _, _ = ax.hist(
+            data, bins=np.arange(ax_min, ax_max + binwidth / 2., binwidth),
+            facecolor='black', alpha=0.3)
+        nd_max = np.max(nd)
+        ax.plot([d_mean, d_mean], [0, nd_max], "b-")
+        ax.plot([d_mean - d_std, d_mean + d_std],
+                [nd_max / 2, nd_max / 2], "b-")
+
     def plot_xcorr_heat(self):
         """Plots correlatio n heatmap.
         """
@@ -470,11 +656,11 @@ class PlotStats(object):
     def plot_table(self):
         """Plots minimal summary"""
 
-        columns = ('$\\overline{d}$', '$\\sigma$')
-        rows = ['$\\delta t$', '$\\delta$Lat', '$\\delta$Lon', '$\\delta z$',
-                '$\\delta M_0$', "$\\delta M_{rr}$", "$\\delta M_{tt}$",
-                "$\\delta M_{pp}$", "$\\delta M_{rt}$", "$\\delta M_{rp}$",
-                "$\\delta M_{tp}$"]
+        columns = (r'$\mu$', r'$\sigma$')
+        rows = [r'$\delta t$', r'$\delta$Lat', r'$\delta$Lon', r'$\delta z$',
+                r'$\delta M_0$', r"$\delta M_{rr}$", r"$\delta M_{tt}$",
+                r"$\delta M_{pp}$", r"$\delta M_{rt}$", r"$\delta M_{rp}$",
+                r"$\delta M_{tp}$"]
 
         cell_text = []
 
@@ -491,11 +677,11 @@ class PlotStats(object):
         cell_text.append(["%3.3f" % (self.mean_mat[7]),
                           "%3.3f" % (self.std_mat[7])])
         # M0
-        cell_text.append(["%3.1e" % (self.mean_mat[0]),
-                          "%3.1e" % (self.std_mat[0])])
+        cell_text.append(["%3.3f" % (self.mean_mat[0]),
+                          "%3.3f" % (self.std_mat[0])])
         for _j in range(6):
-            cell_text.append(["%3.1e" % (self.mean_mat[1 + _j]),
-                              "%3.1e" % (self.std_mat[1 + _j])])
+            cell_text.append(["%3.3f" % (self.mean_mat[1 + _j]),
+                              "%3.3f" % (self.std_mat[1 + _j])])
 
         # Plot table
         ax = plt.gca()
@@ -503,6 +689,18 @@ class PlotStats(object):
         ax.axis('off')
         ax.table(cellText=cell_text, rowLabels=rows, colLabels=columns,
                  loc='center', edges='horizontal', fontsize=13)
+
+    def save_table(self):
+        """Uses plot_table function to save figure"""
+
+        # Create figure handle
+        fig = plt.figure(figsize=(4, 2))
+
+        # Create subplot layout
+        self.plot_table()
+
+        plt.savefig(os.path.join(self.savedir, "summary_table.pdf"))
+        plt.close(fig)
 
 
 if __name__ == "__main__":
