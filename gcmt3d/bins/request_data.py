@@ -11,7 +11,7 @@ This script will download the observed data. To the necessary places.
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 
-from gcmt3d.workflow.data_request import data_request
+from gcmt3d.workflow.data_request3 import data_request
 import argparse
 
 
