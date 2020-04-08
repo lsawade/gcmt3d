@@ -17,6 +17,11 @@ from gcmt3d.source import CMTSource
 import os
 from obspy.clients.fdsn.mass_downloader import RectangularDomain, \
     Restrictions, MassDownloader
+import logging
+from ..log_util import modify_logger
+
+logger = logging.getLogger(__name__)
+modify_logger(logger)
 
 
 def data_request(cmt_filename, param_path):
@@ -76,8 +81,8 @@ def data_request(cmt_filename, param_path):
     # folders with automatically chosen file n
     stationxml_storage = os.path.join(station_dir)
     waveform_storage = os.path.join(obsd_dir)
-    print(stationxml_storage)
-    print(waveform_storage)
+    logger.info("MSEEDs: %s" % waveform_storage)
+    logger.info("XMLs: %s" % stationxml_storage)
 
     mdl.download(domain, restrictions, mseed_storage=waveform_storage,
                  stationxml_storage=stationxml_storage)

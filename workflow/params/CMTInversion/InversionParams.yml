@@ -37,7 +37,7 @@ write_new_cmt: True
 # Gradient method
 grad3d_config:
   method: "gn"
-  weight_data: True
+  weight_data: False
   use_new: True
   taper_type: "tukey"
   c1: 1e-4  # Wolfe conditions
