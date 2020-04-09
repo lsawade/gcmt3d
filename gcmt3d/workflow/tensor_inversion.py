@@ -136,6 +136,7 @@ def invert(cmt_file_db, param_path):
     weight_config = WeightConfig(
         normalize_by_energy=inv_weight_config["normalize_by_energy"],
         normalize_by_category=inv_weight_config["normalize_by_category"],
+        azi_bins=inv_weight_config["azi_bins"],
         # comp_weight=inv_weight_config["comp_weight"],
         # love_dist_weight=inv_weight_config["love_dist_weight"],
         # pnl_dist_weight=inv_weight_config["pnl_dist_weight"],
