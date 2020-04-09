@@ -17,7 +17,7 @@ import yaml
 # CMT3D
 from pycmt3d.source import CMTSource
 from pycmt3d import DataContainer
-from pycmt3d import DefaultWeightConfig, Config
+from pycmt3d import WeightConfig, Config
 from pycmt3d.constant import PARLIST
 from pycmt3d import Inversion
 
@@ -162,7 +162,7 @@ def invert(cmt_file_db, param_path):
 
     grad3d_params = INV_params["grad3d_config"]
 
-    weight_config_grad3d = DefaultWeightConfig(
+    weight_config_grad3d = WeightConfig(
         normalize_by_energy=False,  # Fixes issue
         normalize_by_category=False,  # Fixes issue
         comp_weight=inv_weight_config["comp_weight"],
