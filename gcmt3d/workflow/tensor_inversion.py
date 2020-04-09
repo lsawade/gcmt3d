@@ -133,13 +133,13 @@ def invert(cmt_file_db, param_path):
     # Setting up weight config
     inv_weight_config = INV_params["weight_config"]
 
-    weight_config = DefaultWeightConfig(
+    weight_config = WeightConfig(
         normalize_by_energy=inv_weight_config["normalize_by_energy"],
         normalize_by_category=inv_weight_config["normalize_by_category"],
-        comp_weight=inv_weight_config["comp_weight"],
-        love_dist_weight=inv_weight_config["love_dist_weight"],
-        pnl_dist_weight=inv_weight_config["pnl_dist_weight"],
-        rayleigh_dist_weight=inv_weight_config["rayleigh_dist_weight"],
+        # comp_weight=inv_weight_config["comp_weight"],
+        # love_dist_weight=inv_weight_config["love_dist_weight"],
+        # pnl_dist_weight=inv_weight_config["pnl_dist_weight"],
+        # rayleigh_dist_weight=inv_weight_config["rayleigh_dist_weight"],
         azi_exp_idx=inv_weight_config["azi_exp_idx"])
 
     # Setting up general inversion config
@@ -163,12 +163,12 @@ def invert(cmt_file_db, param_path):
     grad3d_params = INV_params["grad3d_config"]
 
     weight_config_grad3d = WeightConfig(
-        normalize_by_energy=False,  # Fixes issue
-        normalize_by_category=False,  # Fixes issue
-        comp_weight=inv_weight_config["comp_weight"],
-        love_dist_weight=inv_weight_config["love_dist_weight"],
-        pnl_dist_weight=inv_weight_config["pnl_dist_weight"],
-        rayleigh_dist_weight=inv_weight_config["rayleigh_dist_weight"],
+        normalize_by_energy=True,  # Fixes issue
+        normalize_by_category=True,  # Fixes issue
+        # comp_weight=inv_weight_config["comp_weight"],
+        # love_dist_weight=inv_weight_config["love_dist_weight"],
+        # pnl_dist_weight=inv_weight_config["pnl_dist_weight"],
+        # rayleigh_dist_weight=inv_weight_config["rayleigh_dist_weight"],
         azi_exp_idx=inv_weight_config["azi_exp_idx"])
 
     grad3d_config = Gradient3dConfig(
