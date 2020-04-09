@@ -2,6 +2,7 @@
 weight_config:
   normalize_by_energy: True # Check on/off
   normalize_by_category: True  # usually True
+  azi_bins: 12
   comp_weight:
     Z: 1.0
     R: 1.0
