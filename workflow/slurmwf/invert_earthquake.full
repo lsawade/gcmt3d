@@ -255,19 +255,19 @@ echo " "
 echo " "
 
 
-## If inversion successful, clear out synthetic and processed data
-#for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
-#do
-#   if [[ -e \$invfile ]]; then
-#       echo 'Looks like inversion was successful.'
-#       echo 'Removing files...'
-#       rm -rf $SEISMOGRAMS
-#       rm -rf $CMT_SIM_DIR
-#       rm -rf $STATION_DATA
-#       rm -rf $WINDOW_DATA/window_plots*
-#       echo 'Done.'
-#   fi
-#done
+# If inversion successful, clear out synthetic and processed data
+for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
+do
+   if [[ -e \$invfile ]]; then
+       echo 'Looks like inversion was successful.'
+       echo 'Removing files...'
+       rm -rf $SEISMOGRAMS
+       rm -rf $CMT_SIM_DIR
+       rm -rf $STATION_DATA
+       rm -rf $WINDOW_DATA/window_plots*
+       echo 'Done.'
+   fi
+done
 
 exit 0
 EOF
