@@ -37,7 +37,9 @@ def main():
     green_vel = np.array([20,  19,  19, 10, 13])
 
     # Data for Vertical component Z
-    delta_loc_tz = np.array([50, 55, 57, 78, 96])
+    # delta_loc_tz = np.array([50, 55, 57, 78, 96])
+    delta_loc_tz = np.array([25, 40, 57, 78, 96])
+
     delta_ampz = 3*dt*np.array([4,  -2,  -1, 3, 0.5])
     t, xrz, Gz, synz, obsz, wavelet = \
         fw.synthetic_traces(nr=nr, dx=dx, nt=nt, dt=0.05,

@@ -31,7 +31,6 @@ def check_param_keywords(config):
                "window_weight_fct"]
 
     default_keywords = inspect.getfullargspec(pyflex.Config.__init__).args
-    print(default_keywords)
     for d in deletes:
         default_keywords.remove(d)
 

@@ -19,6 +19,13 @@ from create_process_paths import get_windowing_list
 from create_process_paths import get_processing_list
 import yaml
 import math
+import logging
+from gcmt3d.log_util import modify_logger
+
+logger = logging.getLogger('gcmt3d')
+logger.setLevel(logging.VERBOSE)
+modify_logger(logger)
+
 
 # For calling binaries without entkd
 import subprocess
@@ -45,6 +52,8 @@ os.environ["RADICAL_ENTK_VERBOSE"] = "DEBUG"
 hostname = os.environ.get("RMQ_HOSTNAME", "localhost")
 port = int(os.environ.get("RMQ_PORT", 5672))
 
+PRE_EXECS = ["module load anaconda3",
+             "conda activate gcmt3d"]
 
 # DEFINES WHETHER THE HEADNODE IS AVAILABLE FOR DOWNLOAD FROM WITHIN AN ENTK
 # WORFLOW
@@ -74,20 +83,16 @@ def create_entry(cmt_filename, param_path, task_counter):
     # Earthquake specific database parameters: Dir and Cid
     Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_filename)
 
-    # Path to function
-    create_database_func = os.path.join(bin_path, "create_entry.py")
-
     # Create a Stage object
     database_entry = Stage()
 
     t1 = Task()
     t1.name = "database-entry"
-    t1.pre_exec = [  # Conda activate
-                     DB_params["conda-activate"]]
-    t1.executable = DB_params["bin-python"]  # Assign
+    t1.pre_exec = PRE_EXECS
+    t1.executable = 'create-entry'  # Assign
     # executable to the task
-    t1.arguments = [create_database_func,
-                   os.path.abspath(cmt_filename)]
+    t1.arguments = ['-f %s' % cmt_filename,
+                    '-p %s' % param_path]
 
     # In the future maybe to database dir as a total log?
     t1.stdout = os.path.join("%s" % Cdir, "logs",
@@ -994,7 +999,7 @@ def create_inversion_stage(cmt_file_db, param_path, task_counter):
     return inversion_stage
 
 
-def workflow(cmt_filename):
+def workflow(cmt_filename, param_path):
     """This function submits the complete workflow
 
     :param cmt_filename: str containing the path to the cmt solution that is
@@ -1006,18 +1011,6 @@ def workflow(cmt_filename):
         ```
 
     """
-
-    # Input for workflow: List of earthquakes instead of a single one, Then,
-    # Create list of pipelines, one for each earthquake, which all are submitted
-    # to the appmanager.
-    # only change is a for-loop as for cmt_filename in cmt_file_list.d
-
-    # Path to pipeline file
-    pipelinepath = os.path.abspath(__file__)
-    pipelinedir = os.path.dirname(pipelinepath)
-
-    # Define parameter directory
-    param_path = os.path.join(os.path.dirname(pipelinedir), "params")
 
     # Get Database parameters
     databaseparam_path = os.path.join(param_path,
@@ -1221,9 +1214,11 @@ def workflow(cmt_filename):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("filename", help="Path to CMTSOLUTION file",
+    parser.add_argument("cmtfile", help="Path to CMTSOLUTION file",
                         type=str)
+    parser.add_argument("param_path", type=str,
+                        help="Path to workflow paramater directory")
     args = parser.parse_args()
 
     # Run
-    workflow(args.filename)
+    workflow(args.cmtfile, args.param_path)

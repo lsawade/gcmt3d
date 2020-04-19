@@ -24,7 +24,7 @@ config:
   bootstrap: True
   bootstrap_repeat: 300
   bootstrap_subset_ratio: 0.6
-  taper_type: "boxcar"
+  taper_type: "tukey"
   damping: 0.01 # One hundredth of the trace
 
 gridsearch: True
