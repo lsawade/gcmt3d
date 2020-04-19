@@ -199,11 +199,18 @@ def invert(cmt_file_db, param_path):
         inv = Inversion(cmtsource, dcon, cmt3d_config, mt_config=None)
 
     # Run inversion
-    inv.source_inversion(pregrid_stats_dir=os.path.join(cmt_dir, "inversion"))
+    if bool(INV_params["statistics_plot"]):
+        inv.source_inversion(pregrid_stats_dir=inv_out_dir)
+    else:
+        inv.source_inversion()
 
     # Plot results
     if bool(INV_params["summary_plot"]):
         inv.plot_summary(inv_out_dir, figure_format="pdf")
+
+    if bool(INV_params["statistics_plot"]):
+        # Plot Statistics for inversion
+        inv.G.plot_stats_histogram(outputdir=inv_out_dir)
 
     if bool(INV_params["summary_json"]):
         inv.write_summary_json(outputdir=inv_out_dir, mode="global")
@@ -219,10 +226,6 @@ def invert(cmt_file_db, param_path):
         inv.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,
                                                              "waveform_plots"),
                                       figure_format="pdf")
-    if bool(INV_params["statistics_plot"]):
-        # Plot Statistics for inversion
-        inv.cmt3d.plot_stats_histogram(outputdir=inv_out_dir,
-                                       figure_format="pdf")
 
 
 if __name__ == "__main__":
