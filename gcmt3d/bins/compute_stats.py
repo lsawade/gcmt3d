@@ -22,12 +22,14 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('dirname', help='Database directory', type=str)
+    parser.add_argument('-d', action="store_true", dest='direct',
+                        help='Direct directory')
     parser.add_argument('-o', dest='outdir', required=False, default='./',
                         help='Output directory', type=str)
     args = parser.parse_args()
 
     # Load shit
-    ST = Statistics._from_dir(args.dirname)
+    ST = Statistics._from_dir(args.dirname, direct=args.direct)
 
     # Plot it
     ST.plot_changes(savedir=args.outdir)

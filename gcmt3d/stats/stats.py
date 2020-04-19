@@ -115,9 +115,9 @@ class Statistics(object):
 
         """
         self.ocmt = old_cmts
-        self.oids = old_ids
+        self.oids = np.array(old_ids)
         self.ncmt = new_cmts
-        self.nids = new_ids
+        self.nids = np.array(new_ids)
         self.npar = npar
 
         # Sanity check
@@ -131,16 +131,26 @@ class Statistics(object):
         self.dCMT = self.ncmt - self.ocmt
         self.dCMT[:, :7] /= self.ocmt[:, 0, None]
 
+        good_stats = []
         for _i, (dcmt, id) in enumerate(zip(self.dCMT, self.ids)):
             if dcmt[0] > 0.5 or dcmt[0] < -0.5 or \
                     dcmt[7] > 20000 or dcmt[7] < -20000:
-
                 logger.info("ID: %s" % id)
                 logger.info("  M0_0: %e" % self.ocmt[_i, 0])
                 logger.info("  M0_1: %e" % self.ncmt[_i, 0])
                 logger.info("  dCMT: %f" % dcmt[0])
                 logger.info("  dz: %f" % dcmt[7])
-                logger.info(" ")
+                logger.info("Removed C%s from matrix." % id)
+            else:
+                good_stats.append(_i)
+
+        # Fix outliers
+        good_stats = np.array(good_stats)
+        self.ocmt = self.ocmt[good_stats, :]
+        self.oids = self.oids[good_stats]
+        self.ncmt = self.ncmt[good_stats, :]
+        self.nids = self.nids[good_stats]
+        self.dCMT = self.dCMT[good_stats, :]
 
         # Compute Correlation Coefficients
         self.xcorr_mat = np.corrcoef(self.dCMT.T)
@@ -173,7 +183,7 @@ class Statistics(object):
         self.stat_dict = stat_dict
 
     @classmethod
-    def _from_dir(self, directory, npar=9):
+    def _from_dir(self, directory, direct=False, npar=9):
         """Load old and new inverted CMTSOLUTIONS into lists of CMTSources.
 
         Args:
@@ -190,9 +200,12 @@ class Statistics(object):
 
         logger.info("Looking for earthquakes here: %s" % directory)
         # Get list of inversion files.
-        clist = glob(os.path.join(directory, "C*",
-                                  "inversion", "inversion_output",
-                                  "*.json"))
+        if direct:
+            clist = glob(os.path.join(directory, "*.json"))
+        else:
+            clist = glob(os.path.join(directory, "C*",
+                                      "inversion", "inversion_output",
+                                      "*.json"))
 
         logger.info("Found all files.")
         logger.info(" ")
@@ -265,12 +278,15 @@ class Statistics(object):
                        stations=self.stations, npar=self.npar,
                        savedir=savedir)
 
-        PS.plot_changes()
+        PS.plot_main_stats()
+        PS.plot_dM_dz()
+        PS.plot_dM_z()
+        # PS.plot_changes()
         # PS.plot_xcorr_matrix()
-        PS.plot_xcorr_heat()
-        PS.plot_measurement_changes()
-        PS.plot_mean_measurement_change_stats()
-        PS.save_table()
+        # PS.plot_xcorr_heat()
+        # PS.plot_measurement_changes()
+        # PS.plot_mean_measurement_change_stats()
+        # PS.save_table()
 
     @staticmethod
     def get_PTI_from_cmts(cmt_mat):
