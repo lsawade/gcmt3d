@@ -216,8 +216,8 @@ def invert(cmt_file_db, param_path):
     #     # Plot Statistics for inversion
     #     inv.G.plot_stats_histogram(outputdir=inv_out_dir)
     #
-    # if bool(INV_params["summary_json"]):
-    #     inv.write_summary_json(outputdir=inv_out_dir, mode="global")
+    if bool(INV_params["summary_json"]):
+        cmt3d.write_summary_json(outputdir=inv_out_dir, mode="global")
 
     if bool(INV_params["write_new_cmt"]):
         cmt3d.write_new_cmtfile(outputdir=inv_out_dir)
