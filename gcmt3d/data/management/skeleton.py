@@ -254,22 +254,34 @@ class DataBaseSkeleton(object):
             else:
                 self._create_dir(inv_out_dir, False)
 
-            inv_new_syn_dir = os.path.join(inv_out_dir, "new_synt")
+            inv_types = ["cmt3d", "g3d"]
 
-            if self.ow in [0, 1, 2, 3, 4] and type(self.ow) is not bool:
-                # Create new directory
-                self._create_dir(inv_new_syn_dir, True)
-            else:
-                self._create_dir(inv_new_syn_dir, False)
+            for _inv_type in inv_types:
 
-            inv_new_syn_plots_dir = os.path.join(inv_out_dir,
-                                                 "waveform_plots")
+                type_dir = os.path.join(inv_out_dir, _inv_type)
 
-            if self.ow in [0, 1, 2, 3, 4] and type(self.ow) is not bool:
-                # Create new directory
-                self._create_dir(inv_new_syn_plots_dir, True)
-            else:
-                self._create_dir(inv_new_syn_plots_dir, False)
+                if self.ow in [0, 1, 2, 3, 4] and type(self.ow) is not bool:
+                    # Create new directory
+                    self._create_dir(type_dir, True)
+                else:
+                    self._create_dir(type_dir, False)
+
+                inv_new_syn_dir = os.path.join(type_dir, "new_synt")
+
+                if self.ow in [0, 1, 2, 3, 4] and type(self.ow) is not bool:
+                    # Create new directory
+                    self._create_dir(inv_new_syn_dir, True)
+                else:
+                    self._create_dir(inv_new_syn_dir, False)
+
+                inv_new_syn_plots_dir = os.path.join(type_dir,
+                                                     "waveform_plots")
+
+                if self.ow in [0, 1, 2, 3, 4] and type(self.ow) is not bool:
+                    # Create new directory
+                    self._create_dir(inv_new_syn_plots_dir, True)
+                else:
+                    self._create_dir(inv_new_syn_plots_dir, False)
 
     def create_window_dir(self):
         """Creates window_data directory for pyflex window data metadata."""
