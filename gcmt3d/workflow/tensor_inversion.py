@@ -198,10 +198,10 @@ def invert(cmt_file_db, param_path):
     cmt3d.source_inversion()
     cmt3d.compute_new_syn()
     # Create inversion class
-    if bool(INV_params["gridsearch"]):
-        inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)
-    else:
-        inv = Inversion(cmtsource, dcon, cmt3d_config, mt_config=None)
+    # if bool(INV_params["gridsearch"]):
+    #     inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)
+    # else:
+    #     inv = Inversion(cmtsource, dcon, cmt3d_config, mt_config=None)
 
     # Run inversion
     if bool(INV_params["statistics_plot"]):
