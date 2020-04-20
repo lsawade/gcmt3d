@@ -68,13 +68,6 @@ def grid_search_dictionaries(cmt_file_db, param_path):
     :return:
     """
 
-    # Get database parameter path
-    databaseparam_path = os.path.join(param_path,
-                                      "Database/DatabaseParameters.yml")
-
-    # Load Parameters
-    DB_params = read_yaml_file(databaseparam_path)
-
     # Processing param dir
     process_obs_dir = os.path.join(param_path, "ProcessObserved")
     process_syn_dir = os.path.join(param_path, "ProcessSynthetic")

@@ -261,7 +261,6 @@ def create_g3d_inversion_dict_list(cmt_file_db,  process_obs_dir,
     new_synt_dir = os.path.join(cmt_dir, "inversion", "inversion_output",
                                 "cmt3d", "new_synt")
 
-
     # inversion dictionary
     output_dir = os.path.join(cmt_dir, "inversion", "inversion_dicts")
 
