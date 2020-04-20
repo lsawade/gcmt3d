@@ -16,6 +16,7 @@ import yaml
 
 # CMT3D
 from pycmt3d.source import CMTSource
+from pycmt3d import Cmt3D
 from pycmt3d import DataContainer
 from pycmt3d import WeightConfig, Config
 from pycmt3d.constant import PARLIST
@@ -192,6 +193,10 @@ def invert(cmt_file_db, param_path):
     logger.info(" ")
     logger.info(" ")
 
+    # Invert for parameters
+    cmt3d = Cmt3D(cmtsource, data_container, cmt3d_config)
+    cmt3d.source_inversion()
+    cmt3d.compute_new_syn()
     # Create inversion class
     if bool(INV_params["gridsearch"]):
         inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)
@@ -200,32 +205,30 @@ def invert(cmt_file_db, param_path):
 
     # Run inversion
     if bool(INV_params["statistics_plot"]):
-        inv.source_inversion(pregrid_stats_dir=inv_out_dir)
-    else:
-        inv.source_inversion()
+        cmt3d.plot_stats_histogram(outputdir=inv_out_dir)
 
     # Plot results
     if bool(INV_params["summary_plot"]):
-        inv.plot_summary(inv_out_dir, figure_format="pdf")
-
-    if bool(INV_params["statistics_plot"]):
-        # Plot Statistics for inversion
-        inv.G.plot_stats_histogram(outputdir=inv_out_dir)
-
-    if bool(INV_params["summary_json"]):
-        inv.write_summary_json(outputdir=inv_out_dir, mode="global")
+        cmt3d.plot_summary(inv_out_dir, figure_format="pdf")
+    #
+    # if bool(INV_params["statistics_plot"]):
+    #     # Plot Statistics for inversion
+    #     inv.G.plot_stats_histogram(outputdir=inv_out_dir)
+    #
+    # if bool(INV_params["summary_json"]):
+    #     inv.write_summary_json(outputdir=inv_out_dir, mode="global")
 
     if bool(INV_params["write_new_cmt"]):
-        inv.write_new_cmtfile(outputdir=inv_out_dir)
+        cmt3d.write_new_cmtfile(outputdir=inv_out_dir)
 
     if bool(INV_params["write_new_synt"]):
-        inv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
-                          file_format="sac")
+        cmt3d.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
+                            file_format="asdf")
 
     if bool(INV_params["plot_new_synthetics"]):
-        inv.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,
-                                                             "waveform_plots"),
-                                      figure_format="pdf")
+        cmt3d.plot_new_synt_seismograms(
+            outputdir=os.path.join(inv_out_dir, "waveform_plots"),
+                                   figure_format="pdf")
 
 
 if __name__ == "__main__":
