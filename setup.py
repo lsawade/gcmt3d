@@ -75,6 +75,7 @@ setup(
         'compute-stats = gcmt3d.bins.compute_stats:main',
         'create-entry = gcmt3d.bins.create_entry:main',
         'create-inversion-dicts = gcmt3d.bins.write_inversion_dicts:main',
+        'create-gridsearch-dicts = gcmt3d.bins.write_grid_search_dicts:main',
         'create-path-files = gcmt3d.bins.create_path_files:main',
         'extract-station-info = gcmt3d.bins.extract_station_info:main',
         'filter-windows = gcmt3d.bins.filter_windows:main',

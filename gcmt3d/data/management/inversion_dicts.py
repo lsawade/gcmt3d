@@ -218,9 +218,8 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
     return inv_dict_list, outfile_list
 
 
-def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
-                                    process_syn_dir, window_process_dir,
-                                    npar=9):
+def create_g3d_inversion_dict_list(cmt_file_db,  process_obs_dir,
+                                   process_syn_dir, window_process_dir):
     """
     :param cmt_file_db: the cmtsolution file in the database.
     :type cmt_file_db: str
@@ -249,22 +248,19 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
 
         Window_file: "path/to/window/file"
         ASDF_dict:
-            Mrr: "path/to/CMT_rr.h5"
-            Mtt: "path/to/CMT_tt.h5"
-            Mpp: "path/to/CMT_pp.h5"
-            Mrt: "path/to/CMT_rt.h5"
-            Mrp: "path/to/CMT_rp.h5"
-            Mtp: "path/to/CMT_tp.h5"
-            dep: "path/to/CMT_dep.h5"
-            lon: "path/to/CMT_lon.h5"
-            lat: "path/to/CMT_lat.h5"
-            ctm: "path/to/CMT_ctm.h5"
-            hdr: "path/to/CMT_hdr.h5"
+            Mrr: "path/to/observed.h5"
+            Mtt: "path/to/synthetic.h5"
+
 
     """
 
     # Get CMT dir
     cmt_dir = os.path.dirname(cmt_file_db)
+
+    # New synt dir =
+    new_synt_dir = os.path.join(cmt_dir, "inversion", "inversion_output",
+                                "cmt3d", "new_synt")
+
 
     # inversion dictionary
     output_dir = os.path.join(cmt_dir, "inversion", "inversion_dicts")
@@ -277,6 +273,8 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
     processing_list, obs_list, syn_list = get_processing_list(cmt_file_db,
                                                               process_obs_dir,
                                                               process_syn_dir)
+
+    syn_list = glob.glob(os.path.join(new_synt_dir, "*synt*h5"))
 
     # Create empty list of dictionaries
     inv_dict_list = []
@@ -307,28 +305,13 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
         asdf_dict["obsd"] = [s for s in obs_list
                              if band in os.path.basename(s)][0]
 
+        "200709121110A.9p_ZT.040_100_synt.h5"
+        "200709121110A.9p_ZT.090_250_synt.h5"
+
         # Set observed filename
         asdf_dict["synt"] = [s for s in syn_list
                              if (band in os.path.basename(s))
-                             and ("synthetic_CMT." in os.path.basename(s))][0]
-
-        # Creating a dictionary from synthetic files and their names
-        for key, value in PARMAP.items():
-
-            # Get perturbed file with value
-            pert_file = [s for s in syn_list
-                         if (band in os.path.basename(s))
-                         and ("synthetic_%s." % value
-                              in os.path.basename(s))]
-
-            if len(pert_file) > 1:
-                logger.error("Found %d synthetic perturbation files."
-                             % len(pert_file))
-                raise ValueError
-
-            elif len(pert_file) != 0:
-                # Write into file dict
-                asdf_dict[key] = pert_file[0]
+                             and ("synt." in os.path.basename(s))][0]
 
         inv_dict["asdf_dict"] = asdf_dict
 
@@ -336,7 +319,7 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
         inv_dict_list.append(inv_dict)
 
         output_file_name = os.path.join(output_dir,
-                                        "inversion" + window_file_name[7:])
+                                        "grid" + window_file_name[7:])
 
         outfile_list.append(output_file_name)
 
