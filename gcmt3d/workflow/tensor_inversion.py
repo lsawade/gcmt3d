@@ -220,7 +220,7 @@ def invert(cmt_file_db, param_path):
 
     if bool(INV_params["write_new_synt"]):
         inv.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
-                          file_format="asdf")
+                          file_format="sac")
 
     if bool(INV_params["plot_new_synthetics"]):
         inv.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,

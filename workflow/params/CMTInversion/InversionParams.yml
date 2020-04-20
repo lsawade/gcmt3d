@@ -32,7 +32,7 @@ plot_new_synthetics: True
 summary_json: True
 summary_plot: True
 statistics_plot: True
-write_new_synt: False
+write_new_synt: True
 write_new_cmt: True
 
 # Gradient method
