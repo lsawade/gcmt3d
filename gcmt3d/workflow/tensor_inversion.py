@@ -194,7 +194,7 @@ def invert(cmt_file_db, param_path):
     logger.info(" ")
 
     # Invert for parameters
-    cmt3d = Cmt3D(cmtsource, data_container, cmt3d_config)
+    cmt3d = Cmt3D(cmtsource, dcon, cmt3d_config)
     cmt3d.source_inversion()
     cmt3d.compute_new_syn()
     # Create inversion class
