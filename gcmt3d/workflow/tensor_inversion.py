@@ -20,10 +20,8 @@ from pycmt3d import Cmt3D
 from pycmt3d import DataContainer
 from pycmt3d import WeightConfig, Config
 from pycmt3d.constant import PARLIST
-from pycmt3d import Inversion
 
 # Gradient3D
-from pycmt3d.gradient3d import Gradient3dConfig
 
 import os
 import glob
@@ -159,36 +157,6 @@ def invert(cmt_file_db, param_path):
         taper_type=inv_params["taper_type"],
         damping=float(inv_params["damping"]))
 
-    grad3d_params = INV_params["grad3d_config"]
-
-    weight_config_grad3d = WeightConfig(
-        normalize_by_energy=inv_weight_config["normalize_by_energy"],
-        normalize_by_category=inv_weight_config["normalize_by_category"],
-        azi_bins=inv_weight_config["azi_bins"],
-        azi_exp_idx=inv_weight_config["azi_exp_idx"])
-
-    grad3d_config = Gradient3dConfig(
-        method=grad3d_params["method"],
-        weight_data=bool(grad3d_params["weight_data"]),
-        weight_config=weight_config_grad3d,
-        use_new=bool(grad3d_params["use_new"]),
-        # flag to use the gradient method on inverted traces.
-        taper_type=grad3d_params["taper_type"],
-        c1=float(grad3d_params["c1"]),
-        c2=float(grad3d_params["c2"]),
-        idt=float(grad3d_params["idt"]),
-        ia=float(grad3d_params["ia"]),
-        nt=int(grad3d_params["nt"]),
-        nls=int(grad3d_params["nls"]),
-        crit=float(grad3d_params["crit"]),
-        precond=bool(grad3d_params["precond"]),
-        reg=bool(grad3d_params["reg"]),
-        bootstrap=bool(grad3d_params["bootstrap"]),
-        bootstrap_repeat=int(grad3d_params["bootstrap_repeat"]),
-        bootstrap_subset_ratio=float(grad3d_params["bootstrap_subset_ratio"]),
-        mpi_env=bool(grad3d_params["mpi_env"]),
-        parallel=bool(grad3d_params["parallel"]))
-
     logger.info("  PyCMT3D is finding an improved CMTSOLUTION .... ")
     logger.info("  " + 54 * "*")
     logger.info(" ")
@@ -229,7 +197,7 @@ def invert(cmt_file_db, param_path):
     if bool(INV_params["plot_new_synthetics"]):
         cmt3d.plot_new_synt_seismograms(
             outputdir=os.path.join(inv_out_dir, "waveform_plots"),
-                                   figure_format="pdf")
+            figure_format="pdf")
 
 
 if __name__ == "__main__":
