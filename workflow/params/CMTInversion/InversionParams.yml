@@ -27,8 +27,8 @@ config:
   taper_type: "tukey"
   damping: 0.01 # One hundredth of the trace
 
-gridsearch: True
-plot_new_synthetics: True
+gridsearch: False
+plot_new_synthetics: False
 summary_json: True
 summary_plot: True
 statistics_plot: True
