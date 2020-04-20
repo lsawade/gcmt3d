@@ -69,7 +69,8 @@ def invert(cmt_file_db, param_path):
     inv_dict_files = glob.glob(os.path.join(inv_dict_dir, "*"))
 
     # Inversion output directory
-    inv_out_dir = os.path.join(cmt_dir, "inversion", "inversion_output")
+    inv_out_dir = os.path.join(cmt_dir,
+                               "inversion", "inversion_output", "cmt3d")
 
     # WRite start of inversion process
     logger.info(" ")
