@@ -64,7 +64,7 @@ def invert(cmt_file_db, param_path):
     inv_dict_dir = os.path.join(cmt_dir, "inversion", "inversion_dicts")
 
     # Inversion dictionaries
-    inv_dict_files = glob.glob(os.path.join(inv_dict_dir, "*"))
+    inv_dict_files = glob.glob(os.path.join(inv_dict_dir, "inversion*"))
 
     # Inversion output directory
     inv_out_dir = os.path.join(cmt_dir,
