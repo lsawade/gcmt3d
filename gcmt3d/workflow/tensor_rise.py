@@ -1,6 +1,6 @@
 """
 
-This script contains functions to invert the produced data
+This is the grid search part for the cmt inversion. Rise in the gradient sense
 
 :copyright:
     Lucas Sawade (lsawade@princeton.edu)
@@ -8,7 +8,7 @@ This script contains functions to invert the produced data
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 
-Last Update: June 2019
+Last Update: April 2020
 
 """
 
@@ -16,12 +16,12 @@ import yaml
 
 # CMT3D
 from pycmt3d.source import CMTSource
-from pycmt3d import Cmt3D
 from pycmt3d import DataContainer
-from pycmt3d import WeightConfig, Config
-from pycmt3d.constant import PARLIST
+from pycmt3d import WeightConfig
+from pycmt3d import Gradient3dConfig, Gradient3d
 
 # Gradient3D
+from pycmt3d.gradient3d import Gradient3dConfig
 
 import os
 import glob
@@ -36,7 +36,7 @@ def read_yaml_file(filename):
         return yaml.load(fh, Loader=yaml.FullLoader)
 
 
-def invert(cmt_file_db, param_path):
+def gradient(cmt_file_db, param_path):
     """Runs the actual inversion.
 
     :param cmt_file_db:
@@ -64,23 +64,22 @@ def invert(cmt_file_db, param_path):
     inv_dict_dir = os.path.join(cmt_dir, "inversion", "inversion_dicts")
 
     # Inversion dictionaries
-    inv_dict_files = glob.glob(os.path.join(inv_dict_dir, "inversion*"))
+    inv_dict_files = glob.glob(os.path.join(inv_dict_dir, "grid*"))
 
     # Inversion output directory
-    inv_out_dir = os.path.join(cmt_dir,
-                               "inversion", "inversion_output", "cmt3d")
+    inv_out_dir = os.path.join(cmt_dir, "inversion", "inversion_output", "g3d")
 
     # WRite start of inversion process
     logger.info(" ")
     logger.info("#######################################################")
     logger.info("#                                                     #")
-    logger.info("#      Starting CMT3D Inversion ...                   #")
+    logger.info("#      Starting inversion ...                         #")
     logger.info("#                                                     #")
     logger.info("#######################################################")
     logger.info(" ")
 
     # Creating Data container
-    dcon = DataContainer(parlist=PARLIST[:DB_params["npar"]])
+    dcon = DataContainer()
 
     for _i, inv_dict_file in enumerate(inv_dict_files):
 
@@ -133,71 +132,69 @@ def invert(cmt_file_db, param_path):
     # Setting up weight config
     inv_weight_config = INV_params["weight_config"]
 
-    weight_config = WeightConfig(
+    grad3d_params = INV_params["grad3d_config"]
+
+    weight_config_grad3d = WeightConfig(
         normalize_by_energy=inv_weight_config["normalize_by_energy"],
         normalize_by_category=inv_weight_config["normalize_by_category"],
         azi_bins=inv_weight_config["azi_bins"],
         azi_exp_idx=inv_weight_config["azi_exp_idx"])
 
-    # Setting up general inversion config
-    inv_params = INV_params["config"]
-
-    cmt3d_config = Config(
-        DB_params["npar"],
-        dlocation=float(inv_params["dlocation"]),
-        ddepth=float(inv_params["ddepth"]),
-        dmoment=float(inv_params["dmoment"]),
-        weight_data=bool(inv_params["weight_data"]),
-        station_correction=bool(inv_params["station_correction"]),
-        zero_trace=bool(inv_params["zero_trace"]),
-        double_couple=bool(inv_params["double_couple"]),
-        bootstrap=bool(inv_params["bootstrap"]),
-        bootstrap_repeat=int(inv_params["bootstrap_repeat"]),
-        weight_config=weight_config,
-        taper_type=inv_params["taper_type"],
-        damping=float(inv_params["damping"]))
+    grad3d_config = Gradient3dConfig(
+        method=grad3d_params["method"],
+        weight_data=bool(grad3d_params["weight_data"]),
+        weight_config=weight_config_grad3d,
+        use_new=bool(grad3d_params["use_new"]),
+        # flag to use the gradient method on inverted traces.
+        taper_type=grad3d_params["taper_type"],
+        c1=float(grad3d_params["c1"]),
+        c2=float(grad3d_params["c2"]),
+        idt=float(grad3d_params["idt"]),
+        ia=float(grad3d_params["ia"]),
+        nt=int(grad3d_params["nt"]),
+        nls=int(grad3d_params["nls"]),
+        crit=float(grad3d_params["crit"]),
+        precond=bool(grad3d_params["precond"]),
+        reg=bool(grad3d_params["reg"]),
+        bootstrap=bool(grad3d_params["bootstrap"]),
+        bootstrap_repeat=int(grad3d_params["bootstrap_repeat"]),
+        bootstrap_subset_ratio=float(grad3d_params["bootstrap_subset_ratio"]),
+        mpi_env=bool(grad3d_params["mpi_env"]),
+        parallel=bool(grad3d_params["parallel"]))
 
     logger.info("  PyCMT3D is finding an improved CMTSOLUTION .... ")
     logger.info("  " + 54 * "*")
     logger.info(" ")
     logger.info(" ")
 
-    # Invert for parameters
-    cmt3d = Cmt3D(cmtsource, dcon, cmt3d_config)
-    cmt3d.source_inversion()
-    cmt3d.compute_new_syn()
-    # Create inversion class
-    # if bool(INV_params["gridsearch"]):
-    #     inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)
-    # else:
-    #     inv = Inversion(cmtsource, dcon, cmt3d_config, mt_config=None)
+    # Create Gradient3d class
+    g3d = Gradient3d(cmtsource, dcon, grad3d_config)
 
     # Run inversion
-    if bool(INV_params["statistics_plot"]):
-        cmt3d.plot_stats_histogram(outputdir=inv_out_dir)
+    g3d.search()
 
     # Plot results
     if bool(INV_params["summary_plot"]):
-        cmt3d.plot_summary(inv_out_dir, figure_format="pdf")
-    #
-    # if bool(INV_params["statistics_plot"]):
-    #     # Plot Statistics for inversion
-    #     inv.G.plot_stats_histogram(outputdir=inv_out_dir)
-    #
+        # g3d.plot_summary(inv_out_dir, figure_format="pdf")
+
+    if bool(INV_params["statistics_plot"]):
+        # Plot Statistics for inversion
+        g3d.plot_stats_histogram(outputdir=inv_out_dir)
+
     if bool(INV_params["summary_json"]):
-        cmt3d.write_summary_json(outputdir=inv_out_dir, mode="global")
+        g3d.write_summary_json(outputdir=inv_out_dir, mode="global")
 
     if bool(INV_params["write_new_cmt"]):
-        cmt3d.write_new_cmtfile(outputdir=inv_out_dir)
+        g3d.write_new_cmtfile(outputdir=inv_out_dir)
 
     if bool(INV_params["write_new_synt"]):
-        cmt3d.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
-                            file_format="asdf")
+        g3d.write_new_syn(outputdir=os.path.join(inv_out_dir, "new_synt"),
+                          file_format="asdf")
 
     if bool(INV_params["plot_new_synthetics"]):
-        cmt3d.plot_new_synt_seismograms(
-            outputdir=os.path.join(inv_out_dir, "waveform_plots"),
-            figure_format="pdf")
+        g3d.plot_new_synt_seismograms(outputdir=os.path.join(inv_out_dir,
+                                                             "waveform_plots"),
+                                      figure_format="pdf")
 
 
 if __name__ == "__main__":
@@ -210,4 +207,4 @@ if __name__ == "__main__":
                         help="Path to Parameter Directory")
     args = parser.parse_args()
 
-    invert(args.cmt_file, args.param_path)
+    gradient(args.cmt_file, args.param_path)
