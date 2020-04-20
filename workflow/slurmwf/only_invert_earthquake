@@ -69,7 +69,7 @@ sbatch << EOF
 #SBATCH --ntasks-per-node=30
 #SBATCH --mem=200GB
 #SBATCH --time=00:40:00
-
+#SBATCH --reservation=test
 
 
 # #WHAT???????? #SBATCH --requeue 
