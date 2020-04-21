@@ -87,6 +87,8 @@ setup(
             'extract-station-info = gcmt3d.bins.extract_station_info:main',
             'filter-windows = gcmt3d.bins.filter_windows:main',
             'generate-stations-asdf = gcmt3d.bins.generate_stations_asdf:main',
+            'get-cmt-id = gcmt3d.bins.get_cmt_id:main',
+            'get-cmt-in-db = gcmt3d.bins.get_cmt_in_db:main',
             'inversion = gcmt3d.bins.inversion:main',
             'gridsearch = gcmt3d.bins.gridsearch:main',
             'process-asdf = gcmt3d.bins.process_asdf:main',

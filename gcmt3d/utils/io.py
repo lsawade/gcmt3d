@@ -13,8 +13,10 @@ Some important and simple IO help functions.
 """
 
 from __future__ import (absolute_import, division, print_function)
+import os
 import json
 import yaml
+from ..source import CMTSource
 
 
 def load_json(filename):
@@ -104,3 +106,37 @@ def is_mpi_env():
 def _get_mpi_comm():
     from mpi4py import MPI
     return MPI.COMM_WORLD
+
+
+def get_location_in_database(cmtfile, databasedir):
+    """ Takes in CMT solution and database directory and outputs path to the CMT
+    in the
+
+    :param cmtfile: cmtfilename
+    :param databasedir: database directory
+    :return:
+    """
+
+    # Load CMT solution
+    cmtsource = CMTSource.from_CMTSOLUTION_file(cmtfile)
+
+    # Get ID from source
+    cmtID = cmtsource.eventname
+
+    return os.path.join(os.path.abspath(databasedir),
+                        "C" + cmtID,
+                        "C" + cmtID + ".cmt")
+
+
+def get_cmt_id(cmtfile):
+    """ Takes in CMTSOLUTION file and outputs the id
+
+    :param cmtfile: cmtfilename
+    :return: ids
+    """
+
+    # Load CMT solution
+    cmtsource = CMTSource.from_CMTSOLUTION_file(cmtfile)
+
+    # Get ID from source
+    return cmtsource.eventname
