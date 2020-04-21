@@ -54,6 +54,11 @@ def invert(cmt_file_db, param_path):
                                        "CMTInversion/InversionParams.yml")
     INV_params = read_yaml_file(inversionparam_path)
 
+    # Weight Params
+    weightparam_path = os.path.join(param_path,
+                                    "CMTInversion/WeightParams.yml")
+    weight_params = read_yaml_file(weightparam_path)
+
     # Get processing path from cmt_filename in database
     cmt_dir = os.path.dirname(os.path.abspath(cmt_file_db))
 
@@ -131,7 +136,7 @@ def invert(cmt_file_db, param_path):
     logger.info("  ... ")
 
     # Setting up weight config
-    inv_weight_config = INV_params["weight_config"]
+    inv_weight_config = weight_params["weight_config"]
 
     weight_config = WeightConfig(
         normalize_by_energy=inv_weight_config["normalize_by_energy"],

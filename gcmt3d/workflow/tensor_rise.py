@@ -45,6 +45,11 @@ def gradient(cmt_file_db, param_path):
                                        "CMTInversion/InversionParams.yml")
     INV_params = read_yaml_file(inversionparam_path)
 
+    # Weight Params
+    weightparam_path = os.path.join(param_path,
+                                    "CMTInversion/WeightParams.yml")
+    weight_params = read_yaml_file(weightparam_path)
+
     # Check if grid search should be performed from the parameters file
     if not bool(INV_params["gridsearch"]):
         return
@@ -125,7 +130,7 @@ def gradient(cmt_file_db, param_path):
     logger.info("  ... ")
 
     # Setting up weight config
-    inv_weight_config = INV_params["weight_config"]
+    inv_weight_config = weight_params["weight_config"]
 
     grad3d_params = INV_params["grad3d_config"]
 
