@@ -1,5 +1,6 @@
 # Database directory
 databasedir: "/scratch/gpfs/lsawade/database"
+backup_database: "/tigress/lsawade/database"
 
 # Number of parameters to invert for
 # 6: only the moment tensor

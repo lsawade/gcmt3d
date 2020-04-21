@@ -42,7 +42,7 @@ def gradient(cmt_file_db, param_path):
 
     # Inversion Params
     inversionparam_path = os.path.join(param_path,
-                                       "CMTInversion/InversionParams.yml")
+                                       "CMTInversion/GridsearchParams.yml")
     INV_params = read_yaml_file(inversionparam_path)
 
     # Weight Params
