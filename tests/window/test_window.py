@@ -15,6 +15,47 @@ import gcmt3d.window.io as wio
 import warnings
 
 
+def _upper_level(path, nlevel=4):
+    """
+    Go the nlevel dir up
+    """
+    for i in range(nlevel):
+        path = os.path.dirname(path)
+    return path
+
+
+def reset_matplotlib():
+    """
+    Reset matplotlib to a common default.
+    """
+    # Set all default values.
+    mpl.rcdefaults()
+    # Force agg backend.
+    plt.switch_backend('agg')
+    # These settings must be hardcoded for running the comparision tests and
+    # are not necessarily the default values.
+    mpl.rcParams['font.family'] = 'Bitstream Vera Sans'
+    mpl.rcParams['text.hinting'] = False
+    # Not available for all matplotlib versions.
+    try:
+        mpl.rcParams['text.hinting_factor'] = 8
+    except KeyError:
+        pass
+    import locale
+    locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
+
+
+# Most generic way to get the data folder path.
+TESTBASE_DIR = _upper_level(
+    os.path.abspath(inspect.getfile(inspect.currentframe())), 2)
+DATA_DIR = os.path.join(TESTBASE_DIR, "data")
+
+obsfile = os.path.join(DATA_DIR, "proc", "IU.KBL.obs.proc.mseed")
+synfile = os.path.join(DATA_DIR, "proc", "IU.KBL.syn.proc.mseed")
+staxml = os.path.join(DATA_DIR, "stationxml", "IU.KBL.xml")
+quakeml = os.path.join(DATA_DIR, "quakeml", "C201009031635A.xml")
+
+
 def assertUTCDateTimeEqual(UTC1, UTC2):
     """Testing whether UTC Date and time are equal."""
     assert UTC1 == UTC2
@@ -163,47 +204,6 @@ def assertWinAlmostEqual(win1, win2, parameters):
 
         else:
             raise AssertionError("Window Dont know whats going on")
-
-
-def _upper_level(path, nlevel=4):
-    """
-    Go the nlevel dir up
-    """
-    for i in range(nlevel):
-        path = os.path.dirname(path)
-    return path
-
-
-def reset_matplotlib():
-    """
-    Reset matplotlib to a common default.
-    """
-    # Set all default values.
-    mpl.rcdefaults()
-    # Force agg backend.
-    plt.switch_backend('agg')
-    # These settings must be hardcoded for running the comparision tests and
-    # are not necessarily the default values.
-    mpl.rcParams['font.family'] = 'Bitstream Vera Sans'
-    mpl.rcParams['text.hinting'] = False
-    # Not available for all matplotlib versions.
-    try:
-        mpl.rcParams['text.hinting_factor'] = 8
-    except KeyError:
-        pass
-    import locale
-    locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
-
-
-# Most generic way to get the data folder path.
-TESTBASE_DIR = _upper_level(
-    os.path.abspath(inspect.getfile(inspect.currentframe())), 4)
-DATA_DIR = os.path.join(TESTBASE_DIR, "tests", "data")
-
-obsfile = os.path.join(DATA_DIR, "proc", "IU.KBL.obs.proc.mseed")
-synfile = os.path.join(DATA_DIR, "proc", "IU.KBL.syn.proc.mseed")
-staxml = os.path.join(DATA_DIR, "stationxml", "IU.KBL.xml")
-quakeml = os.path.join(DATA_DIR, "quakeml", "C201009031635A.xml")
 
 
 def test_update_user_levels():

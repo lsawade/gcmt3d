@@ -20,8 +20,8 @@ def _upper_level(path, nlevel=4):
 
 # Most generic way to get the data folder path.
 TESTBASE_DIR = _upper_level(os.path.abspath(
-    inspect.getfile(inspect.currentframe())), 4)
-DATA_DIR = os.path.join(TESTBASE_DIR, "tests", "data")
+    inspect.getfile(inspect.currentframe())), 2)
+DATA_DIR = os.path.join(TESTBASE_DIR, "data")
 
 # synfile = os.path.join(DATA_DIR, "raw", "IU.KBL.syn.mseed")
 # testsyn = read(synfile)

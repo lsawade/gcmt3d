@@ -401,8 +401,7 @@ class TestCreatePaths(unittest.TestCase):
                 cmt_filename,
                 process_obs_dir,
                 process_syn_dir,
-                window_process_dir,
-                npar=9)
+                window_process_dir)
 
             write_inversion_dicts(inv_dict_list, filenames)
 
