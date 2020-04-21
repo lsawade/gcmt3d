@@ -800,7 +800,7 @@ def workflow(cmtfilenames, param_path):
         # ---- Write Sources ---------------------------------------------------- #
 
         # Create Source modification stage
-        w_sources_stage, task_counter = write_sources(cmt_file_db, param_path,
+        w_sources_stage, task_counter = write_sources(cmt_in_db, param_path,
                                                       task_counter)
 
         # Add Stage to the Pipeline
