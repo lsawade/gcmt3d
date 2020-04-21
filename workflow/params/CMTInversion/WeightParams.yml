@@ -1,0 +1,13 @@
+# Weight configuration for pycmt3d
+weight_config:
+  normalize_by_energy: True # Check on/off
+  normalize_by_category: True  # usually True
+  azi_bins: 12
+  comp_weight:
+    Z: 1.0
+    R: 1.0
+    T: 1.0
+  love_dist_weight: 1.0
+  pnl_dist_weight: 1.0
+  rayleigh_dist_weight: 1.0
+  azi_exp_idx: 0.5  # azimuthal Not fully normalized by azimuth
