@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>workflow.invert_cmt.00_Fix_Specfem_And_Recompile &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/gcmt3dAPI.html">GCMT3D API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>workflow.invert_cmt.00_Fix_Specfem_And_Recompile</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for workflow.invert_cmt.00_Fix_Specfem_And_Recompile</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This is a script that will fix specfem given the parameters set in the</span>
+<span class="sd">`params/SpecfemParams/SpecfemParams.yml` file.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Lucas Sawade (lsawade@princeton.edu)</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU Lesser General Public License, version 3 (LGPLv3)</span>
+<span class="sd">    (http://www.gnu.org/licenses/lgpl-3.0.en.html)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">gcmt3d.asdf.utils</span> <span class="kn">import</span> <span class="n">smart_read_yaml</span><span class="p">,</span> <span class="n">is_mpi_env</span>
+<span class="kn">from</span> <span class="nn">gcmt3d.runSF3D.runSF3D</span> <span class="kn">import</span> <span class="n">DATAFixer</span>
+
+
+<div class="viewcode-block" id="Fix_Specfem"><a class="viewcode-back" href="../../../chapters/workflowAPI.html#workflow.invert_cmt.00_Fix_Specfem_And_Recompile.Fix_Specfem">[docs]</a><span class="k">def</span> <span class="nf">Fix_Specfem</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;This Function uses the parameters found in</span>
+<span class="sd">    ::</span>
+
+<span class="sd">        GCMT3D/workflow/params/SpecfemParams/SpecfemParams.yml</span>
+
+<span class="sd">    and</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        GCMT3D/workflow/params/SpecfemParams/CompilersAndModules.yml</span>
+
+<span class="sd">    to fix and recompile the software which is necessary for the simulation</span>
+<span class="sd">    and inversion of the data.</span>
+
+<span class="sd">    Since all data are taken from the parameter files. there are no in- and</span>
+<span class="sd">    outputs.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Define parameter directory</span>
+    <span class="n">param_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+        <span class="vm">__file__</span><span class="p">))),</span> <span class="s2">&quot;params&quot;</span><span class="p">)</span>
+    <span class="n">specfemspec_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">param_path</span><span class="p">,</span>
+                                    <span class="s2">&quot;SpecfemParams/SpecfemParams.yml&quot;</span><span class="p">)</span>
+    <span class="n">comp_and_modules_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span>\
+        <span class="n">join</span><span class="p">(</span><span class="n">param_path</span><span class="p">,</span> <span class="s2">&quot;SpecfemParams/CompilersAndModules.yml&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Load parameters</span>
+    <span class="n">sf_dict</span> <span class="o">=</span> <span class="n">smart_read_yaml</span><span class="p">(</span><span class="n">specfemspec_path</span><span class="p">,</span> <span class="n">mpi_mode</span><span class="o">=</span><span class="n">is_mpi_env</span><span class="p">())</span>
+    <span class="n">cm_dict</span> <span class="o">=</span> <span class="n">smart_read_yaml</span><span class="p">(</span><span class="n">comp_and_modules_path</span><span class="p">,</span> <span class="n">mpi_mode</span><span class="o">=</span><span class="n">is_mpi_env</span><span class="p">())</span>
+
+    <span class="c1"># Define the specfemdatafixer</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">DATAFixer</span><span class="p">(</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;SPECFEM_DIR&quot;</span><span class="p">],</span>
+                   <span class="n">NEX_XI</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;NEX_XI&quot;</span><span class="p">],</span> <span class="n">NEX_ETA</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;NEX_ETA&quot;</span><span class="p">],</span>
+                   <span class="n">NPROC_XI</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;NPROC_XI&quot;</span><span class="p">],</span> <span class="n">NPROC_ETA</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;NPROC_ETA&quot;</span><span class="p">],</span>
+                   <span class="n">ROTATE_SEISMOGRAMS_RT</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;ROTATE_SEISMOGRAMS_RT&quot;</span><span class="p">],</span>
+                   <span class="n">RECORD_LENGTH</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;RECORD_LENGTH&quot;</span><span class="p">],</span>
+                   <span class="n">MODEL</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;MODEL&quot;</span><span class="p">],</span>
+                   <span class="n">WRITE_SEISMOGRAMS_BY_MASTER</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span>
+                       <span class="s2">&quot;WRITE_SEISMOGRAMS_BY_MASTER&quot;</span><span class="p">],</span>
+                   <span class="n">OUTPUT_SEISMOS_ASCII_TEXT</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span>
+                       <span class="s2">&quot;OUTPUT_SEISMOS_ASCII_TEXT&quot;</span><span class="p">],</span>
+                   <span class="n">OUTPUT_SEISMOS_SAC_ALPHANUM</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span>
+                       <span class="s2">&quot;OUTPUT_SEISMOS_SAC_ALPHANUM&quot;</span><span class="p">],</span>
+                   <span class="n">OUTPUT_SEISMOS_SAC_BINARY</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span>
+                       <span class="s2">&quot;OUTPUT_SEISMOS_SAC_BINARY&quot;</span><span class="p">],</span>
+                   <span class="n">OUTPUT_SEISMOS_ASDF</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;OUTPUT_SEISMOS_ASDF&quot;</span><span class="p">],</span>
+                   <span class="n">MOVIE_SURFACE</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;MOVIE_SURFACE&quot;</span><span class="p">],</span>
+                   <span class="n">MOVIE_VOLUME</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;MOVIE_VOLUME&quot;</span><span class="p">],</span>
+                   <span class="n">MOVIE_COARSE</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;MOVIE_COARSE&quot;</span><span class="p">],</span>
+                   <span class="n">GPU_MODE</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;GPU_MODE&quot;</span><span class="p">],</span>
+                   <span class="n">GPU_RUNTIME</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;GPU_RUNTIME&quot;</span><span class="p">],</span>
+                   <span class="n">GPU_PLATFORM</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;GPU_PLATFORM&quot;</span><span class="p">],</span>
+                   <span class="n">GPU_DEVICE</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;GPU_DEVICE&quot;</span><span class="p">],</span>
+                   <span class="n">ADIOS_ENABLED</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;ADIOS_ENABLED&quot;</span><span class="p">],</span>
+                   <span class="n">ADIOS_FOR_FORWARD_ARRAYS</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;ADIOS_FOR_FORWARD_ARRAYS&quot;</span><span class="p">],</span>
+                   <span class="n">ADIOS_FOR_MPI_ARRAYS</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;ADIOS_FOR_MPI_ARRAYS&quot;</span><span class="p">],</span>
+                   <span class="n">ADIOS_FOR_ARRAYS_SOLVER</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;ADIOS_FOR_ARRAYS_SOLVER&quot;</span><span class="p">],</span>
+                   <span class="n">ADIOS_FOR_SOLVER_MESHFILES</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span>
+                       <span class="s2">&quot;ADIOS_FOR_SOLVER_MESHFILES&quot;</span><span class="p">],</span>
+                   <span class="n">ADIOS_FOR_AVS_DX</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;ADIOS_FOR_AVS_DX&quot;</span><span class="p">],</span>
+                   <span class="n">ADIOS_FOR_KERNELS</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;ADIOS_FOR_KERNELS&quot;</span><span class="p">],</span>
+                   <span class="n">ADIOS_FOR_MODELS</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;ADIOS_FOR_MODELS&quot;</span><span class="p">],</span>
+                   <span class="n">ADIOS_FOR_UNDO_ATTENUATION</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span>
+                       <span class="s2">&quot;ADIOS_FOR_UNDO_ATTENUATION&quot;</span><span class="p">],</span>
+                   <span class="n">modules</span><span class="o">=</span><span class="n">cm_dict</span><span class="p">[</span><span class="s2">&quot;modulelist&quot;</span><span class="p">],</span>
+                   <span class="n">gpu_module</span><span class="o">=</span><span class="n">cm_dict</span><span class="p">[</span><span class="s2">&quot;gpu_module&quot;</span><span class="p">],</span>
+                   <span class="n">gpu_version</span><span class="o">=</span><span class="n">cm_dict</span><span class="p">[</span><span class="s2">&quot;gpu_version&quot;</span><span class="p">],</span>
+                   <span class="n">cc</span><span class="o">=</span><span class="n">cm_dict</span><span class="p">[</span><span class="s2">&quot;cc&quot;</span><span class="p">],</span>
+                   <span class="n">cpp</span><span class="o">=</span><span class="n">cm_dict</span><span class="p">[</span><span class="s2">&quot;cpp&quot;</span><span class="p">],</span>
+                   <span class="n">mpicc</span><span class="o">=</span><span class="n">cm_dict</span><span class="p">[</span><span class="s2">&quot;mpicc&quot;</span><span class="p">],</span>
+                   <span class="n">f90</span><span class="o">=</span><span class="n">cm_dict</span><span class="p">[</span><span class="s2">&quot;f90&quot;</span><span class="p">],</span>
+                   <span class="n">mpif90</span><span class="o">=</span><span class="n">cm_dict</span><span class="p">[</span><span class="s2">&quot;mpif90&quot;</span><span class="p">],</span>
+                   <span class="n">nodes</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">],</span>
+                   <span class="n">tasks</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">],</span>
+                   <span class="n">tasks_per_node</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;tasks_per_node&quot;</span><span class="p">],</span>
+                   <span class="n">walltime</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;walltime&quot;</span><span class="p">],</span>
+                   <span class="n">walltime_solver</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;walltime&quot;</span><span class="p">],</span>
+                   <span class="n">memory_req</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;memory_req&quot;</span><span class="p">],</span>
+                   <span class="n">verbose</span><span class="o">=</span><span class="n">sf_dict</span><span class="p">[</span><span class="s2">&quot;verbose&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Run `Par_file` fixer.</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">fix_parfiles</span><span class="p">()</span>
+
+    <span class="c1"># Configure and compile</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">configure_and_make</span><span class="p">()</span>
+
+    <span class="c1"># Run the mesher to a slurm scheduler.</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">run_mesher</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">Fix_Specfem</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

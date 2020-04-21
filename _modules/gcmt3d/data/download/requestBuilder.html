@@ -1,0 +1,531 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>gcmt3d.data.download.requestBuilder &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/gcmt3dAPI.html">GCMT3D API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>gcmt3d.data.download.requestBuilder</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for gcmt3d.data.download.requestBuilder</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">This Function contains functions to build an FDSN time series download</span>
+<span class="sd">request from an input CMT source object and List of stations.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Lucas Sawade (lsawade@princeton.edu)</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU General Public License, Version 3</span>
+<span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span><span class="p">,</span> <span class="n">STDOUT</span>
+<span class="kn">from</span> <span class="nn">...source</span> <span class="kn">import</span> <span class="n">CMTSource</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">...log_util</span> <span class="kn">import</span> <span class="n">modify_logger</span>
+
+<span class="c1"># Make logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">modify_logger</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
+
+
+<span class="c1"># Input Error</span>
+<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.download.requestBuilder.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for exceptions in this module.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="InputError"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.download.requestBuilder.InputError">[docs]</a><span class="k">class</span> <span class="nc">InputError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception raised for errors in the input.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        expression -- input expression in which the error occurred</span>
+<span class="sd">        message -- explanation of the error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expression</span> <span class="o">=</span> <span class="n">expression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expression</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DataRequest"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.download.requestBuilder.DataRequest">[docs]</a><span class="k">class</span> <span class="nc">DataRequest</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Class that handles the building of a data request</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stationlist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BHZ&#39;</span><span class="p">],</span>
+                 <span class="n">locations</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;00&#39;</span><span class="p">],</span> <span class="n">duration</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">starttime_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">outputdir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param cmt: CMTSource object from cmt Source</span>
+<span class="sd">        :param stationlist: list of station in format</span>
+<span class="sd">                            `[[&#39;Net1&#39;,&#39;Sta1&#39;],[&#39;Net2&#39;,&#39;Sta2&#39;],etc.]`</span>
+<span class="sd">        :param channels: list of strings containing wanted channels</span>
+<span class="sd">        :param locations: list of seismometer locations</span>
+<span class="sd">        :param duration: duration of the requested recording from origin time</span>
+<span class="sd">        :param starttime_offset: time to request before the origin time, e.g.,</span>
+<span class="sd">                                 -10 would create a request starting 10 seconds</span>
+<span class="sd">                                 before the origin time</span>
+<span class="sd">        :param resp_format: Response format. Either &quot;resp&quot; (SEED) or &quot;pz&quot;</span>
+<span class="sd">                            (PolesAndZeros). Default &quot;resp&quot;</span>
+<span class="sd">        :param outputdir: directory to save time series in, in a subdirectory</span>
+<span class="sd">                          called `seismograms/`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check if CMT input is a CMT object</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">cmt</span><span class="p">)</span> <span class="o">!=</span> <span class="n">CMTSource</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="s2">&quot;dataRequest initialization&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;None or incorrect CMT input.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># CMT parameter input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">origin_time</span> <span class="o">=</span> <span class="n">cmt</span><span class="o">.</span><span class="n">cmt_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">origin_latitude</span> <span class="o">=</span> <span class="n">cmt</span><span class="o">.</span><span class="n">latitude</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">origin_longitude</span> <span class="o">=</span> <span class="n">cmt</span><span class="o">.</span><span class="n">longitude</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eventname</span> <span class="o">=</span> <span class="n">cmt</span><span class="o">.</span><span class="n">eventname</span>
+
+        <span class="c1"># Check if station list is a 2D list of networks and stations</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">stationlist</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="s2">&quot;dataRequest initialization&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;stationlist not a list&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Station list parameter setup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stationlist</span> <span class="o">=</span> <span class="n">stationlist</span>
+
+        <span class="c1"># Download parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">starttime_offset</span> <span class="o">=</span> <span class="n">starttime_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_time</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">starttime_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">starttime</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="n">channels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locations</span> <span class="o">=</span> <span class="n">locations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span> <span class="o">=</span> <span class="n">outputdir</span>
+
+        <span class="c1"># Name of the output directory:</span>
+        <span class="c1"># Can&#39;t be also parsed input since it&#39;s dependent on the provided</span>
+        <span class="c1"># filename</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No output directory chosen. Seismograms will be &quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;saved in current location in subdirectory &quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&#39;seismograms/&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DataRequest.from_file"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.download.requestBuilder.DataRequest.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cmtfname</span><span class="p">,</span>
+                  <span class="n">stationlistfname</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
+                                                <span class="s1">&#39;resources&#39;</span><span class="p">,</span> <span class="s1">&#39;stations.txt&#39;</span><span class="p">),</span>
+                  <span class="n">sfstationlist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                  <span class="n">duration</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                  <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;BHZ&quot;</span><span class="p">],</span>
+                  <span class="n">locations</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;00&quot;</span><span class="p">],</span>
+                  <span class="n">starttime_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                  <span class="n">outputdir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a downloader class from an input file</span>
+<span class="sd">        This downloader class also needs to contain the output directory for</span>
+<span class="sd">        the traces.</span>
+
+
+<span class="sd">        :param cmtfname: filename of input CMTSOLUTION</span>
+
+<span class="sd">        :param stationlistfname: Give list of stations. Fileformat either</span>
+<span class="sd">            ::</span>
+
+<span class="sd">                NETWORK	STATION	LAT	        LON	        ELEVATION</span>
+<span class="sd">                IU	    ADK	    +51.882300	-176.684200	130.0</span>
+
+
+<span class="sd">            or in specfem format. Default is None, in which</span>
+<span class="sd">            case a specfem STATIONS list is read.</span>
+
+<span class="sd">        :param sfstationlist: `boolean`, if `True` list is in specfem format.</span>
+<span class="sd">                              Default `False`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Name of the output directory:</span>
+        <span class="c1"># Can&#39;t be also parsed input since it&#39;s dependent on the provided</span>
+        <span class="c1"># filename</span>
+        <span class="k">if</span> <span class="n">outputdir</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">outputdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmtfname</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">))</span>
+
+        <span class="c1"># First Create CMT Solution</span>
+        <span class="n">cmt</span> <span class="o">=</span> <span class="n">CMTSource</span><span class="o">.</span><span class="n">from_CMTSOLUTION_file</span><span class="p">(</span><span class="n">cmtfname</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stationlistfname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="c1"># Get module directory</span>
+            <span class="n">mod_dir</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+            <span class="c1"># set stationlistfname to given stationlist</span>
+            <span class="n">stationlistfname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_dir</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span>
+                                            <span class="s2">&quot;STATIONS&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Read station list file with two columns and whitespace separation</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">stationlistfname</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">statfile</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">sfstationlist</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="c1"># For loop to add all stations to the station list</span>
+                <span class="n">stationlist</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">statfile</span><span class="p">:</span>
+                    <span class="c1"># Read stations into list of stations</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;NETWORK&quot;</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Append [network station latitude longitude elevation]</span>
+                        <span class="c1"># to the station list</span>
+                        <span class="n">stationlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">sfstationlist</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">stationlist</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">statfile</span><span class="p">:</span>
+                    <span class="c1"># Read stations into list of stations</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+                    <span class="n">newline</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+                               <span class="n">line</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="mi">0</span><span class="p">]</span>
+                    <span class="c1"># Append the [network station latitude longitude elevation]</span>
+                    <span class="c1"># to the station list</span>
+                    <span class="n">stationlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newline</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">cmt</span><span class="o">=</span><span class="n">cmt</span><span class="p">,</span>
+                   <span class="n">stationlist</span><span class="o">=</span><span class="n">stationlist</span><span class="p">,</span>
+                   <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span>
+                   <span class="n">locations</span><span class="o">=</span><span class="n">locations</span><span class="p">,</span>
+                   <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span>
+                   <span class="n">starttime_offset</span><span class="o">=</span><span class="n">starttime_offset</span><span class="p">,</span>
+                   <span class="n">outputdir</span><span class="o">=</span><span class="n">outputdir</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataRequest.request"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.download.requestBuilder.DataRequest.request">[docs]</a>    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes a request file to the earthquake directory. This request file is</span>
+<span class="sd">        then used by the download function to download.</span>
+
+<span class="sd">        :returns str: Path to requestfile</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Open file for writing in the earthquake directory</span>
+        <span class="n">path_to_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span><span class="p">,</span>
+                                    <span class="s1">&#39;station_data&#39;</span><span class="p">,</span> <span class="s1">&#39;request.txt&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_to_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">requestfile</span><span class="p">:</span>
+
+            <span class="c1"># Writing for each parameter overarching of all is the station</span>
+            <span class="c1"># parameter, of course</span>
+
+            <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stationlist</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">locations</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
+                        <span class="c1"># joining just the network   &amp; station</span>
+                        <span class="n">requestfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                            <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">station</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">station</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span>
+                                      <span class="n">location</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">starttime</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(),</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">endtime</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()]))</span>
+                        <span class="n">requestfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">path_to_file</span></div>
+
+<div class="viewcode-block" id="DataRequest.download"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.download.requestBuilder.DataRequest.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">download_log_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes self.request and starts the download of the time series data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Create request file if none is given</span>
+        <span class="k">if</span> <span class="n">selection_file</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">selection_file</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+
+        <span class="c1"># Create download log file in Earthquake directory if no other</span>
+        <span class="c1"># directory is specified</span>
+        <span class="k">if</span> <span class="n">download_log_file</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">download_log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span><span class="p">,</span>
+                                             <span class="s2">&quot;station_data&quot;</span><span class="p">,</span>
+                                             <span class="s2">&quot;download_log.txt&quot;</span><span class="p">)</span>
+
+        <span class="c1"># If doesn&#39;t exist, create directory for responses and seismograms</span>
+        <span class="n">seis_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span><span class="p">,</span> <span class="s2">&quot;seismograms/obs/&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">seis_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">seis_path</span><span class="p">)</span>
+
+        <span class="c1"># Relative path to the resources directory</span>
+        <span class="n">path_to_this_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="n">path_to_script</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_to_this_file</span><span class="p">,</span>
+                                                 <span class="s2">&quot;resources&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+
+        <span class="c1"># Invoke download command depending on the response format</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">download_log_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+
+            <span class="n">Proc</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/FetchData&quot;</span> <span class="o">%</span> <span class="n">path_to_script</span><span class="p">,</span>
+                                   <span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">selection_file</span><span class="p">,</span>
+                                   <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.mseed&quot;</span> <span class="o">%</span>
+                                   <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seis_path</span><span class="o">.</span><span class="n">split</span><span class="p">()),</span>
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">eventname</span><span class="p">),</span>
+                                   <span class="s2">&quot;-X&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                                   <span class="s2">&quot;</span><span class="se">\\</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+                                   <span class="o">+</span> <span class="s2">&quot;/station_data/&quot;</span> <span class="o">+</span> <span class="s2">&quot;station.xml&quot;</span><span class="p">]),</span>
+                         <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">STDOUT</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">Proc</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                <span class="c1"># write to standard out</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+                <span class="c1"># write to logfile</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">Proc</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DataRequest.specfem_list"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.download.requestBuilder.DataRequest.specfem_list">[docs]</a>    <span class="k">def</span> <span class="nf">specfem_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specfemfiledir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method takes the station list and its content to create a</span>
+<span class="sd">        Specfem Station recording location script list.</span>
+
+<span class="sd">        The text file should have following format but not contain a header</span>
+
+<span class="sd">        ::</span>
+
+<span class="sd">            -------------------------------------------------------------</span>
+<span class="sd">            | Station Network Latitude Longitude Elevation(m) Burial(m) |</span>
+<span class="sd">            -------------------------------------------------------------</span>
+
+<span class="sd">        That is the a sample line would be:</span>
+
+<span class="sd">        ::</span>
+
+<span class="sd">            HRV   IU   42.5064  -71.5583  200.0  0.0</span>
+<span class="sd">            :     :       :         :       :     :</span>
+
+<span class="sd">        :keyword specfemfiledir: directory where to save the STATIONS file for</span>
+<span class="sd">                                 specfem3d_globe</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Setting the Station file name and path</span>
+        <span class="k">if</span> <span class="n">specfemfiledir</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">specfemfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span> <span class="o">+</span> <span class="s2">&quot;/station_data/STATIONS&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">specfemfile</span> <span class="o">=</span> <span class="n">specfemfiledir</span> <span class="o">+</span> <span class="s2">&quot;/station_data/STATIONS&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">specfemfile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stationlist</span><span class="p">):</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0:11s}{1:4s}{2:12.4f}{3:12.4f}{4:10.1f}{5:8.1f}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                           <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                                   <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span> <span class="mf">0.</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;STATIONS FILE WRITTEN.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String that contains key download info.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">return_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Earthquake Parameters</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;--------------------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Earthquake ID: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">eventname</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Origin Time: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_time</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Origin Latitude: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_latitude</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Origin Longitude: </span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_longitude</span>
+
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Download Parameters:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;--------------------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Starttime: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">starttime</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Endtime: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">endtime</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Duration [s]: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Channels: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Locations: </span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">locations</span>
+
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Saving Parameters:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;--------------------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">return_str</span> <span class="o">+=</span> <span class="s2">&quot;Output Directory: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputdir</span>
+
+        <span class="k">return</span> <span class="n">return_str</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

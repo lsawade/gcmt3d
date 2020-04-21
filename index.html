@@ -1,0 +1,294 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to gcmt3d’s documentation! &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Introduction" href="chapters/introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/gcmt3dAPI.html">GCMT3D API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Welcome to gcmt3d’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-gcmt3d-s-documentation">
+<h1>Welcome to gcmt3d’s documentation!<a class="headerlink" href="#welcome-to-gcmt3d-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="chapters/specfem_setup_and_compilation.html#setting-up-the-compilers">Setting up the compilers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/specfem_setup_and_compilation.html#setting-up-specfem">Setting up <code class="docutils literal notranslate"><span class="pre">specfem</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="chapters/specfem_setup_and_compilation.html#the-par-file-and-configuration">1. The <code class="docutils literal notranslate"><span class="pre">Par_file</span></code> and Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/specfem_setup_and_compilation.html#running-specfem">2. Running <code class="docutils literal notranslate"><span class="pre">specfem</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/specfem_setup_and_compilation.html#sample-specfem-parameter-file">Sample Specfem parameter file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/processing.html">Processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="chapters/processing.html#cutting-of-the-traces">Cutting of the traces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/processing.html#detrend-demean-and-first-tapering">Detrend, demean, and first tapering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/processing.html#instrument-response-removal">Instrument response removal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/processing.html#filtering">Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/processing.html#rotation">Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/processing.html#sample-processing-parameter-file">Sample Processing Parameter File</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="chapters/processing.html#synthetic">Synthetic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/processing.html#id1">Synthetic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="chapters/gcmt3dAPI.html">GCMT3D API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="chapters/gcmt3dAPI.html#asdf-pypaw">ASDF (pypaw)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#conversion">Conversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#processing-abstract-base-class">Processing Abstract Base Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#seismic-trace-processing-class">Seismic Trace Processing Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#stations-info-utilities">Stations Info Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#general-asdf-utilities">General ASDF utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#asdf-windowing">ASDF Windowing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/gcmt3dAPI.html#data">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#download">Download</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="chapters/gcmt3dAPI.html#request-seismic-data">Request seismic data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#management">Management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="chapters/gcmt3dAPI.html#create-database-entry-database-skeleton">Create database entry/database skeleton</a></li>
+<li class="toctree-l4"><a class="reference internal" href="chapters/gcmt3dAPI.html#edit-specfem-sources">Edit Specfem sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="chapters/gcmt3dAPI.html#create-path-files-to-process-asdf-files">Create Path files to process asdf files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="chapters/gcmt3dAPI.html#create-inversion-dictionaries">Create inversion dictionaries</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/gcmt3dAPI.html#run-specfem">Run Specfem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/gcmt3dAPI.html#signal-processing">Signal Processing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#compare-traces">Compare traces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#function-to-process-streams">Function to process streams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#rotate-seismograms">Rotate seismograms</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/gcmt3dAPI.html#utilities">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/gcmt3dAPI.html#windowing-of-traces">Windowing of traces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#windowing-of-the-data">Windowing of the data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#weighting-the-windows">Weighting the windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#filtering-the-windows">Filtering the windows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chapters/gcmt3dAPI.html#id1">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="chapters/gcmt3dAPI.html#source-class">Source <code class="docutils literal notranslate"><span class="pre">class</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="chapters/introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

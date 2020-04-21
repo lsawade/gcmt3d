@@ -1,0 +1,498 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>gcmt3d.signal.process &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/gcmt3dAPI.html">GCMT3D API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>gcmt3d.signal.process</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for gcmt3d.signal.process</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Methods that handles signal data processing for stream(Obspy.Stream)</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Wenjie Lei (lei@princeton.edu), 2016</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU Lesser General Public License, version 3 (LGPLv3)</span>
+<span class="sd">    (http://www.gnu.org/licenses/lgpl-3.0.en.html)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">obspy.signal.invsim</span> <span class="kn">import</span> <span class="n">cosine_sac_taper</span>
+<span class="kn">from</span> <span class="nn">obspy.signal.util</span> <span class="kn">import</span> <span class="n">_npts2nfft</span>
+<span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">Stream</span><span class="p">,</span> <span class="n">Trace</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">.rotate</span> <span class="kn">import</span> <span class="n">rotate_stream</span>
+
+
+<div class="viewcode-block" id="check_array_order"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.process.check_array_order">[docs]</a><span class="k">def</span> <span class="nf">check_array_order</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;ascending&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check whether a array is in ascending order or descending order</span>
+<span class="sd">    :param array: the input array</span>
+<span class="sd">    :param order: &quot;ascending&quot; or &quot;descending&quot;</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">order</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;descending&quot;</span><span class="p">,</span> <span class="s2">&quot;ascending&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Order should be either ascending or descending&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="s2">&quot;descending&quot;</span><span class="p">:</span>
+        <span class="n">array</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">array</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">array</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="flex_cut_trace"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.process.flex_cut_trace">[docs]</a><span class="k">def</span> <span class="nf">flex_cut_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">cut_starttime</span><span class="p">,</span> <span class="n">cut_endtime</span><span class="p">,</span> <span class="n">dynamic_npts</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    not cut strictly(but also based on the original trace length)</span>
+
+<span class="sd">    :param trace: input trace</span>
+<span class="sd">    :type trace: obspy.Trace</span>
+<span class="sd">    :param cut_starttime: starttime of cutting</span>
+<span class="sd">    :type cut_starttime: obspy.UTCDateTime</span>
+<span class="sd">    :param cut_endtime: endtime of cutting</span>
+<span class="sd">    :type cut_endtime: obspy.UTCDateTime</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">Trace</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;flex_cut_trace method only accepts obspy.Trace &quot;</span>
+                        <span class="s2">&quot;as the first argument&quot;</span><span class="p">)</span>
+
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span>
+    <span class="n">cut_starttime</span> <span class="o">=</span> <span class="n">cut_starttime</span> <span class="o">-</span> <span class="n">dynamic_npts</span> <span class="o">*</span> <span class="n">delta</span>
+    <span class="n">cut_endtime</span> <span class="o">=</span> <span class="n">cut_endtime</span> <span class="o">+</span> <span class="n">dynamic_npts</span> <span class="o">*</span> <span class="n">delta</span>
+    <span class="n">trace</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">cut_starttime</span><span class="p">,</span> <span class="n">cut_endtime</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="flex_cut_stream"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.process.flex_cut_stream">[docs]</a><span class="k">def</span> <span class="nf">flex_cut_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">cut_start</span><span class="p">,</span> <span class="n">cut_end</span><span class="p">,</span> <span class="n">dynamic_npts</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Flexible cut stream. But checks for the time.</span>
+
+<span class="sd">    :param st: input stream</span>
+<span class="sd">    :param cut_start: cut starttime</span>
+<span class="sd">    :param cut_end: cut endtime</span>
+<span class="sd">    :param dynamic_npts: the dynamic number of points before cut_start</span>
+<span class="sd">        and after</span>
+<span class="sd">        cut_end</span>
+<span class="sd">    :return: the cutted stream</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">Stream</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;flex_cut_stream method only accepts obspy.Stream &quot;</span>
+                        <span class="s2">&quot;the first Argument&quot;</span><span class="p">)</span>
+    <span class="n">new_st</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">()</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">:</span>
+        <span class="n">flex_cut_trace</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">cut_start</span><span class="p">,</span> <span class="n">cut_end</span><span class="p">,</span> <span class="n">dynamic_npts</span><span class="o">=</span><span class="n">dynamic_npts</span><span class="p">)</span>
+        <span class="c1"># throw out small piece of data at this step</span>
+        <span class="k">if</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span> <span class="o">&lt;=</span> <span class="n">cut_start</span> <span class="ow">and</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">endtime</span> <span class="o">&gt;=</span> <span class="n">cut_end</span><span class="p">:</span>
+            <span class="n">new_st</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;None of traces in Stream satisfy the &quot;</span>
+                         <span class="s2">&quot;cut time length&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_st</span></div>
+
+
+<div class="viewcode-block" id="filter_stream"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.process.filter_stream">[docs]</a><span class="k">def</span> <span class="nf">filter_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">pre_filt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter a stream</span>
+
+<span class="sd">    :param st:</span>
+<span class="sd">    :param per_filt:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">Stream</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input st should be type of Stream&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">:</span>
+        <span class="n">filter_trace</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">pre_filt</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="filter_trace"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.process.filter_trace">[docs]</a><span class="k">def</span> <span class="nf">filter_trace</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">pre_filt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform a frequency domain taper mimicing the behavior during the</span>
+<span class="sd">    response removal, without a actual response removal.</span>
+
+<span class="sd">    :param tr: input trace</span>
+<span class="sd">    :param pre_filt: frequency array(Hz) in ascending order, to define</span>
+<span class="sd">        the four corners of filter, for example, [0.01, 0.1, 0.2, 0.5].</span>
+<span class="sd">    :type pre_filt: Numpy.array or list</span>
+<span class="sd">    :return: filtered trace</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">Trace</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;First Argument should be trace: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">tr</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pre_filt</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Length of filter must be 4(corner frequencies)&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">check_array_order</span><span class="p">(</span><span class="n">pre_filt</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;ascending&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Frequency band should be in ascending order: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                         <span class="o">%</span> <span class="n">pre_filt</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">origin_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">origin_len</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="c1"># smart calculation of nfft dodging large primes</span>
+    <span class="n">nfft</span> <span class="o">=</span> <span class="n">_npts2nfft</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+    <span class="n">fy</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span> <span class="o">*</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">fy</span><span class="p">,</span> <span class="n">nfft</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Transform data to Frequency domain</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">nfft</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">*=</span> <span class="n">cosine_sac_taper</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">flimit</span><span class="o">=</span><span class="n">pre_filt</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mf">0.0</span><span class="n">j</span>
+    <span class="c1"># transform data back into the time domain</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="n">origin_len</span><span class="p">]</span>
+    <span class="c1"># assign processed data and store processing information</span>
+    <span class="n">tr</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="interpolate_stream"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.process.interpolate_stream">[docs]</a><span class="k">def</span> <span class="nf">interpolate_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">npts</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For a fairly large stream, use stream.interpolate() is not a wise</span>
+<span class="sd">    choice since if there is one trace fails, then the whole interpolation</span>
+<span class="sd">    will stop. So it is better to operate interpolation on the trace</span>
+<span class="sd">    level</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">st_new</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">Stream</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input stream must be type of obspy.Stream&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tr</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">sampling_rate</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="n">starttime</span><span class="p">,</span> <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">)</span>
+            <span class="n">st_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error in interpolation on &#39;</span><span class="si">%s</span><span class="s2">&#39;:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">err</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">st_new</span></div>
+
+
+<div class="viewcode-block" id="process_stream"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.process.process_stream">[docs]</a><span class="k">def</span> <span class="nf">process_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">inventory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">remove_response_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">water_level</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">filter_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pre_filt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">starttime</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">endtime</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">resample_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                   <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;hann&quot;</span><span class="p">,</span> <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                   <span class="n">rotate_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">event_latitude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">event_longitude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stream processing function defined for general purpose of tomography.</span>
+<span class="sd">    The advantage of using Stream, rather than than Trace, is that rotation</span>
+<span class="sd">    could be operated if the Stream contains multiple channels. But this</span>
+<span class="sd">    function also deals with Trace, but you need to set rotate_flag to</span>
+<span class="sd">    False</span>
+
+<span class="sd">    :param st: input stream</span>
+<span class="sd">    :type st: obspy.Stream</span>
+<span class="sd">    :param remove_response_flag: flag for remove instrument response. If True,</span>
+<span class="sd">        then inv should be specified, and filter_flag would not be taken caren</span>
+<span class="sd">        of. If you want just filter the seismogram, please leave this to False</span>
+<span class="sd">        and set filter_flag to True.</span>
+<span class="sd">    :type remove_response_flag: bool</span>
+<span class="sd">    :param inventory: station inventory information</span>
+<span class="sd">    :type inventory: obspy.Inventory</span>
+<span class="sd">    :param water_level: water level used in remove instrument response. The</span>
+<span class="sd">        default value in obspy is 60.</span>
+<span class="sd">    :type water_level: float</span>
+<span class="sd">    :param filter_flag: flag for filter the seismogram</span>
+<span class="sd">    :type filter_flag: bool</span>
+<span class="sd">    :param pre_filt: list of tuple of 4 corner frequency for filter,</span>
+<span class="sd">        in ascending order(unit: Hz)</span>
+<span class="sd">    :type pre_filt: list, tuple or numpy.array</span>
+<span class="sd">    :param starttime: starttime of cutting</span>
+<span class="sd">    :type starttime: obspy.UTCDateTime</span>
+<span class="sd">    :param endtime: endtime of cutting</span>
+<span class="sd">    :type endtime: obspy.UTCDateTime</span>
+<span class="sd">    :param resample_flag: flag for data resampling</span>
+<span class="sd">    :type resample_flag: bool</span>
+<span class="sd">    :param sampling_rate: resampling rate(unit: Hz)</span>
+<span class="sd">    :type sampling_rate: float</span>
+<span class="sd">    :param taper_type: taper type, options from obspy taper</span>
+<span class="sd">    :type taper_type: str</span>
+<span class="sd">    :param taper_percentage: percentage of taper</span>
+<span class="sd">    :type taper_percentage: float</span>
+<span class="sd">    :param rotate_flag: rotate flag. If true, both inv and event location</span>
+<span class="sd">        information should be provided</span>
+<span class="sd">    :param event_latitude: latitude of event, for rotation usage</span>
+<span class="sd">    :type event_latitude: float</span>
+<span class="sd">    :param event_longitude: longitude of event, for rotation usage</span>
+<span class="sd">    :type event_longitude: float</span>
+<span class="sd">    :param sanity_check: sanity check the inventory information when</span>
+<span class="sd">        rotating.</span>
+<span class="sd">    :type sanity_check: bool</span>
+<span class="sd">    :return: processed stream</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check input data type</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">Trace</span><span class="p">):</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">(</span><span class="n">traces</span><span class="o">=</span><span class="p">[</span><span class="n">st</span><span class="p">,</span> <span class="p">])</span>
+        <span class="n">_is_trace</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">Stream</span><span class="p">):</span>
+        <span class="n">_is_trace</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input seismogram should be either obspy.Stream &quot;</span>
+                        <span class="s2">&quot;or obspy.Trace&quot;</span><span class="p">)</span>
+
+    <span class="c1"># cut the stream out before processing to reduce computation</span>
+    <span class="k">if</span> <span class="n">starttime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">endtime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">flex_cut_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">,</span> <span class="n">dynamic_npts</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">filter_flag</span> <span class="ow">or</span> <span class="n">remove_response_flag</span><span class="p">:</span>
+        <span class="c1"># detrend ,demean, taper</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="s2">&quot;demean&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">taper</span><span class="p">(</span><span class="n">max_percentage</span><span class="o">=</span><span class="n">taper_percentage</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">taper_type</span><span class="p">)</span>
+
+    <span class="c1"># remove response or filter</span>
+    <span class="k">if</span> <span class="n">filter_flag</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pre_filt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">pre_filt</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Filter band should be list or tuple with &quot;</span>
+                             <span class="s2">&quot;length of 4&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_array_order</span><span class="p">(</span><span class="n">pre_filt</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;ascending&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input pre_filt must be in ascending order: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                             <span class="o">%</span> <span class="n">pre_filt</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">remove_response_flag</span><span class="p">:</span>
+        <span class="c1"># remove response</span>
+        <span class="k">if</span> <span class="n">inventory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Station information(inv) should be provided if&quot;</span>
+                             <span class="s2">&quot;you want to remove instrument response&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">attach_response</span><span class="p">(</span><span class="n">inventory</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filter_flag</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">remove_response</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;DISP&quot;</span><span class="p">,</span> <span class="n">pre_filt</span><span class="o">=</span><span class="n">pre_filt</span><span class="p">,</span>
+                               <span class="n">zero_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">taper</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">water_level</span><span class="o">=</span><span class="n">water_level</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">remove_response</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;DISP&quot;</span><span class="p">,</span> <span class="n">zero_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">taper</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">filter_flag</span><span class="p">:</span>
+        <span class="c1"># Perform a frequency domain taper like during the response removal</span>
+        <span class="c1"># just without an actual response...</span>
+        <span class="n">filter_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">pre_filt</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">filter_flag</span> <span class="ow">or</span> <span class="n">remove_response_flag</span><span class="p">:</span>
+        <span class="c1"># detrend, demean or taper</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="s2">&quot;demean&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">taper</span><span class="p">(</span><span class="n">max_percentage</span><span class="o">=</span><span class="n">taper_percentage</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">taper_type</span><span class="p">)</span>
+
+    <span class="c1"># resample</span>
+    <span class="k">if</span> <span class="n">resample_flag</span><span class="p">:</span>
+        <span class="c1"># interpolation</span>
+        <span class="k">if</span> <span class="n">sampling_rate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sampling rate should be provided if you set&quot;</span>
+                             <span class="s2">&quot;resample_flag=True&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">endtime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">starttime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">npts</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">endtime</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">)</span> <span class="o">*</span> <span class="n">sampling_rate</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">interpolate_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="n">starttime</span><span class="p">,</span>
+                                    <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># it doesn&#39;t matter if starttime is None or not, cause</span>
+            <span class="c1"># obspy will handle this case</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">interpolate_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="n">starttime</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">starttime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">endtime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># just cut</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">)</span>
+
+    <span class="c1"># rotate</span>
+    <span class="k">if</span> <span class="n">rotate_flag</span><span class="p">:</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">rotate_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span> <span class="n">event_longitude</span><span class="p">,</span>
+                           <span class="n">inventory</span><span class="o">=</span><span class="n">inventory</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ALL-&gt;RT&quot;</span><span class="p">,</span>
+                           <span class="n">sanity_check</span><span class="o">=</span><span class="n">sanity_check</span><span class="p">)</span>
+
+    <span class="c1"># Convert to single precision to save space.</span>
+    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">:</span>
+        <span class="n">tr</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+
+    <span class="c1"># transfer back to trace if input type is Trace</span>
+    <span class="k">if</span> <span class="n">_is_trace</span><span class="p">:</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">st</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

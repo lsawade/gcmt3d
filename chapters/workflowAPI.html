@@ -1,0 +1,254 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>EnTK Workflow API &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gcmt3dAPI.html">GCMT3D API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>EnTK Workflow API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/chapters/workflowAPI.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="entk-workflow-api">
+<h1>EnTK Workflow API<a class="headerlink" href="#entk-workflow-api" title="Permalink to this headline">¶</a></h1>
+<p>This contains the single steps in the workflow of GCMT3D as given in the
+workflow module.</p>
+</div>
+<div class="section" id="standard-workflow-components">
+<h1>Standard Workflow components<a class="headerlink" href="#standard-workflow-components" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="specfem-fixer">
+<h2>Specfem Fixer<a class="headerlink" href="#specfem-fixer" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="database-entry-creation">
+<h2>Database Entry Creation<a class="headerlink" href="#database-entry-creation" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="requesting-seismic-data">
+<h2>Requesting Seismic Data<a class="headerlink" href="#requesting-seismic-data" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="writing-the-sources">
+<h2>Writing the Sources<a class="headerlink" href="#writing-the-sources" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="specfem">
+<h2>Specfem<a class="headerlink" href="#specfem" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="run-simulations">
+<h3>Run Simulations<a class="headerlink" href="#run-simulations" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="clean-up-data-base">
+<h3>Clean Up Data Base<a class="headerlink" href="#clean-up-data-base" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="conversion-to-asdf">
+<h2>Conversion to ASDF<a class="headerlink" href="#conversion-to-asdf" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="create-path-files">
+<h2>Create Path Files<a class="headerlink" href="#create-path-files" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="process-data">
+<h2>Process Data<a class="headerlink" href="#process-data" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="window-traces">
+<h2>Window Traces<a class="headerlink" href="#window-traces" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="create-inversion-dictionaries">
+<h2>Create Inversion Dictionaries<a class="headerlink" href="#create-inversion-dictionaries" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="inversion">
+<h2>Inversion<a class="headerlink" href="#inversion" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+<div class="section" id="specfem-extras">
+<h1>Specfem Extras<a class="headerlink" href="#specfem-extras" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="run-mesher">
+<h2>Run Mesher<a class="headerlink" href="#run-mesher" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="run-solver">
+<h2>Run Solver<a class="headerlink" href="#run-solver" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
