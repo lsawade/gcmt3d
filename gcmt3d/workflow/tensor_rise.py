@@ -54,6 +54,10 @@ def gradient(cmt_file_db, param_path):
                                        "CMTInversion/InversionParams.yml")
     INV_params = read_yaml_file(inversionparam_path)
 
+    # Check if grid search should be performed from the parameters file
+    if not bool(INV_params["gridsearch"]):
+        return
+
     # Get processing path from cmt_filename in database
     cmt_dir = os.path.dirname(os.path.abspath(cmt_file_db))
 
@@ -144,7 +148,6 @@ def gradient(cmt_file_db, param_path):
         method=grad3d_params["method"],
         weight_data=bool(grad3d_params["weight_data"]),
         weight_config=weight_config_grad3d,
-        use_new=bool(grad3d_params["use_new"]),
         # flag to use the gradient method on inverted traces.
         taper_type=grad3d_params["taper_type"],
         c1=float(grad3d_params["c1"]),
@@ -175,6 +178,7 @@ def gradient(cmt_file_db, param_path):
 
     # Plot results
     if bool(INV_params["summary_plot"]):
+        pass
         # g3d.plot_summary(inv_out_dir, figure_format="pdf")
 
     if bool(INV_params["statistics_plot"]):
