@@ -1,1 +1,1 @@
-from .specfem_sources import SpecfemSources  # noqa
+from .specfem_sources import SpecfemSources  # NOQA

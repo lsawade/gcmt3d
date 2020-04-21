@@ -55,7 +55,7 @@ setup(
     exclude_package_data={'': ['data', 'notebooks']},
     package_data={'gcmt3d/data/download/resources/': ['Fetchdata',
                                                       'stations.txt']},
-    install_requires=['numpy<=1.16.4', 'matplotlib', 'flake8', 'obspy==1.1.1',
+    install_requires=['numpy', 'matplotlib', 'flake8', 'obspy==1.1.1',
                       'PyYAML', 'pyflex', 'h5py', 'mpi4py', 'matplotlib',
                       'pyasdf', 'spaceweight', 'pycmt3d',
                       ],
