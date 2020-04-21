@@ -81,7 +81,7 @@ setup(
         'filter-windows = gcmt3d.bins.filter_windows:main',
         'generate-stations-asdf = gcmt3d.bins.generate_stations_asdf:main',
         'inversion = gcmt3d.bins.inversion:main',
-        'gridsearch = gcmt3d.bins.gridsearch:main',
+        'gridsearch = gcmt3d.bins.gridsearch:mai        n',
         'process-asdf = gcmt3d.bins.process_asdf:main',
         'request-data = gcmt3d.bins.request_data:main',
         'select-windows = gcmt3d.bins.window_selection_asdf:main',
