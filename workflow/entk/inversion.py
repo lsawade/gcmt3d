@@ -932,8 +932,8 @@ def workflow(cmtfilenames, param_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("cmtfiles", help="Path to CMTSOLUTION file",
-                        type=str)
-    parser.add_argument("param_path", type=str,
+                        type=str, nargs="+")
+    parser.add_argument("-p", dest="param_path", type=str, required=True,
                         help="Path to workflow paramater directory")
     args = parser.parse_args()
 
