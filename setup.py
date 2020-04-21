@@ -56,7 +56,7 @@ setup(
                              'data/download/resources/stations.txt',
                              'data/management/STATIONS'],
     },
-    install_requires=['numpy', 'matplotlib', 'flake8', 'obspy==1.1.1',
+    install_requires=['numpy', 'matplotlib', 'flake8', 'obspy',
                       'PyYAML', 'pyflex', 'h5py', 'mpi4py', 'matplotlib',
                       'pyasdf', 'spaceweight', 'pycmt3d',
                       ],
