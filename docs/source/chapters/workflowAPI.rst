@@ -6,14 +6,8 @@ workflow module.
 
 
 
-Standard Workflow components
-============================
-
-Earthquake ID reader
---------------------
-
-.. automodule:: gcmt3d.workflow._get_eq_dir
-    :members:
+Workflow components
+===================
 
 Database Entry Creation
 -----------------------
@@ -48,7 +42,7 @@ Create Path Files
 Create Inversion Dictionaries
 -----------------------------
 
-.. automodule:: gcmt3d.workflow.create_inversion_dictionaries
+.. automodule:: gcmt3d.workflow.shape_inversion_dictionaries
     :members:
 
 Inversion
