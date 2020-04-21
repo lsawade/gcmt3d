@@ -14,7 +14,6 @@ dependencies:
     - pyproj<2.0
     - sphinx
     - sphinx_rtd_theme
-    - m2r
     - pytest
     - py
     - flake8
