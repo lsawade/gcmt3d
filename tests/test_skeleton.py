@@ -19,7 +19,7 @@ from gcmt3d.asdf.utils import smart_read_yaml
 import tempfile
 import os
 import inspect
-from .functions_for_testing import assertDictAlmostEqual
+from functions_for_testing import assertDictAlmostEqual
 
 
 def _upper_level(path, nlevel=4):

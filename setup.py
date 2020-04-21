@@ -59,9 +59,10 @@ setup(
     cmdclass={'tests': PyTest},
     zip_safe=False,
     classifiers=[
-        "Development Status :: Alpha",
+        "Development Status :: 4 - Beta",
         "Topic :: Utilities",
-        "License :: GNU License",
+        ("License :: OSI Approved "
+         ":: GNU General Public License v3 or later (GPLv3+)"),
     ],
     #install_requires=parse_requirements("requirements.txt"),
     extras_require={

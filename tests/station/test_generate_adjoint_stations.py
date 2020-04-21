@@ -18,8 +18,8 @@ def _upper_level(path, nlevel=4):
 
 # Most generic way to get the data folder path.
 TESTBASE_DIR = _upper_level(os.path.abspath(
-    inspect.getfile(inspect.currentframe())), 4)
-DATA_DIR = os.path.join(TESTBASE_DIR, "tests", "data")
+    inspect.getfile(inspect.currentframe())), 2)
+DATA_DIR = os.path.join(TESTBASE_DIR, "data")
 
 measure_file = os.path.join(DATA_DIR, "window", "measurements.fake.json")
 _measurements = load_json(measure_file)

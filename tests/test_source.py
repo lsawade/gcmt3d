@@ -17,7 +17,7 @@ from gcmt3d.source import CMTSource
 import pytest
 import tempfile
 from obspy import read_events
-from .functions_for_testing import assertDictAlmostEqual
+from functions_for_testing import assertDictAlmostEqual
 
 # Most generic way to get the data folder path.
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
