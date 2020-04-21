@@ -94,8 +94,7 @@ def create_inversion_dict(processed_dir, bandstring):
 
 
 def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
-                                    process_syn_dir, window_process_dir,
-                                    npar=9):
+                                    process_syn_dir, window_process_dir):
     """
     :param cmt_file_db: the cmtsolution file in the database.
     :type cmt_file_db: str
@@ -120,10 +119,12 @@ def create_full_inversion_dict_list(cmt_file_db,  process_obs_dir,
     possible wavetype).
 
     **Dictionary structure:**
+
     .. code-block:: yaml
 
         Window_file: "path/to/window/file"
         ASDF_dict:
+
             Mrr: "path/to/CMT_rr.h5"
             Mtt: "path/to/CMT_tt.h5"
             Mpp: "path/to/CMT_pp.h5"
@@ -248,6 +249,7 @@ def create_g3d_inversion_dict_list(cmt_file_db,  process_obs_dir,
 
         Window_file: "path/to/window/file"
         ASDF_dict:
+
             Mrr: "path/to/observed.h5"
             Mtt: "path/to/synthetic.h5"
 
