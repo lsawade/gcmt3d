@@ -12,19 +12,15 @@ Last Update: April 2020
 
 """
 
+import os
+import glob
 import yaml
 
-# CMT3D
+# pycmt3d
 from pycmt3d.source import CMTSource
 from pycmt3d import DataContainer
 from pycmt3d import WeightConfig
 from pycmt3d import Gradient3dConfig, Gradient3d
-
-# Gradient3D
-from pycmt3d.gradient3d import Gradient3dConfig
-
-import os
-import glob
 
 # Get logger to log progress
 from gcmt3d import logger
