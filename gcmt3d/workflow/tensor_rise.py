@@ -44,11 +44,6 @@ def gradient(cmt_file_db, param_path):
     :return: Nothing, inversion results are written to file.
     """
 
-    # Load Database Parameters
-    databaseparam_path = os.path.join(param_path,
-                                      "Database/DatabaseParameters.yml")
-    DB_params = read_yaml_file(databaseparam_path)
-
     # Inversion Params
     inversionparam_path = os.path.join(param_path,
                                        "CMTInversion/InversionParams.yml")
