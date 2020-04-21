@@ -18,7 +18,10 @@ Welcome to gcmt3d's documentation!
    chapters/running_specfem
    chapters/conversion
    chapters/processing
+   chapters/windowing.rst
+   chapters/hdf5_and_h5py.rst
    chapters/gcmt3dAPI
+   chapters/workflowAPI.rst
 
 
 
