@@ -26,7 +26,7 @@ gh-pages:
 	# This line is necessary because __pycache__ files are not deleted
 	# when the branch switches and therefore gcmt3d stays a dirtree in the
 	# gh-pages branch
-    find . -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
+	find . -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
 	git checkout gh-pages
 	rm -rf build _sources _static _modules _images chapters
 	git checkout master $(GH_PAGES_SOURCES)
