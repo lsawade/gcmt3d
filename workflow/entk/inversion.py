@@ -5,35 +5,21 @@
 from __future__ import nested_scopes, generators, division, absolute_import, \
     with_statement, print_function
 
-from radical.entk import Pipeline, Stage, Task, AppManager
 import os
-import argparse
-from _get_Cdir import get_Centry_path
-
-# Hopefully this changes soon with workflow for python 3
 import sys
-sys.path.append(os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),  # GCMT3D DIR
-    "gcmt3d", "data", "management"))
-from create_process_paths import get_windowing_list
-from create_process_paths import get_processing_list
 import yaml
 import math
 import logging
+import argparse
+from radical.entk import Pipeline, Stage, Task, AppManager
+
+# Local stuff
+from gcmt3d.utils.io import get_location_in_database
+from gcmt3d.utils.io import get_cmt_id
 from gcmt3d.log_util import modify_logger
 
 logger = logging.getLogger('gcmt3d')
-logger.setLevel(logging.VERBOSE)
 modify_logger(logger)
-
-
-# For calling binaries without entkd
-import subprocess
-from shlex import split
-
-bin_path = os.path.join(os.path.dirname(os.path.dirname(
-                            os.path.abspath(__file__))),
-                        "bins")
 
 # ------------------------------------------------------------------------------
 # Set default verbosity
@@ -59,230 +45,14 @@ PRE_EXECS = ["module load anaconda3",
 # WORFLOW
 HEADNODE_AVAILABLE = False
 
+CMT_LIST = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
+            "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
+
 
 def read_yaml_file(filename):
     """read yaml file"""
     with open(filename) as fh:
         return yaml.load(fh, Loader=yaml.Loader)
-
-
-def create_entry(cmt_filename, param_path, task_counter):
-    """This function creates the Entk stage for creation of a database entry.
-
-    :param cmt_filename: cmt_filename
-    :param param_path: parameter directory
-    :param pipelinedir: Directory of the pipeline
-    :return: EnTK Stage
-    """
-
-    # Get Database parameters
-    databaseparam_path = os.path.join(param_path,
-                                      "Database/DatabaseParameters.yml")
-    DB_params = read_yaml_file(databaseparam_path)
-
-    # Earthquake specific database parameters: Dir and Cid
-    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_filename)
-
-    # Create a Stage object
-    database_entry = Stage()
-
-    t1 = Task()
-    t1.name = "database-entry"
-    t1.pre_exec = PRE_EXECS
-    t1.executable = 'create-entry'  # Assign
-    # executable to the task
-    t1.arguments = ['-f %s' % cmt_filename,
-                    '-p %s' % param_path]
-
-    # In the future maybe to database dir as a total log?
-    t1.stdout = os.path.join("%s" % Cdir, "logs",
-                             "stdout.pipeline_%s.task_%s.%s"
-                             % (Cid, str(task_counter).zfill(4),
-                                t1.name))
-
-    t1.stderr = os.path.join("%s" % Cdir, "logs",
-                             "stderr.pipeline_%s.task_%s.%s"
-                             % (Cid, str(task_counter).zfill(4),
-                                t1.name))
-
-    # Increase task-counter
-    task_counter += 1
-
-    # Add Task to the Stage
-    database_entry.add_tasks(t1)
-
-    return database_entry, task_counter
-
-
-def call_create_entry(cmt_filename, param_path, task_counter):
-    """Simply calls the binary to create an entry without making it a stage.
-    Hence, it would be run prior to the pipeline start.
-
-    :param cmt_filename: cmt_filename from wherever
-    :param param_path: path to parameter files
-    :param task_counter: total task count up until now in pipeline
-    :return: nothing as it is simply a function call.
-    """
-
-    # Get Database parameters
-    databaseparam_path = os.path.join(param_path,
-                                      "Database/DatabaseParameters.yml")
-    DB_params = read_yaml_file(databaseparam_path)
-
-    # Earthquake specific database parameters: Dir and Cid
-    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_filename)
-
-    # Path to function
-    create_database_func = os.path.join(bin_path, "create_entry.py")
-
-    if DB_params["verbose"]:
-        print("Creating the entry outside of the pipeline!")
-
-    # Create command -N nodes, -n tasks, -D change directory
-    bash_command = "%s\n %s %s %s\n %s" \
-                       % (DB_params["conda-activate"],
-                          DB_params["bin-python"],
-                          create_database_func,
-                          cmt_filename,
-                          DB_params["conda-deactivate"])
-
-    create_entry_t = "database-entry"
-
-    # In the future maybe to database dir as a total log?
-    stdout = os.path.join("%s" % Cdir, "logs",
-                          "stdout.pipeline_%s.task_%s.%s"
-                          % (Cid, str(task_counter).zfill(4),
-                             create_entry_t))
-
-    stderr = os.path.join("%s" % Cdir, "logs",
-                          "stderr.pipeline_%s.task_%s.%s"
-                          % (Cid, str(task_counter).zfill(4),
-                             create_entry_t))
-
-    if DB_params["verbose"]:
-        # Send command
-        subprocess.check_output(bash_command, shell=True)
-
-    else:
-        # Send command
-        with open(stdout, "wb") as out, open(stderr, "wb") as err:
-            subprocess.check_output(bash_command, shell=True, stderr=err)
-
-    # Increase task-counter
-    task_counter += 1
-
-    return task_counter
-
-
-def call_download_data(cmt_file_db, param_path, task_counter):
-    """Simply calls the binary to download the observed data.
-
-    :param cmt_file_db: cmt_file in the database
-    :param param_path: path to parameter files
-    :param task_counter: total task count up until now in pipeline
-    :return: nothing as it is simply a function call.
-    """
-
-    # Get Database parameters
-    databaseparam_path = os.path.join(param_path,
-                                      "Database/DatabaseParameters.yml")
-    DB_params = read_yaml_file(databaseparam_path)
-
-    # Earthquake specific database parameters: Dir and Cid
-    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
-
-    # Path to function
-    download_data_func = os.path.join(bin_path, "request_data.py")
-
-    if DB_params["verbose"]:
-        print("Download outside pipeline!")
-
-    # Create command -N nodes, -n tasks, -D change directory
-    bash_command = "%s; %s %s %s; %s" \
-                   % (DB_params["conda-activate"],
-                      DB_params["bin-python"],
-                      download_data_func,
-                      cmt_file_db,
-                      DB_params["conda-deactivate"])
-
-    datarequest_t = "data-request"
-
-    # In the future maybe to database dir as a total log?
-    stdout = os.path.join("%s" % Cdir, "logs",
-                                        "stdout.pipeline_%s.task_%s.%s"
-                                        % (Cid, str(task_counter).zfill(4),
-                                           datarequest_t))
-
-    stderr = os.path.join("%s" % Cdir, "logs",
-                                        "stderr.pipeline_%s.task_%s.%s"
-                                        % (Cid, str(task_counter).zfill(4),
-                                           datarequest_t))
-
-    if DB_params["verbose"]:
-        # Send command
-        subprocess.check_output(bash_command, shell=True)
-    else:
-        # Send command
-        with open(stdout, "wb") as out, open(stderr, "wb") as err:
-            subprocess.check_output(bash_command, shell=True, stderr=err)
-
-    # Increase task-counter
-    task_counter += 1
-
-    return task_counter
-
-
-def data_request(cmt_file_db, param_path, task_counter):
-    """ This function creates the request for the observed data and returns
-    it as an EnTK Stage
-
-    :param cmt_file_db: cmt_file in the database
-    :param param_path: path to parameter file directory
-    :param task_counter: total task count up until now in pipeline
-    :return: EnTK Stage
-
-    """
-
-    # Get Database parameters
-    databaseparam_path = os.path.join(param_path,
-                                      "Database/DatabaseParameters.yml")
-    DB_params = read_yaml_file(databaseparam_path)
-
-    # Earthquake specific database parameters: Dir and Cid
-    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
-
-    # # Path to function
-    request_data_func = os.path.join(bin_path, "request_data.py")
-
-    # Create a Stage object
-    datarequest = Stage()
-
-    datarequest_t = Task()
-    datarequest_t.name = "data-request"
-    datarequest_t.pre_exec = [  # Conda activate
-                                DB_params["conda-activate"]]
-    datarequest_t.executable = DB_params["bin-python"]  # Assign executable
-                                                          # to the task
-    datarequest_t.arguments = [request_data_func, cmt_file_db]
-
-    # In the future maybe to database dir as a total log?
-    datarequest_t.stdout = os.path.join("%s" % Cdir, "logs",
-                                        "stdout.pipeline_%s.task_%s.%s"
-                                        % (Cid, str(task_counter).zfill(4),
-                                           datarequest_t.name))
-
-    datarequest_t.stderr = os.path.join("%s" % Cdir, "logs",
-                                        "stderr.pipeline_%s.task_%s.%s"
-                                        % (Cid, str(task_counter).zfill(4),
-                                           datarequest_t.name))
-
-    # Add Task to the Stage
-    datarequest.add_tasks(datarequest_t)
-
-    # Increase task-counter
-    task_counter += 1
-
-    return datarequest, task_counter
 
 
 def write_sources(cmt_file_db, param_path, task_counter):
@@ -303,35 +73,28 @@ def write_sources(cmt_file_db, param_path, task_counter):
     DB_params = read_yaml_file(databaseparam_path)
 
     # Earthquake specific database parameters: Dir and Cid
-    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
-
-    # Path to function
-    write_source_func = os.path.join(bin_path, "write_sources.py")
+    cdir = os.path.dirname(cmt_file_db)
+    cid = get_cmt_id(cmt_file_db)
 
     # Create a Stage object
     w_sources = Stage()
-
     w_sources.name = "Write-Sources"
 
     # Create Task for stage
     w_sources_t = Task()
     w_sources_t.name = "Task-Sources"
-    w_sources_t.pre_exec = [  # Conda activate
-                              DB_params["conda-activate"]]
-    w_sources_t.executable = DB_params["bin-python"]  #
-        # Assign executable
-        # to the task
-    w_sources_t.arguments = [write_source_func, cmt_file_db]
+    w_sources_t.executable = "write-sources"
+    w_sources_t.arguments = ["-f %s" % cmt_file_db,
+                             "-p %s" % param_path]
 
     # In the future maybe to database dir as a total log?
-    w_sources_t.stdout = os.path.join("%s" % Cdir, "logs",
+    w_sources_t.stdout = os.path.join(cdir, "logs",
                                       "stdout.pipeline_%s.task_%s.%s"
-                                      % (Cid, str(task_counter).zfill(4),
+                                      % (cid, str(task_counter).zfill(4),
                                          w_sources_t.name))
-
-    w_sources_t.stderr = os.path.join("%s"% Cdir, "logs",
+    w_sources_t.stderr = os.path.join(cdir, "logs",
                                       "stderr.pipeline_%s.task_%s.%s"
-                                      % (Cid, str(task_counter).zfill(4),
+                                      % (cid, str(task_counter).zfill(4),
                                          w_sources_t.name))
 
     # Add Task to the Stage
@@ -999,7 +762,7 @@ def create_inversion_stage(cmt_file_db, param_path, task_counter):
     return inversion_stage
 
 
-def workflow(cmt_filename, param_path):
+def workflow(cmtfilenames, param_path):
     """This function submits the complete workflow
 
     :param cmt_filename: str containing the path to the cmt solution that is
@@ -1017,196 +780,150 @@ def workflow(cmt_filename, param_path):
                                       "Database/DatabaseParameters.yml")
     DB_params = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and Cid
-    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_filename)
+    # List of pipelines
+    pipe_list = []
 
-    # Earthquake file in the database
-    cmt_file_db = os.path.join(Cdir, "C" + Cid + ".cmt")
+    # Create pipe lines for all jobss
+    for _cmtfile in cmtfilenames:
 
-    # Create a counter for all tasks in one pipeline
-    task_counter = 0
+        # Earthquake specific database parameters: Dir and Cid
+        cmt_in_db = get_location_in_database(_cmtfile, DB_params["databasedir"])
+        cdir = os.path.dirname(cmt_in_db)
+        cid = get_cmt_id(_cmtfile)
 
-    # Create a Pipeline object
-    p = Pipeline()
+        # Create a counter for all tasks in one pipeline
+        task_counter = 0
 
-    if HEADNODE_AVAILABLE:
-        # ---- Create Database Entry --------------------------------------------- #
+        # Create a Pipeline object
+        p = Pipeline()
 
-        # Create Database entry stage:
-        database_entry_stage, task_counter = create_entry(cmt_filename,
-                                                          param_path,
-                                                          task_counter)
+        # ---- Write Sources ---------------------------------------------------- #
+
+        # Create Source modification stage
+        w_sources_stage, task_counter = write_sources(cmt_file_db, param_path,
+                                                      task_counter)
 
         # Add Stage to the Pipeline
-        p.add_stages(database_entry_stage)
+        p.add_stages(w_sources_stage)
 
-        # ---- REQUEST DATA ------------------------------------------------- #
+        # ---- Run Specfem ------------------------------------------------------ #
 
-        # # Request data stage
-        # datarequest_stage, task_counter = data_request(cmt_file_db,
-        #                                                param_path,
-        #                                                task_counter)
+        # # Create Specfem Stage
+        # runSF3D_stage, task_counter = run_specfem(cmt_file_db,
+        #                                           param_path,
+        #                                           task_counter)
+        #
+        # # Add Simulation stage to the Pipeline
+        # p.add_stages(runSF3D_stage)
+        #
+        # # ---- Clean Up Specfem ------------------------------------------------- #
+        #
+        # # Create clean_up stage
+        # clean_up_stage, task_counter = specfem_clean_up(cmt_file_db,
+        #                                                 param_path,
+        #                                                 task_counter)
         #
         # # Add Stage to the Pipeline
-        # p.add_stages(datarequest_stage)
+        # p.add_stages(clean_up_stage)
 
-    else:
+        # ---- Convert to ASDF -------------------------------------------------- #
 
-        # Create the entry now before running the pipeline
-        task_counter = call_create_entry(cmt_filename, param_path,
-                                         task_counter)
+        # # Create conversion stage
+        # conversion_stage, task_counter = convert_traces(cmt_file_db, param_path,
+        #                                                 task_counter)
+        #
+        # # Add stage to pipeline
+        # p.add_stages(conversion_stage)
+        #
+        # # ---- Create Process Path files ---------------------------------------- #
+        #
+        # # Create Process Stage Pipeline
+        # process_path_stage, task_counter = create_process_path_files(cmt_file_db,
+        #                                                              param_path,
+        #                                                              task_counter)
+        #
+        # p.add_stages(process_path_stage)
+        #
+        # # ---- Process Traces --------------------------------------------------- #
+        #
+        # # Create processing stage
+        # processing_stages, task_counter = create_processing_stage(cmt_file_db,
+        #                                                          param_path,
+        #                                                          task_counter)
+        # for stage in processing_stages:
+        #     p.add_stages(stage)
+        #
+        # # ---- Window Traces ---------------------------------------------------- #
+        #
+        # # Create processing stage
+        # windowing_stages, task_counter = create_windowing_stage(cmt_file_db,
+        #                                                        param_path,
+        #                                                        task_counter)
+        # for windowing_stage in windowing_stages:
+        #     p.add_stages(windowing_stage)
+        #
+        # # ---- Create Inversion Dictionaries------------------------------------- #
+        #
+        # # Create processing stage
+        # inv_dict_stage, task_counter = create_inversion_dict_stage(cmt_file_db,
+        #                                                            param_path,
+        #                                                            task_counter)
+        #
+        # p.add_stages(inv_dict_stage)
+        #
+        # # ---- Inversion -------------------------------------------------------- #
+        #
+        # # Create processing stage
+        # inversion_stage = create_inversion_stage(cmt_file_db,
+        #                                                        param_path,
+        #                                                        task_counter)
+        #
+        # p.add_stages(inversion_stage)
 
-        # # # Download the data from the headnode before running the pipeline
-        # task_counter = call_download_data(cmt_file_db, param_path,
-        #                                   task_counter)
-
-    # ---- Write Sources ---------------------------------------------------- #
-
-    # # Create Source modification stage
-    # w_sources_stage, task_counter = write_sources(cmt_file_db, param_path,
-    #                                               task_counter)
-    #
-    # # Add Stage to the Pipeline
-    # p.add_stages(w_sources_stage)
-
-    # ---- Run Specfem ------------------------------------------------------ #
-
-    # # Create Specfem Stage
-    # runSF3D_stage, task_counter = run_specfem(cmt_file_db,
-    #                                           param_path,
-    #                                           task_counter)
-    #
-    # # Add Simulation stage to the Pipeline
-    # p.add_stages(runSF3D_stage)
-    #
-    # # ---- Clean Up Specfem ------------------------------------------------- #
-    #
-    # # Create clean_up stage
-    # clean_up_stage, task_counter = specfem_clean_up(cmt_file_db,
-    #                                                 param_path,
-    #                                                 task_counter)
-    #
-    # # Add Stage to the Pipeline
-    # p.add_stages(clean_up_stage)
-
-    # ---- Convert to ASDF -------------------------------------------------- #
-
-    # Create conversion stage
-    conversion_stage, task_counter = convert_traces(cmt_file_db, param_path,
-                                                    task_counter)
-
-    # Add stage to pipeline
-    p.add_stages(conversion_stage)
-
-    # ---- Create Process Path files ---------------------------------------- #
-
-    # Create Process Stage Pipeline
-    process_path_stage, task_counter = create_process_path_files(cmt_file_db,
-                                                                 param_path,
-                                                                 task_counter)
-
-    p.add_stages(process_path_stage)
-
-    # ---- Process Traces --------------------------------------------------- #
-
-    # Create processing stage
-    processing_stages, task_counter = create_processing_stage(cmt_file_db,
-                                                             param_path,
-                                                             task_counter)
-    for stage in processing_stages:
-        p.add_stages(stage)
-
-    # ---- Window Traces ---------------------------------------------------- #
-
-    # Create processing stage
-    windowing_stages, task_counter = create_windowing_stage(cmt_file_db,
-                                                           param_path,
-                                                           task_counter)
-    for windowing_stage in windowing_stages:
-        p.add_stages(windowing_stage)
-
-    # ---- Create Inversion Dictionaries------------------------------------- #
-
-    # Create processing stage
-    inv_dict_stage, task_counter = create_inversion_dict_stage(cmt_file_db,
-                                                               param_path,
-                                                               task_counter)
-
-    p.add_stages(inv_dict_stage)
-
-    # ---- Inversion -------------------------------------------------------- #
-
-    # Create processing stage
-    inversion_stage = create_inversion_stage(cmt_file_db,
-                                                           param_path,
-                                                           task_counter)
-
-    p.add_stages(inversion_stage)
-
-
+        pipe_list.append(p)
     # ============== RUNNING THE PIPELINE ==================================== #
 
     # Create Application Manager
     appman = AppManager(hostname=hostname, port=port)
 
-    # Compute the necessary walltime from walltime/per simulation
-    # Load parameters
-    specfem_specs = read_yaml_file(
-        os.path.join(param_path, "SpecfemParams/SpecfemParams.yml"))
-
-    # Get twalltime from walltime specification in the parameter file.
-    walltime_per_simulation = specfem_specs["walltime"].split(":")
-    hours_in_min = float(walltime_per_simulation[0])*60
-    min_in_min = float(walltime_per_simulation[1])
-    sec_in_min = float(walltime_per_simulation[2])/60
-
-    cpus = int(specfem_specs["cpus"])
-    tasks = int(specfem_specs["tasks"])
-
-    # Add times to get full simulation time. The 45 min are accounting for
-    # everything that is not simulation time
-    total_min = int(1/math.ceil(float(cpus)/40) \
-        * 10 * int(round(hours_in_min + min_in_min + sec_in_min)) + 45)
+    # # Compute the necessary walltime from walltime/per simulation
+    # # Load parameters
+    # specfem_specs = read_yaml_file(
+    #     os.path.join(param_path, "SpecfemParams/SpecfemParams.yml"))
+    #
+    # # Get twalltime from walltime specification in the parameter file.
+    # walltime_per_simulation = specfem_specs["walltime"].split(":")
+    # hours_in_min = float(walltime_per_simulation[0])*60
+    # min_in_min = float(walltime_per_simulation[1])
+    # sec_in_min = float(walltime_per_simulation[2])/60
+    #
+    # cpus = int(specfem_specs["cpus"])
+    # tasks = int(specfem_specs["tasks"])
+    #
+    # # Add times to get full simulation time. The 45 min are accounting for
+    # # everything that is not simulation time
+    # total_min = int(1/math.ceil(float(cpus)/40) \
+    #     * 10 * int(round(hours_in_min + min_in_min + sec_in_min)) + 45)
 
     # Create a dictionary describe four mandatory keys:
     # resource, walltime, cpus etc.
     # resource is "local.localhost" to execute locally
     # Define which resources to get depending on how specfem is run!
-    if specfem_specs["GPU_MODE"] is False:
-        # res_dict_cpu = {
-        #     "resource": "princeton.tiger_cpu",
-        #     "project": "geo",
-        #     "queue": "cpu",
-        #     "schema": "local",
-        #     "walltime": total_min,
-        #     "cpus": int(specfem_specs["cpus"]),
-        # }
-        res_dict_cpu = {
-            "resource": "princeton.tiger_cpu",
-            "project": "geo",
-            "queue": "cpu",
-            "schema": "local",
-            "walltime": 45,
-            "cpus": 20
-        }
-    else:
-        res_dict_gpu = {
-            "resource": "princeton.tiger_gpu",
-            "project": "geo",
-            "queue": "gpu",
-            "schema": "local",
-            "walltime": 300,
-            "cpus": int(specfem_specs["cpus"]),
-            "gpus": int(specfem_specs["gpus"])
-        }
 
+    res_dict = {
+        'resource': 'princeton.traverse',
+        'schema': 'local',
+        'walltime': 1,
+        'cpus': 48,
+        'gpus': 6
+    }
 
     # Assign resource request description to the Application Manager
-    appman.resource_desc = res_dict_cpu
+    appman.resource_desc = res_dict
 
     # Assign the workflow as a set or list of Pipelines to the Application Manager
     # Note: The list order is not guaranteed to be preserved
-    appman.workflow = set([p])
+    appman.workflow = set(pipe_list)
 
     # Run the Application Manager
     appman.run()
@@ -1214,11 +931,17 @@ def workflow(cmt_filename, param_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("cmtfile", help="Path to CMTSOLUTION file",
+    parser.add_argument("cmtfiles", help="Path to CMTSOLUTION file",
                         type=str)
     parser.add_argument("param_path", type=str,
                         help="Path to workflow paramater directory")
     args = parser.parse_args()
 
+    # Make file list either way
+    if type(args.cmtfiles) is str:
+        cmtfiles = [args.cmtfiles]
+    else:
+        cmtfiles = args.cmtfiles
+
     # Run
-    workflow(args.cmtfile, args.param_path)
+    workflow(cmtfiles, args.param_path)
