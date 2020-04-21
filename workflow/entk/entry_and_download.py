@@ -73,7 +73,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Run
-    if type(args.cmtfile) is str:
+    if type(args.cmtfiles) is str:
         cmtfiles = [args.cmtfiles]
     else:
         cmtfiles = args.cmtfiles
