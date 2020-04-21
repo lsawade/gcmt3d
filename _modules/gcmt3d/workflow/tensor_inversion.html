@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>gcmt3d.workflow.tensor_inversion &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/windowing.html">Windowing of the observed and synthetic traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/hdf5_and_h5py.html">Installation of hdf5 and h5py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/gcmt3dAPI.html">GCMT3D API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/workflowAPI.html">EnTK Workflow API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/workflowAPI.html#workflow-components">Workflow components</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>gcmt3d.workflow.tensor_inversion</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for gcmt3d.workflow.tensor_inversion</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">This script contains functions to invert the produced data</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Lucas Sawade (lsawade@princeton.edu)</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU General Public License, Version 3</span>
+<span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
+
+<span class="sd">Last Update: June 2019</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="c1"># CMT3D</span>
+<span class="kn">from</span> <span class="nn">pycmt3d.source</span> <span class="kn">import</span> <span class="n">CMTSource</span>
+<span class="kn">from</span> <span class="nn">pycmt3d</span> <span class="kn">import</span> <span class="n">Cmt3D</span>
+<span class="kn">from</span> <span class="nn">pycmt3d</span> <span class="kn">import</span> <span class="n">DataContainer</span>
+<span class="kn">from</span> <span class="nn">pycmt3d</span> <span class="kn">import</span> <span class="n">WeightConfig</span><span class="p">,</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">pycmt3d.constant</span> <span class="kn">import</span> <span class="n">PARLIST</span>
+
+<span class="c1"># Gradient3D</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="c1"># Get logger to log progress</span>
+<span class="kn">from</span> <span class="nn">gcmt3d</span> <span class="kn">import</span> <span class="n">logger</span>
+
+
+<div class="viewcode-block" id="read_yaml_file"><a class="viewcode-back" href="../../../chapters/workflowAPI.html#gcmt3d.workflow.tensor_inversion.read_yaml_file">[docs]</a><span class="k">def</span> <span class="nf">read_yaml_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;read yaml file&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="invert"><a class="viewcode-back" href="../../../chapters/workflowAPI.html#gcmt3d.workflow.tensor_inversion.invert">[docs]</a><span class="k">def</span> <span class="nf">invert</span><span class="p">(</span><span class="n">cmt_file_db</span><span class="p">,</span> <span class="n">param_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Runs the actual inversion.</span>
+
+<span class="sd">    :param cmt_file_db:</span>
+<span class="sd">    :param param_path:</span>
+<span class="sd">    :return: Nothing, inversion results are written to file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Load Database Parameters</span>
+    <span class="n">databaseparam_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">param_path</span><span class="p">,</span>
+                                      <span class="s2">&quot;Database/DatabaseParameters.yml&quot;</span><span class="p">)</span>
+    <span class="n">DB_params</span> <span class="o">=</span> <span class="n">read_yaml_file</span><span class="p">(</span><span class="n">databaseparam_path</span><span class="p">)</span>
+
+    <span class="c1"># Inversion Params</span>
+    <span class="n">inversionparam_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">param_path</span><span class="p">,</span>
+                                       <span class="s2">&quot;CMTInversion/InversionParams.yml&quot;</span><span class="p">)</span>
+    <span class="n">INV_params</span> <span class="o">=</span> <span class="n">read_yaml_file</span><span class="p">(</span><span class="n">inversionparam_path</span><span class="p">)</span>
+
+    <span class="c1"># Get processing path from cmt_filename in database</span>
+    <span class="n">cmt_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">cmt_file_db</span><span class="p">))</span>
+
+    <span class="c1"># Create cmt source:</span>
+    <span class="n">cmtsource</span> <span class="o">=</span> <span class="n">CMTSource</span><span class="o">.</span><span class="n">from_CMTSOLUTION_file</span><span class="p">(</span><span class="n">cmt_file_db</span><span class="p">)</span>
+
+    <span class="c1"># Inversion dictionary directory</span>
+    <span class="n">inv_dict_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmt_dir</span><span class="p">,</span> <span class="s2">&quot;inversion&quot;</span><span class="p">,</span> <span class="s2">&quot;inversion_dicts&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Inversion dictionaries</span>
+    <span class="n">inv_dict_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inv_dict_dir</span><span class="p">,</span> <span class="s2">&quot;inversion*&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Inversion output directory</span>
+    <span class="n">inv_out_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmt_dir</span><span class="p">,</span>
+                               <span class="s2">&quot;inversion&quot;</span><span class="p">,</span> <span class="s2">&quot;inversion_output&quot;</span><span class="p">,</span> <span class="s2">&quot;cmt3d&quot;</span><span class="p">)</span>
+
+    <span class="c1"># WRite start of inversion process</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;#######################################################&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;#                                                     #&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;#      Starting CMT3D Inversion ...                   #&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;#                                                     #&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;#######################################################&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+    <span class="c1"># Creating Data container</span>
+    <span class="n">dcon</span> <span class="o">=</span> <span class="n">DataContainer</span><span class="p">(</span><span class="n">parlist</span><span class="o">=</span><span class="n">PARLIST</span><span class="p">[:</span><span class="n">DB_params</span><span class="p">[</span><span class="s2">&quot;npar&quot;</span><span class="p">]])</span>
+
+    <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">inv_dict_file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inv_dict_files</span><span class="p">):</span>
+
+        <span class="c1"># Get processing band</span>
+        <span class="n">bandstring1</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">inv_dict_file</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;surface&quot;</span> <span class="ow">in</span> <span class="n">bandstring1</span> <span class="ow">or</span> <span class="s2">&quot;body&quot;</span> <span class="ow">in</span> <span class="n">bandstring1</span><span class="p">:</span>
+            <span class="n">bandstring</span> <span class="o">=</span> <span class="n">bandstring1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bandstring</span> <span class="o">=</span> <span class="n">bandstring1</span>
+
+        <span class="n">band</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bandstring</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="mi">54</span> <span class="o">*</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Getting data for inversion from period band:&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Low: </span><span class="si">%d</span><span class="s2"> s || High: </span><span class="si">%d</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">band</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="mi">54</span> <span class="o">*</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+        <span class="c1"># Load inversion file dictionary</span>
+        <span class="n">inv_dict</span> <span class="o">=</span> <span class="n">read_yaml_file</span><span class="p">(</span><span class="n">inv_dict_file</span><span class="p">)</span>
+        <span class="n">asdf_dict</span> <span class="o">=</span> <span class="n">inv_dict</span><span class="p">[</span><span class="s2">&quot;asdf_dict&quot;</span><span class="p">]</span>
+        <span class="n">window_file</span> <span class="o">=</span> <span class="n">inv_dict</span><span class="p">[</span><span class="s2">&quot;window_file&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Adding measurements</span>
+        <span class="c1"># Print Inversion parameters:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Adding measurements to data container:&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  _____________________________________________________&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+        <span class="c1"># Add measurements from ASDF file and windowfile</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Window file:&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;   &quot;</span> <span class="o">+</span> <span class="n">window_file</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  ASDF files:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">asdf_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;     &quot;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="n">dcon</span><span class="o">.</span><span class="n">add_measurements_from_asdf</span><span class="p">(</span><span class="n">window_file</span><span class="p">,</span> <span class="n">asdf_dict</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  _____________________________________________________&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  ... &quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  ... &quot;</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Setting up inversion classes .... &quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="mi">54</span> <span class="o">*</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  ... &quot;</span><span class="p">)</span>
+
+    <span class="c1"># Setting up weight config</span>
+    <span class="n">inv_weight_config</span> <span class="o">=</span> <span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;weight_config&quot;</span><span class="p">]</span>
+
+    <span class="n">weight_config</span> <span class="o">=</span> <span class="n">WeightConfig</span><span class="p">(</span>
+        <span class="n">normalize_by_energy</span><span class="o">=</span><span class="n">inv_weight_config</span><span class="p">[</span><span class="s2">&quot;normalize_by_energy&quot;</span><span class="p">],</span>
+        <span class="n">normalize_by_category</span><span class="o">=</span><span class="n">inv_weight_config</span><span class="p">[</span><span class="s2">&quot;normalize_by_category&quot;</span><span class="p">],</span>
+        <span class="n">azi_bins</span><span class="o">=</span><span class="n">inv_weight_config</span><span class="p">[</span><span class="s2">&quot;azi_bins&quot;</span><span class="p">],</span>
+        <span class="n">azi_exp_idx</span><span class="o">=</span><span class="n">inv_weight_config</span><span class="p">[</span><span class="s2">&quot;azi_exp_idx&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Setting up general inversion config</span>
+    <span class="n">inv_params</span> <span class="o">=</span> <span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">]</span>
+
+    <span class="n">cmt3d_config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span>
+        <span class="n">DB_params</span><span class="p">[</span><span class="s2">&quot;npar&quot;</span><span class="p">],</span>
+        <span class="n">dlocation</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;dlocation&quot;</span><span class="p">]),</span>
+        <span class="n">ddepth</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;ddepth&quot;</span><span class="p">]),</span>
+        <span class="n">dmoment</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;dmoment&quot;</span><span class="p">]),</span>
+        <span class="n">weight_data</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;weight_data&quot;</span><span class="p">]),</span>
+        <span class="n">station_correction</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;station_correction&quot;</span><span class="p">]),</span>
+        <span class="n">zero_trace</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;zero_trace&quot;</span><span class="p">]),</span>
+        <span class="n">double_couple</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;double_couple&quot;</span><span class="p">]),</span>
+        <span class="n">bootstrap</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;bootstrap&quot;</span><span class="p">]),</span>
+        <span class="n">bootstrap_repeat</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;bootstrap_repeat&quot;</span><span class="p">]),</span>
+        <span class="n">weight_config</span><span class="o">=</span><span class="n">weight_config</span><span class="p">,</span>
+        <span class="n">taper_type</span><span class="o">=</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;taper_type&quot;</span><span class="p">],</span>
+        <span class="n">damping</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">inv_params</span><span class="p">[</span><span class="s2">&quot;damping&quot;</span><span class="p">]))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  PyCMT3D is finding an improved CMTSOLUTION .... &quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="mi">54</span> <span class="o">*</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+    <span class="c1"># Invert for parameters</span>
+    <span class="n">cmt3d</span> <span class="o">=</span> <span class="n">Cmt3D</span><span class="p">(</span><span class="n">cmtsource</span><span class="p">,</span> <span class="n">dcon</span><span class="p">,</span> <span class="n">cmt3d_config</span><span class="p">)</span>
+    <span class="n">cmt3d</span><span class="o">.</span><span class="n">source_inversion</span><span class="p">()</span>
+    <span class="n">cmt3d</span><span class="o">.</span><span class="n">compute_new_syn</span><span class="p">()</span>
+    <span class="c1"># Create inversion class</span>
+    <span class="c1"># if bool(INV_params[&quot;gridsearch&quot;]):</span>
+    <span class="c1">#     inv = Inversion(cmtsource, dcon, cmt3d_config, grad3d_config)</span>
+    <span class="c1"># else:</span>
+    <span class="c1">#     inv = Inversion(cmtsource, dcon, cmt3d_config, mt_config=None)</span>
+
+    <span class="c1"># Run inversion</span>
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;statistics_plot&quot;</span><span class="p">]):</span>
+        <span class="n">cmt3d</span><span class="o">.</span><span class="n">plot_stats_histogram</span><span class="p">(</span><span class="n">outputdir</span><span class="o">=</span><span class="n">inv_out_dir</span><span class="p">)</span>
+
+    <span class="c1"># Plot results</span>
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;summary_plot&quot;</span><span class="p">]):</span>
+        <span class="n">cmt3d</span><span class="o">.</span><span class="n">plot_summary</span><span class="p">(</span><span class="n">inv_out_dir</span><span class="p">,</span> <span class="n">figure_format</span><span class="o">=</span><span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
+    <span class="c1">#</span>
+    <span class="c1"># if bool(INV_params[&quot;statistics_plot&quot;]):</span>
+    <span class="c1">#     # Plot Statistics for inversion</span>
+    <span class="c1">#     inv.G.plot_stats_histogram(outputdir=inv_out_dir)</span>
+    <span class="c1">#</span>
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;summary_json&quot;</span><span class="p">]):</span>
+        <span class="n">cmt3d</span><span class="o">.</span><span class="n">write_summary_json</span><span class="p">(</span><span class="n">outputdir</span><span class="o">=</span><span class="n">inv_out_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;write_new_cmt&quot;</span><span class="p">]):</span>
+        <span class="n">cmt3d</span><span class="o">.</span><span class="n">write_new_cmtfile</span><span class="p">(</span><span class="n">outputdir</span><span class="o">=</span><span class="n">inv_out_dir</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;write_new_synt&quot;</span><span class="p">]):</span>
+        <span class="n">cmt3d</span><span class="o">.</span><span class="n">write_new_syn</span><span class="p">(</span><span class="n">outputdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inv_out_dir</span><span class="p">,</span> <span class="s2">&quot;new_synt&quot;</span><span class="p">),</span>
+                            <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;asdf&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;plot_new_synthetics&quot;</span><span class="p">]):</span>
+        <span class="n">cmt3d</span><span class="o">.</span><span class="n">plot_new_synt_seismograms</span><span class="p">(</span>
+            <span class="n">outputdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inv_out_dir</span><span class="p">,</span> <span class="s2">&quot;waveform_plots&quot;</span><span class="p">),</span>
+            <span class="n">figure_format</span><span class="o">=</span><span class="s2">&quot;pdf&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;cmt_file&#39;</span><span class="p">,</span>
+                        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to CMT file in database&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;param_path&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to Parameter Directory&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">invert</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">cmt_file</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">param_path</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

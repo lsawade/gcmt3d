@@ -1,0 +1,932 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>gcmt3d.runSF3D.runSF3D &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/windowing.html">Windowing of the observed and synthetic traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/hdf5_and_h5py.html">Installation of hdf5 and h5py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/gcmt3dAPI.html">GCMT3D API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/workflowAPI.html">EnTK Workflow API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/workflowAPI.html#workflow-components">Workflow components</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>gcmt3d.runSF3D.runSF3D</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for gcmt3d.runSF3D.runSF3D</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This file contains the class to run specfem for the database.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Lucas Sawade (lsawade@princeton.edu)</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU General Public License, Version 3</span>
+<span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
+
+<span class="sd">Last Update: May 2019</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">shlex</span> <span class="kn">import</span> <span class="n">split</span>
+
+
+<div class="viewcode-block" id="RunSimulation"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.runSF3D.runSF3D.RunSimulation">[docs]</a><span class="k">class</span> <span class="nc">RunSimulation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class handles the running of specfem after its directory has been</span>
+<span class="sd">    added to the database. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">earthquake_dir</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">npn</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">memory_req</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">npar</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">walltime</span><span class="o">=</span><span class="s2">&quot;00:30:00&quot;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">gpu_module</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">GPU_MODE</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes Run parameters</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            database_Cdir: string with directory name</span>
+<span class="sd">            N: integer with number of Nodes</span>
+<span class="sd">            n: integer with number of tasks</span>
+<span class="sd">            npn: integer with tasks per node</span>
+<span class="sd">            npar: integer number of parameters</span>
+<span class="sd">            walltime: string with max time &quot;hh:mm:ss&quot;</span>
+<span class="sd">            modules: list of modules to be loaded for the run (for comilers</span>
+<span class="sd">                     etc.) Default [&#39;intel&#39;, &#39;openmpi&#39;]</span>
+<span class="sd">            gpu_module: GPU module to be loaded. Default &#39;cudatoolkit&#39;.</span>
+<span class="sd">            verbose: boolean deciding on whether to print stuff</span>
+
+<span class="sd">        Returns: Nothing really, it just runs specfem with the above options</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">earthquake</span> <span class="o">=</span> <span class="n">earthquake_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">earthquake</span><span class="p">,</span> <span class="s2">&quot;CMT_SIMs&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">N</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">npn</span> <span class="o">=</span> <span class="n">npn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_req</span> <span class="o">=</span> <span class="n">memory_req</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walltime</span> <span class="o">=</span> <span class="n">walltime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="n">modules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_module</span> <span class="o">=</span> <span class="n">gpu_module</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span> <span class="o">=</span> <span class="n">GPU_MODE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CMT&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_rr&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_tt&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_pp&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_rt&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_rp&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;CMT_tp&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_depth&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_lat&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_lon&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">npar</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">npar</span> <span class="o">=</span> <span class="n">npar</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong number. must be 6, 7, or 9.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
+            <span class="s2">&quot;batch&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">verbose</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs the Simulation using the shell and batch files in the batch</span>
+<span class="sd">        subdirectory.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GPU mode!&quot;</span><span class="p">)</span>
+
+            <span class="c1"># batch driver wrapper</span>
+            <span class="n">batchwrapper</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span><span class="p">,</span> <span class="s2">&quot;drive_GPU.sh&quot;</span><span class="p">)</span>
+
+            <span class="c1"># batch driver script</span>
+            <span class="n">batchscript</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span><span class="p">,</span> <span class="s2">&quot;drive_GPU.sbatch&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create command</span>
+            <span class="n">bashCommand</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &#39;</span><span class="si">%s</span><span class="s2">&#39; </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> \
+                          <span class="o">%</span> <span class="p">(</span><span class="n">batchwrapper</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">npn</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">memory_req</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">npar</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">simdir</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">walltime</span><span class="p">,</span>
+                             <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">),</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">gpu_module</span><span class="p">,</span>
+                             <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">),</span>
+                             <span class="n">batchscript</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CPU mode!&quot;</span><span class="p">)</span>
+
+            <span class="c1"># batch driver wrapper</span>
+            <span class="n">batchwrapper</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span><span class="p">,</span> <span class="s2">&quot;drive.sh&quot;</span><span class="p">)</span>
+
+            <span class="c1"># batch driver script</span>
+            <span class="n">batchscript</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span><span class="p">,</span> <span class="s2">&quot;drive.sbatch&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create command</span>
+            <span class="n">bashCommand</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &#39;</span><span class="si">%s</span><span class="s2">&#39; </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">batchwrapper</span><span class="p">,</span>
+                                                            <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span>
+                                                            <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                                                            <span class="bp">self</span><span class="o">.</span><span class="n">npar</span><span class="p">,</span>
+                                                            <span class="bp">self</span><span class="o">.</span><span class="n">simdir</span><span class="p">,</span>
+                                                            <span class="bp">self</span><span class="o">.</span><span class="n">walltime</span><span class="p">,</span>
+                                                            <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                                                <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">),</span>
+                                                            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">),</span>
+                                                            <span class="n">batchscript</span><span class="p">)</span>
+
+        <span class="c1"># Send command</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">),</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                 <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                                 <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+
+        <span class="c1"># catch outputs</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Command has been sent.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Errors:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RunSimulation.replace_STATIONS"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.runSF3D.runSF3D.RunSimulation.replace_STATIONS">[docs]</a>    <span class="k">def</span> <span class="nf">replace_STATIONS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">statfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function handles the replacement of the STATION file in the</span>
+<span class="sd">        database directory.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">npar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simdir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No number of parameters or Sim dir given&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">at</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">npar</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">newstatfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simdir</span><span class="p">,</span> <span class="n">at</span><span class="p">,</span> <span class="s2">&quot;DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;STATIONS&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_replace_file</span><span class="p">(</span><span class="n">statfile</span><span class="p">,</span> <span class="n">newstatfile</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RunSimulation.clean_up"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.runSF3D.runSF3D.RunSimulation.clean_up">[docs]</a>    <span class="k">def</span> <span class="nf">clean_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function cleans out the simulation directory, getting rid of</span>
+<span class="sd">        unnecessary MPI and database files. The parameter files are first</span>
+<span class="sd">        copied to the directory OUTPUT_FILES and then `bin`, `DATA` and</span>
+<span class="sd">        `DATABASES_MPI` are deleted since they are irrelevant for future</span>
+<span class="sd">        reproducibility.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">at</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">npar</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="c1"># Copy Par_file CMTSOLUTION and STATIONS files to the OUTPUTFILES</span>
+            <span class="c1"># directory</span>
+            <span class="n">atsimdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simdir</span><span class="p">,</span> <span class="n">at</span><span class="p">)</span>
+            <span class="n">datadir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">atsimdir</span><span class="p">,</span> <span class="s2">&quot;DATA&quot;</span><span class="p">)</span>
+            <span class="n">outdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">atsimdir</span><span class="p">,</span> <span class="s2">&quot;OUTPUT_FILES&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Stations</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_replace_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">datadir</span><span class="p">,</span> <span class="s2">&quot;STATIONS&quot;</span><span class="p">),</span>
+                               <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="s2">&quot;STATIONS&quot;</span><span class="p">))</span>
+            <span class="c1"># Par_file</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_replace_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">datadir</span><span class="p">,</span> <span class="s2">&quot;Par_file&quot;</span><span class="p">),</span>
+                               <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="s2">&quot;Par_file&quot;</span><span class="p">))</span>
+
+            <span class="c1"># CMTSOLUTION</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_replace_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">datadir</span><span class="p">,</span> <span class="s2">&quot;CMTSOLUTION&quot;</span><span class="p">),</span>
+                               <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="s2">&quot;CMTSOLUTION&quot;</span><span class="p">))</span>
+
+            <span class="c1"># Remove bin symlink</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">atsimdir</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">))</span>
+
+            <span class="c1"># remove unnecessary</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_dir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">atsimdir</span><span class="p">,</span> <span class="s2">&quot;DATA&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_dir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">atsimdir</span><span class="p">,</span> <span class="s2">&quot;DATABASES_MPI&quot;</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_replace_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Mini function that replaces a directory&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File already here. Removing </span><span class="si">%s</span><span class="s2"> ...&quot;</span> <span class="o">%</span> <span class="n">destination</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Copying </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2"> ...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">))</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> does not exist. Not copied to </span><span class="si">%s</span><span class="s2">.&quot;</span>
+                  <span class="o">%</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_remove_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Mini function to remove file.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Removing </span><span class="si">%s</span><span class="s2"> ...&quot;</span> <span class="o">%</span> <span class="n">file</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> does not exist. Hence not deleted.&quot;</span> <span class="o">%</span> <span class="n">file</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_remove_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Mini function to remove directory.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">direc</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">direc</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Removing </span><span class="si">%s</span><span class="s2"> ...&quot;</span> <span class="o">%</span> <span class="n">direc</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">direc</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> does not exist. Hence not deleted.&quot;</span> <span class="o">%</span> <span class="n">direc</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;string return&quot;&quot;&quot;</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;Earthquake directory: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">earthquake</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;Simulation directory: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">simdir</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;Number of Nodes: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;Number of Tasks: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;Number of Parameters: </span><span class="si">%d</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">npar</span>
+        <span class="k">return</span> <span class="n">string</span></div>
+
+
+<div class="viewcode-block" id="DATAFixer"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.runSF3D.runSF3D.DATAFixer">[docs]</a><span class="k">class</span> <span class="nc">DATAFixer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Not necessary but it handles the fixing of the parfile&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specfemdir</span><span class="p">,</span>
+                 <span class="n">nodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">tasks</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+                 <span class="n">tasks_per_node</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+                 <span class="n">memory_req</span><span class="o">=</span><span class="mi">40000</span><span class="p">,</span>
+                 <span class="n">walltime</span><span class="o">=</span><span class="s2">&quot;00:30:00&quot;</span><span class="p">,</span>
+                 <span class="n">walltime_solver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">cc</span><span class="o">=</span><span class="s2">&quot;icc&quot;</span><span class="p">,</span>
+                 <span class="n">cpp</span><span class="o">=</span><span class="s2">&quot;icpc&quot;</span><span class="p">,</span>
+                 <span class="n">mpicc</span><span class="o">=</span><span class="s2">&quot;mpicc&quot;</span><span class="p">,</span>
+                 <span class="n">f90</span><span class="o">=</span><span class="s2">&quot;ifort&quot;</span><span class="p">,</span>
+                 <span class="n">mpif90</span><span class="o">=</span><span class="s2">&quot;mpifort&quot;</span><span class="p">,</span>
+                 <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;intel&#39;</span><span class="p">,</span> <span class="s1">&#39;openmpi&#39;</span><span class="p">],</span>
+                 <span class="n">gpu_module</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">gpu_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">NEX_XI</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">NEX_ETA</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+                 <span class="n">NPROC_XI</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">NPROC_ETA</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">GPU_MODE</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">GPU_RUNTIME</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">GPU_PLATFORM</span><span class="o">=</span><span class="s1">&#39;NVIDIA&#39;</span><span class="p">,</span>
+                 <span class="n">GPU_DEVICE</span><span class="o">=</span><span class="s1">&#39;Tesla&#39;</span><span class="p">,</span>
+                 <span class="n">ADIOS_ENABLED</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">ADIOS_FOR_FORWARD_ARRAYS</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">ADIOS_FOR_MPI_ARRAYS</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">ADIOS_FOR_ARRAYS_SOLVER</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">ADIOS_FOR_SOLVER_MESHFILES</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">ADIOS_FOR_AVS_DX</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">ADIOS_FOR_KERNELS</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">ADIOS_FOR_MODELS</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">ADIOS_FOR_UNDO_ATTENUATION</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">ROTATE_SEISMOGRAMS_RT</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">RECORD_LENGTH</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">MODEL</span><span class="o">=</span><span class="s2">&quot;s40rts&quot;</span><span class="p">,</span>
+                 <span class="n">WRITE_SEISMOGRAMS_BY_MASTER</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">OUTPUT_SEISMOS_ASCII_TEXT</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">OUTPUT_SEISMOS_SAC_ALPHANUM</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">OUTPUT_SEISMOS_SAC_BINARY</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">OUTPUT_SEISMOS_ASDF</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">MOVIE_SURFACE</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">MOVIE_VOLUME</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">MOVIE_COARSE</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes Run parameters in the Parfile</span>
+
+<span class="sd">        :param specfemdir: string with directory name</span>
+<span class="sd">        :param nodes: number of computational nodes for the mesher. Default `1`</span>
+<span class="sd">        :param tasks: number of tasks per node for the mesher. Default `24`</span>
+<span class="sd">        :param tasks_per_node: maximum number of tasks per node. Default `24`.</span>
+<span class="sd">        :param walltime: Requested server time for the nodes.</span>
+<span class="sd">                         Default `00:30:00`</span>
+<span class="sd">        :param walltime_solver: walltime of mesher and solver can be different.</span>
+<span class="sd">        f90: string with fortran compiler</span>
+<span class="sd">        :param mpif90: string with fortran mpi compiler</span>
+<span class="sd">        :param cc: string with c compiler</span>
+<span class="sd">        :param cpp: string with c++ compiler</span>
+<span class="sd">        :param mpicc: string with c mpi compiler</span>
+<span class="sd">        :param modules: list of modules to be loaded for the run (for comilers</span>
+<span class="sd">                 etc.) Default [&#39;intel&#39;, &#39;openmpi&#39;]</span>
+<span class="sd">        :param gpu_module: GPU module to be loaded. Default &#39;None&#39;.</span>
+<span class="sd">        :param gpu_version: version that is used to compile specfem.</span>
+<span class="sd">        :param walltime: Requested server time for the nodes. Default `None`.</span>
+<span class="sd">                  `None` since this class is used for fixing the `Par_file`</span>
+<span class="sd">        :param NEX_XI: Number of elements along the chunk (s. Specfem Manual).</span>
+<span class="sd">                Default `128`.</span>
+<span class="sd">        :param NEX_ETA: Number of elements along the first chunk (s. Specfem</span>
+<span class="sd">                 Manual). Default `128`.</span>
+<span class="sd">        :param NPROC_XI: Number of MPI processors (s. Specfem Manual).</span>
+<span class="sd">                  Default `1`.</span>
+<span class="sd">        :param NPROC_ETA: Number of MPI processors (s. Specfem Manual).</span>
+<span class="sd">                   Default `1`.</span>
+<span class="sd">        :param GPU_MODE: Set whether specfem should be GPU enabled (not yet</span>
+<span class="sd">                supported). Default `False`.</span>
+<span class="sd">        :param ADIOS_ENABLED: Set whether ADIOS should be turned on (not yet</span>
+<span class="sd">                       supported). Default `False`</span>
+<span class="sd">        :param RECORD_LENGTH: length of the final seismic record in minutes.</span>
+<span class="sd">                       Default `1`.</span>
+<span class="sd">        :param MODEL: velocity model, right now only 3D models are supported.</span>
+<span class="sd">               Default `&#39;s40rts&#39;`</span>
+<span class="sd">        :param ROTATE_SEISMOGRAMS_RT: This sets whether the seismograms are</span>
+<span class="sd">                               output as as NEZ or RTZ if True RTZ is</span>
+<span class="sd">                               chosen. Default `True`.</span>
+<span class="sd">        :param WRITE_SEISMOGRAMS_BY_MASTER: Write seismograms by master job.</span>
+<span class="sd">                                     Default `False`.</span>
+<span class="sd">        :param OUTPUT_SEISMOS_ASCII_TEXT: Output seismograms in `ASCII` format.</span>
+<span class="sd">                                   Default `False`.</span>
+<span class="sd">        :param OUTPUT_SEISMOS_SAC_ALPHANUM: Output seismograms in `ASCII`</span>
+<span class="sd">                                            format. Default `False`.</span>
+<span class="sd">        :param OUTPUT_SEISMOS_SAC_BINARY: Output seismograms in `ASCII` format.</span>
+<span class="sd">                                   Default `False`.</span>
+<span class="sd">        :param OUTPUT_SEISMOS_ASDF: Output seismograms in `ASCII` format.</span>
+<span class="sd">                             Default `False`.</span>
+<span class="sd">        :param MOVIE_SURFACE: Write movie on the surface. Default `False`</span>
+<span class="sd">        :param MOVIE_VOLUME: Write movie within the volume. Default `False`</span>
+<span class="sd">        :param MOVIE_COARSE: Write coarse movie. Default `False`</span>
+<span class="sd">        :param verbose: boolean deciding on whether to print stuff.</span>
+<span class="sd">                Default `False`.</span>
+
+<span class="sd">        Returns: Nothing really it just runs specfem with the above options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Specfem parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specfemdir</span> <span class="o">=</span> <span class="n">specfemdir</span>
+
+        <span class="c1"># Slurm Resources for mesher</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="n">tasks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks_per_node</span> <span class="o">=</span> <span class="n">tasks_per_node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_req</span> <span class="o">=</span> <span class="n">memory_req</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walltime</span> <span class="o">=</span> <span class="n">walltime</span>  <span class="c1"># walltime for mesher</span>
+
+        <span class="c1"># The data fixer can also run specfem for that a specific walltime</span>
+        <span class="c1"># has to be set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walltime_solver</span> <span class="o">=</span> <span class="n">walltime_solver</span>
+
+        <span class="c1"># Compilers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mpif90</span> <span class="o">=</span> <span class="n">mpif90</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f90</span> <span class="o">=</span> <span class="n">f90</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">=</span> <span class="n">cc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpp</span> <span class="o">=</span> <span class="n">cpp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mpicc</span> <span class="o">=</span> <span class="n">mpicc</span>
+
+        <span class="c1"># Modules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="n">modules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_module</span> <span class="o">=</span> <span class="n">gpu_module</span>
+
+        <span class="c1"># MPI STUFF</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NPROC_XI</span> <span class="o">=</span> <span class="n">NPROC_XI</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NPROC_ETA</span> <span class="o">=</span> <span class="n">NPROC_ETA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEX_XI</span> <span class="o">=</span> <span class="n">NEX_XI</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEX_ETA</span> <span class="o">=</span> <span class="n">NEX_ETA</span>
+
+        <span class="c1"># GPU acceleration parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span> <span class="o">=</span> <span class="n">GPU_MODE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GPU_RUNTIME</span> <span class="o">=</span> <span class="n">GPU_RUNTIME</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GPU_PLATFORM</span> <span class="o">=</span> <span class="n">GPU_PLATFORM</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GPU_DEVICE</span> <span class="o">=</span> <span class="n">GPU_DEVICE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_version</span> <span class="o">=</span> <span class="n">gpu_version</span>
+
+        <span class="c1"># ADIOS parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_ENABLED</span> <span class="o">=</span> <span class="n">ADIOS_ENABLED</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_FORWARD_ARRAYS</span> <span class="o">=</span> <span class="n">ADIOS_FOR_FORWARD_ARRAYS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_MPI_ARRAYS</span> <span class="o">=</span> <span class="n">ADIOS_FOR_MPI_ARRAYS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_ARRAYS_SOLVER</span> <span class="o">=</span> <span class="n">ADIOS_FOR_ARRAYS_SOLVER</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_SOLVER_MESHFILES</span> <span class="o">=</span> <span class="n">ADIOS_FOR_SOLVER_MESHFILES</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_AVS_DX</span> <span class="o">=</span> <span class="n">ADIOS_FOR_AVS_DX</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_KERNELS</span> <span class="o">=</span> <span class="n">ADIOS_FOR_KERNELS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_MODELS</span> <span class="o">=</span> <span class="n">ADIOS_FOR_MODELS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_UNDO_ATTENUATION</span> <span class="o">=</span> <span class="n">ADIOS_FOR_UNDO_ATTENUATION</span>
+
+        <span class="c1"># PARAMETERS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vmodel</span> <span class="o">=</span> <span class="n">MODEL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">RECORD_LENGTH</span> <span class="o">=</span> <span class="n">RECORD_LENGTH</span>
+
+        <span class="c1"># Processing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ROTATE_SEISMOGRAMS_RT</span> <span class="o">=</span> <span class="n">ROTATE_SEISMOGRAMS_RT</span>
+
+        <span class="c1"># OUTPUT seismograms as:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WRITE_SEISMOGRAMS_BY_MASTER</span> <span class="o">=</span> <span class="n">WRITE_SEISMOGRAMS_BY_MASTER</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_SEISMOS_ASCII_TEXT</span> <span class="o">=</span> <span class="n">OUTPUT_SEISMOS_ASCII_TEXT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_SEISMOS_SAC_ALPHANUM</span> <span class="o">=</span> <span class="n">OUTPUT_SEISMOS_SAC_ALPHANUM</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_SEISMOS_SAC_BINARY</span> <span class="o">=</span> <span class="n">OUTPUT_SEISMOS_SAC_BINARY</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_SEISMOS_ASDF</span> <span class="o">=</span> <span class="n">OUTPUT_SEISMOS_ASDF</span>
+
+        <span class="c1"># Visualization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MOVIE_SURFACE</span> <span class="o">=</span> <span class="n">MOVIE_SURFACE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MOVIE_VOLUME</span> <span class="o">=</span> <span class="n">MOVIE_VOLUME</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MOVIE_COARSE</span> <span class="o">=</span> <span class="n">MOVIE_COARSE</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">verbose</span>
+
+        <span class="c1"># Set the directory for the batch script</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
+            <span class="s2">&quot;batch&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DATAFixer.fix_parfiles"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.runSF3D.runSF3D.DATAFixer.fix_parfiles">[docs]</a>    <span class="k">def</span> <span class="nf">fix_parfiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function changes the number of nodes within the parfile</span>
+<span class="sd">        in each subdirectory of the CMT_SIMs directory.&quot;&quot;&quot;</span>
+
+        <span class="n">parfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specfemdir</span><span class="p">,</span> <span class="s2">&quot;DATA/Par_file&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Make sure it&#39;s a global simulation:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;NCHUNKS&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
+
+        <span class="c1"># Replace elements along surface of the two sides of first chunk</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;NEX_XI&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEX_XI</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;NEX_ETA&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEX_ETA</span><span class="p">)</span>
+
+        <span class="c1"># Replace number of MPI processors along the two sides of the first</span>
+        <span class="c1"># chunk</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;NPROC_XI&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NPROC_XI</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;NPROC_ETA&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NPROC_ETA</span><span class="p">)</span>
+
+        <span class="c1"># Check whether velocity model has to change</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmodel</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;transversely_isotropic_prem_plus_3D_crust_2.0&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;3D_anisotropic&quot;</span><span class="p">,</span> <span class="s2">&quot;3D_attenuation&quot;</span><span class="p">,</span> <span class="s2">&quot;s20rts&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s40rts&quot;</span><span class="p">,</span> <span class="s2">&quot;s362ani&quot;</span><span class="p">,</span> <span class="s2">&quot;s362iso&quot;</span><span class="p">,</span> <span class="s2">&quot;s362wmani&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s362ani_prem&quot;</span><span class="p">,</span> <span class="s2">&quot;s362ani_3DQ&quot;</span><span class="p">,</span> <span class="s2">&quot;s362iso_3DQ&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s29ea&quot;</span><span class="p">,</span> <span class="s2">&quot;sea99_jp3d1994&quot;</span><span class="p">,</span> <span class="s2">&quot;sea99&quot;</span><span class="p">,</span> <span class="s2">&quot;jp3d1994&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;heterogen&quot;</span><span class="p">,</span> <span class="s2">&quot;full_sh&quot;</span><span class="p">,</span> <span class="s2">&quot;sgloberani_aniso&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sgloberani_iso&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong velocity model name. Existing model is&quot;</span>
+                             <span class="s2">&quot; used.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;MODEL&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmodel</span><span class="p">)</span>
+
+        <span class="c1"># Replace RECORD_LENGTH_IN_MINUTES</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;RECORD_LENGTH_IN_MINUTES&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.0d0&quot;</span> <span class="o">%</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">RECORD_LENGTH</span><span class="p">)</span>
+
+        <span class="c1"># Processing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;ROTATE_SEISMOGRAMS_RT&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ROTATE_SEISMOGRAMS_RT</span><span class="p">)</span>
+
+        <span class="c1"># OUTPUT seismograms as:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;WRITE_SEISMOGRAMS_BY_MASTER&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">WRITE_SEISMOGRAMS_BY_MASTER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;OUTPUT_SEISMOS_ASCII_TEXT&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_SEISMOS_ASCII_TEXT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;OUTPUT_SEISMOS_SAC_ALPHANUM&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_SEISMOS_SAC_ALPHANUM</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;OUTPUT_SEISMOS_SAC_BINARY&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_SEISMOS_SAC_BINARY</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;OUTPUT_SEISMOS_ASDF&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_SEISMOS_ASDF</span><span class="p">)</span>
+
+        <span class="c1"># Visualization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;MOVIE_SURFACE&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MOVIE_SURFACE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;MOVIE_VOLUME&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MOVIE_VOLUME</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;MOVIE_COARSE&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MOVIE_COARSE</span><span class="p">)</span>
+
+        <span class="c1"># Acceleration parameters supported</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;GPU_MODE&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;GPU_RUNTIME&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPU_RUNTIME</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;GPU_PLATFORM&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPU_PLATFORM</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;GPU_DEVICE&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPU_DEVICE</span><span class="p">)</span>
+
+        <span class="c1"># ADIOS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;ADIOS_ENABLED&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_ENABLED</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;ADIOS_FOR_MPI_ARRAYS&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_MPI_ARRAYS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;ADIOS_FOR_ARRAYS_SOLVER&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_ARRAYS_SOLVER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;ADIOS_FOR_SOLVER_MESHFILES&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_SOLVER_MESHFILES</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;ADIOS_FOR_AVS_DX&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_AVS_DX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;ADIOS_FOR_KERNELS&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_KERNELS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;ADIOS_FOR_MODELS&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_MODELS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_varval</span><span class="p">(</span><span class="n">parfile</span><span class="p">,</span> <span class="s2">&quot;ADIOS_FOR_UNDO_ATTENUATION&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ADIOS_FOR_UNDO_ATTENUATION</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DATAFixer.configure_and_make"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.runSF3D.runSF3D.DATAFixer.configure_and_make">[docs]</a>    <span class="k">def</span> <span class="nf">configure_and_make</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Configures specfem and runs &#39;make all&#39; in the specfemdirectory.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GPU mode!&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create configuration command</span>
+            <span class="n">configure_script</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span><span class="p">,</span> <span class="s2">&quot;configure_GPU.sh&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create command compilation command</span>
+            <span class="n">bashCommand</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &#39;</span><span class="si">%s</span><span class="s2">&#39; </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> \
+                          <span class="o">%</span> <span class="p">(</span><span class="n">configure_script</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">specfemdir</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">mpif90</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">f90</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">cpp</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">mpicc</span><span class="p">,</span>
+                             <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">),</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">gpu_module</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">gpu_version</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CPU mode!&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create configuration command</span>
+            <span class="n">configure_script</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span><span class="p">,</span> <span class="s2">&quot;configure.sh&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create command compilation command</span>
+            <span class="n">bashCommand</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> \
+                          <span class="o">%</span> <span class="p">(</span><span class="n">configure_script</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">specfemdir</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">mpif90</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">f90</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">cpp</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">mpicc</span><span class="p">,</span>
+                             <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+            <span class="c1"># Send command</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">),</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Send command</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">),</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                                     <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+
+        <span class="c1"># catch outputs</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Command has been sent.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Errors:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Compilation DONE!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DATAFixer.run_mesher"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.runSF3D.runSF3D.DATAFixer.run_mesher">[docs]</a>    <span class="k">def</span> <span class="nf">run_mesher</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function runs the mesher after &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GPU mode!&quot;</span><span class="p">)</span>
+
+            <span class="c1"># batch driver script</span>
+            <span class="n">batchscript</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span><span class="p">,</span> <span class="s2">&quot;mesh_GPU.sbatch&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create command -N nodes, -n tasks, -D change directory</span>
+            <span class="n">bashCommand</span> <span class="o">=</span> <span class="s2">&quot;sbatch -N </span><span class="si">%s</span><span class="s2"> -n </span><span class="si">%s</span><span class="s2"> --ntasks-per-node </span><span class="si">%s</span><span class="s2"> -D </span><span class="si">%s</span><span class="s2"> -t &quot;</span> \
+                          <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> --gres=gpu:</span><span class="si">%s</span><span class="s2"> -p pReserved </span><span class="si">%s</span><span class="s2">&quot;</span> \
+                          <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">tasks_per_node</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">specfemdir</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">walltime</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">tasks_per_node</span><span class="p">,</span>
+                             <span class="n">batchscript</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CPU mode!&quot;</span><span class="p">)</span>
+
+            <span class="c1"># batch driver script</span>
+            <span class="n">batchscript</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span><span class="p">,</span> <span class="s2">&quot;mesh.sbatch&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create command -N nodes, -n tasks, -D change directory</span>
+            <span class="n">bashCommand</span> <span class="o">=</span> <span class="s2">&quot;sbatch -N </span><span class="si">%s</span><span class="s2"> -n </span><span class="si">%s</span><span class="s2"> -D </span><span class="si">%s</span><span class="s2"> -t </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> \
+                          <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">specfemdir</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">walltime</span><span class="p">,</span>
+                             <span class="n">batchscript</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+            <span class="c1"># Send command</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">),</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Send command</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">),</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                                     <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+
+        <span class="c1"># catch outputs</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Command has been sent.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Errors:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Meshing SUBMITTED!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DATAFixer.run_solver"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.runSF3D.runSF3D.DATAFixer.run_solver">[docs]</a>    <span class="k">def</span> <span class="nf">run_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function runs the solver within the&quot;&quot;&quot;</span>
+
+        <span class="c1"># Check of solver runtime is set</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GPU_MODE</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GPU mode!&quot;</span><span class="p">)</span>
+
+            <span class="c1"># batch driver script</span>
+            <span class="n">batchscript</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span><span class="p">,</span> <span class="s2">&quot;solver_GPU.sbatch&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create command -N nodes, -n tasks, -D change directory</span>
+            <span class="n">bashCommand</span> <span class="o">=</span> <span class="s2">&quot;sbatch -N </span><span class="si">%s</span><span class="s2"> -n </span><span class="si">%s</span><span class="s2"> --ntasks-per-node </span><span class="si">%s</span><span class="s2"> -D </span><span class="si">%s</span><span class="s2"> &quot;</span> \
+                          <span class="s2">&quot;-t </span><span class="si">%s</span><span class="s2"> --mem </span><span class="si">%s</span><span class="s2"> --gres=gpu:</span><span class="si">%s</span><span class="s2"> -p pReserved </span><span class="si">%s</span><span class="s2">&quot;</span> \
+                          <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">tasks_per_node</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">specfemdir</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">walltime_solver</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">memory_req</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">tasks_per_node</span><span class="p">,</span>
+                             <span class="n">batchscript</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># batch driver script</span>
+            <span class="n">batchscript</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batchdir</span><span class="p">,</span> <span class="s2">&quot;solver.sbatch&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create command -N nodes, -n tasks, -D change directory</span>
+            <span class="n">bashCommand</span> <span class="o">=</span> <span class="s2">&quot;sbatch -N </span><span class="si">%s</span><span class="s2"> -n </span><span class="si">%s</span><span class="s2"> -D </span><span class="si">%s</span><span class="s2"> -t </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> \
+                          <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">specfemdir</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">walltime_solver</span><span class="p">,</span>
+                             <span class="n">batchscript</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+            <span class="c1"># Send command</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">),</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Send command</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">),</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                                     <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+
+        <span class="c1"># catch outputs</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">bashCommand</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Command has been sent.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Errors:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DATAFixer.replace_varval"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.runSF3D.runSF3D.DATAFixer.replace_varval">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">replace_varval</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">newval</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This function updates the value of a function within a text file</span>
+
+<span class="sd">        !Note! That this file is customized to change the specfem `Par_file`,</span>
+<span class="sd">               Meaning, if newval is `True` or `False` it will be replaced with</span>
+<span class="sd">               `.true.` or `.false` respectively.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            var: variable name -- string</span>
+<span class="sd">            newval: new variable value, string, number or list</span>
+
+<span class="sd">        Throws and error if variable doesnt exist or has multiple definitions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span>
+        <span class="n">content_lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Specfem Par_file modification:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">newval</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">newval</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">newval</span> <span class="o">=</span> <span class="s1">&#39;.true.&#39;</span>
+            <span class="k">elif</span> <span class="n">newval</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">newval</span> <span class="o">=</span> <span class="s1">&#39;.false.&#39;</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+            <span class="c1"># more robust than simple string comparison</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot; *&quot;</span> <span class="o">+</span> <span class="n">var</span> <span class="o">+</span> <span class="s2">&quot; *=&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># Split the line into to at the equal sign</span>
+                <span class="n">line_components</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+
+                <span class="c1"># set the value of the line again</span>
+                <span class="n">line_components</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">newval</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">updated_line</span> <span class="o">=</span> <span class="s2">&quot;= &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line_components</span><span class="p">)</span>
+                <span class="n">content_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">updated_line</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">content_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="c1"># Check whether variable is in file or has multiple definitions</span>
+        <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Variable not in file.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">counter</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Variable is defined in multiple places. Cannot &quot;</span>
+                             <span class="s2">&quot;overwrite.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">truncate</span><span class="p">()</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">content_lines</span><span class="p">)</span>
+
+        <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DATAFixer.get_val"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.runSF3D.runSF3D.DATAFixer.get_val">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_val</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Function searches file for variable and returns that value as a</span>
+<span class="sd">        string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: string</span>
+<span class="sd">            var: string</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            val</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+            <span class="c1"># more robust than simple string comparison</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot; *&quot;</span> <span class="o">+</span> <span class="n">var</span> <span class="o">+</span> <span class="s1">&#39; *=&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># Split the line into to at the equal sign</span>
+                <span class="n">line_components</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+
+                <span class="c1"># set the value of the line again</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">line_components</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Check whether variable is in file or has multiple definitions</span>
+        <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Variable not in file.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">counter</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Variable is defined in multiple places. Cannot &quot;</span>
+                             <span class="s2">&quot;overwrite.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">val</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

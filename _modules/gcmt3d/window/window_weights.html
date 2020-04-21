@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>gcmt3d.window.window_weights &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/windowing.html">Windowing of the observed and synthetic traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/hdf5_and_h5py.html">Installation of hdf5 and h5py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/gcmt3dAPI.html">GCMT3D API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/workflowAPI.html">EnTK Workflow API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/workflowAPI.html#workflow-components">Workflow components</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>gcmt3d.window.window_weights</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for gcmt3d.window.window_weights</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env pythoiin</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculate the adjoint source weighting based on the station and source</span>
+<span class="sd">distribution.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Wenjie Lei (lei@princeton.edu), 2016</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU Lesser General Public License, version 3 (LGPLv3)</span>
+<span class="sd">    (http://www.gnu.org/licenses/lgpl-3.0.en.html)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="kn">from</span> <span class="nn">spaceweight</span> <span class="kn">import</span> <span class="n">SpherePoint</span>
+<span class="kn">from</span> <span class="nn">spaceweight</span> <span class="kn">import</span> <span class="n">SphereDistRel</span>
+<span class="kn">from</span> <span class="nn">gcmt3d.utils.io</span> <span class="kn">import</span> <span class="n">check_dict_keys</span><span class="p">,</span> <span class="n">load_json</span>
+
+
+<span class="k">def</span> <span class="nf">_receiver_validator</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">rec_wcounts</span><span class="p">,</span> <span class="n">cat_wcounts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate the receiver weights, and make sure it sums to</span>
+<span class="sd">    category window counts.</span>
+
+<span class="sd">    :param weights:</span>
+<span class="sd">    :param rec_wcounts:</span>
+<span class="sd">    :param cat_wcounts:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wsum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">chan</span><span class="p">,</span> <span class="n">chan_weight</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">nwin</span> <span class="o">=</span> <span class="n">rec_wcounts</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span>
+        <span class="n">wsum</span> <span class="o">+=</span> <span class="n">chan_weight</span> <span class="o">*</span> <span class="n">nwin</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Summation of (rec_weights * rec_nwins): </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">wsum</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">wsum</span><span class="p">,</span> <span class="n">cat_wcounts</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;receiver validator fails: </span><span class="si">%f</span><span class="s2">, </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">wsum</span><span class="p">,</span> <span class="n">cat_wcounts</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="calculate_receiver_window_counts"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.window.window_weights.calculate_receiver_window_counts">[docs]</a><span class="k">def</span> <span class="nf">calculate_receiver_window_counts</span><span class="p">(</span><span class="n">windows</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given windows, count them based on receiver level and category</span>
+<span class="sd">    (component) level.</span>
+
+<span class="sd">    :param windows:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rec_wcounts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">cat_wcounts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">sta</span><span class="p">,</span> <span class="n">sta_window</span> <span class="ow">in</span> <span class="n">windows</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">chan</span><span class="p">,</span> <span class="n">chan_win</span> <span class="ow">in</span> <span class="n">sta_window</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">comp</span> <span class="o">=</span> <span class="n">chan</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">nwin</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chan_win</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nwin</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">rec_wcounts</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="n">chan</span><span class="p">]</span> <span class="o">=</span> <span class="n">nwin</span>
+            <span class="n">cat_wcounts</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">+=</span> <span class="n">nwin</span>
+
+    <span class="k">return</span> <span class="n">rec_wcounts</span><span class="p">,</span> <span class="n">cat_wcounts</span></div>
+
+
+<div class="viewcode-block" id="assign_receiver_to_points"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.window.window_weights.assign_receiver_to_points">[docs]</a><span class="k">def</span> <span class="nf">assign_receiver_to_points</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="n">stations</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assign the receiver information to SpherePoint</span>
+
+<span class="sd">    :param rec_wcounts:</span>
+<span class="sd">    :param stations:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">:</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="n">chan</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">component</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+            <span class="c1"># it is important to set the default weight value to</span>
+            <span class="c1"># 1.0 here. Becuase if there is no receiver weightings,</span>
+            <span class="c1"># then this default weights will be used</span>
+            <span class="n">point</span> <span class="o">=</span> <span class="n">SpherePoint</span><span class="p">(</span><span class="n">stations</span><span class="p">[</span><span class="n">chan</span><span class="p">][</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                                <span class="n">stations</span><span class="p">[</span><span class="n">chan</span><span class="p">][</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                                <span class="n">tag</span><span class="o">=</span><span class="n">chan</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># for R and T component. In station file, there</span>
+            <span class="c1"># are only `EN` or `12`</span>
+            <span class="n">echan</span> <span class="o">=</span> <span class="n">chan</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;E&quot;</span>
+            <span class="n">chan1</span> <span class="o">=</span> <span class="n">chan</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;1&quot;</span>
+            <span class="n">zchan</span> <span class="o">=</span> <span class="n">chan</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;Z&quot;</span>
+
+            <span class="k">if</span> <span class="n">echan</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="n">SpherePoint</span><span class="p">(</span><span class="n">stations</span><span class="p">[</span><span class="n">echan</span><span class="p">][</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                                    <span class="n">stations</span><span class="p">[</span><span class="n">echan</span><span class="p">][</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                                    <span class="n">tag</span><span class="o">=</span><span class="n">chan</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">chan1</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="n">SpherePoint</span><span class="p">(</span><span class="n">stations</span><span class="p">[</span><span class="n">chan1</span><span class="p">][</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                                    <span class="n">stations</span><span class="p">[</span><span class="n">chan1</span><span class="p">][</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                                    <span class="n">tag</span><span class="o">=</span><span class="n">chan</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">zchan</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="n">SpherePoint</span><span class="p">(</span><span class="n">stations</span><span class="p">[</span><span class="n">zchan</span><span class="p">][</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                                    <span class="n">stations</span><span class="p">[</span><span class="n">zchan</span><span class="p">][</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                                    <span class="n">tag</span><span class="o">=</span><span class="n">chan</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t find station information(</span><span class="si">%s</span><span class="s2">)&quot;</span>
+                                 <span class="o">%</span> <span class="p">(</span><span class="n">chan</span><span class="p">))</span>
+        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">points</span></div>
+
+
+<div class="viewcode-block" id="get_receiver_weights"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.window.window_weights.get_receiver_weights">[docs]</a><span class="k">def</span> <span class="nf">get_receiver_weights</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">max_ratio</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">figname_prefix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the receiver weights given receiver(points) distribution.</span>
+
+<span class="sd">    :param component:</span>
+<span class="sd">    :param center:</span>
+<span class="sd">    :param points:</span>
+<span class="sd">    :param max_ratio:</span>
+<span class="sd">    :param plot:</span>
+<span class="sd">    :param figname_prefix:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># calculate weight; otherwise, leave it as default value(1)</span>
+    <span class="n">weightobj</span> <span class="o">=</span> <span class="n">SphereDistRel</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">scan_figname</span> <span class="o">=</span> <span class="n">figname_prefix</span> <span class="o">+</span> <span class="s2">&quot;.</span><span class="si">%s</span><span class="s2">.smart_scan.png&quot;</span> <span class="o">%</span> <span class="n">component</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scan_figname</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">ref_distance</span><span class="p">,</span> <span class="n">cond_number</span> <span class="o">=</span> <span class="n">weightobj</span><span class="o">.</span><span class="n">smart_scan</span><span class="p">(</span>
+        <span class="n">max_ratio</span><span class="o">=</span><span class="n">max_ratio</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">gap</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">drop_ratio</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span>
+        <span class="n">figname</span><span class="o">=</span><span class="n">scan_figname</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">map_figname</span> <span class="o">=</span> <span class="n">figname_prefix</span> <span class="o">+</span> <span class="s2">&quot;.</span><span class="si">%s</span><span class="s2">.weight.pdf&quot;</span> <span class="o">%</span> <span class="n">component</span>
+        <span class="n">weightobj</span><span class="o">.</span><span class="n">plot_global_map</span><span class="p">(</span><span class="n">figname</span><span class="o">=</span><span class="n">map_figname</span><span class="p">,</span> <span class="n">lon0</span><span class="o">=</span><span class="mf">180.0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ref_distance</span><span class="p">,</span> <span class="n">cond_number</span></div>
+
+
+<div class="viewcode-block" id="normalize_receiver_weights"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.window.window_weights.normalize_receiver_weights">[docs]</a><span class="k">def</span> <span class="nf">normalize_receiver_weights</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">wcounts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize the receiver weights</span>
+
+<span class="sd">    :param points:</span>
+<span class="sd">    :param rec_wcounts:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wsum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">nwins_total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+        <span class="n">nwin</span> <span class="o">=</span> <span class="n">wcounts</span><span class="p">[</span><span class="n">point</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span>
+        <span class="n">nwins_total</span> <span class="o">+=</span> <span class="n">nwin</span>
+        <span class="n">wsum</span> <span class="o">+=</span> <span class="n">point</span><span class="o">.</span><span class="n">weight</span> <span class="o">*</span> <span class="n">nwin</span>
+    <span class="n">norm_factor</span> <span class="o">=</span> <span class="n">nwins_total</span> <span class="o">/</span> <span class="n">wsum</span>
+
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+        <span class="n">weights</span><span class="p">[</span><span class="n">point</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">weight</span> <span class="o">*</span> <span class="n">norm_factor</span>
+
+    <span class="k">return</span> <span class="n">weights</span></div>
+
+
+<div class="viewcode-block" id="determine_receiver_weighting"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.window.window_weights.determine_receiver_weighting">[docs]</a><span class="k">def</span> <span class="nf">determine_receiver_weighting</span><span class="p">(</span>
+        <span class="n">src</span><span class="p">,</span> <span class="n">stations</span><span class="p">,</span> <span class="n">windows</span><span class="p">,</span> <span class="n">search_ratio</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span> <span class="n">weight_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">plot_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">figname_prefix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given one station and window information, determine the receiver</span>
+<span class="sd">    weighting</span>
+<span class="sd">    In one asdf file, there are still 3 components, for example,</span>
+<span class="sd">    [&quot;BHR&quot;, &quot;BHT&quot;, &quot;BHZ&quot;]. These three components should be treated</span>
+<span class="sd">    indepandently and weights will be calculated independantly.</span>
+
+<span class="sd">    :return: dict of weights which contains 3 components. Each components</span>
+<span class="sd">        contains weights values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">SpherePoint</span><span class="p">(</span><span class="n">src</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span> <span class="n">src</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                         <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;source&quot;</span><span class="p">)</span>
+
+    <span class="n">rec_wcounts</span><span class="p">,</span> <span class="n">cat_wcounts</span> <span class="o">=</span> <span class="n">calculate_receiver_window_counts</span><span class="p">(</span><span class="n">windows</span><span class="p">)</span>
+
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># in each components, calculate weight</span>
+    <span class="n">ref_dists</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">cond_nums</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">comp_info</span> <span class="ow">in</span> <span class="n">rec_wcounts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Component: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">comp</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">assign_receiver_to_points</span><span class="p">(</span><span class="n">comp_info</span><span class="p">,</span> <span class="n">stations</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of receivers: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of windows: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cat_wcounts</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">weight_flag</span><span class="p">:</span>
+            <span class="n">ref_dists</span><span class="p">[</span><span class="n">comp</span><span class="p">],</span> <span class="n">cond_nums</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">get_receiver_weights</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">search_ratio</span><span class="p">,</span>
+                                     <span class="n">plot</span><span class="o">=</span><span class="n">plot_flag</span><span class="p">,</span>
+                                     <span class="n">figname_prefix</span><span class="o">=</span><span class="n">figname_prefix</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if not weight the receiver, then just leave the weight</span>
+            <span class="c1"># values all to the default values(1.0). Leave the ref_dists</span>
+            <span class="c1"># and cond_nums to None since there is no weighting</span>
+            <span class="c1"># procedures. However, normalization still needs to be</span>
+            <span class="c1"># applied later.</span>
+            <span class="n">ref_dists</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">cond_nums</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># normlalize the receiver weights according to the reciever</span>
+        <span class="c1"># window counts(normalization requirements)</span>
+        <span class="n">weights</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize_receiver_weights</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">rec_wcounts</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+
+        <span class="n">_receiver_validator</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="n">comp</span><span class="p">],</span> <span class="n">rec_wcounts</span><span class="p">[</span><span class="n">comp</span><span class="p">],</span>
+                            <span class="n">cat_wcounts</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;rec_weights&quot;</span><span class="p">:</span> <span class="n">weights</span><span class="p">,</span> <span class="s2">&quot;rec_wcounts&quot;</span><span class="p">:</span> <span class="n">rec_wcounts</span><span class="p">,</span>
+            <span class="s2">&quot;cat_wcounts&quot;</span><span class="p">:</span> <span class="n">cat_wcounts</span><span class="p">,</span> <span class="s2">&quot;rec_ref_dists&quot;</span><span class="p">:</span> <span class="n">ref_dists</span><span class="p">,</span>
+            <span class="s2">&quot;rec_cond_nums&quot;</span><span class="p">:</span> <span class="n">cond_nums</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="calculate_receiver_weights_interface"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.window.window_weights.calculate_receiver_weights_interface">[docs]</a><span class="k">def</span> <span class="nf">calculate_receiver_weights_interface</span><span class="p">(</span>
+        <span class="n">src_info</span><span class="p">,</span> <span class="n">path_info</span><span class="p">,</span> <span class="n">weighting_param</span><span class="p">,</span> <span class="n">_verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The user interface(API) for calculation the receiver weighting</span>
+<span class="sd">    in pypaw</span>
+
+<span class="sd">    :param src_info: keys contains [&quot;latitude&quot;, &quot;longitude&quot;]</span>
+<span class="sd">    :type src_info: dict</span>
+<span class="sd">    :param path_info: keys contains [&quot;station_file&quot;, &quot;window_file&quot;,</span>
+<span class="sd">        &quot;output_file&quot;]</span>
+<span class="sd">    :type path_info: dict</span>
+<span class="sd">    :param weighting_param: keys contains [&quot;flag&quot;, &quot;plot&quot;, &quot;search_ratio&quot;]</span>
+<span class="sd">    :type weighting_param: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">check_dict_keys</span><span class="p">(</span><span class="n">src_info</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;depth_in_m&quot;</span><span class="p">])</span>
+    <span class="n">check_dict_keys</span><span class="p">(</span><span class="n">path_info</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;station_file&quot;</span><span class="p">,</span> <span class="s2">&quot;window_file&quot;</span><span class="p">,</span> <span class="s2">&quot;output_file&quot;</span><span class="p">])</span>
+    <span class="n">check_dict_keys</span><span class="p">(</span><span class="n">weighting_param</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">,</span> <span class="s2">&quot;plot&quot;</span><span class="p">,</span> <span class="s2">&quot;search_ratio&quot;</span><span class="p">])</span>
+
+    <span class="n">search_ratio</span> <span class="o">=</span> <span class="n">weighting_param</span><span class="p">[</span><span class="s2">&quot;search_ratio&quot;</span><span class="p">]</span>
+    <span class="n">plot_flag</span> <span class="o">=</span> <span class="n">weighting_param</span><span class="p">[</span><span class="s2">&quot;plot&quot;</span><span class="p">]</span>
+    <span class="n">weight_flag</span> <span class="o">=</span> <span class="n">weighting_param</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span>
+    <span class="c1"># each file still contains 3-component</span>
+    <span class="k">if</span> <span class="n">_verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;src_info: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">src_info</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;path_info:&quot;</span><span class="p">)</span>
+        <span class="n">pprint</span><span class="p">(</span><span class="n">path_info</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;weighting param:&quot;</span><span class="p">)</span>
+        <span class="n">pprint</span><span class="p">(</span><span class="n">weighting_param</span><span class="p">)</span>
+
+    <span class="n">station_info</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">path_info</span><span class="p">[</span><span class="s2">&quot;station_file&quot;</span><span class="p">])</span>
+    <span class="n">window_info</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">path_info</span><span class="p">[</span><span class="s2">&quot;window_file&quot;</span><span class="p">])</span>
+
+    <span class="n">outputdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path_info</span><span class="p">[</span><span class="s2">&quot;output_file&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">outputdir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">outputdir</span><span class="p">)</span>
+    <span class="n">figname_prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputdir</span><span class="p">,</span> <span class="s2">&quot;weights&quot;</span><span class="p">)</span>
+
+    <span class="n">_results</span> <span class="o">=</span> <span class="n">determine_receiver_weighting</span><span class="p">(</span>
+        <span class="n">src_info</span><span class="p">,</span> <span class="n">station_info</span><span class="p">,</span> <span class="n">window_info</span><span class="p">,</span>
+        <span class="n">search_ratio</span><span class="o">=</span><span class="n">search_ratio</span><span class="p">,</span>
+        <span class="n">weight_flag</span><span class="o">=</span><span class="n">weight_flag</span><span class="p">,</span>
+        <span class="n">plot_flag</span><span class="o">=</span><span class="n">plot_flag</span><span class="p">,</span> <span class="n">figname_prefix</span><span class="o">=</span><span class="n">figname_prefix</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_results</span></div>
+
+
+<span class="k">def</span> <span class="nf">_category_validator</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">wcounts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate the category weights</span>
+
+<span class="sd">    :param weights:</span>
+<span class="sd">    :param counts:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wsum</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">nwins_total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">pinfo</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
+            <span class="n">wsum</span> <span class="o">+=</span> <span class="n">weights</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">*</span> <span class="n">wcounts</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+            <span class="n">nwins_total</span> <span class="o">+=</span> <span class="n">wcounts</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Summation of (cat_weight * cat_nwins): </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">wsum</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">wsum</span><span class="p">,</span> <span class="n">nwins_total</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Category validator fails: </span><span class="si">%f</span><span class="s2">, </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">wsum</span><span class="p">,</span> <span class="n">nwins_total</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="normalize_category_weights"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.window.window_weights.normalize_category_weights">[docs]</a><span class="k">def</span> <span class="nf">normalize_category_weights</span><span class="p">(</span><span class="n">category_ratio</span><span class="p">,</span> <span class="n">cat_wcounts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;category ratio:&quot;</span><span class="p">)</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">category_ratio</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;category window counts:&quot;</span><span class="p">)</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">cat_wcounts</span><span class="p">)</span>
+    <span class="n">sumv</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">nwins_total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">pinfo</span> <span class="ow">in</span> <span class="n">cat_wcounts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
+            <span class="n">sumv</span> <span class="o">+=</span> <span class="n">cat_wcounts</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">*</span> <span class="n">category_ratio</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+            <span class="n">nwins_total</span> <span class="o">+=</span> <span class="n">cat_wcounts</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">nwins_total</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">sumv</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">normc</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">normc</span> <span class="o">=</span> <span class="n">nwins_total</span> <span class="o">/</span> <span class="n">sumv</span>
+
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">pinfo</span> <span class="ow">in</span> <span class="n">cat_wcounts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">weights</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
+            <span class="n">weights</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">normc</span> <span class="o">*</span> <span class="n">category_ratio</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">weights</span></div>
+
+
+<div class="viewcode-block" id="check_category_ratio_consistency"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.window.window_weights.check_category_ratio_consistency">[docs]</a><span class="k">def</span> <span class="nf">check_category_ratio_consistency</span><span class="p">(</span><span class="n">cat_weight_ratio</span><span class="p">,</span> <span class="n">cat_wcounts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    check the category weighting ratio(provide by user) has</span>
+<span class="sd">    the same period band and component as in read seismic</span>
+<span class="sd">    data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># check consistency</span>
+    <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">pinfo</span> <span class="ow">in</span> <span class="n">cat_weight_ratio</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pinfo</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">cat_wcounts</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">err</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Missing </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;category weighting ratio information is not &quot;</span>
+                         <span class="s2">&quot;consistent with window information&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="calculate_category_weights_interface"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.window.window_weights.calculate_category_weights_interface">[docs]</a><span class="k">def</span> <span class="nf">calculate_category_weights_interface</span><span class="p">(</span><span class="n">category_param</span><span class="p">,</span> <span class="n">cat_wcounts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    User interface(API) for calculating category weights</span>
+
+<span class="sd">    Calculate the category weighting based on window counts</span>
+<span class="sd">    in each category. The weighting ratios for different categoies</span>
+<span class="sd">    are input parameters. So this function only normlizes</span>
+<span class="sd">    the weights without change the ratio.</span>
+<span class="sd">    !!! WARNING !!!</span>
+<span class="sd">    It is the ratio between different categories, not the window</span>
+<span class="sd">    counts. For example, the value will be mostly likely to be</span>
+<span class="sd">    set to 1/N_w(for windows, less weights to balance categories)</span>
+
+<span class="sd">    :param weight_param: user parameter, which contains the weighting</span>
+<span class="sd">        ratio for each category.</span>
+<span class="sd">    :type weight_param: dict</span>
+<span class="sd">    :param cat_wcounts: category window counts, which should contains</span>
+<span class="sd">        the same period band as category_param[&#39;ratio&#39;]</span>
+<span class="sd">    :type cat_wcounts: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">check_dict_keys</span><span class="p">(</span><span class="n">category_param</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">,</span> <span class="s2">&quot;ratio&quot;</span><span class="p">])</span>
+    <span class="n">check_category_ratio_consistency</span><span class="p">(</span><span class="n">category_param</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">],</span> <span class="n">cat_wcounts</span><span class="p">)</span>
+
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">normalize_category_weights</span><span class="p">(</span>
+        <span class="n">category_param</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">],</span> <span class="n">cat_wcounts</span><span class="p">)</span>
+    <span class="n">_category_validator</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">cat_wcounts</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Final category weights:&quot;</span><span class="p">)</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">weights</span></div>
+
+
+<div class="viewcode-block" id="combine_receiver_and_category_weights"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.window.window_weights.combine_receiver_and_category_weights">[docs]</a><span class="k">def</span> <span class="nf">combine_receiver_and_category_weights</span><span class="p">(</span><span class="n">rec_weights</span><span class="p">,</span> <span class="n">cat_weights</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Combine weights for receiver weighting and category weighting</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># combine weights</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">period</span><span class="p">,</span> <span class="n">period_info</span> <span class="ow">in</span> <span class="n">rec_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">weights</span><span class="p">[</span><span class="n">period</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">comp_info</span> <span class="ow">in</span> <span class="n">period_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">chan_id</span> <span class="ow">in</span> <span class="n">comp_info</span><span class="p">:</span>
+                <span class="n">rec_weight</span> <span class="o">=</span> <span class="n">comp_info</span><span class="p">[</span><span class="n">chan_id</span><span class="p">]</span>
+                <span class="n">cat_weight</span> <span class="o">=</span> <span class="n">cat_weights</span><span class="p">[</span><span class="n">period</span><span class="p">][</span><span class="n">comp</span><span class="p">]</span>
+                <span class="n">_weight</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;receiver&quot;</span><span class="p">:</span> <span class="n">rec_weight</span><span class="p">,</span>
+                           <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="n">cat_weight</span><span class="p">}</span>
+                <span class="n">_weight</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="n">rec_weight</span> <span class="o">*</span> <span class="n">cat_weight</span>
+                <span class="n">weights</span><span class="p">[</span><span class="n">period</span><span class="p">][</span><span class="n">chan_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_weight</span>
+    <span class="k">return</span> <span class="n">weights</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
