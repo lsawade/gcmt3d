@@ -1,0 +1,626 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>gcmt3d.signal.rotate &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/windowing.html">Windowing of the observed and synthetic traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/hdf5_and_h5py.html">Installation of hdf5 and h5py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/gcmt3dAPI.html">GCMT3D API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/workflowAPI.html">EnTK Workflow API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/workflowAPI.html#workflow-components">Workflow components</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>gcmt3d.signal.rotate</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for gcmt3d.signal.rotate</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Methods that handles rotation of seismograms as extension to Obspy.</span>
+<span class="sd">It can rotate `12`, `EN` and `RT`, forward and backward.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Wenjie Lei (lei@princeton.edu), 2016</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU Lesser General Public License, version 3 (LGPLv3)</span>
+<span class="sd">    (http://www.gnu.org/licenses/lgpl-3.0.en.html)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">obspy.geodetics</span> <span class="kn">import</span> <span class="n">gps2dist_azimuth</span>
+<span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">Stream</span>
+<span class="kn">from</span> <span class="nn">.rotate_utils</span> <span class="kn">import</span> <span class="n">check_orthogonality</span><span class="p">,</span> <span class="n">rotate_12_rt</span>
+
+
+<div class="viewcode-block" id="calculate_baz"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.calculate_baz">[docs]</a><span class="k">def</span> <span class="nf">calculate_baz</span><span class="p">(</span><span class="n">elat</span><span class="p">,</span> <span class="n">elon</span><span class="p">,</span> <span class="n">slat</span><span class="p">,</span> <span class="n">slon</span><span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">baz</span> <span class="o">=</span> <span class="n">gps2dist_azimuth</span><span class="p">(</span><span class="n">elat</span><span class="p">,</span> <span class="n">elon</span><span class="p">,</span> <span class="n">slat</span><span class="p">,</span> <span class="n">slon</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">baz</span></div>
+
+
+<div class="viewcode-block" id="ensemble_synthetic_channel_orientation"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.ensemble_synthetic_channel_orientation">[docs]</a><span class="k">def</span> <span class="nf">ensemble_synthetic_channel_orientation</span><span class="p">(</span><span class="n">chan</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For synthetic data from SPECFEM, just ensemble the orientation</span>
+<span class="sd">    information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">orientation</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                   <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                   <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">)}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">dip</span><span class="p">,</span> <span class="n">azi</span> <span class="o">=</span> <span class="n">orientation</span><span class="p">[</span><span class="n">chan</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Orientation is not defined for synthetics&quot;</span>
+                        <span class="s2">&quot; of component: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">chan</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dip</span><span class="p">,</span> <span class="n">azi</span></div>
+
+
+<div class="viewcode-block" id="extract_channel_orientation"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.extract_channel_orientation">[docs]</a><span class="k">def</span> <span class="nf">extract_channel_orientation</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">inv</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Extract the dip and azimuth from inventory, given the trace &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">nw</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">network</span>
+        <span class="n">sta</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">station</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">location</span>
+        <span class="n">chan</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span>
+
+        <span class="k">if</span> <span class="n">loc</span> <span class="o">==</span> <span class="s2">&quot;S3&quot;</span><span class="p">:</span>
+            <span class="c1"># If channel is synthetic(from specfem), return default value</span>
+            <span class="c1"># for dip and azimuth.</span>
+            <span class="n">dip</span><span class="p">,</span> <span class="n">azi</span> <span class="o">=</span> <span class="n">ensemble_synthetic_channel_orientation</span><span class="p">(</span><span class="n">chan</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chan_inv</span> <span class="o">=</span> <span class="n">inv</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">nw</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">sta</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">loc</span><span class="p">,</span>
+                                  <span class="n">channel</span><span class="o">=</span><span class="n">chan</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dip</span><span class="p">,</span> <span class="n">azi</span> <span class="o">=</span> <span class="n">chan_inv</span><span class="o">.</span><span class="n">dip</span><span class="p">,</span> <span class="n">chan_inv</span><span class="o">.</span><span class="n">azimuth</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">errmsg</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unable to extract channel orientation information [</span><span class="si">%s</span><span class="s2">]&quot;</span>
+              <span class="s2">&quot; due to: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">errmsg</span><span class="p">))</span>
+        <span class="n">dip</span><span class="p">,</span> <span class="n">azi</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">dip</span><span class="p">,</span> <span class="n">azi</span></div>
+
+
+<div class="viewcode-block" id="extract_station_location"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.extract_station_location">[docs]</a><span class="k">def</span> <span class="nf">extract_station_location</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">inventory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the station latitude and longitude from inventory, given</span>
+<span class="sd">    stream.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nw</span> <span class="o">=</span> <span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">network</span>
+    <span class="n">station</span> <span class="o">=</span> <span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">station</span>
+    <span class="n">_inv</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">nw</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">)</span>
+    <span class="n">sta_lat</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">_inv</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span>
+    <span class="n">sta_lon</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">_inv</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sta_lat</span><span class="p">,</span> <span class="n">sta_lon</span></div>
+
+
+<div class="viewcode-block" id="check_vertical_inventory_sanity"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.check_vertical_inventory_sanity">[docs]</a><span class="k">def</span> <span class="nf">check_vertical_inventory_sanity</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">inventory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check the inventory of vertical(Z) component, check</span>
+<span class="sd">    if the abs(dip) is 90 and azimuth is 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Function only checks vertical(Z) component(</span><span class="si">%s</span><span class="s2">)&quot;</span>
+                         <span class="o">%</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">)</span>
+    <span class="n">dip</span><span class="p">,</span> <span class="n">azi</span> <span class="o">=</span> <span class="n">extract_channel_orientation</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">inventory</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dip</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">azi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">dip</span><span class="p">),</span> <span class="mf">90.0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">azi</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="check_horizontal_inventory_sanity"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.check_horizontal_inventory_sanity">[docs]</a><span class="k">def</span> <span class="nf">check_horizontal_inventory_sanity</span><span class="p">(</span><span class="n">tr1</span><span class="p">,</span> <span class="n">tr2</span><span class="p">,</span> <span class="n">inventory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check two horizontal components and see if their dip is 0</span>
+<span class="sd">    and azimuth is orthogonal to each other.</span>
+
+<span class="sd">    :param tr1:</span>
+<span class="sd">    :param tr2:</span>
+<span class="sd">    :param inventory:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tr1</span><span class="o">.</span><span class="n">id</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">tr2</span><span class="o">.</span><span class="n">id</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Two horizontal ids should share the same network,&quot;</span>
+                         <span class="s2">&quot;station, location and channel[0:2]: </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">&quot;</span>
+                         <span class="o">%</span> <span class="p">(</span><span class="n">tr1</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">tr2</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">tr1</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span> <span class="ow">or</span> <span class="n">tr2</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Functions should check two horizontal component:&quot;</span>
+                         <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tr1</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">tr2</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+    <span class="n">dip1</span><span class="p">,</span> <span class="n">azi1</span> <span class="o">=</span> <span class="n">extract_channel_orientation</span><span class="p">(</span><span class="n">tr1</span><span class="p">,</span> <span class="n">inventory</span><span class="p">)</span>
+    <span class="n">dip2</span><span class="p">,</span> <span class="n">azi2</span> <span class="o">=</span> <span class="n">extract_channel_orientation</span><span class="p">(</span><span class="n">tr2</span><span class="p">,</span> <span class="n">inventory</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dip1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">azi1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">dip2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">azi2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># check dip</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">dip1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">dip2</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># check azimuth</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">check_orthogonality</span><span class="p">(</span><span class="n">azi1</span><span class="p">,</span> <span class="n">azi2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="check_information_before_rotation"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.check_information_before_rotation">[docs]</a><span class="k">def</span> <span class="nf">check_information_before_rotation</span><span class="p">(</span><span class="n">i_1</span><span class="p">,</span> <span class="n">i_2</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="c1"># check starttime, sampling rate</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">i_1</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">i_1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_2</span><span class="p">))</span> <span class="ow">or</span> \
+            <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">i_1</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span> <span class="o">-</span> <span class="n">i_2</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">dt</span><span class="p">)</span> \
+            <span class="ow">or</span> <span class="p">(</span><span class="n">i_1</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampling_rate</span> <span class="o">!=</span> <span class="n">i_2</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;All components need to have the same time span.&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># check inventory sanity if required by user</span>
+    <span class="k">if</span> <span class="n">sanity_check</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_horizontal_inventory_sanity</span><span class="p">(</span><span class="n">i_1</span><span class="p">,</span> <span class="n">i_2</span><span class="p">,</span> <span class="n">inv</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Horizontal component are not orthogonal to &quot;</span> \
+                  <span class="s2">&quot;each other: </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i_1</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">i_2</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rotate_12_rt_func"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.rotate_12_rt_func">[docs]</a><span class="k">def</span> <span class="nf">rotate_12_rt_func</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="n">back_azimuth</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;12-&gt;RT&quot;</span><span class="p">,</span>
+                      <span class="n">sanity_check</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotate horizontal component to RT. This function works generally</span>
+<span class="sd">    for two horizontal and orthogonal components. This function</span>
+<span class="sd">    supports two method:</span>
+
+<span class="sd">    1. &quot;12-&gt;RT&quot;: which rotates &quot;12&quot; component to &quot;RT&quot;, for example,</span>
+<span class="sd">       &quot;BH1&quot; and &quot;BH2&quot; to &quot;BHR&quot; and &quot;BHT&quot;</span>
+<span class="sd">    2. &quot;NE-&gt;RT&quot;: which rotates &quot;NE&quot; component to &quot;RT&quot;, for example,</span>
+<span class="sd">       &quot;BHN&quot; and &quot;BHE&quot; to &quot;BHR&quot; and &quot;BHT&quot;</span>
+
+<span class="sd">    The reason why we use our own rotation function is because in obspy</span>
+<span class="sd">    the inventory information is not checked.</span>
+
+<span class="sd">    :param st: input stream</span>
+<span class="sd">    :param inv: station inventory information</span>
+<span class="sd">    :param method: rotation method</span>
+<span class="sd">    :param back_azimuth: back azimuth(station to event azimuth)</span>
+<span class="sd">    :return: rotated stream</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;12-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;NE-&gt;RT&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;rotate_12_rt_func only supports method:&quot;</span>
+                         <span class="s2">&quot;[&#39;12-&gt;RT&#39;, &#39;NE-&gt;RT&#39;]&quot;</span><span class="p">)</span>
+
+    <span class="n">bad_ids</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">input_components</span><span class="p">,</span> <span class="n">output_components</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&gt;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_components</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">input_1</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">input_components</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">input_2</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">input_components</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i_1</span><span class="p">,</span> <span class="n">i_2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">input_1</span><span class="p">,</span> <span class="n">input_2</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">check_information_before_rotation</span><span class="p">(</span>
+                    <span class="n">i_1</span><span class="p">,</span> <span class="n">i_2</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="n">sanity_check</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">bad_ids</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">i_1</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">i_2</span><span class="o">.</span><span class="n">id</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unable to rotate [</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">] due to: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="n">i_1</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">i_2</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">err</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="n">inc1</span><span class="p">,</span> <span class="n">azi1</span> <span class="o">=</span> <span class="n">extract_channel_orientation</span><span class="p">(</span><span class="n">i_1</span><span class="p">,</span> <span class="n">inv</span><span class="p">)</span>
+            <span class="n">inc2</span><span class="p">,</span> <span class="n">azi2</span> <span class="o">=</span> <span class="n">extract_channel_orientation</span><span class="p">(</span><span class="n">i_2</span><span class="p">,</span> <span class="n">inv</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">azi1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">azi2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">output_1</span><span class="p">,</span> <span class="n">output_2</span> <span class="o">=</span> <span class="n">rotate_12_rt</span><span class="p">(</span><span class="n">i_1</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">i_2</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">back_azimuth</span><span class="p">,</span>
+                                              <span class="n">azi1</span><span class="p">,</span> <span class="n">azi2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">output_1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output_2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">i_1</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">output_1</span>
+            <span class="n">i_2</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">output_2</span>
+            <span class="c1"># Rename the components</span>
+            <span class="n">i_1</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">i_1</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">output_components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">i_2</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">i_2</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">output_components</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># Add the azimuth back to stats object</span>
+            <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="p">(</span><span class="n">i_1</span><span class="p">,</span> <span class="n">i_2</span><span class="p">):</span>
+                <span class="n">comp</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">back_azimuth</span> <span class="o">=</span> <span class="n">back_azimuth</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong method: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">method</span><span class="p">)</span>
+
+    <span class="c1"># remove trace in bad_ids</span>
+    <span class="c1"># for bid in bad_ids:</span>
+    <span class="c1">#    st.remove(st.select(id=bid)[0])</span>
+
+    <span class="k">return</span> <span class="n">st</span></div>
+
+
+<div class="viewcode-block" id="rotate_rt_to_ne"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.rotate_rt_to_ne">[docs]</a><span class="k">def</span> <span class="nf">rotate_rt_to_ne</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">baz</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Use obspy rotate function to rotate from RT to NE &quot;&quot;&quot;</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;RT-&gt;NE&quot;</span><span class="p">,</span> <span class="n">back_azimuth</span><span class="o">=</span><span class="n">baz</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="remove_bad_z_component"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.remove_bad_z_component">[docs]</a><span class="k">def</span> <span class="nf">remove_bad_z_component</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">inventory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; remove Z component if its inventory does not meet requirements &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">check_vertical_inventory_sanity</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">inventory</span><span class="p">):</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rotate_to_rt"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.rotate_to_rt">[docs]</a><span class="k">def</span> <span class="nf">rotate_to_rt</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">baz</span><span class="p">,</span> <span class="n">inventory</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotate horizontal components(12 or NE) to RT directions.</span>
+
+<span class="sd">    :param st:</span>
+<span class="sd">    :param baz:</span>
+<span class="sd">    :param inventory:</span>
+<span class="sd">    :param mode:</span>
+<span class="sd">    :param sanity_check:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">components</span> <span class="o">=</span> <span class="p">[</span><span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">sanity_check</span><span class="p">:</span>
+        <span class="c1"># remove bad Z component</span>
+        <span class="n">remove_bad_z_component</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">inventory</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;12-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;ALL-&gt;RT&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;1&quot;</span> <span class="ow">in</span> <span class="n">components</span> <span class="ow">and</span> <span class="s2">&quot;2&quot;</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rotate_12_rt_func</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">inventory</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;12-&gt;RT&quot;</span><span class="p">,</span>
+                                  <span class="n">back_azimuth</span><span class="o">=</span><span class="n">baz</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">errmsg</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error rotating 12-&gt;RT:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">errmsg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;NE-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;ALL-&gt;RT&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;N&quot;</span> <span class="ow">in</span> <span class="n">components</span> <span class="ow">and</span> <span class="s2">&quot;E&quot;</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rotate_12_rt_func</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">inventory</span><span class="p">,</span> <span class="n">baz</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;NE-&gt;RT&quot;</span><span class="p">,</span>
+                                  <span class="n">sanity_check</span><span class="o">=</span><span class="n">sanity_check</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error rotating NE-&gt;RT:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rotate_one_station_stream"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.rotate_one_station_stream">[docs]</a><span class="k">def</span> <span class="nf">rotate_one_station_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span> <span class="n">event_longitude</span><span class="p">,</span>
+                              <span class="n">station_latitude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">station_longitude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">inventory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;NE-&gt;RT&quot;</span><span class="p">,</span>
+                              <span class="n">sanity_check</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotate the stream from the same network, station, location and channel</span>
+<span class="sd">    code, for example the stream should only contains traces whose ids are</span>
+<span class="sd">    &quot;II.AAK.00.BH*&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="n">mode_options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NE-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;ALL-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;12-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;RT-&gt;NE&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mode_options</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;rotate_stream mode(</span><span class="si">%s</span><span class="s2">) should be within </span><span class="si">%s</span><span class="s2">&quot;</span>
+                         <span class="o">%</span> <span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">mode_options</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">mode</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RT&quot;</span> <span class="ow">and</span> <span class="n">sanity_check</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;if rotating from RT to NE, then set &quot;</span>
+                         <span class="s2">&quot;sanity_check to False&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">inventory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> \
+            <span class="p">(</span><span class="n">station_latitude</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">station_longitude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You need either specify station inventory &quot;</span>
+                         <span class="s2">&quot;or station location information&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;12-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;ALL-&gt;RT&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">inventory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If you want to rotate 12, you need to specify &quot;</span>
+                         <span class="s2">&quot;station inventory&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sort_stream_by_station</span><span class="p">(</span><span class="n">st</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This method only accepts stream that contains &quot;</span>
+                         <span class="s2">&quot;one station&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">station_latitude</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">station_longitude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span> <span class="o">=</span> \
+                <span class="n">extract_station_location</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">inventory</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">errmsg</span><span class="p">:</span>
+            <span class="c1"># station_latitude and station_longitude is unknown</span>
+            <span class="c1"># so the stream should be skipped</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error extracting staiton latitude and longitude from &quot;</span>
+                  <span class="s2">&quot;staiton inventory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">errmsg</span><span class="p">)</span>
+            <span class="k">return</span>
+
+    <span class="n">baz</span> <span class="o">=</span> <span class="n">calculate_baz</span><span class="p">(</span><span class="n">event_latitude</span><span class="p">,</span> <span class="n">event_longitude</span><span class="p">,</span>
+                        <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;NE-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;12-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;ALL-&gt;RT&quot;</span><span class="p">]:</span>
+        <span class="n">rotate_to_rt</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">baz</span><span class="p">,</span> <span class="n">inventory</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="n">sanity_check</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;RT-&gt;NE&quot;</span><span class="p">]:</span>
+        <span class="n">rotate_rt_to_ne</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">baz</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">st</span></div>
+
+
+<div class="viewcode-block" id="sort_stream_by_station"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.sort_stream_by_station">[docs]</a><span class="k">def</span> <span class="nf">sort_stream_by_station</span><span class="p">(</span><span class="n">st</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sort the traces in stream. Group the traces from same network,</span>
+<span class="sd">    station, location, and channel code together</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ntotal</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+    <span class="n">sta_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">n_added</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">:</span>
+        <span class="n">nw</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">network</span>
+        <span class="n">station</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">station</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">location</span>
+        <span class="n">chan</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">station_id</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nw</span><span class="p">,</span> <span class="n">station</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="n">chan</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">station_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sta_dict</span><span class="p">:</span>
+            <span class="n">sta_dict</span><span class="p">[</span><span class="n">station_id</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">st</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">nw</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">,</span>
+                          <span class="n">location</span><span class="o">=</span><span class="n">loc</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">*&quot;</span> <span class="o">%</span> <span class="n">chan</span><span class="p">)</span>
+            <span class="n">n_added</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sta_dict</span><span class="p">[</span><span class="n">station_id</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">n_added</span> <span class="o">!=</span> <span class="n">ntotal</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sort stream by station errors: number of traces &quot;</span>
+                         <span class="s2">&quot;is inconsistent&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sta_dict</span></div>
+
+
+<div class="viewcode-block" id="rotate_stream"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.signal.rotate.rotate_stream">[docs]</a><span class="k">def</span> <span class="nf">rotate_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span> <span class="n">event_longitude</span><span class="p">,</span>
+                  <span class="n">inventory</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ALL-&gt;RT&quot;</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotate a stream to radial and transverse components based on the</span>
+<span class="sd">    station information and event information</span>
+
+<span class="sd">    :param st: input stream</span>
+<span class="sd">    :type st: obspy.Stream</span>
+<span class="sd">    :param event_latitude: event latitude</span>
+<span class="sd">    :type event_latitude: float</span>
+<span class="sd">    :param event_longitude: event longitude</span>
+<span class="sd">    :type event_longitude: float</span>
+<span class="sd">    :param inventory: station inventory information. If you want to rotate</span>
+<span class="sd">        &quot;12&quot; components, you need to provide inventory since only station</span>
+<span class="sd">        and station_longitude is not enough.</span>
+<span class="sd">    :type inventory: obspy.Inventory</span>
+<span class="sd">    :param mode: rotation mode, could be one of:</span>
+
+<span class="sd">        1. &quot;NE-&gt;RT&quot;: rotate only North and East channel to RT</span>
+<span class="sd">        2. &quot;12-&gt;RT&quot;: rotate only 1 and 2 channel, like &quot;BH1&quot; and &quot;BH2&quot; to RT</span>
+<span class="sd">        3. &quot;ALL-&gt;RT&quot;: rotate all components to RT</span>
+<span class="sd">        4. &quot;RT-&gt;NE&quot;: rotate RT to NE</span>
+
+<span class="sd">    :param sanity_check: check the sanity of inventory, mianly of the</span>
+<span class="sd">        orientation of ZNE components.</span>
+
+<span class="sd">        1. If rotating observed data from NE(12)to RT, it is recommended</span>
+<span class="sd">           to set to True; if rotating from RT to NE, then you could set</span>
+<span class="sd">           it to False;</span>
+<span class="sd">           ATTENTION: please turn it to True when processing observed</span>
+<span class="sd">           data since the instrument alignment of observed data might</span>
+<span class="sd">           be messy.</span>
+<span class="sd">        2. If rotating synthetic data, you could set it to False since</span>
+<span class="sd">           I assume for synthetic data, there should not be problem</span>
+<span class="sd">           associated with orientation.</span>
+
+<span class="sd">    :return: rotated stream(obspy.Stream)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rotated_stream</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">()</span>
+
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="n">mode_options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;NE-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;ALL-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;12-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;RT-&gt;NE&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mode_options</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;rotate_stream mode(</span><span class="si">%s</span><span class="s2">) should be within </span><span class="si">%s</span><span class="s2">&quot;</span>
+                         <span class="o">%</span> <span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">mode_options</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">mode</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RT&quot;</span> <span class="ow">and</span> <span class="n">sanity_check</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;if rotating from RT to NE, then set &quot;</span>
+                         <span class="s2">&quot;sanity_check to False&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;12-&gt;RT&quot;</span><span class="p">,</span> <span class="s2">&quot;ALL-&gt;RT&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">inventory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mode </span><span class="si">%s</span><span class="s2"> required inventory(stationxml) &quot;</span>
+                         <span class="s2">&quot;information provided(to rotate &#39;12&#39;)&quot;</span> <span class="o">%</span> <span class="n">mode</span><span class="p">)</span>
+
+    <span class="c1"># the stream might contains multiple stations so each station should</span>
+    <span class="c1"># be rotated independently, or stations with different channel,</span>
+    <span class="c1"># (for example, BH and EH), and different locations(such as</span>
+    <span class="c1"># &quot;00&quot; and &quot;10&quot;).</span>
+    <span class="n">sorted_st_dict</span> <span class="o">=</span> <span class="n">sort_stream_by_station</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">sta_stream</span> <span class="ow">in</span> <span class="n">sorted_st_dict</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="c1"># loop over stations</span>
+        <span class="n">nw</span> <span class="o">=</span> <span class="n">sta_stream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">network</span>
+        <span class="n">station</span> <span class="o">=</span> <span class="n">sta_stream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">station</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="n">sta_stream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">location</span>
+        <span class="n">chan</span> <span class="o">=</span> <span class="n">sta_stream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span>
+
+        <span class="k">if</span> <span class="n">loc</span> <span class="o">==</span> <span class="s2">&quot;S3&quot;</span> <span class="ow">or</span> <span class="n">chan</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;MX&quot;</span><span class="p">:</span>
+            <span class="c1"># SPECFEM HACK: if the synthetic is generated by SPECFEM</span>
+            <span class="c1"># and the stationxml is from read data, then the location</span>
+            <span class="c1"># won&#39;t match between synt and staxml</span>
+            <span class="n">station_inv</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">nw</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">station_inv</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">nw</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">,</span>
+                                           <span class="n">location</span><span class="o">=</span><span class="n">loc</span><span class="p">)</span>
+
+        <span class="n">_st</span> <span class="o">=</span> \
+            <span class="n">rotate_one_station_stream</span><span class="p">(</span><span class="n">sta_stream</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
+                                      <span class="n">event_longitude</span><span class="p">,</span> <span class="n">inventory</span><span class="o">=</span><span class="n">station_inv</span><span class="p">,</span>
+                                      <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="n">sanity_check</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_st</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rotated_stream</span> <span class="o">+=</span> <span class="n">_st</span>
+
+    <span class="k">return</span> <span class="n">rotated_stream</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
