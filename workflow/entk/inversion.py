@@ -913,9 +913,9 @@ def workflow(cmtfilenames, param_path):
     res_dict = {
         'resource': 'princeton.traverse',
         'schema': 'local',
-        'walltime': 1,
-        'cpus': 48,
-        'gpus': 6
+        'walltime': 5,
+        'cpus': 1,
+        #'gpus': 6
     }
 
     # Assign resource request description to the Application Manager
