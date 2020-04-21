@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Processing &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Windowing of the observed and synthetic traces" href="windowing.html" />
+    <link rel="prev" title="Conversion of the Synthetic and Observed Data to ASDF" href="conversion.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cutting-of-the-traces">Cutting of the traces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#detrend-demean-and-first-tapering">Detrend, demean, and first tapering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instrument-response-removal">Instrument response removal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filtering">Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rotation">Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sample-processing-parameter-file">Sample Processing Parameter File</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synthetic">Synthetic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Synthetic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="windowing.html">Windowing of the observed and synthetic traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5_and_h5py.html">Installation of hdf5 and h5py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gcmt3dAPI.html">GCMT3D API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflowAPI.html">EnTK Workflow API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflowAPI.html#workflow-components">Workflow components</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Processing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/chapters/processing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="processing">
+<h1>Processing<a class="headerlink" href="#processing" title="Permalink to this headline">¶</a></h1>
+<p>The inversion workflow parameters for the processing of both observed and
+synthetic data can be found in the <code class="docutils literal notranslate"><span class="pre">params</span></code> directory under
+<code class="docutils literal notranslate"><span class="pre">ProcessObserved</span></code> and <code class="docutils literal notranslate"><span class="pre">ProcessSynthetic</span></code>, respectively. The main
+difference between the two is the removal of the instrument response for the
+observed traces. The rest of the processing steps are the same.</p>
+<p>The following steps in the processing are governed by an <code class="docutils literal notranslate"><span class="pre">ASDF</span></code> processing
+workflow which in turn is run using the <code class="docutils literal notranslate"><span class="pre">ProcASDF</span></code> <code class="docutils literal notranslate"><span class="pre">class</span></code> which is
+included in the <code class="docutils literal notranslate"><span class="pre">GCMT3D</span></code> package. The <code class="docutils literal notranslate"><span class="pre">ProcASDF</span></code> <code class="docutils literal notranslate"><span class="pre">class</span></code>, much like the
+in the conversion process, takes in a path file containing the paths to the
+following files:</p>
+<ul class="simple">
+<li><p>path to the input file</p></li>
+<li><p>input tag (ASDF)</p></li>
+<li><p>path to the output file</p></li>
+<li><p>output tag (ASDF)</p></li>
+<li><p>path to processing parameter file</p></li>
+</ul>
+<p>A standard processing path file has the following content.</p>
+<div class="section" id="cutting-of-the-traces">
+<h2>Cutting of the traces<a class="headerlink" href="#cutting-of-the-traces" title="Permalink to this headline">¶</a></h2>
+<p>First the traces are cut into equal length. The starttime is the the CMT
+origin time and the end time is 7200 seconds later. It is important to
+download and create synthetic traces that are longer than the cutting
+parameters. Meaning, that the traces should start earlier than the start cut
+time and later than the end cut time.</p>
+</div>
+<div class="section" id="detrend-demean-and-first-tapering">
+<h2>Detrend, demean, and first tapering<a class="headerlink" href="#detrend-demean-and-first-tapering" title="Permalink to this headline">¶</a></h2>
+<p>Following the cutting, the traces are first detrended, which fixes a possible
+“ramping” trend in the recording.</p>
+<p>The next step on the agenda is demeaning.
+Seismic recordings are prone to have a slightly higher or lower mean. This
+can effect many of the following processes. A standard seismology example would
+be the estimation of the earthquake’s magnitude. If the the mean is higher
+everywhere then the power spectrum, which is often used for magnitude
+estimation, will also contain higher values. This leads to incorrect - here,
+too high - computations of the earthquake magnitude.</p>
+<p>Next, the traces are tapered at the ends of the traces before filtering to
+avoid ringing at the ends of the traces after filtering. Here, a Hann window
+and a percentage of 0.05, following the standard SAC routine. This means 5%
+of the total number of points is are tapered on each side of the trace. That
+is, if the trace has 100 samples, on each side of the trace 5 points are
+tapered.</p>
+<p>After tapering, the traces are interpolated (resampled) to make sure that the
+traces have the exact same format and all further processing has the same
+effect on all traces.</p>
+</div>
+<div class="section" id="instrument-response-removal">
+<h2>Instrument response removal<a class="headerlink" href="#instrument-response-removal" title="Permalink to this headline">¶</a></h2>
+<p>Now if the response flag is is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, as for observed data in this
+case, the data are filtered ones before the response removal. This is done
+using a SAC style filter.</p>
+<a class="reference internal image-reference" href="../_images/cosine_taper.png"><img alt="Cosine Taper" src="../_images/cosine_taper.png" style="width: 600px;" /></a>
+<p>The corner are set in the parameter file using the <code class="docutils literal notranslate"><span class="pre">pre_filt</span></code> parameter. In
+the current processing setup this frequency corners are set to [0.0075, 0
+.0100, 0.0250, 0.0313] Hz.</p>
+</div>
+<div class="section" id="filtering">
+<h2>Filtering<a class="headerlink" href="#filtering" title="Permalink to this headline">¶</a></h2>
+<p>Both observed and synthetic traces are filtered with band-pass filters. The
+band-pass filter is a two-pass filter with the same corner frequencies as the
+<code class="docutils literal notranslate"><span class="pre">pre_filt</span></code> definition. The traces are filtered again due to a possible
+effect of the response removal on the observed traces or an initial filtering
+of the synthetic traces.</p>
+</div>
+<div class="section" id="rotation">
+<h2>Rotation<a class="headerlink" href="#rotation" title="Permalink to this headline">¶</a></h2>
+<p>If the <code class="docutils literal notranslate"><span class="pre">rotate_flag</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> in the parameter file, the traces
+are rotated from the <code class="docutils literal notranslate"><span class="pre">NEZ</span></code> coordinate system into the <code class="docutils literal notranslate"><span class="pre">RTZ</span></code>.</p>
+</div>
+<div class="section" id="sample-processing-parameter-file">
+<h2>Sample Processing Parameter File<a class="headerlink" href="#sample-processing-parameter-file" title="Permalink to this headline">¶</a></h2>
+<p>Below are shown sample parameter files for the two different data types:
+Synthetic and observed. As shown the only difference is the remove response
+flag.</p>
+<div class="section" id="synthetic">
+<h3>Synthetic<a class="headerlink" href="#synthetic" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># remove response flag to remove the instrument response from the</span>
+<span class="c1"># seismogram. For observed seismogram, you probably want to set this</span>
+<span class="c1"># flag to True to get real gound displacement. For synthetic data,</span>
+<span class="c1"># please set this flag to False</span>
+<span class="nt">remove_response_flag</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+
+<span class="c1"># filtering the seismogram. If you set both remove_response_flag to True</span>
+<span class="c1"># and filter_flag to True, the filtering will happen at the same time</span>
+<span class="c1"># when you remove the instrument response(to make sure the taper is applied</span>
+<span class="c1"># only once)</span>
+<span class="nt">filter_flag</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+
+<span class="c1"># frequency band of filtering, unit in Hz</span>
+<span class="c1"># 32-40-100-133</span>
+<span class="nt">pre_filt</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">0.0075</span><span class="p p-Indicator">,</span> <span class="nv">0.0100</span><span class="p p-Indicator">,</span> <span class="nv">0.0250</span><span class="p p-Indicator">,</span> <span class="nv">0.0313</span><span class="p p-Indicator">]</span>
+
+<span class="c1"># cut time relative to CMT time. The final seismogram will be at</span>
+<span class="c1"># time range: [cmt_time + relative_starttime, cmt_time + relative_endtime]</span>
+<span class="nt">relative_starttime</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">relative_endtime</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">7150</span>
+
+<span class="c1"># resample the seismogram. Sampling_rate in unit Hz.</span>
+<span class="nt">resample_flag</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="nt">sampling_rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+
+<span class="c1"># taper</span>
+<span class="nt">taper_type</span><span class="p">:</span> <span class="s">&quot;hann&quot;</span>
+<span class="nt">taper_percentage</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.05</span>
+
+<span class="c1"># rotate flag</span>
+<span class="nt">rotate_flag</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+
+<span class="c1"># sanity check the inventory</span>
+<span class="c1"># Check the orientation(dip and azimuth) of ZNE components during the</span>
+<span class="c1"># rotation. If it doesn&#39;t pass the sanity check, the component will</span>
+<span class="c1"># be thrown away.</span>
+<span class="c1"># True if processing observed data; False if processing synthetic data.</span>
+<span class="nt">sanity_check</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h3>Synthetic<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># remove response flag to remove the instrument response from the</span>
+<span class="c1"># seismogram. For observed seismogram, you probably want to set this</span>
+<span class="c1"># flag to True to get real gound displacement. For synthetic data,</span>
+<span class="c1"># please set this flag to False</span>
+<span class="nt">remove_response_flag</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="nt">water_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100.0</span>
+
+<span class="c1"># filtering the seismogram. If you set both remove_response_flag to True</span>
+<span class="c1"># and filter_flag to True, the filtering will happen at the same time</span>
+<span class="c1"># when you remove the instrument response(to make sure the taper is applied</span>
+<span class="c1"># only once)</span>
+<span class="nt">filter_flag</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+
+<span class="c1"># frequency band of filtering, unit in Hz</span>
+<span class="c1"># 32-40-100-133</span>
+<span class="nt">pre_filt</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">0.0075</span><span class="p p-Indicator">,</span> <span class="nv">0.0100</span><span class="p p-Indicator">,</span> <span class="nv">0.0250</span><span class="p p-Indicator">,</span> <span class="nv">0.0313</span><span class="p p-Indicator">]</span>
+
+<span class="c1"># cut time relative to CMT time. The final seismogram will be at</span>
+<span class="c1"># time range: [cmt_time + relative_starttime, cmt_time + relative_endtime]</span>
+<span class="nt">relative_starttime</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">relative_endtime</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">7150</span>
+
+<span class="c1"># resample the seismogram. Sampling_rate in unit Hz.</span>
+<span class="nt">resample_flag</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="nt">sampling_rate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+
+<span class="c1"># taper</span>
+<span class="nt">taper_type</span><span class="p">:</span> <span class="s">&quot;hann&quot;</span>
+<span class="nt">taper_percentage</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.05</span>
+
+<span class="c1"># rotate flag</span>
+<span class="nt">rotate_flag</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+
+<span class="c1"># sanity check the inventory</span>
+<span class="c1"># Check the orientation(dip and azimuth) of ZNE components during the</span>
+<span class="c1"># rotation. If it doesn&#39;t pass the sanity check, the component will</span>
+<span class="c1"># be thrown away.</span>
+<span class="c1"># True if processing observed data; False if processing synthetic data.</span>
+<span class="nt">sanity_check</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="windowing.html" class="btn btn-neutral float-right" title="Windowing of the observed and synthetic traces" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="conversion.html" class="btn btn-neutral float-left" title="Conversion of the Synthetic and Observed Data to ASDF" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
