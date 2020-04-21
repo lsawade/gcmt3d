@@ -204,6 +204,11 @@
                                        <span class="s2">&quot;CMTInversion/InversionParams.yml&quot;</span><span class="p">)</span>
     <span class="n">INV_params</span> <span class="o">=</span> <span class="n">read_yaml_file</span><span class="p">(</span><span class="n">inversionparam_path</span><span class="p">)</span>
 
+    <span class="c1"># Weight Params</span>
+    <span class="n">weightparam_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">param_path</span><span class="p">,</span>
+                                    <span class="s2">&quot;CMTInversion/WeightParams.yml&quot;</span><span class="p">)</span>
+    <span class="n">weight_params</span> <span class="o">=</span> <span class="n">read_yaml_file</span><span class="p">(</span><span class="n">weightparam_path</span><span class="p">)</span>
+
     <span class="c1"># Check if grid search should be performed from the parameters file</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;gridsearch&quot;</span><span class="p">]):</span>
         <span class="k">return</span>
@@ -284,7 +289,7 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  ... &quot;</span><span class="p">)</span>
 
     <span class="c1"># Setting up weight config</span>
-    <span class="n">inv_weight_config</span> <span class="o">=</span> <span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;weight_config&quot;</span><span class="p">]</span>
+    <span class="n">inv_weight_config</span> <span class="o">=</span> <span class="n">weight_params</span><span class="p">[</span><span class="s2">&quot;weight_config&quot;</span><span class="p">]</span>
 
     <span class="n">grad3d_params</span> <span class="o">=</span> <span class="n">INV_params</span><span class="p">[</span><span class="s2">&quot;grad3d_config&quot;</span><span class="p">]</span>
 
