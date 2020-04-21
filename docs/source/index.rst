@@ -19,7 +19,6 @@ Welcome to gcmt3d's documentation!
    chapters/conversion
    chapters/processing
    chapters/gcmt3dAPI
-   chapters/workflowAPI
 
 
 
