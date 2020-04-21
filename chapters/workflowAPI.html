@@ -95,13 +95,13 @@
 <li class="toctree-l1"><a class="reference internal" href="gcmt3dAPI.html">GCMT3D API</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">EnTK Workflow API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#workflow-components">Workflow components</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#database-entry-creation">Database Entry Creation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#requesting-seismic-data">Requesting Seismic Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#writing-the-sources">Writing the Sources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#create-path-files">Create Path Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#create-inversion-dictionaries">Create Inversion Dictionaries</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#inversion">Inversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#grid-search">Grid Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gcmt3d.workflow.create_database_entry">Database Entry Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gcmt3d.workflow.data_request">Requesting Seismic Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gcmt3d.workflow.generate_sources">Writing the Sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gcmt3d.workflow.prepare_path_files">Create Path Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gcmt3d.workflow.shape_inversion_dictionaries">Create Inversion Dictionaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gcmt3d.workflow.tensor_inversion">Inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-gcmt3d.workflow.tensor_rise">Grid Search</a></li>
 </ul>
 </li>
 </ul>
@@ -175,26 +175,200 @@ workflow module.</p>
 </div>
 <div class="section" id="workflow-components">
 <h1>Workflow components<a class="headerlink" href="#workflow-components" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="database-entry-creation">
-<h2>Database Entry Creation<a class="headerlink" href="#database-entry-creation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-gcmt3d.workflow.create_database_entry">
+<span id="database-entry-creation"></span><h2>Database Entry Creation<a class="headerlink" href="#module-gcmt3d.workflow.create_database_entry" title="Permalink to this headline">¶</a></h2>
+<p>This is a script that will create a database entry given a cmt solution in the</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>)</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU Lesser General Public License, version 3 (LGPLv3)
+(<a class="reference external" href="http://www.gnu.org/licenses/lgpl-3.0.en.html">http://www.gnu.org/licenses/lgpl-3.0.en.html</a>)</p>
+</dd>
+</dl>
 </div>
-<div class="section" id="requesting-seismic-data">
-<h2>Requesting Seismic Data<a class="headerlink" href="#requesting-seismic-data" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-gcmt3d.workflow.data_request">
+<span id="requesting-seismic-data"></span><h2>Requesting Seismic Data<a class="headerlink" href="#module-gcmt3d.workflow.data_request" title="Permalink to this headline">¶</a></h2>
+<p>This script will download the observed data. To the necessary places.</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>)</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU Lesser General Public License, version 3 (LGPLv3)
+(<a class="reference external" href="http://www.gnu.org/licenses/lgpl-3.0.en.html">http://www.gnu.org/licenses/lgpl-3.0.en.html</a>)</p>
+</dd>
+</dl>
+<span class="target" id="module-gcmt3d.workflow.data_request2"></span><p>This script will download the observed data. To the necessary places.</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>)</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU Lesser General Public License, version 3 (LGPLv3)
+(<a class="reference external" href="http://www.gnu.org/licenses/lgpl-3.0.en.html">http://www.gnu.org/licenses/lgpl-3.0.en.html</a>)</p>
+</dd>
+</dl>
+<span class="target" id="module-gcmt3d.workflow.data_request3"></span><p>This script will download the observed data. To the necessary places.</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>)</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU Lesser General Public License, version 3 (LGPLv3)
+(<a class="reference external" href="http://www.gnu.org/licenses/lgpl-3.0.en.html">http://www.gnu.org/licenses/lgpl-3.0.en.html</a>)</p>
+</dd>
+</dl>
 </div>
-<div class="section" id="writing-the-sources">
-<h2>Writing the Sources<a class="headerlink" href="#writing-the-sources" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-gcmt3d.workflow.generate_sources">
+<span id="writing-the-sources"></span><h2>Writing the Sources<a class="headerlink" href="#module-gcmt3d.workflow.generate_sources" title="Permalink to this headline">¶</a></h2>
+<p>This script writes specfem sources into the respective simulation directories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>)</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU Lesser General Public License, version 3 (LGPLv3)
+(<a class="reference external" href="http://www.gnu.org/licenses/lgpl-3.0.en.html">http://www.gnu.org/licenses/lgpl-3.0.en.html</a>)</p>
+</dd>
+</dl>
 </div>
-<div class="section" id="create-path-files">
-<h2>Create Path Files<a class="headerlink" href="#create-path-files" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-gcmt3d.workflow.prepare_path_files">
+<span id="create-path-files"></span><h2>Create Path Files<a class="headerlink" href="#module-gcmt3d.workflow.prepare_path_files" title="Permalink to this headline">¶</a></h2>
+<p>This script writes specfem sources into the respective simulation directories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>)</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU Lesser General Public License, version 3 (LGPLv3)
+(<a class="reference external" href="http://www.gnu.org/licenses/lgpl-3.0.en.html">http://www.gnu.org/licenses/lgpl-3.0.en.html</a>)</p>
+</dd>
+</dl>
 </div>
-<div class="section" id="create-inversion-dictionaries">
-<h2>Create Inversion Dictionaries<a class="headerlink" href="#create-inversion-dictionaries" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-gcmt3d.workflow.shape_inversion_dictionaries">
+<span id="create-inversion-dictionaries"></span><h2>Create Inversion Dictionaries<a class="headerlink" href="#module-gcmt3d.workflow.shape_inversion_dictionaries" title="Permalink to this headline">¶</a></h2>
+<p>This script contains functions to write the inversion dictionaries to the
+filesystem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>)</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU General Public License, Version 3
+(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</p>
+</dd>
+</dl>
+<p>Last Update: June 2019</p>
+<dl class="py function">
+<dt id="gcmt3d.workflow.shape_inversion_dictionaries.grid_search_dictionaries">
+<code class="sig-prename descclassname">gcmt3d.workflow.shape_inversion_dictionaries.</code><code class="sig-name descname">grid_search_dictionaries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cmt_file_db</span></em>, <em class="sig-param"><span class="n">param_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/workflow/shape_inversion_dictionaries.html#grid_search_dictionaries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.workflow.shape_inversion_dictionaries.grid_search_dictionaries" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function writes the inversion dictionaries</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cmt_file_db</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gcmt3d.workflow.shape_inversion_dictionaries.inversion_dictionaries">
+<code class="sig-prename descclassname">gcmt3d.workflow.shape_inversion_dictionaries.</code><code class="sig-name descname">inversion_dictionaries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cmt_file_db</span></em>, <em class="sig-param"><span class="n">param_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/workflow/shape_inversion_dictionaries.html#inversion_dictionaries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.workflow.shape_inversion_dictionaries.inversion_dictionaries" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function writes the inversion dictionaries</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cmt_file_db</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gcmt3d.workflow.shape_inversion_dictionaries.read_yaml_file">
+<code class="sig-prename descclassname">gcmt3d.workflow.shape_inversion_dictionaries.</code><code class="sig-name descname">read_yaml_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/workflow/shape_inversion_dictionaries.html#read_yaml_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.workflow.shape_inversion_dictionaries.read_yaml_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>read yaml file</p>
+</dd></dl>
+
 </div>
-<div class="section" id="inversion">
-<h2>Inversion<a class="headerlink" href="#inversion" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-gcmt3d.workflow.tensor_inversion">
+<span id="inversion"></span><h2>Inversion<a class="headerlink" href="#module-gcmt3d.workflow.tensor_inversion" title="Permalink to this headline">¶</a></h2>
+<p>This script contains functions to invert the produced data</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>)</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU General Public License, Version 3
+(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</p>
+</dd>
+</dl>
+<p>Last Update: June 2019</p>
+<dl class="py function">
+<dt id="gcmt3d.workflow.tensor_inversion.invert">
+<code class="sig-prename descclassname">gcmt3d.workflow.tensor_inversion.</code><code class="sig-name descname">invert</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cmt_file_db</span></em>, <em class="sig-param"><span class="n">param_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/workflow/tensor_inversion.html#invert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.workflow.tensor_inversion.invert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the actual inversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmt_file_db</strong> – </p></li>
+<li><p><strong>param_path</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nothing, inversion results are written to file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gcmt3d.workflow.tensor_inversion.read_yaml_file">
+<code class="sig-prename descclassname">gcmt3d.workflow.tensor_inversion.</code><code class="sig-name descname">read_yaml_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/workflow/tensor_inversion.html#read_yaml_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.workflow.tensor_inversion.read_yaml_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>read yaml file</p>
+</dd></dl>
+
 </div>
-<div class="section" id="grid-search">
-<h2>Grid Search<a class="headerlink" href="#grid-search" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-gcmt3d.workflow.tensor_rise">
+<span id="grid-search"></span><h2>Grid Search<a class="headerlink" href="#module-gcmt3d.workflow.tensor_rise" title="Permalink to this headline">¶</a></h2>
+<p>This is the grid search part for the cmt inversion. Rise in the gradient sense</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>)</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU General Public License, Version 3
+(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</p>
+</dd>
+</dl>
+<p>Last Update: April 2020</p>
+<dl class="py function">
+<dt id="gcmt3d.workflow.tensor_rise.gradient">
+<code class="sig-prename descclassname">gcmt3d.workflow.tensor_rise.</code><code class="sig-name descname">gradient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cmt_file_db</span></em>, <em class="sig-param"><span class="n">param_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/workflow/tensor_rise.html#gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.workflow.tensor_rise.gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the actual inversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmt_file_db</strong> – </p></li>
+<li><p><strong>param_path</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nothing, inversion results are written to file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gcmt3d.workflow.tensor_rise.read_yaml_file">
+<code class="sig-prename descclassname">gcmt3d.workflow.tensor_rise.</code><code class="sig-name descname">read_yaml_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/workflow/tensor_rise.html#read_yaml_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.workflow.tensor_rise.read_yaml_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>read yaml file</p>
+</dd></dl>
+
 </div>
 </div>
 
