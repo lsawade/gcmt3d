@@ -34,7 +34,8 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="GCMT3D API" href="gcmt3dAPI.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -79,7 +80,7 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="creating_the_database.html">Create a Database Entry</a></li>
@@ -89,7 +90,20 @@
 <li class="toctree-l1"><a class="reference internal" href="running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="windowing.html">Windowing of the observed and synthetic traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5_and_h5py.html">Installation of hdf5 and h5py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gcmt3dAPI.html">GCMT3D API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">EnTK Workflow API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#workflow-components">Workflow components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#database-entry-creation">Database Entry Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#requesting-seismic-data">Requesting Seismic Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-the-sources">Writing the Sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-path-files">Create Path Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-inversion-dictionaries">Create Inversion Dictionaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inversion">Inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#grid-search">Grid Search</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -159,11 +173,8 @@
 <p>This contains the single steps in the workflow of GCMT3D as given in the
 workflow module.</p>
 </div>
-<div class="section" id="standard-workflow-components">
-<h1>Standard Workflow components<a class="headerlink" href="#standard-workflow-components" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="specfem-fixer">
-<h2>Specfem Fixer<a class="headerlink" href="#specfem-fixer" title="Permalink to this headline">¶</a></h2>
-</div>
+<div class="section" id="workflow-components">
+<h1>Workflow components<a class="headerlink" href="#workflow-components" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="database-entry-creation">
 <h2>Database Entry Creation<a class="headerlink" href="#database-entry-creation" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -173,26 +184,8 @@ workflow module.</p>
 <div class="section" id="writing-the-sources">
 <h2>Writing the Sources<a class="headerlink" href="#writing-the-sources" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="specfem">
-<h2>Specfem<a class="headerlink" href="#specfem" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="run-simulations">
-<h3>Run Simulations<a class="headerlink" href="#run-simulations" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="clean-up-data-base">
-<h3>Clean Up Data Base<a class="headerlink" href="#clean-up-data-base" title="Permalink to this headline">¶</a></h3>
-</div>
-</div>
-<div class="section" id="conversion-to-asdf">
-<h2>Conversion to ASDF<a class="headerlink" href="#conversion-to-asdf" title="Permalink to this headline">¶</a></h2>
-</div>
 <div class="section" id="create-path-files">
 <h2>Create Path Files<a class="headerlink" href="#create-path-files" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="process-data">
-<h2>Process Data<a class="headerlink" href="#process-data" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="window-traces">
-<h2>Window Traces<a class="headerlink" href="#window-traces" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="create-inversion-dictionaries">
 <h2>Create Inversion Dictionaries<a class="headerlink" href="#create-inversion-dictionaries" title="Permalink to this headline">¶</a></h2>
@@ -200,14 +193,8 @@ workflow module.</p>
 <div class="section" id="inversion">
 <h2>Inversion<a class="headerlink" href="#inversion" title="Permalink to this headline">¶</a></h2>
 </div>
-</div>
-<div class="section" id="specfem-extras">
-<h1>Specfem Extras<a class="headerlink" href="#specfem-extras" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="run-mesher">
-<h2>Run Mesher<a class="headerlink" href="#run-mesher" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="run-solver">
-<h2>Run Solver<a class="headerlink" href="#run-solver" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="grid-search">
+<h2>Grid Search<a class="headerlink" href="#grid-search" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -216,6 +203,13 @@ workflow module.</p>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="gcmt3dAPI.html" class="btn btn-neutral float-left" title="GCMT3D API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

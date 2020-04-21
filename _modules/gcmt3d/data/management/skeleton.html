@@ -1,0 +1,871 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>gcmt3d.data.management.skeleton &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/windowing.html">Windowing of the observed and synthetic traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/hdf5_and_h5py.html">Installation of hdf5 and h5py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/gcmt3dAPI.html">GCMT3D API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/workflowAPI.html">EnTK Workflow API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../chapters/workflowAPI.html#workflow-components">Workflow components</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>gcmt3d.data.management.skeleton</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for gcmt3d.data.management.skeleton</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">This script contains functions to create the skeleton structure for the GCMT3D</span>
+<span class="sd">database of Earthquakes. If wanted.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Lucas Sawade (lsawade@princeton.edu)</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU General Public License, Version 3</span>
+<span class="sd">    (http://www.gnu.orcopyleft/gpl.html)</span>
+
+<span class="sd">Last Update: June 2019</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">distutils.dir_util</span> <span class="kn">import</span> <span class="n">copy_tree</span>
+<span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">read_events</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">from</span> <span class="nn">...source</span> <span class="kn">import</span> <span class="n">CMTSource</span>
+<span class="kn">from</span> <span class="nn">...asdf.utils</span> <span class="kn">import</span> <span class="n">write_yaml_file</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">...log_util</span> <span class="kn">import</span> <span class="n">modify_logger</span>
+
+<span class="c1"># Create logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">modify_logger</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
+
+<span class="n">STATIONS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;STATIONS&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DataBaseSkeleton"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton">[docs]</a><span class="k">class</span> <span class="nc">DataBaseSkeleton</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to handle data skeleton creation. If specfem directory is given,</span>
+<span class="sd">    the class copies the necessary data from the specfem folder.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basedir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmt_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">specfem_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">stations_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">npar</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+                 <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            basedir: str with path to database directory, e.g</span>
+<span class="sd">                            &quot;.../path/to/database/&quot;</span>
+<span class="sd">            cmt_fn: path to cmt solution, e.g &quot;.../path/to/CMTSOLUTION&quot;, or,</span>
+<span class="sd">                            e.g &quot;.../path/to/cmtsolutionfile with list.&quot;</span>
+<span class="sd">            npar: number of parameters to be inverted for. 6,7 or 9. Default</span>
+<span class="sd">                  9</span>
+<span class="sd">            specfem_dir: str with path to specfem directory, e.g</span>
+<span class="sd">                            &quot;.../path/to/specfem3d_globe&quot;</span>
+<span class="sd">            overwrite: number which sets what should be over written. If not</span>
+<span class="sd">                       a number or False, nothing will be overwritten.</span>
+<span class="sd">                        0: Everything is overwritten, including the database</span>
+<span class="sd">                        1: The specific earthquake is overwritten:</span>
+<span class="sd">                        2: Seismogram, Simulation and Window Directories are</span>
+<span class="sd">                           overwritten for a certain Earthquake.</span>
+<span class="sd">                        3: Simulation subdirectories overwritten</span>
+<span class="sd">                        4: Overwrite yaml path files only</span>
+<span class="sd">            verbose: boolean that sets whether the output should be verbose</span>
+<span class="sd">                     or not</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span> <span class="o">=</span> <span class="n">basedir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specfem_dir</span> <span class="o">=</span> <span class="n">specfem_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">npar</span> <span class="o">=</span> <span class="n">npar</span>
+
+        <span class="c1"># Modifiers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="o">=</span> <span class="n">overwrite</span>
+
+        <span class="c1"># Check if things exists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmt_fn</span> <span class="o">=</span> <span class="n">cmt_fn</span>
+
+        <span class="c1"># Check if cmt file name exists and if there are more than one</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmtfile_list</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmt_fn</span><span class="p">)</span>
+
+        <span class="c1"># Throw error if list empty</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmtfile_list</span> <span class="ow">is</span> <span class="p">[]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No CMTSOLUTION file exists of that name.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create empty earthquake directory list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Cdirs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Cids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># List of possible attributes</span>
+        <span class="c1"># Parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CMT&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_rr&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_tt&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_pp&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_rt&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_rp&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;CMT_tp&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_depth&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_lat&quot;</span><span class="p">,</span> <span class="s2">&quot;CMT_lon&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">stations_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stations_file</span> <span class="o">=</span> <span class="n">STATIONS</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stations_file</span> <span class="o">=</span> <span class="n">stations_file</span>
+
+<div class="viewcode-block" id="DataBaseSkeleton.create_all"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton.create_all">[docs]</a>    <span class="k">def</span> <span class="nf">create_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Writes complete database structure.&quot;&quot;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating earthquake entry in database </span><span class="si">%s</span><span class="s2"> ... &quot;</span>
+                    <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">)</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Create earthquake directory</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating simulation directories...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_Cdirs</span><span class="p">()</span>
+
+        <span class="c1"># Create station metadata directory</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating station directory...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_station_dir</span><span class="p">()</span>
+
+        <span class="c1"># Create Log directory</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating log directory...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_log_dir</span><span class="p">()</span>
+
+        <span class="c1"># Create window data directory</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating window...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_window_dir</span><span class="p">()</span>
+
+        <span class="c1"># Create Seismogram directory</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating seismogram directories&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_seismogram_dir</span><span class="p">()</span>
+
+        <span class="c1"># Create Inversion directory</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating inversion directories&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_inversion_dir</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">specfem_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Create</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_CMT_SIM_dir</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Done. Time Elapsed </span><span class="si">%.1f</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t1</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DataBaseSkeleton.create_base"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton.create_base">[docs]</a>    <span class="k">def</span> <span class="nf">create_base</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates Base directory if it doesn&#39;t exist.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Overwrite 0 overwrite total database</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataBaseSkeleton.create_Cdirs"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton.create_Cdirs">[docs]</a>    <span class="k">def</span> <span class="nf">create_Cdirs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; If more than one earthquake exist with regex, call all of them&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">cmtfile</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmtfile_list</span><span class="p">:</span>
+
+            <span class="c1"># Create directory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_1_Cdir</span><span class="p">(</span><span class="n">cmtfile</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataBaseSkeleton.create_1_Cdir"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton.create_1_Cdir">[docs]</a>    <span class="k">def</span> <span class="nf">create_1_Cdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmtfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates 1 Earthquake directory&quot;&quot;&quot;</span>
+
+        <span class="c1"># create CMT</span>
+        <span class="n">cmt</span> <span class="o">=</span> <span class="n">CMTSource</span><span class="o">.</span><span class="n">from_CMTSOLUTION_file</span><span class="p">(</span><span class="n">cmtfile</span><span class="p">)</span>
+
+        <span class="c1"># Create CMTSource to extract the file name</span>
+        <span class="n">Cid</span> <span class="o">=</span> <span class="n">cmt</span><span class="o">.</span><span class="n">eventname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Cids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Cid</span><span class="p">)</span>
+
+        <span class="c1"># Earthquake directory</span>
+        <span class="n">Cdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span> <span class="o">+</span> <span class="n">Cid</span><span class="p">)</span>
+
+        <span class="c1"># Create directory</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">Cdir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">Cdir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Append directory path to the list.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Cdirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Cdir</span><span class="p">)</span>
+
+        <span class="c1"># Create new CMT path</span>
+        <span class="n">cmt_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Cdir</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span> <span class="o">+</span> <span class="n">Cid</span> <span class="o">+</span> <span class="s2">&quot;.cmt&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create new CMT path</span>
+        <span class="n">xml_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Cdir</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span> <span class="o">+</span> <span class="n">Cid</span> <span class="o">+</span> <span class="s2">&quot;.xml&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Copy the Earthquake file into the directory with C&lt;ID&gt;.cmt</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_copy_file</span><span class="p">(</span><span class="n">cmtfile</span><span class="p">,</span> <span class="n">cmt_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_copy_file</span><span class="p">(</span><span class="n">cmtfile</span><span class="p">,</span> <span class="n">cmt_path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Copy the Earthquake file into the directory with C&lt;ID&gt;.xml</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_quakeml</span><span class="p">(</span><span class="n">cmtfile</span><span class="p">,</span> <span class="n">xml_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_quakeml</span><span class="p">(</span><span class="n">cmtfile</span><span class="p">,</span> <span class="n">xml_path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataBaseSkeleton.create_station_dir"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton.create_station_dir">[docs]</a>    <span class="k">def</span> <span class="nf">create_station_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates station_data directory for station metadata.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_Cdir</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Cdirs</span><span class="p">):</span>
+
+            <span class="c1"># Create station_data dirs</span>
+            <span class="n">station_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_Cdir</span><span class="p">,</span> <span class="s2">&quot;station_data&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">station_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">station_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># Set new destination path</span>
+            <span class="n">dst_path0</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">station_dir</span><span class="p">,</span> <span class="s2">&quot;STATIONS&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> \
+                    <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_copy_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations_file</span><span class="p">,</span> <span class="n">dst_path0</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_copy_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations_file</span><span class="p">,</span> <span class="n">dst_path0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataBaseSkeleton.create_log_dir"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton.create_log_dir">[docs]</a>    <span class="k">def</span> <span class="nf">create_log_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates station_data directory for station metadata.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_Cdir</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Cdirs</span><span class="p">):</span>
+
+            <span class="c1"># Create station_data dirs</span>
+            <span class="n">log_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_Cdir</span><span class="p">,</span> <span class="s2">&quot;logs&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">log_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">log_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataBaseSkeleton.create_inversion_dir"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton.create_inversion_dir">[docs]</a>    <span class="k">def</span> <span class="nf">create_inversion_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates station_data directory for station metadata.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_Cdir</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Cdirs</span><span class="p">):</span>
+
+            <span class="c1"># Create station_data dirs</span>
+            <span class="n">inv_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_Cdir</span><span class="p">,</span> <span class="s2">&quot;inversion&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">inv_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">inv_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">inv_dict_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inv_dir</span><span class="p">,</span> <span class="s2">&quot;inversion_dicts&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">inv_dict_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">inv_dict_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">inv_out_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inv_dir</span><span class="p">,</span> <span class="s2">&quot;inversion_output&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">inv_out_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">inv_out_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">inv_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cmt3d&quot;</span><span class="p">,</span> <span class="s2">&quot;g3d&quot;</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">_inv_type</span> <span class="ow">in</span> <span class="n">inv_types</span><span class="p">:</span>
+
+                <span class="n">type_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inv_out_dir</span><span class="p">,</span> <span class="n">_inv_type</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                    <span class="c1"># Create new directory</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">type_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">type_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+                <span class="n">inv_new_syn_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">type_dir</span><span class="p">,</span> <span class="s2">&quot;new_synt&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                    <span class="c1"># Create new directory</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">inv_new_syn_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">inv_new_syn_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+                <span class="n">inv_new_syn_plots_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">type_dir</span><span class="p">,</span>
+                                                     <span class="s2">&quot;waveform_plots&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                    <span class="c1"># Create new directory</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">inv_new_syn_plots_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">inv_new_syn_plots_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataBaseSkeleton.create_window_dir"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton.create_window_dir">[docs]</a>    <span class="k">def</span> <span class="nf">create_window_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates window_data directory for pyflex window data metadata.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_Cdir</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Cdirs</span><span class="p">):</span>
+
+            <span class="c1"># Create window_data dirs</span>
+            <span class="n">window_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_Cdir</span><span class="p">,</span> <span class="s2">&quot;window_data&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">window_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">window_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># Create Window path directory</span>
+            <span class="n">window_path_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">window_dir</span><span class="p">,</span> <span class="s2">&quot;window_paths&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">window_path_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">window_path_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataBaseSkeleton.create_CMT_SIM_dir"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton.create_CMT_SIM_dir">[docs]</a>    <span class="k">def</span> <span class="nf">create_CMT_SIM_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates CMT simulation directory and copies necessary files from given</span>
+<span class="sd">        specfem directory. Important here is the fact that specfem has to be</span>
+<span class="sd">        compiled already and there is no way of testing that prior to running</span>
+<span class="sd">        GCMT.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_eq</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Cdirs</span><span class="p">):</span>
+
+            <span class="c1"># First create main directory</span>
+            <span class="n">sim_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_eq</span><span class="p">,</span> <span class="s2">&quot;CMT_SIMs&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">sim_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">sim_path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># Second create subdirectories of CMT specfem directories</span>
+            <span class="k">for</span> <span class="n">_j</span><span class="p">,</span> <span class="n">_attr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">npar</span><span class="o">+</span><span class="mi">1</span><span class="p">]):</span>
+
+                <span class="c1"># Create subdirectory for simulation packages.</span>
+                <span class="n">cmt_der_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sim_path</span><span class="p">,</span> <span class="n">_attr</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">cmt_der_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">cmt_der_path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+                <span class="c1"># Copy specfem directory into cmt_der_path</span>
+                <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;OUTPUT_FILES&quot;</span><span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">_k</span><span class="p">,</span> <span class="n">_subdir</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">subdirs</span><span class="p">):</span>
+                    <span class="c1"># Path to specfem subdirectory</span>
+                    <span class="n">src_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specfem_dir</span><span class="p">,</span> <span class="n">_subdir</span><span class="p">)</span>
+
+                    <span class="c1"># Path to destination directory</span>
+                    <span class="n">dst_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmt_der_path</span><span class="p">,</span> <span class="n">_subdir</span><span class="p">)</span>
+
+                    <span class="c1"># Only copy some files from the DATA directory</span>
+                    <span class="k">if</span> <span class="n">_subdir</span> <span class="o">==</span> <span class="s2">&quot;DATA&quot;</span><span class="p">:</span>
+
+                        <span class="c1"># Create DATA directory</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">dst_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">dst_path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+                        <span class="c1"># Set files to be copied into directory</span>
+                        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Par_file&quot;</span><span class="p">,</span> <span class="s2">&quot;CMTSOLUTION&quot;</span><span class="p">]</span>
+
+                        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+
+                            <span class="c1"># Set new source path</span>
+                            <span class="n">src_path0</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+
+                            <span class="c1"># Set new destination path</span>
+                            <span class="n">dst_path0</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst_path</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_copy_file</span><span class="p">(</span><span class="n">src_path0</span><span class="p">,</span> <span class="n">dst_path0</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_copy_file</span><span class="p">(</span><span class="n">src_path0</span><span class="p">,</span> <span class="n">dst_path0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+                        <span class="c1"># Set new destination path</span>
+                        <span class="n">dst_path0</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dst_path</span><span class="p">,</span> <span class="s2">&quot;STATIONS&quot;</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> \
+                                <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_copy_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations_file</span><span class="p">,</span>
+                                            <span class="n">dst_path0</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_copy_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations_file</span><span class="p">,</span>
+                                            <span class="n">dst_path0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_copy_dir</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span> <span class="n">dst_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_copy_dir</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span> <span class="n">dst_path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+                    <span class="c1"># Create the Path file for later usage of the ASDF</span>
+                    <span class="c1"># conversion</span>
+                    <span class="k">if</span> <span class="n">_subdir</span> <span class="o">==</span> <span class="s2">&quot;OUTPUT_FILES&quot;</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Writing YAML path file &quot;</span>
+                                       <span class="s2">&quot;from waveform dir &quot;</span>
+                                       <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dst_path</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_create_syn_path_yaml</span><span class="p">(</span><span class="n">dst_path</span><span class="p">)</span>
+
+                <span class="c1"># Create symbolic link to destination folders</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">((</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmt_der_path</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">))):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specfem_dir</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">),</span>
+                               <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmt_der_path</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">),</span>
+                               <span class="n">target_is_directory</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="c1"># Create symbolic link to destination folders</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">((</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmt_der_path</span><span class="p">,</span>
+                                                    <span class="s2">&quot;DATABASES_MPI&quot;</span><span class="p">))):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specfem_dir</span><span class="p">,</span>
+                                            <span class="s2">&quot;DATABASES_MPI&quot;</span><span class="p">),</span>
+                               <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmt_der_path</span><span class="p">,</span>
+                                            <span class="s2">&quot;DATABASES_MPI&quot;</span><span class="p">),</span>
+                               <span class="n">target_is_directory</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataBaseSkeleton.create_seismogram_dir"><a class="viewcode-back" href="../../../../chapters/gcmt3dAPI.html#gcmt3d.data.management.skeleton.DataBaseSkeleton.create_seismogram_dir">[docs]</a>    <span class="k">def</span> <span class="nf">create_seismogram_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates response subdirectory&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_Cdir</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Cdirs</span><span class="p">):</span>
+            <span class="c1"># Create response path</span>
+            <span class="n">seismogram_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_Cdir</span><span class="p">,</span> <span class="s2">&quot;seismograms&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">seismogram_dir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">seismogram_dir</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># Create the subdirectory for synthetic data</span>
+            <span class="n">syn_dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seismogram_dir</span><span class="p">,</span> <span class="s1">&#39;syn&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">syn_dir_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">syn_dir_path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># Create the subdirectory for observed data</span>
+            <span class="n">obs_dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seismogram_dir</span><span class="p">,</span> <span class="s1">&#39;obs&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">obs_dir_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">obs_dir_path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># write Observed path file</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Writing the YAML path file to </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                           <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">obs_dir_path</span><span class="p">,</span> <span class="s2">&quot;observed.yml&quot;</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_obs_path_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Cids</span><span class="p">[</span><span class="n">_i</span><span class="p">],</span> <span class="n">_Cdir</span><span class="p">)</span>
+
+            <span class="c1"># Create the subdirectory for processing pathfiles</span>
+            <span class="n">process_dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seismogram_dir</span><span class="p">,</span> <span class="s1">&#39;process_paths&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">process_dir_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">process_dir_path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># Create the subdirectory for processed seismograms</span>
+            <span class="n">processed_dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seismogram_dir</span><span class="p">,</span>
+                                              <span class="s1">&#39;processed_seismograms&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ow</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ow</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="c1"># Create new directory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">processed_dir_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_dir</span><span class="p">(</span><span class="n">processed_dir_path</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_copy_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">ow</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Copies a directory source to destination. It checks also for</span>
+<span class="sd">        potential duplicates in the same place.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ow</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Directory </span><span class="si">%s</span><span class="s2"> exists already. It will &quot;</span>
+                           <span class="s2">&quot;be overwritten.&quot;</span> <span class="o">%</span> <span class="n">destination</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+            <span class="n">copy_tree</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ow</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Directory </span><span class="si">%s</span><span class="s2"> exists already. It will &quot;</span>
+                           <span class="s2">&quot;NOT be overwritten.&quot;</span> <span class="o">%</span> <span class="n">destination</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Copying directory </span><span class="si">%s</span><span class="s2"> file to </span><span class="si">%s</span><span class="s2">&quot;</span>
+                           <span class="o">%</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">))</span>
+            <span class="n">copy_tree</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_copy_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">ow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Copies file from source to destination. &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ow</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;File </span><span class="si">%s</span><span class="s2"> exists already. It will &quot;</span>
+                           <span class="s2">&quot;be overwritten.&quot;</span> <span class="o">%</span> <span class="n">destination</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_replace_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ow</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;File </span><span class="si">%s</span><span class="s2"> exists already. It will &quot;</span>
+                           <span class="s2">&quot;NOT be overwritten.&quot;</span> <span class="o">%</span> <span class="n">destination</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Copying file </span><span class="si">%s</span><span class="s2"> file to </span><span class="si">%s</span><span class="s2">.&quot;</span>
+                           <span class="o">%</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">))</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_quakeml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">ow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Copies CMTSOLUTION from source to QuakeML destination. It checks</span>
+<span class="sd">        also for potential duplicates in the same place, warns whether they are</span>
+<span class="sd">        different but have the name.&quot;&quot;&quot;</span>
+
+        <span class="c1"># CMT Source file</span>
+        <span class="n">catalog</span> <span class="o">=</span> <span class="n">read_events</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ow</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Earthquake file </span><span class="si">%s</span><span class="s2"> exists already. It will &quot;</span>
+                           <span class="s2">&quot;be overwritten.&quot;</span> <span class="o">%</span> <span class="n">destination</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;QUAKEML&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ow</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Earthquake file </span><span class="si">%s</span><span class="s2"> exists already. It will &quot;</span>
+                           <span class="s2">&quot;NOT be overwritten.&quot;</span> <span class="o">%</span> <span class="n">destination</span><span class="p">)</span>
+
+            <span class="c1"># Warn if destination eq is not equal to new eq</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">CMTSource</span><span class="o">.</span><span class="n">from_CMTSOLUTION_file</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> \
+                    <span class="o">==</span> <span class="n">CMTSource</span><span class="o">.</span><span class="n">from_quakeml_file</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;CMT solution in the database is not &quot;</span>
+                              <span class="s2">&quot;the same as the file with the same ID.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Writing earthquake </span><span class="si">%s</span><span class="s2"> file to </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span>
+                                                                  <span class="n">destination</span><span class="p">))</span>
+            <span class="n">catalog</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;QUAKEML&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_syn_path_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveform_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This function writes a yaml conversion path file for 1 Simulation</span>
+<span class="sd">        file. This file is later on need for the creation of ASDF files and the</span>
+<span class="sd">        processing involved ASDF files.</span>
+
+<span class="sd">        The function assumes that</span>
+<span class="sd">        * the QuakeML file is located in the OUTPUT_FILES directory with the</span>
+<span class="sd">          name `Quake.xml`</span>
+<span class="sd">        * The output directory name is the</span>
+<span class="sd">          `../database/C&lt;id&gt;/seismograms/syn/&lt;attr&gt;.h5</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">              waveform_dir: path to OUTPUT_FILES</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># File Type</span>
+        <span class="n">filetype</span> <span class="o">=</span> <span class="s2">&quot;sac&quot;</span>
+
+        <span class="c1"># Tag</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;syn&quot;</span>
+
+        <span class="c1"># QuakeML file path</span>
+        <span class="n">quakeml_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">waveform_dir</span><span class="p">,</span> <span class="s2">&quot;Quake.xml&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Outputfile</span>
+        <span class="n">cmt_sim_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">waveform_dir</span><span class="p">)</span>
+        <span class="n">Cdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">cmt_sim_dir</span><span class="p">))</span>
+        <span class="n">cmt_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">cmt_sim_dir</span><span class="p">)</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Cdir</span><span class="p">,</span> <span class="s2">&quot;seismograms&quot;</span><span class="p">,</span> <span class="s2">&quot;syn&quot;</span><span class="p">,</span>
+                                   <span class="n">cmt_name</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Pathfile directory</span>
+        <span class="n">yaml_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmt_sim_dir</span><span class="p">,</span> <span class="n">cmt_name</span> <span class="o">+</span> <span class="s2">&quot;.yml&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create dictionary</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Writing path file </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">yaml_file_path</span><span class="p">)</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;waveform_dir&quot;</span><span class="p">:</span> <span class="n">waveform_dir</span><span class="p">,</span>
+             <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="n">filetype</span><span class="p">,</span>
+             <span class="s2">&quot;quakeml_file&quot;</span><span class="p">:</span> <span class="n">quakeml_file</span><span class="p">,</span>
+             <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="n">tag</span><span class="p">,</span>
+             <span class="s2">&quot;output_file&quot;</span><span class="p">:</span> <span class="n">output_file</span><span class="p">}</span>
+
+        <span class="c1"># Writing the directory to file</span>
+        <span class="n">write_yaml_file</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">yaml_file_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_obs_path_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Cid</span><span class="p">,</span> <span class="n">Cdir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This function writes a yaml path file for 1 Simulation file. This</span>
+<span class="sd">        file is later on need for the creation of ASDF files and the</span>
+<span class="sd">        processing involved ASDF files.</span>
+
+<span class="sd">        The function assumes that</span>
+<span class="sd">        * the QuakeML file is located in the main EQ directory with the</span>
+<span class="sd">          name `C&lt;id&gt;.xml`</span>
+<span class="sd">        * The output file name is the</span>
+<span class="sd">          `../database/C&lt;id&gt;/seismograms/obs/raw_observed.h5</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">              waveform_dir: path to OUTPUT_FILES</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Tag</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;obs&quot;</span>
+
+        <span class="c1"># Waveform file</span>
+        <span class="n">waveform_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Cdir</span><span class="p">,</span> <span class="s2">&quot;seismograms&quot;</span><span class="p">,</span> <span class="s2">&quot;obs&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;*.mseed&quot;</span><span class="p">)</span>
+
+        <span class="c1"># QuakeML file path</span>
+        <span class="n">quakeml_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Cdir</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span> <span class="o">+</span> <span class="n">Cid</span> <span class="o">+</span> <span class="s2">&quot;.xml&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Station file</span>
+        <span class="n">staxml_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Cdir</span><span class="p">,</span> <span class="s2">&quot;station_data&quot;</span><span class="p">,</span> <span class="s2">&quot;*.xml&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Outputfile</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Cdir</span><span class="p">,</span> <span class="s2">&quot;seismograms&quot;</span><span class="p">,</span>
+                                   <span class="s2">&quot;obs&quot;</span><span class="p">,</span> <span class="s2">&quot;raw_observed.h5&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Pathfile directory</span>
+        <span class="n">yaml_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Cdir</span><span class="p">,</span> <span class="s2">&quot;seismograms&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;obs&quot;</span><span class="p">,</span> <span class="s2">&quot;observed.yml&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create dictionary</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Writing path file </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">yaml_file_path</span><span class="p">)</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;waveform_files&quot;</span><span class="p">:</span> <span class="n">waveform_files</span><span class="p">,</span>
+             <span class="s2">&quot;quakeml_file&quot;</span><span class="p">:</span> <span class="n">quakeml_file</span><span class="p">,</span>
+             <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="n">tag</span><span class="p">,</span>
+             <span class="s2">&quot;staxml_files&quot;</span><span class="p">:</span> <span class="n">staxml_file</span><span class="p">,</span>
+             <span class="s2">&quot;output_file&quot;</span><span class="p">:</span> <span class="n">output_file</span><span class="p">}</span>
+
+        <span class="c1"># Writing the directory to file</span>
+        <span class="n">write_yaml_file</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">yaml_file_path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">ow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create subdirectory&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="n">ow</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> exists already. Not overwritten.&quot;</span> <span class="o">%</span> <span class="n">directory</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="n">ow</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> exists already, but overwritten.&quot;</span> <span class="o">%</span> <span class="n">directory</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_replace_dir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Creating directory </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">directory</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_replace_dir</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Mini function that replaces a directory&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_replace_file</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Mini function that replaces a file&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is what is printed when the initialized class is called in the</span>
+<span class="sd">        print function. the function returns a string that contains the paths</span>
+<span class="sd">        to the different directories specified.&quot;&quot;&quot;</span>
+
+        <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;Database directory:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;CMTSOLUTION path:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmt_fn</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;Specfem directory:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specfem_dir</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">string</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

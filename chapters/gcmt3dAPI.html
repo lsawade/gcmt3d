@@ -35,7 +35,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Processing" href="processing.html" /> 
+    <link rel="next" title="EnTK Workflow API" href="workflowAPI.html" />
+    <link rel="prev" title="Installation of hdf5 and h5py" href="hdf5_and_h5py.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -90,13 +91,15 @@
 <li class="toctree-l1"><a class="reference internal" href="running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="windowing.html">Windowing of the observed and synthetic traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5_and_h5py.html">Installation of hdf5 and h5py</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">GCMT3D API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#asdf-pypaw">ASDF (pypaw)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#conversion">Conversion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-gcmt3d.asdf.procbase">Processing Abstract Base Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#processing-abstract-base-class">Processing Abstract Base Class</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#seismic-trace-processing-class">Seismic Trace Processing Class</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#stations-info-utilities">Stations Info Utilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-gcmt3d.asdf.utils">General ASDF utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#general-asdf-utilities">General ASDF utilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#asdf-windowing">ASDF Windowing</a></li>
 </ul>
 </li>
@@ -132,6 +135,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#source-class">Source <code class="docutils literal notranslate"><span class="pre">class</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="workflowAPI.html">EnTK Workflow API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflowAPI.html#workflow-components">Workflow components</a></li>
 </ul>
 
             
@@ -209,20 +214,8 @@ only functions necessary for the source inversion.</p>
 <div class="section" id="conversion">
 <h3>Conversion<a class="headerlink" href="#conversion" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="module-gcmt3d.asdf.procbase">
-<span id="processing-abstract-base-class"></span><h3>Processing Abstract Base Class<a class="headerlink" href="#module-gcmt3d.asdf.procbase" title="Permalink to this headline">¶</a></h3>
-<p>Parent class for general asdf processing. Wraps things like MPI
-and parallel I/O so they are invisible to users.</p>
-<dl class="field-list simple">
-<dt class="field-odd">copyright</dt>
-<dd class="field-odd"><p>Wenjie Lei (<a class="reference external" href="mailto:lei&#37;&#52;&#48;princeton&#46;edu">lei<span>&#64;</span>princeton<span>&#46;</span>edu</a>), 2016
-Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>) 2019</p>
-</dd>
-<dt class="field-even">license</dt>
-<dd class="field-even"><p>GNU Lesser General Public License, version 3 (LGPLv3)
-(<a class="reference external" href="http://www.gnu.org/licenses/lgpl-3.0.en.html">http://www.gnu.org/licenses/lgpl-3.0.en.html</a>)</p>
-</dd>
-</dl>
+<div class="section" id="processing-abstract-base-class">
+<h3>Processing Abstract Base Class<a class="headerlink" href="#processing-abstract-base-class" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="seismic-trace-processing-class">
 <h3>Seismic Trace Processing Class<a class="headerlink" href="#seismic-trace-processing-class" title="Permalink to this headline">¶</a></h3>
@@ -230,128 +223,8 @@ Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;p
 <div class="section" id="stations-info-utilities">
 <h3>Stations Info Utilities<a class="headerlink" href="#stations-info-utilities" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="module-gcmt3d.asdf.utils">
-<span id="general-asdf-utilities"></span><h3>General ASDF utilities<a class="headerlink" href="#module-gcmt3d.asdf.utils" title="Permalink to this headline">¶</a></h3>
-<p>Parent class for singal processing asdf file and
-handles parallel I/O so they are invisible to users.</p>
-<dl class="field-list simple">
-<dt class="field-odd">copyright</dt>
-<dd class="field-odd"><p>Wenjie Lei (<a class="reference external" href="mailto:lei&#37;&#52;&#48;princeton&#46;edu">lei<span>&#64;</span>princeton<span>&#46;</span>edu</a>), 2016
-Lucas Sawade (<a class="reference external" href="mailto:lsawade&#37;&#52;&#48;princeton&#46;edu">lsawade<span>&#64;</span>princeton<span>&#46;</span>edu</a>) 2019</p>
-</dd>
-<dt class="field-even">license</dt>
-<dd class="field-even"><p>GNU Lesser General Public License, version 3 (LGPLv3)
-(<a class="reference external" href="http://www.gnu.org/licenses/lgpl-3.0.en.html">http://www.gnu.org/licenses/lgpl-3.0.en.html</a>)</p>
-</dd>
-</dl>
-<dl class="py class">
-<dt id="gcmt3d.asdf.utils.JSONObject">
-<em class="property">class </em><code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">JSONObject</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#JSONObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.JSONObject" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.drawProgressBar">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">drawProgressBar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">percent</span></em>, <em class="sig-param"><span class="n">user_text</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">barLen</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#drawProgressBar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.drawProgressBar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw status progress bars in terminal.
-Not recommendded used for job scripts(will create
-thousands of lines of output)</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.dump_json">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">dump_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">content</span></em>, <em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#dump_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.dump_json" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.dump_yaml">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">dump_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">content</span></em>, <em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#dump_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.dump_yaml" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.is_mpi_env">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">is_mpi_env</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#is_mpi_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.is_mpi_env" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test if current environment is MPI or not</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.isclose">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">isclose</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">rel_tol</span><span class="o">=</span><span class="default_value">1e-09</span></em>, <em class="sig-param"><span class="n">abs_tol</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#isclose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.isclose" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compare two numbers see if they are close to each other to a
-tolerance level</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.load_json">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">load_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#load_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.load_json" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.load_yaml">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">load_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#load_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.load_yaml" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.read_json_file">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">read_json_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parfile</span></em>, <em class="sig-param"><span class="n">obj_hook</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#read_json_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.read_json_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Hook json to an JSONObject instance</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.read_yaml_file">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">read_yaml_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#read_yaml_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.read_yaml_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.reset_matplotlib">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">reset_matplotlib</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#reset_matplotlib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.reset_matplotlib" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.smart_check_path">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">smart_check_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">mpi_mode</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">comm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#smart_check_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.smart_check_path" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.smart_mkdir">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">smart_mkdir</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dirname</span></em>, <em class="sig-param"><span class="n">mpi_mode</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">comm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#smart_mkdir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.smart_mkdir" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.smart_read_json">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">smart_read_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">json_file</span></em>, <em class="sig-param"><span class="n">mpi_mode</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">comm</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">object_hook</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#smart_read_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.smart_read_json" title="Permalink to this definition">¶</a></dt>
-<dd><p>read json file under mpi and multi-processing environment.
-Hook it to an JSONObject(not the conventional way to
-read it as object)</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.smart_read_yaml">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">smart_read_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">yaml_file</span></em>, <em class="sig-param"><span class="n">mpi_mode</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">comm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#smart_read_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.smart_read_yaml" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read yaml file into python dict, in mpi_mode or not</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.smart_remove_file">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">smart_remove_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">mpi_mode</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">comm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#smart_remove_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.smart_remove_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.timing">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">timing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#timing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.timing" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="gcmt3d.asdf.utils.write_yaml_file">
-<code class="sig-prename descclassname">gcmt3d.asdf.utils.</code><code class="sig-name descname">write_yaml_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em>, <em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gcmt3d/asdf/utils.html#write_yaml_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcmt3d.asdf.utils.write_yaml_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes dictionary to given yaml file.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>d: Dictionary to be written into the yaml file
-filename: string with filename of the file to be written.</p>
-</dd>
-</dl>
-</dd></dl>
-
+<div class="section" id="general-asdf-utilities">
+<h3>General ASDF utilities<a class="headerlink" href="#general-asdf-utilities" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="asdf-windowing">
 <h3>ASDF Windowing<a class="headerlink" href="#asdf-windowing" title="Permalink to this headline">¶</a></h3>
@@ -431,8 +304,10 @@ and observed data and their similarities.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="workflowAPI.html" class="btn btn-neutral float-right" title="EnTK Workflow API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="processing.html" class="btn btn-neutral float-left" title="Processing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="hdf5_and_h5py.html" class="btn btn-neutral float-left" title="Installation of hdf5 and h5py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

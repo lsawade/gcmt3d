@@ -1,0 +1,452 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>gcmt3d.asdf.window &mdash; gcmt3d 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> gcmt3d
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/specfem_setup_and_compilation.html">Specfem Setup and compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/creating_the_database.html">Create a Database Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/request_data.html">Request Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/perturb_sources.html">Perturbation of Specfem Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html">Creating Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/running_specfem.html#cleaning-the-simulation-directories">Cleaning the simulation directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/conversion.html">Conversion of the Synthetic and Observed Data to ASDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/processing.html">Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/windowing.html">Windowing of the observed and synthetic traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/hdf5_and_h5py.html">Installation of hdf5 and h5py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/gcmt3dAPI.html">GCMT3D API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/workflowAPI.html">EnTK Workflow API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chapters/workflowAPI.html#workflow-components">Workflow components</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">gcmt3d</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>gcmt3d.asdf.window</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for gcmt3d.asdf.window</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Class for window selection on asdf file and handles parallel I/O</span>
+<span class="sd">so they are invisible to users.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Wenjie Lei (lei@princeton.edu), 2016</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU Lesser General Public License, version 3 (LGPLv3)</span>
+<span class="sd">    (http://www.gnu.org/licenses/lgpl-3.0.en.html)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pyflex</span>
+<span class="kn">from</span> <span class="nn">..window.window</span> <span class="kn">import</span> <span class="n">window_on_stream</span>
+<span class="kn">from</span> <span class="nn">..window.utils</span> <span class="kn">import</span> <span class="n">merge_windows</span><span class="p">,</span> <span class="n">stats_all_windows</span>
+<span class="kn">from</span> <span class="nn">..window.io</span> <span class="kn">import</span> <span class="n">get_json_content</span><span class="p">,</span> <span class="n">WindowEncoder</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">smart_mkdir</span>
+<span class="kn">from</span> <span class="nn">.procbase</span> <span class="kn">import</span> <span class="n">ProcASDFBase</span>
+
+
+<div class="viewcode-block" id="check_param_keywords"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.asdf.window.check_param_keywords">[docs]</a><span class="k">def</span> <span class="nf">check_param_keywords</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">deletes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;self&quot;</span><span class="p">,</span> <span class="s2">&quot;noise_start_index&quot;</span><span class="p">,</span> <span class="s2">&quot;noise_end_index&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;signal_start_index&quot;</span><span class="p">,</span> <span class="s2">&quot;signal_end_index&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;window_weight_fct&quot;</span><span class="p">]</span>
+
+    <span class="n">default_keywords</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">pyflex</span><span class="o">.</span><span class="n">Config</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">deletes</span><span class="p">:</span>
+        <span class="n">default_keywords</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DK: &quot;</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">default_keywords</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CK: &quot;</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">default_keywords</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Missing: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">default_keywords</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Redundant: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">default_keywords</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">default_keywords</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;config file is missing values compared to &quot;</span>
+                             <span class="s2">&quot;pyflex.Config&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_window_config"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.asdf.window.load_window_config">[docs]</a><span class="k">def</span> <span class="nf">load_window_config</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+    <span class="n">config_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flag_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">param</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># pop the &quot;instrument_merge_flag&quot; value out</span>
+        <span class="n">flag_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;instrument_merge_flag&quot;</span><span class="p">])</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;instrument_merge_flag&quot;</span><span class="p">)</span>
+
+        <span class="n">check_param_keywords</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">config_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pyflex</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="o">**</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">_e</span> <span class="o">==</span> <span class="n">flag_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_e</span> <span class="ow">in</span> <span class="n">flag_list</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Instrument_merge_flag not consistent amonge&quot;</span>
+                         <span class="s2">&quot;different parameter yaml files(</span><span class="si">%s</span><span class="s2">). Check!&quot;</span>
+                         <span class="o">%</span> <span class="n">flag_list</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">flag_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="write_window_json"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.asdf.window.write_window_json">[docs]</a><span class="k">def</span> <span class="nf">write_window_json</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output window file: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">output_file</span><span class="p">)</span>
+    <span class="n">window_all</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">station</span><span class="p">,</span> <span class="n">sta_win</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">sta_win</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">window_all</span><span class="p">[</span><span class="n">station</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">_window_comp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">trace_id</span><span class="p">,</span> <span class="n">trace_win</span> <span class="ow">in</span> <span class="n">sta_win</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">_window</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_json_content</span><span class="p">(</span><span class="n">_i</span><span class="p">,</span> <span class="n">simple_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                       <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">trace_win</span><span class="p">]</span>
+            <span class="n">_window_comp</span><span class="p">[</span><span class="n">trace_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_window</span>
+        <span class="n">window_all</span><span class="p">[</span><span class="n">station</span><span class="p">]</span> <span class="o">=</span> <span class="n">_window_comp</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">window_all</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">WindowEncoder</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="window_wrapper"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.asdf.window.window_wrapper">[docs]</a><span class="k">def</span> <span class="nf">window_wrapper</span><span class="p">(</span><span class="n">obsd_station_group</span><span class="p">,</span> <span class="n">synt_station_group</span><span class="p">,</span> <span class="n">config_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">obsd_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">synt_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_modules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figure_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">figure_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">_verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for asdf I/O</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Make sure everything thats required is there.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">synt_station_group</span><span class="p">,</span> <span class="s2">&quot;StationXML&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Missing StationXML from synt_staiton_group&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">obsd_station_group</span><span class="p">,</span> <span class="n">obsd_tag</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Missing tag &#39;</span><span class="si">%s</span><span class="s2">&#39; from obsd_station_group&quot;</span> <span class="o">%</span> <span class="n">obsd_tag</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">synt_station_group</span><span class="p">,</span> <span class="n">synt_tag</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Missing tag &#39;</span><span class="si">%s</span><span class="s2">&#39; from synt_station_group&quot;</span> <span class="o">%</span> <span class="n">synt_tag</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">inv</span> <span class="o">=</span> <span class="n">synt_station_group</span><span class="o">.</span><span class="n">StationXML</span>
+    <span class="n">observed</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obsd_station_group</span><span class="p">,</span> <span class="n">obsd_tag</span><span class="p">)</span>
+    <span class="n">synthetic</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">synt_station_group</span><span class="p">,</span> <span class="n">synt_tag</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">window_on_stream</span><span class="p">(</span>
+        <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">inv</span><span class="p">,</span>
+        <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">user_modules</span><span class="o">=</span><span class="n">user_modules</span><span class="p">,</span>
+        <span class="n">figure_mode</span><span class="o">=</span><span class="n">figure_mode</span><span class="p">,</span> <span class="n">figure_dir</span><span class="o">=</span><span class="n">figure_dir</span><span class="p">,</span>
+        <span class="n">_verbose</span><span class="o">=</span><span class="n">_verbose</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WindowASDF"><a class="viewcode-back" href="../../../chapters/gcmt3dAPI.html#gcmt3d.asdf.window.WindowASDF">[docs]</a><span class="k">class</span> <span class="nc">WindowASDF</span><span class="p">(</span><span class="n">ProcASDFBase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="n">ProcASDFBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                              <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Get params</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
+
+        <span class="c1"># reform the param from default</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
+        <span class="n">comp_settings</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;components&quot;</span><span class="p">]</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_mode</span><span class="p">:</span>
+
+            <span class="c1"># Get MPI rank</span>
+            <span class="n">myrank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">Get_rank</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">_comp</span><span class="p">,</span> <span class="n">_settings</span> <span class="ow">in</span> <span class="n">comp_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">myrank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Preparing params for components: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">_comp</span><span class="p">)</span>
+                <span class="n">results</span><span class="p">[</span><span class="n">_comp</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">_settings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">myrank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--&gt; Modify key[</span><span class="si">%s</span><span class="s2">] to value: </span><span class="si">%s</span><span class="s2"> --&gt; </span><span class="si">%s</span><span class="s2">&quot;</span>
+                              <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">results</span><span class="p">[</span><span class="n">_comp</span><span class="p">][</span><span class="n">k</span><span class="p">],</span> <span class="n">v</span><span class="p">))</span>
+                    <span class="n">results</span><span class="p">[</span><span class="n">_comp</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">_comp</span><span class="p">,</span> <span class="n">_settings</span> <span class="ow">in</span> <span class="n">comp_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="n">results</span><span class="p">[</span><span class="n">_comp</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">_settings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">results</span><span class="p">[</span><span class="n">_comp</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="k">return</span> <span class="n">results</span>
+
+    <span class="k">def</span> <span class="nf">_validate_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">necessary_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;obsd_asdf&quot;</span><span class="p">,</span> <span class="s2">&quot;obsd_tag&quot;</span><span class="p">,</span> <span class="s2">&quot;synt_asdf&quot;</span><span class="p">,</span> <span class="s2">&quot;synt_tag&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;output_file&quot;</span><span class="p">,</span> <span class="s2">&quot;figure_mode&quot;</span><span class="p">,</span> <span class="s2">&quot;figure_dir&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_missing_keys</span><span class="p">(</span><span class="n">necessary_keys</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">param</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">necessary_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;min_period&quot;</span><span class="p">,</span> <span class="s2">&quot;max_period&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_missing_keys</span><span class="p">(</span><span class="n">necessary_keys</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="n">minp</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;min_period&quot;</span><span class="p">]</span>
+            <span class="n">maxp</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;max_period&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">minp</span> <span class="o">&gt;</span> <span class="n">maxp</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_period(</span><span class="si">%6.2f</span><span class="s2">) is larger than max_period&quot;</span>
+                                 <span class="s2">&quot;(</span><span class="si">%6.2f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">minp</span><span class="p">,</span> <span class="n">maxp</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_core</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+
+        <span class="n">obsd_file</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="s2">&quot;obsd_asdf&quot;</span><span class="p">]</span>
+        <span class="n">synt_file</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="s2">&quot;synt_asdf&quot;</span><span class="p">]</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="s2">&quot;output_file&quot;</span><span class="p">]</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_input_file</span><span class="p">(</span><span class="n">obsd_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_input_file</span><span class="p">(</span><span class="n">synt_file</span><span class="p">)</span>
+        <span class="n">smart_mkdir</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">mpi_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_mode</span><span class="p">,</span>
+                    <span class="n">comm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">)</span>
+
+        <span class="n">obsd_tag</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="s2">&quot;obsd_tag&quot;</span><span class="p">]</span>
+        <span class="n">synt_tag</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="s2">&quot;synt_tag&quot;</span><span class="p">]</span>
+        <span class="n">figure_mode</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="s2">&quot;figure_mode&quot;</span><span class="p">]</span>
+        <span class="n">figure_dir</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="s2">&quot;figure_dir&quot;</span><span class="p">]</span>
+        <span class="n">smart_mkdir</span><span class="p">(</span><span class="n">figure_dir</span><span class="p">,</span> <span class="n">mpi_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_mode</span><span class="p">,</span>
+                    <span class="n">comm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">)</span>
+
+        <span class="n">obsd_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_asdf</span><span class="p">(</span><span class="n">obsd_file</span><span class="p">)</span>
+        <span class="n">synt_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_asdf</span><span class="p">(</span><span class="n">synt_file</span><span class="p">)</span>
+
+        <span class="n">event</span> <span class="o">=</span> <span class="n">obsd_ds</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Ridvan Orsvuran, 2016</span>
+        <span class="c1"># take out the user module values</span>
+        <span class="n">user_modules</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">param</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">user_modules</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;user_module&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">config_dict</span><span class="p">,</span> <span class="n">instrument_merge_flag</span> <span class="o">=</span> <span class="n">load_window_config</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+
+        <span class="n">winfunc</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">window_wrapper</span><span class="p">,</span> <span class="n">config_dict</span><span class="o">=</span><span class="n">config_dict</span><span class="p">,</span>
+                          <span class="n">obsd_tag</span><span class="o">=</span><span class="n">obsd_tag</span><span class="p">,</span> <span class="n">synt_tag</span><span class="o">=</span><span class="n">synt_tag</span><span class="p">,</span>
+                          <span class="n">user_modules</span><span class="o">=</span><span class="n">user_modules</span><span class="p">,</span>
+                          <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">figure_mode</span><span class="o">=</span><span class="n">figure_mode</span><span class="p">,</span>
+                          <span class="n">figure_dir</span><span class="o">=</span><span class="n">figure_dir</span><span class="p">,</span> <span class="n">_verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">)</span>
+
+        <span class="c1"># windows = \</span>
+        <span class="c1">#     obsd_ds.process_two_files_no_mpi(synt_ds, winfunc)</span>
+
+        <span class="n">windows</span> <span class="o">=</span> \
+            <span class="n">obsd_ds</span><span class="o">.</span><span class="n">process_two_files_without_parallel_output</span><span class="p">(</span><span class="n">synt_ds</span><span class="p">,</span> <span class="n">winfunc</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">instrument_merge_flag</span><span class="p">:</span>
+            <span class="c1"># merge multiple instruments</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">merge_windows</span><span class="p">(</span><span class="n">windows</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># nothing is done</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">windows</span>
+
+        <span class="c1"># Take of the json and add stats to save the statistics to file</span>
+        <span class="n">stats_logfile</span> <span class="o">=</span> <span class="n">output_file</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;stats.json&quot;</span>
+
+        <span class="c1"># stats windows on rand 0</span>
+        <span class="n">stats_all_windows</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">obsd_tag</span><span class="p">,</span> <span class="n">synt_tag</span><span class="p">,</span>
+                          <span class="n">instrument_merge_flag</span><span class="p">,</span>
+                          <span class="n">stats_logfile</span><span class="p">)</span>
+
+        <span class="c1"># Write to file</span>
+        <span class="n">write_window_json</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Lucas Sawade
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
