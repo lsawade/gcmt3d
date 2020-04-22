@@ -86,7 +86,7 @@ def write_sources(cmt_file_db, param_path, task_counter):
     w_sources_t.executable = "write-sources"
     w_sources_t.arguments = ["-f %s" % cmt_file_db,
                              "-p %s" % param_path]
-
+    w_sources.c
     # In the future maybe to database dir as a total log?
     w_sources_t.stdout = os.path.join(cdir, "logs",
                                       "stdout.pipeline_%s.task_%s.%s"
