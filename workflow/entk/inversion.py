@@ -823,14 +823,14 @@ def workflow(cmtfilenames, param_path):
 
         # ---- Run Specfem ------------------------------------------------------ #
 
-        # # Create Specfem Stage
-        # runSF3D_stage, task_counter = run_specfem(cmt_file_db,
-        #                                           param_path,
-        #                                           task_counter)
-        #
-        # # Add Simulation stage to the Pipeline
-        # p.add_stages(runSF3D_stage)
-        #
+        # Create Specfem Stage
+        runSF3D_stage, task_counter = run_specfem(cmt_in_db,
+                                                  param_path,
+                                                  task_counter)
+
+        # Add Simulation stage to the Pipeline
+        p.add_stages(runSF3D_stage)
+
         # # ---- Clean Up Specfem ------------------------------------------------- #
         #
         # # Create clean_up stage
