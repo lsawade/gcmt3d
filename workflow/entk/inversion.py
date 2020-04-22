@@ -930,7 +930,7 @@ def workflow(cmtfilenames, param_path):
         'resource': 'princeton.traverse',
         'schema': 'local',
         'walltime': int(2*1.5*3600),
-        'cpus': 60s,
+        'cpus': 12,
         'gpus': 12
     }
 
