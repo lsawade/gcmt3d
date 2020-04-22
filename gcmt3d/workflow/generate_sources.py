@@ -14,7 +14,7 @@ This script writes specfem sources into the respective simulation directories.
 
 from gcmt3d.source import CMTSource
 from gcmt3d.data import SpecfemSources
-from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
+from gcmt3d.asdf.utils import read_yaml_file
 import os
 
 # Get logger to log progress
@@ -30,11 +30,10 @@ def write_sources(cmt_filename, param_path):
                                        "CMTInversion/InversionParams.yml")
 
     # Load Parameters
-    DB_params = smart_read_yaml(databaseparam_path,
-                                mpi_mode=is_mpi_env())
+    DB_params = read_yaml_file(databaseparam_path)
 
     # Inversion Params
-    INV_params = smart_read_yaml(inversionparam_path, mpi_mode=is_mpi_env())
+    INV_params = read_yaml_file(inversionparam_path)
 
     # File and directory
     cmt_dir = os.path.dirname(cmt_filename)
