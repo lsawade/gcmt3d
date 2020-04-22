@@ -787,6 +787,8 @@ def workflow(cmtfilenames, param_path):
         ```
 
     """
+    # Just get the full path
+    param_path = os.path.abspath(param_path)
 
     # Get Database parameters
     databaseparam_path = os.path.join(param_path,
