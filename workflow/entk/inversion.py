@@ -85,6 +85,7 @@ def write_sources(cmt_file_db, param_path, task_counter):
     w_sources_t.name = "Task-Sources"
     w_sources.pre_exec = [
         "module load anaconda3"
+        "conda activate gcmt3d"
     ]
     w_sources_t.executable = db_params["bin-python"]
     # w_sources_t.executable = "python"
