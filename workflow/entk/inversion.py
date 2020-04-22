@@ -87,9 +87,9 @@ def write_sources(cmt_file_db, param_path, task_counter):
         "module load anaconda3"
         "conda activate gcmt3d"
     ]
-    w_sources_t.executable = "conda"
+    w_sources_t.executable = "cat"
     # w_sources_t.executable = "python"
-    w_sources_t.arguments = ["env", "list"]
+    w_sources_t.arguments = ["$(conda env list)"]
                              # "-f %s" % cmt_file_db,
                              # "-p %s" % param_path]
 
