@@ -66,6 +66,12 @@ def write_sources(cmt_file_db, param_path, task_counter):
 
     """
 
+    # Get Database parameters
+    databaseparam_path = os.path.join(param_path,
+                                      "Database/DatabaseParameters.yml")
+    # Database parameters.
+    db_params = read_yaml_file(databaseparam_path)
+
     # Earthquake specific database parameters: Dir and Cid
     cdir = os.path.dirname(cmt_file_db)
     cid = get_cmt_id(cmt_file_db)
@@ -77,9 +83,11 @@ def write_sources(cmt_file_db, param_path, task_counter):
     # Create Task for stage
     w_sources_t = Task()
     w_sources_t.name = "Task-Sources"
-    w_sources.pre_exec = ["module load anaconda3",
-                          "conda activate gcmt3d"]
-    w_sources_t.executable = "python"
+    w_sources.pre_exec = [
+        "module load anaconda3"
+    ]
+    w_sources_t.executable = db_params["bin-python"]
+    # w_sources_t.executable = "python"
     w_sources_t.arguments = ["-m gcmt3d.bins.write_sources"
                              "-f %s" % cmt_file_db,
                              "-p %s" % param_path]
@@ -227,8 +235,10 @@ def specfem_clean_up(cmt_file_db, param_path, task_counter):
     # Create Task for stage
     clean_up_t = Task()
     clean_up_t.name = "Task-Clean-Up"
-    clean_up_t.pre_exec = [  # Conda activate
-        DB_params["conda-activate"]]
+    clean_up_t.pre_exec = [
+        # Conda activate
+        DB_params["conda-activate"]
+    ]
     clean_up_t.executable = DB_params["bin-python"]  # Assign executable
     # to the task
     clean_up_t.arguments = [clean_up_func, cmt_file_db]
