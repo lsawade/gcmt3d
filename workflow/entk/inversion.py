@@ -929,8 +929,8 @@ def workflow(cmtfilenames, param_path):
     res_dict = {
         'resource': 'princeton.traverse',
         'schema': 'local',
-        'walltime': 2*1.5*3600,
-        'cpus': 12,
+        'walltime': int(2*1.5*3600),
+        'cpus': 60s,
         'gpus': 12
     }
 
