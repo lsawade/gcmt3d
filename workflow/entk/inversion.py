@@ -77,9 +77,10 @@ def write_sources(cmt_file_db, param_path, task_counter):
     # Create Task for stage
     w_sources_t = Task()
     w_sources_t.name = "Task-Sources"
-    w_sources_t.executable = "python"
-    w_sources_t.arguments = ["-m gcmt3d.bins.write_sources",
-                             "-f %s" % cmt_file_db,
+    w_sources.pre_exec = ["module load anaconda3",
+                          "conda activate gcmt3d"]
+    w_sources_t.executable = "write_sources"
+    w_sources_t.arguments = ["-f %s" % cmt_file_db,
                              "-p %s" % param_path]
     w_sources_t.cpu_reqs = {
             'processes': 1,
