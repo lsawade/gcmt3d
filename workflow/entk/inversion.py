@@ -87,7 +87,7 @@ def write_sources(cmt_file_db, param_path, task_counter):
         "module load anaconda3",
     ]
     w_sources_t.executable = db_params["bin-python"]
-    w_sources_t.arguments = ['-m gcmt3d.bins.write_sources']
+    w_sources_t.arguments = ['-m', 'gcmt3d.bins.write_sources']
                              # '-f', cmt_file_db,
                              # '-p', param_path]
 
