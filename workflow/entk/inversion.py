@@ -66,12 +66,6 @@ def write_sources(cmt_file_db, param_path, task_counter):
 
     """
 
-    # Get Database parameters
-    databaseparam_path = os.path.join(param_path,
-                                      "Database/DatabaseParameters.yml")
-
-    DB_params = read_yaml_file(databaseparam_path)
-
     # Earthquake specific database parameters: Dir and Cid
     cdir = os.path.dirname(cmt_file_db)
     cid = get_cmt_id(cmt_file_db)
@@ -86,6 +80,12 @@ def write_sources(cmt_file_db, param_path, task_counter):
     w_sources_t.executable = "write-sources"
     w_sources_t.arguments = ["-f %s" % cmt_file_db,
                              "-p %s" % param_path]
+    w_sources_t.cpu_reqs = {
+            'processes': 1,
+            'process_type': None,
+            'threads_per_process': 1,
+            'thread_type': None}
+
     # In the future maybe to database dir as a total log?
     w_sources_t.stdout = os.path.join(cdir, "logs",
                                       "stdout.pipeline_%s.task_%s.%s"
