@@ -79,9 +79,13 @@ def write_sources(cmt_file_db, param_path, task_counter):
     w_sources_t.name = "Task-Sources"
     w_sources.pre_exec = ["module load anaconda3",
                           "conda activate gcmt3d"]
-    w_sources_t.executable = "write-sources"
+    w_sources_t.executable = "/bin/echo"
     w_sources_t.arguments = ["-f %s" % cmt_file_db,
                              "-p %s" % param_path]
+
+    # w_sources_t.executable = "write-sources"
+    # w_sources_t.arguments = ["-f %s" % cmt_file_db,
+    #                          "-p %s" % param_path]
     w_sources_t.cpu_reqs = {
             'processes': 1,
             'process_type': None,
@@ -885,7 +889,8 @@ def workflow(cmtfilenames, param_path):
     # ============== RUNNING THE PIPELINE ==================================== #
 
     # Create Application Manager
-    appman = AppManager(hostname=hostname, port=port)
+    appman = AppManager(hostname=hostname, port=port,
+                        resubmit_failed=False)
 
     # # Compute the necessary walltime from walltime/per simulation
     # # Load parameters
