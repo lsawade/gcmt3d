@@ -13,12 +13,17 @@ Last Update: June 2019
 
 '''
 
-from ...source import CMTSource
-from obspy import read_events
 import os
-import warnings
-from copy import deepcopy
 import shutil
+import warnings
+import logging
+from copy import deepcopy
+from obspy import read_events
+from ...source import CMTSource
+from ...log_util import modify_logger
+
+logger = logging.getLogger(__name__)
+modify_logger(logger)
 
 
 def replace_file(source, destination):
@@ -121,9 +126,8 @@ class SpecfemSources(object):
                                                     "CMTSOLUTION"))
 
         # Print info if verbose flag is True
-        if self.v:
-            print("%s has been written." % os.path.join(cmtsim_outdir,
-                                                        "CMTSOLUTION"))
+        logger.verbose("%s has been written." % os.path.join(cmtsim_outdir,
+                                                             "CMTSOLUTION"))
 
         # Write the QuakeML to OUTPUT_FILES folder
         src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
@@ -134,8 +138,7 @@ class SpecfemSources(object):
         self._write_quakeml(src, dst)
 
         # Print info if verbose flag is True
-        if self.v:
-            print("%s has been written." % dst)
+        logger.verbose("%s has been written." % dst)
 
         # Replace STATIONS FILE
         station_source = os.path.join(self.station_dir, "STATIONS")
@@ -170,9 +173,8 @@ class SpecfemSources(object):
                                                         "CMTSOLUTION"))
 
             # Print info if verbose flag is True
-            if self.v:
-                print("%s has been written." % os.path.join(cmtsim_outdir,
-                                                            "CMTSOLUTION"))
+            logger.verbose("%s has been written."
+                           % os.path.join(cmtsim_outdir, "CMTSOLUTION"))
 
             # Write the QuakeML to OUTPUT_FILES folder
             src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
@@ -183,8 +185,7 @@ class SpecfemSources(object):
             self._write_quakeml(src, dst)
 
             # Print info if verbose flag is True
-            if self.v:
-                print("%s has been written." % dst)
+            logger.verbose("%s has been written." % dst)
 
             # Replace STATIONS FILE
             station_source = os.path.join(self.station_dir, "STATIONS")
@@ -214,9 +215,8 @@ class SpecfemSources(object):
                                                         "CMTSOLUTION"))
 
             # Print info if verbose flag is True
-            if self.v:
-                print("%s has been written." % os.path.join(cmtsim_outdir,
-                                                            "CMTSOLUTION"))
+            logger.verbose("%s has been written."
+                           % os.path.join(cmtsim_outdir, "CMTSOLUTION"))
 
             # Write the QuakeML to OUTPUT_FILES folder
             src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
@@ -227,8 +227,7 @@ class SpecfemSources(object):
             self._write_quakeml(src, dst)
 
             # Print info if verbose flag is True
-            if self.v:
-                print("%s has been written." % dst)
+            logger.verbose("%s has been written." % dst)
 
             # Replace STATIONS FILE
             station_source = os.path.join(self.station_dir, "STATIONS")
@@ -259,9 +258,8 @@ class SpecfemSources(object):
                                                         "CMTSOLUTION"))
 
             # Print info if verbose flag is True
-            if self.v:
-                print("%s has been written." % os.path.join(cmtsim_outdir,
-                                                            "CMTSOLUTION"))
+            logger.verbose("%s has been written."
+                           % os.path.join(cmtsim_outdir, "CMTSOLUTION"))
 
             # Write the QuakeML to OUTPUT_FILES folder
             src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
@@ -277,8 +275,7 @@ class SpecfemSources(object):
                                                       "STATIONS"))
 
             # Print info if verbose flag is True
-            if self.v:
-                print("%s has been written." % dst)
+            logger.verbose("%s has been written." % dst)
 
             # Create new CMT solution
             new_cmt = deepcopy(self.cmt)
@@ -297,9 +294,8 @@ class SpecfemSources(object):
                                                         "CMTSOLUTION"))
 
             # Print info if verbose flag is True
-            if self.v:
-                print("%s has been written." % os.path.join(cmtsim_outdir,
-                                                            "CMTSOLUTION"))
+            logger.verbose("%s has been written."
+                           % os.path.join(cmtsim_outdir, "CMTSOLUTION"))
 
             # Write the QuakeML to OUTPUT_FILES folder
             src = os.path.join(cmtsim_outdir, "CMTSOLUTION")
@@ -310,8 +306,7 @@ class SpecfemSources(object):
             self._write_quakeml(src, dst)
 
             # Print info if verbose flag is True
-            if self.v:
-                print("%s has been written." % dst)
+            logger.verbose("%s has been written." % dst)
 
             # Replace STATIONS FILE
             station_source = os.path.join(self.station_dir, "STATIONS")

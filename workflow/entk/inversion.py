@@ -17,6 +17,7 @@ from radical.entk import Pipeline, Stage, Task, AppManager
 from gcmt3d.utils.io import get_location_in_database
 from gcmt3d.utils.io import get_cmt_id
 from gcmt3d.log_util import modify_logger
+from gcmt3d.utils.io import read_yaml_file
 
 logger = logging.getLogger('gcmt3d')
 modify_logger(logger)
@@ -47,12 +48,6 @@ HEADNODE_AVAILABLE = False
 
 CMT_LIST = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
             "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
-
-
-def read_yaml_file(filename):
-    """read yaml file"""
-    with open(filename) as fh:
-        return yaml.load(fh, Loader=yaml.Loader)
 
 
 def write_sources(cmt_file_db, param_path, task_counter):
@@ -133,7 +128,8 @@ def run_specfem(cmt_file_db, param_path, task_counter):
     DB_params = read_yaml_file(databaseparam_path)
 
     # Earthquake specific database parameters: Dir and Cid
-    Cdir, Cid = get_Centry_path(DB_params["databasedir"], cmt_file_db)
+    cdir = os.path.dirname(cmt_file_db)
+    cid = get_cmt_id(cmt_file_db)
 
     specfemspec_path = os.path.join(param_path,
                                     "SpecfemParams/SpecfemParams.yml")
@@ -141,16 +137,15 @@ def run_specfem(cmt_file_db, param_path, task_counter):
                                          "SpecfemParams/"
                                          "CompilersAndModules.yml")
 
+    # The simulation directories.
+    attr = CMT_LIST
+
     # Load Parameters
     specfemspecs = read_yaml_file(specfemspec_path)
     cm_dict = read_yaml_file(comp_and_modules_path)
 
-    # Simulations to be run
-    attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp",
-            "CMT_tp", "CMT_depth", "CMT_lat", "CMT_lon"]
-
     # Simulation directory
-    simdir = os.path.join(os.path.dirname(cmt_file_db), "CMT_SIMs")
+    simdir = os.path.join(cdir, "CMT_SIMs")
 
     # Create a Stage object
     runSF3d = Stage()
@@ -176,22 +171,27 @@ def run_specfem(cmt_file_db, param_path, task_counter):
 
         sf_t.executable = "./bin/xspecfem3D"  # Assigned executable
 
+        # Resource assignment
+        sf_t.cpu_reqs = {'processes': 6, 'process_type': 'MPI',
+                         'threads_per_process': 1, 'thread_type': 'OpenMP'}
+
+        # Note that it's one GPU per MPI task
+        sf_t.gpu_reqs = {'processes': 1, 'process_type': 'MPI',
+                         'threads_per_process': 1, 'thread_type': 'CUDA'}
+
         # In the future maybe to database dir as a total log?
-        sf_t.stdout = os.path.join("%s" % Cdir, "logs",
+        sf_t.stdout = os.path.join("%s" % cdir, "logs",
                                    "stdout.pipeline_%s.task_%s.%s"
-                                   % (Cid,
+                                   % (cid,
                                       str(task_counter).zfill(4),
                                       sf_t.name))
 
-        sf_t.stderr = os.path.join("%s" % Cdir, "logs",
+        sf_t.stderr = os.path.join("%s" % cdir, "logs",
                                    "stderr.pipeline_%s.task_%s.%s"
-                                   % (Cid,
+                                   % (cid,
                                       str(task_counter).zfill(4),
                                       sf_t.name))
 
-
-        
-        print(sf_t.cpu_reqs)
 
         # Increase Task counter
         task_counter += 1
@@ -929,9 +929,9 @@ def workflow(cmtfilenames, param_path):
     res_dict = {
         'resource': 'princeton.traverse',
         'schema': 'local',
-        'walltime': 5,
-        'cpus': 1,
-        #'gpus': 6
+        'walltime': 2*1.5*3600,
+        'cpus': 12,
+        'gpus': 12
     }
 
     # Assign resource request description to the Application Manager
