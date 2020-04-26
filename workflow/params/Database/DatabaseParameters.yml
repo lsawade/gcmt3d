@@ -1,5 +1,5 @@
 # Database directory
-databasedir: "/tigress/lsawade/database"
+databasedir: "/scratch/gpfs/lsawade/database"
 backup_database: "/tigress/lsawade/database"
 
 # Number of parameters to invert for
