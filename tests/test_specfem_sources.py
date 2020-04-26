@@ -22,7 +22,8 @@ import unittest
 import tempfile
 
 # Most generic way to get the data folder path.
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "SpecFEMSources")
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data",
+                        "params", "SpecFEMSources")
 CMTFILE = os.path.join(DATA_DIR, "CMTSOLUTION")
 
 
