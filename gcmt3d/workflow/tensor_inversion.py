@@ -66,10 +66,11 @@ def invert(cmt_file_db, param_path):
     cmtsource = CMTSource.from_CMTSOLUTION_file(cmt_file_db)
 
     # Inversion dictionary directory
-    inv_dict_dir = os.path.join(cmt_dir, "inversion", "inversion_dicts")
+    inv_dict_dir = os.path.join(cmt_dir, "workflow_files", "inversion_dicts")
 
     # Inversion dictionaries
-    inv_dict_files = glob.glob(os.path.join(inv_dict_dir, "inversion*"))
+    inv_dict_files = glob.glob(os.path.join(inv_dict_dir,
+                                            "cmt3d.*.inv_dict.yml"))
 
     # Inversion output directory
     inv_out_dir = os.path.join(cmt_dir,

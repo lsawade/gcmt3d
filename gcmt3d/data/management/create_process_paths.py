@@ -217,7 +217,7 @@ class PathCreator(object):
 
     @property
     def windowpathlist(self):
-        pass
+        return 0
 
     @property
     def processpathlist(self):
@@ -228,9 +228,11 @@ class PathCreator(object):
                 files.append(os.path.join(self.process_param_dir,
                                           wave + "." + datatype + ".yml"))
 
+        return 0
+
     @property
     def inversionpathlist(self):
-        pass
+        return 0
 
     def write_all(self):
         """writes out all created dictionaries."""

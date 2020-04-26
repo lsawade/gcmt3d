@@ -12,11 +12,8 @@ This script writes specfem sources into the respective simulation directories.
 
 """
 
-from gcmt3d.asdf.utils import smart_read_yaml
-from gcmt3d.asdf.utils import is_mpi_env
-from gcmt3d.data.management.create_process_paths import create_process_path_obs
-from gcmt3d.data.management.create_process_paths import create_process_path_syn
-from gcmt3d.data.management.create_process_paths import create_window_path
+from gcmt3d.asdf.utils import read_yaml_file
+from gcmt3d.data.management.create_process_paths import PathCreator
 import os
 
 # Get logger to log progress
@@ -25,30 +22,16 @@ from gcmt3d import logger
 
 def make_paths(cmt_filename, param_path):
 
-    # Define parameter directory
+    # Load database parameters
     databaseparam_path = os.path.join(param_path,
                                       "Database/DatabaseParameters.yml")
+    dbparams = read_yaml_file(databaseparam_path)
 
-    # Load Parameters
-    DB_params = smart_read_yaml(databaseparam_path,
-                                mpi_mode=is_mpi_env())
-
-    logger.info("Creating processing path files for the observed data...")
+    logger.info("Creating dynamic parameter and path files . . .")
 
     # Create Processing path files observed
-    process_obs_dir = os.path.join(param_path, "ProcessObserved")
-    create_process_path_obs(cmt_filename, process_obs_dir)
-
-    logger.info("Creating processing path files for the synthetic data...")
-
-    # Create Processing path files synthetics
-    process_syn_dir = os.path.join(param_path, "ProcessSynthetic")
-
-    create_process_path_syn(cmt_filename, process_syn_dir, DB_params["npar"])
-
-    logger.info("Creating processing path files for windowing the data...")
-
-    # Create Window Path Files:
-    window_dir = os.path.join(param_path, "CreateWindows")
-    create_window_path(cmt_filename, window_dir,
-                       figure_mode=DB_params["figure_mode"], verbose=True)
+    process_dir = os.path.join(param_path, "Process")
+    window_dir = os.path.join(param_path, "Window")
+    P = PathCreator(cmt_filename, window_dir, process_dir,
+                    figure_mode=dbparams["figure_mode"])
+    P.write_all()
