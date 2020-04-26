@@ -306,9 +306,6 @@ def create_g3d_inversion_dict_list(cmt_file_db,  process_obs_dir,
         asdf_dict["obsd"] = [s for s in obs_list
                              if band in os.path.basename(s)][0]
 
-        "200709121110A.9p_ZT.040_100_synt.h5"
-        "200709121110A.9p_ZT.090_250_synt.h5"
-
         # Set observed filename
         asdf_dict["synt"] = [s for s in syn_list
                              if (band in os.path.basename(s))

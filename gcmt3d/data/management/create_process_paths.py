@@ -44,6 +44,7 @@ PARMAP = {"CMT_rr": "Mrr",
           "CMT_ctm": "ctm",
           "CMT_hdr": "hdr"}
 
+
 def create_processing_dictionary(cmtparamdict, obsd_process_dict,
                                  synt_process_dict):
     """This function creates the processing file that contains the info on
@@ -179,7 +180,7 @@ class PathCreator(object):
 
         # Inversion directory
         self.invdir = os.path.join(self.cmtdir, "workflow_files",
-                                     "inversion_dicts")
+                                   "inversion_dicts")
 
         # Window
         self.windowparam_dict = get_window_parameter_dict(windowbasedir)
@@ -212,6 +213,7 @@ class PathCreator(object):
         self.create_process_parameter_struct()
         self.create_process_path_file_struct()
         self.create_create_inversion_structs()
+        self.create_create_gridsearch_structs()
 
     @property
     def windowpathlist(self):
@@ -237,11 +239,11 @@ class PathCreator(object):
                      self.windowpath_file_dict,
                      self.processparam_file_dict,
                      self.processpath_file_dict,
-                     self.cmt3d_invdicts]
+                     self.cmt3d_invdicts,
+                     self.g3d_invdicts]
 
         for outdict in writelist:
             self.write_param_file_dict(outdict)
-
 
     def create_process_parameter_struct(self):
         """Creates window parameter dictionaries and corresponding file names
@@ -299,11 +301,11 @@ class PathCreator(object):
         self.windowparam_file_dict = dict()
 
         for wave, paramdict in self.windowdict.items():
-                filename = os.path.join(self.window_param_dir,
-                                        wave + ".window.yml")
-                self.windowparam_file_dict[wave] \
-                    = {"filename": filename,
-                       "params": paramdict}
+            filename = os.path.join(self.window_param_dir,
+                                    wave + ".window.yml")
+            self.windowparam_file_dict[wave] \
+                = {"filename": filename,
+                   "params": paramdict}
 
     def create_process_path_file_struct(self):
         """This method creates the path files used to perform the processing
@@ -470,7 +472,6 @@ class PathCreator(object):
                             = {"filename": filename,
                                "params": outdict}
 
-
     def create_window_path_file_struct(self):
         """This method creates the path files used to perform the windowing
         on the traces
@@ -487,7 +488,7 @@ class PathCreator(object):
             obsd_asdf: .../seismograms/processed_seismograms/body.obsd.h5
             obsd_tag: Body
             output_file: .../window_data/body.windows.json
-            synt_asdf: .../seismograms/processed_seismograms/processed_synthetic_CMT.040_100.h5
+            synt_asdf: .../seismograms/processed_seismograms/body.synt.CMT.h5
             synt_tag: Body_CMT
             window_param_file: .../workflow_files/params/window_params/\
             body.window.yml
@@ -563,6 +564,12 @@ class PathCreator(object):
 
         .. rubric:: Location in the database
 
+        .. code-block::
+
+            .../workflow_files/inversion_dicts/cmt3d.body.inv_dict.yaml
+            .../workflow_files/inversion_dicts/cmt3d.surface.inv_dict.yaml
+
+
 
         """
 
@@ -582,7 +589,7 @@ class PathCreator(object):
             for key in attr[1:]:
                 cmt_pert = PARMAP[key]
                 asdf_dict[cmt_pert] = os.path.join(seismodir, wave
-                                              + ".synt." + key + ".h5")
+                                                   + ".synt." + key + ".h5")
 
             window_file = os.path.join(windir, wave + ".windows.json")
 
@@ -597,7 +604,55 @@ class PathCreator(object):
                  "params": paramdict}
 
     def create_create_gridsearch_structs(self):
-        pass
+        """Creates inversion dictionaries and their respectice filenames.
+
+        .. rubric:: Content
+
+        The dots represent the CMT directory inside the database.
+
+        .. code-block:: yaml
+
+            asdf_dict:
+              obsd: .../seismograms/processed_seismograms/body.obsd.h5
+              synt: .../inversion/cmt3d/new_synt/\
+              <Paramidentifier>body_synt.CMT.h5
+            window_file: .../window_data/body.windows.json
+
+        .. rubric:: Location in the database
+
+        .. code-block::
+
+            .../workflow_files/inversion_dicts/g3d.body.inv_dict.yaml
+            .../workflow_files/inversion_dicts/g3d.surface.inv_dict.yaml
+
+
+        """
+        seismodir = os.path.join(self.cmtdir, "seismograms",
+                                 "processed_seismograms")
+        cmt3doutdir = os.path.join(self.cmtdir, "inversion",
+                                   "cmt3d", "new_synt")
+        windir = os.path.join(self.cmtdir, "window_data")
+
+        self.g3d_invdicts = dict()
+        for wave in self.windowdict.keys():
+
+            asdf_dict = dict()
+            asdf_dict['obsd'] = os.path.join(seismodir, wave
+                                             + ".obsd.h5")
+            asdf_dict['synt'] = os.path.join(cmt3doutdir, "*" + wave
+                                             + "_synt.h5")
+
+            window_file = os.path.join(windir, wave + ".windows.json")
+
+            paramdict = {"asdf_dict": asdf_dict,
+                         "window_file": window_file}
+
+            filename = os.path.join(self.invdir, "g3d." + wave
+                                    + ".inv_dict.yml")
+
+            self.g3d_invdicts[wave + "3d"] = \
+                {"filename": filename,
+                 "params": paramdict}
 
     @staticmethod
     def write_param_file_dict(paramfiledict):
