@@ -102,18 +102,26 @@ def test_create_process_dictionary():
                                  1.0 / 60.0, 1.0 / 50.0]
     body_syntdict["pre_filt"] = [1.0 / 150.0, 1.0 / 100.0,
                                  1.0 / 60.0, 1.0 / 50.0]
+    body_obsddict["relative_endtime"] = 3600.0
+    body_syntdict["relative_endtime"] = 3600.0
+
     surface_obsddict = copy.deepcopy(obsd_dict)
     surface_syntdict = copy.deepcopy(synt_dict)
     surface_obsddict["pre_filt"] = [1.0 / 150.0, 1.0 / 100.0,
                                     1.0 / 60.0, 1.0 / 50.0]
     surface_syntdict["pre_filt"] = [1.0 / 150.0, 1.0 / 100.0,
                                     1.0 / 60.0, 1.0 / 50.0]
+    surface_obsddict["relative_endtime"] = 7200.0
+    surface_syntdict["relative_endtime"] = 7200.0
+
     mantle_obsddict = copy.deepcopy(obsd_dict)
     mantle_syntdict = copy.deepcopy(synt_dict)
     mantle_obsddict["pre_filt"] = [1.0 / 350.0, 1.0 / 300.0, 1.0 / 150.0,
                                    1.0 / 125.0]
     mantle_syntdict["pre_filt"] = [1.0 / 350.0, 1.0 / 300.0, 1.0 / 150.0,
                                    1.0 / 125.0]
+    mantle_obsddict["relative_endtime"] = 4.5 * 3600.0
+    mantle_syntdict["relative_endtime"] = 4.5 * 3600.0
 
     test_dict = {"body":
                      {"obsd": body_obsddict,

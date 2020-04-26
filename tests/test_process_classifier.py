@@ -78,13 +78,15 @@ def test_classifier_class():
 
 
     assert {'body': {'filter': [150.0, 100.0, 60.0, 50.0],
+                     'relative_endtime': 3600.0,
                      'weight': 1.0},
-            'mantle': {"filter": [350.0, 300.0, 150.0, 125.0],
-                       'weight': 1},
+            'mantle': {'filter': [350.0, 300.0, 150.0, 125.0],
+                       'relative_endtime': 16200.0,
+                       'weight': 1.0},
             'surface': {'filter': [150.0, 100.0, 60.0, 50.0],
+                        'relative_endtime': 7200.0,
                         'weight': 1.0}
             } == pdict
-
 
     # Sample magnitude and depth
     mw = 7.5
@@ -97,12 +99,13 @@ def test_classifier_class():
     # Print if errored
     print(7.5)
     pprint.pprint(pdict)
-    print('hello')
 
-    assert {'mantle': {"filter": [375.0, 327.77777777777777,
+
+    assert {'mantle': {'filter': [375.0, 327.77777777777777,
                                   186.11111111111111, 162.5],
+                       'relative_endtime': 16200.0,
                        'weight': 1.0}
-           } == pdict
+            } == pdict
 
     # Sample magnitude and depth
     mw = 8.0
@@ -116,11 +119,11 @@ def test_classifier_class():
     print(8.0)
     pprint.pprint(pdict)
 
-
-    assert {'mantle': {"filter": [400.0, 355.55555555555554,
+    assert {'mantle': {'filter': [400.0, 355.55555555555554,
                                   222.22222222222223, 200.0],
-                       'weight': 1}
-            }
+                       'relative_endtime': 16200.0,
+                       'weight': 1.0}
+            } == pdict
 
     # Sample magnitude and depth
     mw = 5.25
@@ -135,8 +138,10 @@ def test_classifier_class():
     pprint.pprint(pdict)
 
     assert {'body': {'filter': [150.0, 100.0, 50.0, 40.0],
+                     'relative_endtime': 3600.0,
                      'weight': 1.0},
             'surface': {'filter': [150.0, 100.0, 60.0, 50.0],
+                        'relative_endtime': 7200.0,
                         'weight': 1.0}
             } == pdict
 

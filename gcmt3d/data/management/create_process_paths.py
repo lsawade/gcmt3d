@@ -77,6 +77,8 @@ def create_processing_dictionary(cmtparamdict, obsd_process_dict,
                                for x in sorted(paramdict["filter"])[::-1]]
         tmpsynt["pre_filt"] = [1.0/x
                                for x in sorted(paramdict["filter"])[::-1]]
+        tmpobsd["relative_endtime"] = paramdict["relative_endtime"]
+        tmpsynt["relative_endtime"] = paramdict["relative_endtime"]
 
         outdict[wave] = {"obsd": tmpobsd, "synt": tmpsynt}
 

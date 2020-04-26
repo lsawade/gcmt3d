@@ -111,6 +111,9 @@ class ProcessParams(object):
         self.mantlewave_weight = 1.0
 
         # Record length
+        self.body_relative_endtime = 1.0 * 3600.0
+        self.surface_relative_endtime = 2.0 * 3600.0
+        self.mantle_relative_endtime = 4.5 * 3600.0
 
     def determine_all(self):
         """Main class method. Would have called it a __call__
@@ -133,17 +136,23 @@ class ProcessParams(object):
         if self.bodywave_weight is not None \
                 and self.bodywave_weight != 0.0:
             outdict["body"] = {"weight": self.bodywave_weight,
-                               "filter": self.bodywave_filter}
+                               "filter": self.bodywave_filter,
+                               "relative_endtime":
+                                   self.body_relative_endtime}
 
         if self.surfacewave_weight is not None \
                 and self.surfacewave_weight != 0.0:
             outdict["surface"] = {"weight": self.surfacewave_weight,
-                                  "filter": self.surfacewave_filter}
+                                  "filter": self.surfacewave_filter,
+                                  "relative_endtime":
+                                      self.surface_relative_endtime}
 
         if self.mantlewave_weight is not None \
                 and self.mantlewave_weight != 0.0:
             outdict["mantle"] = {"weight": self.mantlewave_weight,
-                                 "filter": self.mantlewave_filter}
+                                 "filter": self.mantlewave_filter,
+                                 "relative_endtime":
+                                     self.mantle_relative_endtime}
 
         return outdict
 
