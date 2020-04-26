@@ -110,6 +110,8 @@ class ProcessParams(object):
         self.surfacewave_weight = 1.0
         self.mantlewave_weight = 1.0
 
+        # Record length
+
     def determine_all(self):
         """Main class method. Would have called it a __call__
         but wanted to make it more clear."""
