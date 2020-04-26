@@ -121,6 +121,10 @@ class DataBaseSkeleton(object):
         logger.info("Creating seismogram directories")
         self.create_seismogram_dir()
 
+        # Creating the workflow file dir
+        logger.info("Creating workflow directories")
+        self.create_workflow_dir()
+
         # Create Inversion directory
         logger.info("Creating inversion directories")
         self.create_inversion_dir()
@@ -224,31 +228,85 @@ class DataBaseSkeleton(object):
             else:
                 self._create_dir(log_dir, False)
 
+    def create_workflow_dir(self):
+        """Creates station_data directory for station metadata."""
+
+        for _i, _Cdir in enumerate(self.Cdirs):
+
+            # Create station_data dirs
+            wf_dir = os.path.join(_Cdir, "workflow_files")
+
+            if self.ow in [0, 1, 2] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(wf_dir, True)
+            else:
+                self._create_dir(wf_dir, False)
+
+            pathfiles = os.path.join(wf_dir, "path_files")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(pathfiles, True)
+            else:
+                self._create_dir(pathfiles, False)
+
+            windowpaths = os.path.join(pathfiles, "window_paths")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(windowpaths, True)
+            else:
+                self._create_dir(windowpaths, False)
+
+            processpaths = os.path.join(pathfiles, "process_paths")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(processpaths, True)
+            else:
+                self._create_dir(processpaths, False)
+
+            paramfiles = os.path.join(wf_dir, "params")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(paramfiles, True)
+            else:
+                self._create_dir(pathfiles, False)
+
+            windowparams = os.path.join(paramfiles, "window_params")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(windowparams, True)
+            else:
+                self._create_dir(windowparams, False)
+
+            processparams = os.path.join(paramfiles, "process_params")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(processparams, True)
+            else:
+                self._create_dir(processparams, False)
+
+            invfiles = os.path.join(wf_dir, "inversion_dicts")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(invfiles, True)
+            else:
+                self._create_dir(invfiles, False)
+
     def create_inversion_dir(self):
         """Creates station_data directory for station metadata."""
 
         for _i, _Cdir in enumerate(self.Cdirs):
 
             # Create station_data dirs
-            inv_dir = os.path.join(_Cdir, "inversion")
+            inv_out_dir = os.path.join(_Cdir, "inversion")
 
             if self.ow in [0, 1, 2] and type(self.ow) is not bool:
-                # Create new directory
-                self._create_dir(inv_dir, True)
-            else:
-                self._create_dir(inv_dir, False)
-
-            inv_dict_dir = os.path.join(inv_dir, "inversion_dicts")
-
-            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
-                # Create new directory
-                self._create_dir(inv_dict_dir, True)
-            else:
-                self._create_dir(inv_dict_dir, False)
-
-            inv_out_dir = os.path.join(inv_dir, "inversion_output")
-
-            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
                 # Create new directory
                 self._create_dir(inv_out_dir, True)
             else:

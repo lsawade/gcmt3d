@@ -52,7 +52,7 @@ def write_yaml_file(d, filename, **kwargs):
           filename: string with filename of the file to be written.
 
     """
-    with open(filename, 'w') as yaml_file:
+    with open(filename, 'w+') as yaml_file:
         yaml.dump(d, yaml_file, default_flow_style=False, **kwargs)
 
 
