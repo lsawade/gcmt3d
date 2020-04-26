@@ -22,7 +22,7 @@ relative_endtime: 7150
 
 # resample the seismogram. Sampling_rate in unit Hz.
 resample_flag: True
-sampling_rate: 5
+sampling_rate: 0.1
 
 # taper
 taper_type: "hann"
