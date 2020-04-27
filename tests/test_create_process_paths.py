@@ -443,7 +443,7 @@ class TestCreatePaths(unittest.TestCase):
             # Content
             obsd_asdf = os.path.join(procdir, "body.obsd.h5")
             obsd_tag = "body"
-            synt_asdf = os.path.join(procdir, "body.synt.h5")
+            synt_asdf = os.path.join(procdir, "body.synt.CMT.h5")
             synt_tag = "body_cmt"
             output_file = os.path.join(windir, "body.windows.json")
             figure_dir = os.path.join(windir, "body_wave_plots")
@@ -466,7 +466,7 @@ class TestCreatePaths(unittest.TestCase):
             # Content
             obsd_asdf = os.path.join(procdir, "surface.obsd.h5")
             obsd_tag = "surface"
-            synt_asdf = os.path.join(procdir, "surface.synt.h5")
+            synt_asdf = os.path.join(procdir, "surface.synt.CMT.h5")
             synt_tag = "surface_cmt"
             output_file = os.path.join(windir, "surface.windows.json")
             figure_dir = os.path.join(windir, "surface_wave_plots")

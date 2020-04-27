@@ -520,7 +520,7 @@ class PathCreator(object):
 
             obsd_asdf = os.path.join(procdir, wave + ".obsd" + suffix)
             obsd_tag = wave
-            synt_asdf = os.path.join(procdir, wave + ".synt" + suffix)
+            synt_asdf = os.path.join(procdir, wave + ".synt.CMT" + suffix)
             synt_tag = wave + "_cmt"
             output_file = os.path.join(windowdir, wave + ".windows.json")
             figure_dir = os.path.join(windowdir, wave + "_wave_plots")
@@ -572,8 +572,6 @@ class PathCreator(object):
 
             .../workflow_files/inversion_dicts/cmt3d.body.inv_dict.yaml
             .../workflow_files/inversion_dicts/cmt3d.surface.inv_dict.yaml
-
-
 
         """
 
