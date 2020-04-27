@@ -36,7 +36,7 @@ default:
 
   # check global data quality
   "check_global_data_quality": True
-  "snr_integrate_base": 0.3
+  "snr_integrate_base": 0.1
   "snr_max_base": 0.8
 
   # see reference in FLEXWIN manual
