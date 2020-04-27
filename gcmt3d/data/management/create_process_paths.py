@@ -414,7 +414,7 @@ class PathCreator(object):
                     output_asdf = os.path.join(procdir,
                                                wave + "." + datatype
                                                + suffix)
-                    output_tag = wave.capitalize()
+                    output_tag = wave
 
                     # Define process parameter file
                     process_param_file = os.path.join(self.process_param_dir,
@@ -448,7 +448,7 @@ class PathCreator(object):
                         output_asdf = os.path.join(procdir,
                                                    wave + "." + datatype + "."
                                                    + at + suffix)
-                        output_tag = wave.capitalize() + "_" + at
+                        output_tag = wave + "_" + at.lower()
 
                         # Define process parameter file
                         process_param_file = os.path.join(
@@ -519,9 +519,9 @@ class PathCreator(object):
         for wave, datadict in self.windowdict.items():
 
             obsd_asdf = os.path.join(procdir, wave + ".obsd" + suffix)
-            obsd_tag = wave.capitalize()
+            obsd_tag = wave
             synt_asdf = os.path.join(procdir, wave + ".synt" + suffix)
-            synt_tag = wave.capitalize() + "_CMT"
+            synt_tag = wave + "_cmt"
             output_file = os.path.join(windowdir, wave + ".windows.json")
             figure_dir = os.path.join(windowdir, wave + "_wave_plots")
             window_param_file = os.path.join(self.window_param_dir,

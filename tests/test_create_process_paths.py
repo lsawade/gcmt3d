@@ -364,7 +364,7 @@ class TestCreatePaths(unittest.TestCase):
                                        "processed_seismograms",
                                        "body.obsd.h5")
 
-            output_tag = "Body"
+            output_tag = "body"
             process_param_file = os.path.join(procparams, "body.obsd.process.yml")
 
             d = read_yaml_file(process_file)
@@ -388,7 +388,7 @@ class TestCreatePaths(unittest.TestCase):
                                        "processed_seismograms",
                                        "body.synt.CMT_rr.h5")
 
-            output_tag = "Body_CMT_rr"
+            output_tag = "body_cmt_rr"
             process_param_file = os.path.join(procparams,
                                               "body.synt.process.yml")
 
@@ -442,9 +442,9 @@ class TestCreatePaths(unittest.TestCase):
 
             # Content
             obsd_asdf = os.path.join(procdir, "body.obsd.h5")
-            obsd_tag = "Body"
+            obsd_tag = "body"
             synt_asdf = os.path.join(procdir, "body.synt.h5")
-            synt_tag = "Body_CMT"
+            synt_tag = "body_cmt"
             output_file = os.path.join(windir, "body.windows.json")
             figure_dir = os.path.join(windir, "body_wave_plots")
             window_param_file = os.path.join(windowparams, "body.window.yml")
@@ -465,9 +465,9 @@ class TestCreatePaths(unittest.TestCase):
             # Also run check of surface waves
             # Content
             obsd_asdf = os.path.join(procdir, "surface.obsd.h5")
-            obsd_tag = "Surface"
+            obsd_tag = "surface"
             synt_asdf = os.path.join(procdir, "surface.synt.h5")
-            synt_tag = "Surface_CMT"
+            synt_tag = "surface_cmt"
             output_file = os.path.join(windir, "surface.windows.json")
             figure_dir = os.path.join(windir, "surface_wave_plots")
             window_param_file = os.path.join(windowparams, "surface.window.yml")

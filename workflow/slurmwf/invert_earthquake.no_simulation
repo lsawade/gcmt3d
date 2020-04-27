@@ -99,32 +99,32 @@ echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
 srun -N1 -n1 create-path-files -f $CIN_DB -p $PARAMETER_PATH > \$CPP_LOG_FILE
 echo " "
 
-######## CONVERT TRACES ########
-echo "******** CONVERT TRACES ******************************"
-echo " "
-
-CONV_LOG=$LOG_DIR/$CID.005.Converting-to-ASDF
-
-# Synthetic data
-for CMT in "\${CMT_LIST[@]}"; do
-    CONV_PATH_FILE=$CMT_SIM_DIR/\$CMT/\$CMT.yml
-    echo "Conversion yml: \$CONV_PATH_FILE"
-    CONV_LOG_FILE=\$CONV_LOG.\$CMT.STDOUT
-    echo "Conversion logfile: \$CONV_LOG_FILE"
-    srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
-done                                                   
-
-# Observed data
-CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
-echo "Conversion yml: \$CONV_PATH_FILE"
-CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
-echo "Conversion logfile: \$CONV_LOG_FILE"
-srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
-wait
-echo " "
-echo "Done."
-echo " "
-echo " "
+######### CONVERT TRACES ########
+#echo "******** CONVERT TRACES ******************************"
+#echo " "
+#
+#CONV_LOG=$LOG_DIR/$CID.005.Converting-to-ASDF
+#
+## Synthetic data
+#for CMT in "\${CMT_LIST[@]}"; do
+#    CONV_PATH_FILE=$CMT_SIM_DIR/\$CMT/\$CMT.yml
+#    echo "Conversion yml: \$CONV_PATH_FILE"
+#    CONV_LOG_FILE=\$CONV_LOG.\$CMT.STDOUT
+#    echo "Conversion logfile: \$CONV_LOG_FILE"
+#    srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
+#done
+#
+## Observed data
+#CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
+#echo "Conversion yml: \$CONV_PATH_FILE"
+#CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
+#echo "Conversion logfile: \$CONV_LOG_FILE"
+#srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
+#wait
+#echo " "
+#echo "Done."
+#echo " "
+#echo " "
 
 ######## Process Traces ########
 echo "******** PROCESS TRACES ******************************"
