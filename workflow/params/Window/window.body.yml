@@ -24,7 +24,6 @@ default:
 
   # window signal-to-noise ratio
   "s2n_limit": 3.0
-  "s2n_limit_energy": 3.0
   "window_signal_to_noise_type": "amplitude"
 
   # min/max surface wave velocity, to calculate slowest/fast
@@ -32,10 +31,8 @@ default:
   # surface wave region
   "selection_mode": "body_waves"
   "min_surface_wave_velocity": 3.20
-  "max_surface_wave_velocity": 4.10
   "earth_model": "ak135"
   "max_time_before_first_arrival": 100.0
-  "max_time_after_last_arrival": 200.0
 
   # check global data quality
   "check_global_data_quality": True
@@ -68,10 +65,8 @@ components:
 
   BHR:
     "s2n_limit": 3.5
-    "s2n_limit_energy": 3.5
     "snr_max_base": 3.5
 
   BHT:
     "s2n_limit": 3.5
-    "s2n_limit_energy": 3.5
     "snr_max_base": 3.5
