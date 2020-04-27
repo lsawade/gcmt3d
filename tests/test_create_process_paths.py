@@ -198,12 +198,12 @@ def test_create_windowing_dictionary():
     # Create full windowing dictionary
     fulldict = create_windowing_dictionary(cmtconfigdict, windowconfig_dict)
 
-    assert fulldict["body"]["min_period"] == 60.0
-    assert fulldict["body"]["max_period"] == 100.0
-    assert fulldict["surface"]["min_period"] == 60.0
-    assert fulldict["surface"]["max_period"] == 100.0
-    assert fulldict["mantle"]["min_period"] == 150.0
-    assert fulldict["mantle"]["max_period"] == 300.0
+    assert fulldict["body"]["default"]["min_period"] == 60.0
+    assert fulldict["body"]["default"]["max_period"] == 100.0
+    assert fulldict["surface"]["default"]["min_period"] == 60.0
+    assert fulldict["surface"]["default"]["max_period"] == 100.0
+    assert fulldict["mantle"]["default"]["min_period"] == 150.0
+    assert fulldict["mantle"]["default"]["max_period"] == 300.0
 
     # One more test to check if certain slots are empty depending on the
     # cmtconfig
@@ -215,10 +215,10 @@ def test_create_windowing_dictionary():
     # Create full windowing dictionary
     fulldict = create_windowing_dictionary(cmtconfigdict, windowconfig_dict)
 
-    assert fulldict["body"]["min_period"] == 50.0
-    assert fulldict["body"]["max_period"] == 100.0
-    assert fulldict["surface"]["min_period"] == 60.0
-    assert fulldict["surface"]["max_period"] == 100.0
+    assert fulldict["body"]["default"]["min_period"] == 50.0
+    assert fulldict["body"]["default"]["max_period"] == 100.0
+    assert fulldict["surface"]["default"]["min_period"] == 60.0
+    assert fulldict["surface"]["default"]["max_period"] == 100.0
 
     assert "mantle" not in fulldict.keys()
 

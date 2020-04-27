@@ -136,8 +136,8 @@ def create_windowing_dictionary(cmtparamdict, windowconfigdict):
     for wave, paramdict in cmtparamdict.items():
         outdict[wave] = windowconfigdict[wave]
 
-        outdict[wave]["min_period"] = paramdict["filter"][2]
-        outdict[wave]["max_period"] = paramdict["filter"][1]
+        outdict[wave]["default"]["min_period"] = paramdict["filter"][2]
+        outdict[wave]["default"]["max_period"] = paramdict["filter"][1]
 
     return outdict
 
