@@ -82,7 +82,7 @@ sbatch << EOF
 #SBATCH --ntasks-per-node=30
 #SBATCH --gres=gpu:3
 #SBATCH --mem=200GB
-#SBATCH --time=02:00:00
+#SBATCH --time=03:00:00
 # SBATCH --reservation=test
 #SBATCH --mail-user=lsawade@princeton.edu
 #SBATCH --mail-type=END
