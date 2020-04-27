@@ -10,14 +10,14 @@ default:
   "max_period": 250.0
 
   # STA/LAT water level
-  "stalta_waterlevel": 0.085
+  "stalta_waterlevel": 0.05
 
   # max tsfhit
   "tshift_acceptance_level": 30.0
   "tshift_reference": 0.0
 
   # max amplitude difference
-  "dlna_acceptance_level": 0.8
+  "dlna_acceptance_level": 0.3
   "dlna_reference": 0.0
 
   # min cc coef
