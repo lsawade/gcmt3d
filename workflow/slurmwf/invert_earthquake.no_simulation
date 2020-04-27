@@ -126,33 +126,33 @@ echo " "
 #echo " "
 #echo " "
 
-######## Process Traces ########
-echo "******** PROCESS TRACES ******************************"
-echo " "
-PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
-
-export OMP_NUM_THREADS=1
-
-# Get the different period bands as they will use the same asdf file
-WAVE_LIST=(body surface mantle)
-echo \$WAVE_LIST
-for WAVE in \$WAVE_LIST; do
-
-    for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
-        if [[ \$PROCESS_PATH == *"\$BAND"* ]]; then
-            PROCESS_PATH_FILE="$PROCESS_PATHS/\$PROCESS_PATH"
-            echo "Processing yml: \$PROCESS_PATH_FILE"
-            PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
-            echo "Processing logfile: \$PROC_LOG_FILE"
-            srun -N1 -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
-        fi
-    done
-    wait
-done
-echo " "
-echo "Done."
-echo " "
-echo " "
+######### Process Traces ########
+#echo "******** PROCESS TRACES ******************************"
+#echo " "
+#PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
+#
+#export OMP_NUM_THREADS=1
+#
+## Get the different period bands as they will use the same asdf file
+#WAVE_LIST=(body surface mantle)
+#echo \$WAVE_LIST
+#for WAVE in \$WAVE_LIST; do
+#
+#    for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
+#        if [[ \$PROCESS_PATH == *"\$BAND"* ]]; then
+#            PROCESS_PATH_FILE="$PROCESS_PATHS/\$PROCESS_PATH"
+#            echo "Processing yml: \$PROCESS_PATH_FILE"
+#            PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
+#            echo "Processing logfile: \$PROC_LOG_FILE"
+#            srun -N1 -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
+#        fi
+#    done
+#    wait
+#done
+#echo " "
+#echo "Done."
+#echo " "
+#echo " "
 
 
 ######## Window Traces ########
