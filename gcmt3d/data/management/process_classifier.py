@@ -161,7 +161,7 @@ class ProcessParams(object):
         I'm not quite sure what it means in the paper."""
         if self.mw < 6.5:
             self.bodywave_filter = [150.0, 100.0, 50.0, 40.0]
-        elif 6.5 <= self.mw and self.mw <= 7.5:
+        elif 6.5 <= self.mw <= 7.5:
             self.bodywave_filter = [150.0, 100.0, 60.0, 50.0]
         else:
             self.bodywave_filter = None
@@ -169,9 +169,7 @@ class ProcessParams(object):
     def determine_surfacewave_filter(self):
         """Less that 5.5 should be filter in the velocity spectrum. Same
         as the bodywave filter."""
-        if self.mw <= 5.5:
-            self.surfacewave_filter = [150.0, 100.0, 60.0, 50.0]
-        elif 6.5 <= self.mw and self.mw <= 7.5:
+        if self.mw <= 7.5:
             self.surfacewave_filter = [150.0, 100.0, 60.0, 50.0]
         else:
             self.surfacewave_filter = None
@@ -180,7 +178,7 @@ class ProcessParams(object):
         """Uses the scaled corners from magnitude 7.0 to 8.0"""
         if self.mw < 5.5:
             self.mantlewave_filter = None
-        elif 5.5 <= self.mw and self.mw <= 7.0:
+        elif 5.5 <= self.mw <= 7.0:
             self.mantlewave_filter = [350.0, 300.0, 150.0, 125.0]
         # For events larger than magnitude 7.0s
         elif 7.0 <= self.mw and self.mw <= 8.0:
@@ -225,7 +223,7 @@ class ProcessParams(object):
         """No weight for events deeper that 300km."""
         if self.mw > 7.5:
             self.surfacewave_weight = None
-        elif self.mw < 6.5:
+        elif self.mw <= 6.5:
             self.surfacewave_weight = 1.0
         else:
             self.surfacewave_weight = (7.5 - self.mw) / (7.5 - 6.5)
