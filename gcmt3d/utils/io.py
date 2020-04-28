@@ -16,7 +16,14 @@ from __future__ import (absolute_import, division, print_function)
 import os
 import json
 import yaml
+import logging
+from pyasdf import ASDFDataSet
+from obspy import Stream, Inventory
 from ..source import CMTSource
+from ..log_util import modify_logger
+
+logger = logging.getLogger(__name__)
+modify_logger(logger)
 
 
 def load_json(filename):
@@ -140,3 +147,36 @@ def get_cmt_id(cmtfile):
 
     # Get ID from source
     return cmtsource.eventname
+
+
+def load_asdf(filename: str):
+    """Takes in a filename of an asdf file and outputs event, inventory,
+    and stream with the traces. Note that this is only good for asdffiles
+    with one set of traces event and stations since the function will get the
+    first/only waveform tag from the dataset
+
+    Args:
+        filename: ASDF filename. "somethingsomething.h5"
+
+    Returns:
+        Event, Inventory, Stream
+    """
+
+    ds = ASDFDataSet(filename)
+
+    # Create empty streams and inventories
+    inv = Inventory()
+    st = Stream()
+
+    # Get waveform tag
+    tag = list(ds.waveform_tags)[0]
+    for station in ds.waveforms.list():
+        try:
+            st += getattr(ds.waveforms[station], tag)
+            inv += ds.waveforms[station].StationXML
+        except Exception as e:
+            logger.verbose(e)
+
+    ev = ds.events[0]
+
+    return ev, inv, st
