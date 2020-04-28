@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-This script will create the perturbed Moment tensors in the perturbation
-directories.
 
+This executable will load and asdf file and plots the traces as
+seismic sections.
 
 :copyright:
     Lucas Sawade (lsawade@princeton.edu)
@@ -36,3 +36,7 @@ def main():
     syntfile = args.synthetic
     winfile = args.windows
     plot_section(obsdfile, synt_file_name=syntfile, window_file_name=winfile)
+
+
+if __name__ == "__main__":
+    main()

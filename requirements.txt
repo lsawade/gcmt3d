@@ -1,12 +1,12 @@
 numpy
 matplotlib
 flake8
-obspy==1.1.1
-PyYAML==5.1
+obspy
+PyYAML
 pyflex
-pytest==4.5.0
+pytest
 h5py
+git+git://github.com/wjlei1990/pyflex.git@merge
 git+git://github.com/lsawade/pyasdf.git@devel
 git+git://github.com/lsawade/spaceweight.git@master
 git+git://github.com/lsawade/pycmt3d.git@devel
-matplotlib

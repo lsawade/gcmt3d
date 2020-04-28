@@ -32,8 +32,45 @@ def get_event_location(event: Event):
     Returns:
         lat, lon
     """
+    origin = event.preferred_origin()
+    return origin.latitude, origin.longitude
 
-    return event.preferred_origin()
+
+def get_moment_tensors(event: Event):
+    """Takes in an obspy Event and spits a focal mechanisms
+    This is the fucking worst. I mean look at it. Just to
+    get the moment tensor.
+
+    Args:
+        event:
+
+    Returns:
+        lat, lon
+    """
+    tensor = event.preferred_focal_mechanism().moment_tensor.tensor
+    return [tensor.m_rr, tensor.m_tt, tensor.m_pp,
+            tensor.m_rt, tensor.m_rp, tensor.m_tp]
+
+
+def get_station_locations(inv: Inventory):
+    """Get all station locations.
+
+    Args:
+        inv: :class:`obspy.Inventory`
+
+    Returns:
+        list of station_locations [ [lat1, lon1], ..., [latn, lonn]]
+    """
+    locations = []
+    for network in inv:
+        for station in network:
+            # Get station parameters
+            lat = station.latitude
+            lon = station.longitude
+
+            locations.append([lat, lon])
+
+    return locations
 
 
 def write_stations_file(inv: Inventory, filename="STATIONS"):

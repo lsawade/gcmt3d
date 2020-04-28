@@ -14,20 +14,19 @@ Last Update: April 2020
 """
 
 # External imports
-# import os
-# import json
 import logging
-# from numpy import max, array, argsort, arange
-# from pyasdf import ASDFDataSet
-# from obspy import Stream, Inventory
-# from obspy.geodetics import gps2dist_azimuth, locations2degrees
-# from matplotlib.pyplot import plot, xlabel, ylabel, xlim, ylim, title
-# from matplotlib.pyplot import figure, axes, show, savefig, tight_layout
-#
-# from matplotlib.patches import Rectangle
+import matplotlib.pyplot as plt
+from obspy import Inventory
+from obspy.core.event.event import Event
+from obspy.imaging.beachball import beach
+import cartopy
+from cartopy.crs import Robinson
 
 # Internal imports
-from .plot_util import set_mpl_params_section
+from ..utils.obspy_utils import get_event_location
+from ..utils.obspy_utils import get_moment_tensor
+from ..utils.obspy_utils import get_station_locations
+from ..plot.plot_util import set_mpl_params_section
 from ..log_util import modify_logger
 
 # Get logger
@@ -38,6 +37,47 @@ modify_logger(logger)
 set_mpl_params_section()
 
 
-def plot_event(ev, inv):
+def plot_map(central_longitude):
+    ax = plt.gca()
+    ax.set_global()
+    ax.frameon = True
+    ax.outline_patch.set_linewidth(0.75)
+
+    # Set gridlines. NO LABELS HERE, there is a bug in the gridlines
+    # function around 180deg
+    gl = ax.gridlines(crs=Robinson(central_longitude=central_longitude),
+                      draw_labels=False,
+                      linewidth=1, color='lightgray', alpha=0.5,
+                      linestyle='-', zorder=-1.5)
+    gl.xlabels_top = False
+    gl.ylabels_left = False
+    gl.xlines = True
+
+    # Add Coastline
+    ax.add_feature(cartopy.feature.LAND, zorder=-2, edgecolor='black',
+                   linewidth=0.5, facecolor=(0.9, 0.9, 0.9))
+
+
+def plot_event(event: Event, inv: Inventory):
     """Takes in an inventory and plots paths one a map."""
-    pass
+
+    # Get Event location
+    ev_coords = get_event_location(event)
+    mt = get_moment_tensor(ev_coords)
+
+    # Get Station locations
+    locations = get_station_locations(inv)
+    print(locations)
+
+    # Create figure
+    plt.figure(figsize=(12, 8))
+    ax = plt.axes(projection=Robinson(central_longitude=ev_coords[1]))
+
+    # Plot Map
+    plot_map(ev_coords[1])
+
+    # Plot beachball
+    b = beach(mt, linewidth=0.25, facecolor='k', bgcolor='w', edgecolor='k',
+              alpha=1, xy=(ev_coords[1], ev_coords[0]), width=10, size=10,
+              nofill=False, zorder=10, axes=ax)
+    ax.add_collection(b)
