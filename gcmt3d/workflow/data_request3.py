@@ -72,7 +72,7 @@ def data_request(cmt_filename, param_path):
         location=",".join(rCparams['locations']))
 
     # No specified providers will result in all known ones being queried.
-    providers = rCparams["providers"]
+    providers = rCparams["IRIS"]
     mdl = MassDownloader(providers=providers)
     # The data will be downloaded to the ``./waveforms/`` and ``./stations/``
     # folders with automatically chosen file n

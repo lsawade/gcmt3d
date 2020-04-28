@@ -18,7 +18,8 @@ resp_format: "resp"
 
 # Networks as string
 networks: "II,IU,IC,G,MN,GE,CU"  # "II,IU,IC,G,MN,GE,CU" used in Global CMT proj
-providers: "IRIS"
+providers:
+  - "IRIS"
 
 # OPTIONAL
 stationnlist: None
