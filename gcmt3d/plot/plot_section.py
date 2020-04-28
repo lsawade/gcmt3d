@@ -14,13 +14,16 @@ Last Update: April 2020
 """
 
 # External imports
+import os
 import json
 import logging
-from numpy import *
+from numpy import max, array, argsort, arange
 from pyasdf import ASDFDataSet
 from obspy import Stream, Inventory
 from obspy.geodetics import gps2dist_azimuth, locations2degrees
-from matplotlib.pyplot import *
+from matplotlib.pyplot import plot, xlabel, ylabel, xlim, ylim, title
+from matplotlib.pyplot import figure, axes, show, savefig, tight_layout
+
 from matplotlib.patches import Rectangle
 
 # Internal imports
@@ -170,15 +173,17 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
                                                   ]
                     except Exception as e:
                         stawins[codemap[channel.code[-1]]] = []
-                        template = "Channel %s.%s.%s.%s - Error type %s - Arguments: %s"
+                        template = "Channel %s.%s.%s.%s - " \
+                                   "Error type %s - Arguments: %s"
                         message = template % (network.code, station.code,
-                                              channel.location_code, channel.code,
+                                              channel.location_code,
+                                              channel.code,
                                               type(e).__name__, e.args)
                         logger.warning(message)
 
-                stacode[codemap[channel.code[-1]]] = (
-                network.code, station.code,
-                channel.location_code, channel.code)
+                stacode[codemap[channel.code[-1]]] = \
+                    (network.code, station.code,
+                     channel.location_code, channel.code)
             codes.append(stacode)
 
             if window_file_name is not None:
@@ -243,7 +248,8 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
                         s[key]["wins"].append(wins[_i][key])
 
             except Exception as e:
-                template = "Channel %s.%s.%s.%s - Error type %s - Arguments: %s"
+                template = "Channel %s.%s.%s.%s - " \
+                           "Error type %s - Arguments: %s"
                 message = template % (channel[0], channel[1],
                                       channel[2], channel[3],
                                       type(e).__name__, e.args)
@@ -261,7 +267,7 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
 
     # Loop over components
     for comp, odict in o.items():
-        fig = figure(figsize=(8, 12))
+        figure(figsize=(8, 12))
         ax = axes()
         for _i, (obs, epi) in enumerate(zip(odict["data"], odict["dist"])):
             if synt_file_name is not None:
@@ -311,12 +317,13 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
                 synsuffix = ""
 
             filename = "%s_component%s%s.pdf" % (comp, synsuffix, winsuffix)
-            outfile = os.path.join()
-            logger.info("Saving plot as: % ")
+            outfile = os.path.join(outputdir, filename)
+            logger.info("Saving plot as: %s" % outfile)
 
-            savefig()
+            savefig(outfile)
 
     show()
+
 
 if __name__ == "__main__":
     pass

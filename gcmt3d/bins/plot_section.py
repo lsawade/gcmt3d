@@ -17,6 +17,7 @@ Last Update: January 2020
 import argparse
 from ..plot.plot_section import plot_section
 
+
 def main():
 
     parser = argparse.ArgumentParser()
