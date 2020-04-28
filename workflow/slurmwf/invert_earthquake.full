@@ -26,14 +26,14 @@ CID=`cat $CMTSOLUTION | head -2 | tail -1 | cut -d: -f2 | tr -d '[:space:]'`
 CIN_DB="$DATABASE_DIR/C$CID/C$CID.cmt"
 CDIR=`dirname $CIN_DB` # Earthquake Directory
 CMT_SIM_DIR=$CDIR/CMT_SIMs # Simulation directory
-PROCESS_PATHS=$CDIR/seismograms/process_paths # Process Path directory
+PROCESS_PATHS=$CDIR/workflow_files/path_files/process_paths # Process Path
+# directory
 PROCESSED=$CDIR/seismograms/processed_seismograms # Processed dir
 SEISMOGRAMS=$CDIR/seismograms # Seismos
 STATION_DATA=$CDIR/station_data
 LOG_DIR=$CDIR/logs # Logging directory
 INVERSION_OUTPUT_DIR=$CDIR/inversion/inversion_output
-WINDOW_DATA=$CDIR/window_data
-WINDOW_PATHS=$WINDOW_DATA/window_paths
+WINDOW_PATHS=$CDIR/workflow_files/path_files/window_paths
 
 
 echo
@@ -159,6 +159,10 @@ echo " "
 echo " "
 
 
+## AFTER CONVERSION CMTSIM directories could be deleted since
+## all data is in asdf format then
+
+
 ######## Create Process Paths ########
 echo "******** CREATE PROCESS PATHS ************************"
 echo " "
@@ -168,33 +172,33 @@ srun -N1 -n1 create-path-files -f $CIN_DB -p $PARAMETER_PATH > \$CPP_LOG_FILE
 echo " "
 
 
-######### Process Traces ########
-#echo "******** PROCESS TRACES ******************************"
-#echo " "
-#PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
-#
-#export OMP_NUM_THREADS=1
-#
-## Get the different period bands as they will use the same asdf file
-#BAND_LIST=\$(for path in \$(ls $PROCESS_PATHS); do echo \$(echo \$path | cut -d. -f2); done | sort | uniq)
-#echo \$BAND_LIST
-#for BAND in \$BAND_LIST; do
-#
-#    for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
-#        if [[ \$PROCESS_PATH == *"\$BAND"* ]]; then
-#            PROCESS_PATH_FILE="$PROCESS_PATHS/\$PROCESS_PATH"
-#            echo "Processing yml: \$PROCESS_PATH_FILE"
-#            PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
-#            echo "Processing logfile: \$PROC_LOG_FILE"
-#            srun -N1 -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
-#        fi
-#    done
-#    wait
-#done
-#echo " "
-#echo "Done."
-#echo " "
-#echo " "
+######## Process Traces ########
+echo "******** PROCESS TRACES ******************************"
+echo " "
+PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
+
+export OMP_NUM_THREADS=1
+
+# Get the different period bands as they will use the same asdf file
+WAVE_LIST=(body surface mantle)
+echo \$WAVE_LIST
+for WAVE in \$WAVE_LIST; do
+
+    for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
+        if [[ \$PROCESS_PATH == *"\$BAND"* ]]; then
+            PROCESS_PATH_FILE="$PROCESS_PATHS/\$PROCESS_PATH"
+            echo "Processing yml: \$PROCESS_PATH_FILE"
+            PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
+            echo "Processing logfile: \$PROC_LOG_FILE"
+            srun -N1 -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
+        fi
+    done
+    wait
+done
+echo " "
+echo "Done."
+echo " "
+echo " "
 
 
 ######## Window Traces ########
@@ -210,7 +214,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
   WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
   echo "Windowing logfile: \$WIND_LOG_FILE"
   srun -N1 -n25 select-windows -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
-done 
+done
 wait
 echo " "
 echo "Done."
