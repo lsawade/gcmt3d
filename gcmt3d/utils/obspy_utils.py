@@ -10,3 +10,18 @@ Help with the conversion between obspy and normal
     (http://www.gnu.org/copyleft/gpl.html)
 
 """
+
+from obspy.core.event.event import Event
+
+
+def get_event_location(event: Event):
+    """Takes in an obspy Event and spits out event location.
+
+    Args:
+        event:
+
+    Returns:
+        lat, lon
+    """
+
+    return event.preferred_origin()

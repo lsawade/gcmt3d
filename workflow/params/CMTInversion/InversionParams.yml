@@ -11,7 +11,7 @@ config:
   ddepth: 3.0  # change in depth mean 
   dmoment: 2.0e23  # 
   double_couple: False
-  envelope_coef: 0.5
+  envelope_coef: 0.0
   zero_trace: True
   weight_data: True
   station_correction: True
