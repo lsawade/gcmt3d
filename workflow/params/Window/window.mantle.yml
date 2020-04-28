@@ -32,11 +32,11 @@ default:
   # surface wave arrival to define the boundaries of
   # surface wave region
   "selection_mode": "surface_waves"
-  # "min_surface_wave_velocity": 3.00
+  "min_surface_wave_velocity": 3.00
   "max_surface_wave_velocity": 7.5
   "earth_model": "ak135"
   "max_time_before_first_arrival": 180.0
-  # "max_time_after_last_arrival": 300.0
+  "max_time_after_last_arrival": 300.0
 
   # check global data quality
   "check_global_data_quality": True
