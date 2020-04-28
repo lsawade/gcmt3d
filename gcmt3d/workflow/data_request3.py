@@ -11,14 +11,18 @@ This script will download the observed data. To the necessary places.
     (http://www.gnu.org/licenses/lgpl-3.0.en.html)
 """
 
-from gcmt3d.utils.download import read_station_file
-from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
-from gcmt3d.source import CMTSource
+# External imports
 import os
 from obspy.clients.fdsn.mass_downloader import RectangularDomain, \
     Restrictions, MassDownloader
 import logging
+
+# Internal imports
+from ..asdf.utils import smart_read_yaml, is_mpi_env
+from ..source import CMTSource
 from ..log_util import modify_logger
+from ..utils.io import flex_read_stations
+from ..utils.obspy_utils import write_stations_file
 
 logger = logging.getLogger(__name__)
 modify_logger(logger)
@@ -37,9 +41,6 @@ def data_request(cmt_filename, param_path):
     cmt_dir = os.path.dirname(cmt_filename)
     station_dir = os.path.join(cmt_dir, "station_data")
 
-    # Get STATIONS file from CMT directory
-    stationsfile = os.path.join(station_dir, "STATIONS")
-
     # Observed output dir
     obsd_dir = os.path.join(cmt_dir, "seismograms", "obs")
 
@@ -52,11 +53,7 @@ def data_request(cmt_filename, param_path):
     endtime = starttime + duration
 
     # Get station_list from station_file in database entry
-    stations = read_station_file(stationsfile)
-
-    # Create list of networks to download from
-    networks = list(set([station[0] for station in stations]))
-    network_string = ",".join(networks)
+    network_string = rCparams["networks"]
 
     # Set domain containing all locations
     # Rectangular domain containing parts of southern Germany.
@@ -79,10 +76,14 @@ def data_request(cmt_filename, param_path):
     mdl = MassDownloader(providers=providers)
     # The data will be downloaded to the ``./waveforms/`` and ``./stations/``
     # folders with automatically chosen file n
-    stationxml_storage = os.path.join(station_dir)
-    waveform_storage = os.path.join(obsd_dir)
+    stationxml_storage = station_dir
+    waveform_storage = obsd_dir
     logger.info("MSEEDs: %s" % waveform_storage)
     logger.info("XMLs: %s" % stationxml_storage)
 
     mdl.download(domain, restrictions, mseed_storage=waveform_storage,
                  stationxml_storage=stationxml_storage)
+
+    # Post download read stations and create STATIONS file for SPECFEM.
+    inv = flex_read_stations(os.path.join(station_dir, "*.xml"))
+    write_stations_file(inv, filename=os.path.join(station_dir, "STATIONS"))

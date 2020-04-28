@@ -12,6 +12,7 @@ Some important and simple IO help functions.
 
 """
 
+# External imports
 from __future__ import (absolute_import, division, print_function)
 import os
 import json
@@ -19,6 +20,9 @@ import yaml
 import logging
 from pyasdf import ASDFDataSet
 from obspy import Stream, Inventory
+from obspy import read_inventory
+
+# Internal imports
 from ..source import CMTSource
 from ..log_util import modify_logger
 
@@ -180,3 +184,37 @@ def load_asdf(filename: str):
     ev = ds.events[0]
 
     return ev, inv, st
+
+
+def flex_read_stations(filenames: str or list):
+    """ Takes in a list of strings and tries to read them as inventories
+    Creates a single inventory, not an aggregate of inventories
+
+    :param filename: station file(s). wildcards permitted.
+    :return: `obspy.Inventory`
+    """
+
+    if type(filenames) is str:
+        filenames = [filenames]
+
+    inv = Inventory()
+    for _file in filenames:
+        try:
+            add_inv = read_inventory(_file)
+            for network in add_inv:
+                if len(inv.select(network=network.code)) == 0:
+                    inv.networks.append(network)
+                else:
+                    new_network = inv.select(network=network.code)[0]
+                    # print(new_network)
+                    for station in network:
+                        if len(new_network.select(station=station.code)) == 0:
+                            new_network.stations.append(station)
+
+                    inv = inv.remove(network=network.code)
+                    inv.networks.append(new_network)
+
+        except Exception as e:
+            logger.warning("%s could not be read. Error: %s" % (_file, e))
+
+    return inv
