@@ -583,14 +583,16 @@ class TestCreatePaths(unittest.TestCase):
                                      "new_synt")
 
             asdf_dict = dict()
-            asdf_dict['synt'] = os.path.join(invoutdir, "*body_synt.h5")
+            asdf_dict['synt'] = os.path.join(invoutdir, "body_cmt.h5")
             asdf_dict['obsd'] = os.path.join(procdir, "body.obsd.h5")
             window_file = os.path.join(windir, "body.windows.json")
 
             # load inversion dict
             invdict = read_yaml_file(os.path.join(invdir,
                                                   "g3d.body.inv_dict.yml"))
-
+            print(invdict)
+            print(asdf_dict)
+            print(window_file)
             self.assertTrue(invdict["asdf_dict"] == asdf_dict)
             self.assertTrue(invdict["window_file"] == window_file)
 
