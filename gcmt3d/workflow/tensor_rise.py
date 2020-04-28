@@ -61,13 +61,14 @@ def gradient(cmt_file_db, param_path):
     cmtsource = CMTSource.from_CMTSOLUTION_file(cmt_file_db)
 
     # Inversion dictionary directory
-    inv_dict_dir = os.path.join(cmt_dir, "inversion", "inversion_dicts")
+    inv_dict_dir = os.path.join(cmt_dir, "workflow_files", "inversion_dicts")
 
     # Inversion dictionaries
-    inv_dict_files = glob.glob(os.path.join(inv_dict_dir, "grid*"))
+    inv_dict_files = glob.glob(os.path.join(inv_dict_dir,
+                                            "g3d.*.inv_dict.yml"))
 
     # Inversion output directory
-    inv_out_dir = os.path.join(cmt_dir, "inversion", "inversion_output", "g3d")
+    inv_out_dir = os.path.join(cmt_dir, "inversion", "g3d")
 
     # WRite start of inversion process
     logger.info(" ")
@@ -84,18 +85,11 @@ def gradient(cmt_file_db, param_path):
     for _i, inv_dict_file in enumerate(inv_dict_files):
 
         # Get processing band
-        bandstring1 = str(os.path.basename(inv_dict_file).split(".")[1])
-        if "surface" in bandstring1 or "body" in bandstring1:
-            bandstring = bandstring1.split("#")[0]
-        else:
-            bandstring = bandstring1
-
-        band = [float(x) for x in bandstring.split("_")]
+        wave = inv_dict_file.split(".")[1]
 
         logger.info(" ")
         logger.info("  " + 54 * "*")
-        logger.info("  Getting data for inversion from period band:")
-        logger.info("  Low: %d s || High: %d s" % tuple(band))
+        logger.info("  Getting data for inversion for %s waves." % wave)
         logger.info("  " + 54 * "*")
         logger.info(" ")
 

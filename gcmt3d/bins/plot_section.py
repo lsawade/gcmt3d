@@ -30,12 +30,17 @@ def main():
     parser.add_argument("-w", dest="windows", type=str or None,
                         required=False, default=None,
                         help="Window JSON")
+    parser.add_argument("-out", dest="outputdir", type=str or None,
+                        required=False, default=None,
+                        help="Figure output directory")
 
     args = parser.parse_args()
     obsdfile = args.observed
     syntfile = args.synthetic
     winfile = args.windows
-    plot_section(obsdfile, synt_file_name=syntfile, window_file_name=winfile)
+    outputdir = args.outputdir
+    plot_section(obsdfile, synt_file_name=syntfile, window_file_name=winfile,
+                 outputdir=outputdir)
 
 
 if __name__ == "__main__":

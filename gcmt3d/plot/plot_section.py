@@ -312,7 +312,7 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
             else:
                 winsuffix = ""
             if synt_file_name is not None:
-                synsuffix = ".comp"
+                synsuffix = ".compare"
             else:
                 synsuffix = ""
 
@@ -321,8 +321,8 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
             logger.info("Saving plot as: %s" % outfile)
 
             savefig(outfile)
-
-    show()
+        else:
+            show()
 
 
 if __name__ == "__main__":

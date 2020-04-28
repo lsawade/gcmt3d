@@ -91,7 +91,6 @@ def invert(cmt_file_db, param_path):
     for _i, inv_dict_file in enumerate(inv_dict_files):
 
         # Get processing band
-
         wave = inv_dict_file.split(".")[1]
 
         logger.info(" ")
