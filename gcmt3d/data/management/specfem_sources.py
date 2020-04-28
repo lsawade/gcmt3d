@@ -142,7 +142,8 @@ class SpecfemSources(object):
 
         # Replace STATIONS FILE
         station_source = os.path.join(self.station_dir, "STATIONS")
-        logger.verbose("Replacing STATIONS file using: %s" % station_source)
+        logger.verbose("Replacing STATIONS in %s using: %s"
+                       % (cmtsim_outdir, station_source))
         replace_file(station_source, os.path.join(cmtsim_outdir,
                                                   "STATIONS"))
 
@@ -190,8 +191,8 @@ class SpecfemSources(object):
 
             # Replace STATIONS FILE
             station_source = os.path.join(self.station_dir, "STATIONS")
-            logger.verbose("Replacing STATIONS file using: %s"
-                           % station_source)
+            logger.verbose("Replacing STATIONS in %s using: %s"
+                           % (cmtsim_outdir, station_source))
             replace_file(station_source, os.path.join(cmtsim_outdir,
                                                       "STATIONS"))
 
@@ -234,8 +235,8 @@ class SpecfemSources(object):
 
             # Replace STATIONS FILE
             station_source = os.path.join(self.station_dir, "STATIONS")
-            logger.verbose("Replacing STATIONS file using: %s"
-                           % station_source)
+            logger.verbose("Replacing STATIONS in %s using: %s"
+                           % (cmtsim_outdir, station_source))
             replace_file(station_source, os.path.join(cmtsim_outdir,
                                                       "STATIONS"))
 
@@ -276,8 +277,8 @@ class SpecfemSources(object):
 
             # Replace STATIONS FILE
             station_source = os.path.join(self.station_dir, "STATIONS")
-            logger.verbose("Replacing STATIONS file using: %s"
-                           % station_source)
+            logger.verbose("Replacing STATIONS in %s using: %s"
+                           % (cmtsim_outdir, station_source))
             replace_file(station_source, os.path.join(cmtsim_outdir,
                                                       "STATIONS"))
 
@@ -317,8 +318,8 @@ class SpecfemSources(object):
 
             # Replace STATIONS FILE
             station_source = os.path.join(self.station_dir, "STATIONS")
-            logger.verbose("Replacing STATIONS file using: %s"
-                           % station_source)
+            logger.verbose("Replacing STATIONS in %s using: %s"
+                           % (cmtsim_outdir, station_source))
             replace_file(station_source, os.path.join(cmtsim_outdir,
                                                       "STATIONS"))
 
