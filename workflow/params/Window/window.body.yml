@@ -64,7 +64,7 @@ default:
   # write out windows with phase information
   # This is increase the output file size
   # If you don't need the phase, please set it to False
-  "write_window_with_phase": False
+  #  "write_window_with_phase": False
 
 # #####################################################
 # components different settings

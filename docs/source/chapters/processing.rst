@@ -97,7 +97,13 @@ Sample Processing Parameter File
 
 Below are shown sample parameter files for the two different data types:
 Synthetic and observed. As shown the only difference is the remove response
-flag.
+flag. Different wave types are interesting for difference magnitude earthquakes.
+Therefore, a dynamic creation of these parameter files is built into the
+workflow using the class
+:class:`gcmt3d.data.management.create_process_paths.PathCreator`. Given base
+process and windowing files, as well as a CMTSOLUTION file name, it can create
+all necessary path and parameter files for the processing, windowing and
+inversion of the CMT solution.
 
 Synthetic
 =========
