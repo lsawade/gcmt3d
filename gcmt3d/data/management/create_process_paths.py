@@ -641,7 +641,7 @@ class PathCreator(object):
             asdf_dict = dict()
             asdf_dict['obsd'] = os.path.join(seismodir, wave
                                              + ".obsd.h5")
-            asdf_dict['synt'] = os.path.join(cmt3doutdir, wave
+            asdf_dict['synt'] = os.path.join(cmt3doutdir, "new." + wave
                                              + "_cmt.h5")
 
             window_file = os.path.join(windir, wave + ".windows.json")

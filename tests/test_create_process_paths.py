@@ -583,7 +583,7 @@ class TestCreatePaths(unittest.TestCase):
                                      "new_synt")
 
             asdf_dict = dict()
-            asdf_dict['synt'] = os.path.join(invoutdir, "body_cmt.h5")
+            asdf_dict['synt'] = os.path.join(invoutdir, "new.body_cmt.h5")
             asdf_dict['obsd'] = os.path.join(procdir, "body.obsd.h5")
             window_file = os.path.join(windir, "body.windows.json")
 
