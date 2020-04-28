@@ -16,7 +16,7 @@ dependencies:
     - pytest
     - py
     - flake8
-    - pip git+https://github.com/wjlei1990/pyflex@merge
+    - git+https://github.com/wjlei1990/pyflex@merge
     - git+git://github.com/lsawade/pyasdf.git@devel
     - git+git://github.com/lsawade/spaceweight.git@master
     - git+git://github.com/lsawade/pycmt3d.git@devel
