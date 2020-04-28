@@ -131,3 +131,35 @@ def create_colorbar(vmin, vmax, cmap="seismic", norm=None, cax=None, **kwargs):
     else:
         c = plt.colorbar(sm, cax=cax, **kwargs)
     return c
+
+
+def set_mpl_params_section():
+    params = {
+        'font.weight': 'bold',
+        'axes.labelweight': 'bold',
+        'axes.labelsize': 12,
+        'axes.titlesize': 14,
+        'axes.titleweight': "bold",
+        'xtick.labelsize': 10,
+        'xtick.direction': 'in',
+        'xtick.top': True,  # draw label on the top
+        'xtick.bottom': True,  # draw label on the bottom
+        'xtick.minor.visible': True,
+        'xtick.major.top': True,  # draw x axis top major ticks
+        'xtick.major.bottom': True,  # draw x axis bottom major ticks
+        'xtick.minor.top': True,  # draw x axis top minor ticks
+        'xtick.minor.bottom': True,  # draw x axis bottom minor ticks
+        'ytick.labelsize': 10,
+        'ytick.direction': 'in',
+        'ytick.left': True,  # draw label on the top
+        'ytick.right': True,  # draw label on the bottom
+        'ytick.minor.visible': True,
+        'ytick.major.left': True,  # draw x axis top major ticks
+        'ytick.major.right': True,  # draw x axis bottom major ticks
+        'ytick.minor.left': True,  # draw x axis top minor ticks
+        'ytick.minor.right': True,  # draw x axis bottom minor ticks
+        # 'text.usetex': True,
+        # 'font.family': 'STIXGeneral',
+        # 'mathtext.fontset': 'cm',
+    }
+    matplotlib.rcParams.update(params)

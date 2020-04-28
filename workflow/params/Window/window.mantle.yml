@@ -13,7 +13,7 @@ default:
   "stalta_waterlevel": 0.085
 
   # max tsfhit
-  "tshift_acceptance_level": 30.0
+  "tshift_acceptance_level": 120.0
   "tshift_reference": 0.0
 
   # max amplitude difference
@@ -21,7 +21,7 @@ default:
   "dlna_reference": 0.0
 
   # min cc coef
-  "cc_acceptance_level": 0.85
+  "cc_acceptance_level": 0.7
 
   # window signal-to-noise ratio
   "s2n_limit": 5.0
@@ -32,7 +32,7 @@ default:
   # surface wave arrival to define the boundaries of
   # surface wave region
   "selection_mode": "surface_waves"
-  "min_surface_wave_velocity": 3.00
+  "min_surface_wave_velocity": 2.5
   "max_surface_wave_velocity": 7.5
   "earth_model": "ak135"
   "max_time_before_first_arrival": 180.0
