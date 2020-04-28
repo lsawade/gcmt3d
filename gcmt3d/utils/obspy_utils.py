@@ -46,6 +46,8 @@ def write_stations_file(inv: Inventory, filename="STATIONS"):
     :type filename: str
     """
 
+    logger.verbose("Writing STATIONS file to: %s" % filename)
+
     with open(filename, 'w') as fh:
 
         for network in inv:
