@@ -1,7 +1,7 @@
 default:
   # The basic structure follows the original version of
-  # FLEXWIN(and all the parameters). If you want further
-  # and detailed documentations, please refer to the manual
+  # FLEXWIN(and all the parameters). If you want furture
+  # and detailed documentions, please refer to the manual
   # of FLEXWIN
 
   # min and max period of seismograms
@@ -11,7 +11,7 @@ default:
   # STA/LAT water level
   "stalta_waterlevel": 0.085
 
-  # max timeshift
+  # max tsfhit
   "tshift_acceptance_level": 18.0
   "tshift_reference": 0.0
 
@@ -19,11 +19,12 @@ default:
   "dlna_acceptance_level": 0.8
   "dlna_reference": 0.0
 
-  # min cc coefficient
+  # min cc coef
   "cc_acceptance_level": 0.85
 
   # window signal-to-noise ratio
   "s2n_limit": 3.0
+  "s2n_limit_energy": 3.0
   "window_signal_to_noise_type": "amplitude"
 
   # min/max surface wave velocity, to calculate slowest/fast
@@ -31,8 +32,10 @@ default:
   # surface wave region
   "selection_mode": "body_waves"
   "min_surface_wave_velocity": 3.20
+  "max_surface_wave_velocity": 4.10
   "earth_model": "ak135"
   "max_time_before_first_arrival": 100.0
+  "max_time_after_last_arrival": 200.0
 
   # check global data quality
   "check_global_data_quality": True
@@ -58,6 +61,11 @@ default:
   # False, then it will write all windows out without any selection.
   "instrument_merge_flag": True
 
+  # write out windows with phase information
+  # This is increase the output file size
+  # If you don't need the phase, please set it to False
+  "write_window_with_phase": False
+
 # #####################################################
 # components different settings
 components:
@@ -65,8 +73,10 @@ components:
 
   BHR:
     "s2n_limit": 3.5
+    "s2n_limit_energy": 3.5
     "snr_max_base": 3.5
 
   BHT:
     "s2n_limit": 3.5
+    "s2n_limit_energy": 3.5
     "snr_max_base": 3.5

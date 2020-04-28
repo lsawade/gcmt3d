@@ -1,8 +1,8 @@
 default:
   # Example file for window config
   # The basic structure follows the original version of
-  # FLEXWIN(and all the parameters). If you want further
-  # and detailed documentations, please refer to the manual
+  # FLEXWIN(and all the parameters). If you want furture
+  # and detailed documentions, please refer to the manual
   # of FLEXWIN
 
   # min and max period of seismograms
@@ -28,8 +28,8 @@ default:
   "s2n_limit_energy": 5.0
   "window_signal_to_noise_type": "amplitude"
 
-  # min/max surface wave velocity, to calculate slowest/fast 
-  # surface wave arrival to define the boundaries of 
+  # min/max surface wave velocity, to calculate slowest/fast
+  # surface wave arrival to define the boundaries of
   # surface wave region
   "selection_mode": "surface_waves"
   "min_surface_wave_velocity": 3.00
@@ -61,6 +61,11 @@ default:
   # it will keep only one instrument with the most windows. If set to
   # False, then it will write all windows out without any selection.
   "instrument_merge_flag": True
+
+  # write out windows with phase information
+  # This is increase the output file size
+  # If you don't need the phase, please set it to False
+  "write_window_with_phase": False
 
 # ######################################################
 # components specific settings

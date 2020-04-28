@@ -1,7 +1,7 @@
 default:
   # The basic structure follows the original version of
-  # FLEXWIN(and all the parameters). If you want further
-  # and detailed documentations, please refer to the manual
+  # FLEXWIN(and all the parameters). If you want furture
+  # and detailed documentions, please refer to the manual
   # of FLEXWIN
 
   # min and max period of seismograms
@@ -11,7 +11,7 @@ default:
   # STA/LAT water level
   "stalta_waterlevel": 0.085
 
-  # max timeshift
+  # max tsfhit
   "tshift_acceptance_level": 18.0
   "tshift_reference": 0.0
 
@@ -19,7 +19,7 @@ default:
   "dlna_acceptance_level": 0.8
   "dlna_reference": 0.0
 
-  # min cc coefficient
+  # min cc coef
   "cc_acceptance_level": 0.85
 
   # window signal-to-noise ratio
@@ -60,6 +60,11 @@ default:
   # it will keep only one instrument with the most windows. If set to
   # False, then it will write all windows out without any selection.
   "instrument_merge_flag": True
+
+  # write out windows with phase information
+  # This is increase the output file size
+  # If you don't need the phase, please set it to False
+  "write_window_with_phase": False
 
 # #####################################################
 # components different settings
