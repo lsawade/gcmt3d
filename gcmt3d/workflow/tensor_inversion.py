@@ -74,7 +74,7 @@ def invert(cmt_file_db, param_path):
 
     # Inversion output directory
     inv_out_dir = os.path.join(cmt_dir,
-                               "inversion", "inversion_output", "cmt3d")
+                               "inversion", "cmt3d")
 
     # WRite start of inversion process
     logger.info(" ")
@@ -147,6 +147,7 @@ def invert(cmt_file_db, param_path):
         dlocation=float(inv_params["dlocation"]),
         ddepth=float(inv_params["ddepth"]),
         dmoment=float(inv_params["dmoment"]),
+        envelope_coef=float(inv_params["envelope_coef"]),
         weight_data=bool(inv_params["weight_data"]),
         station_correction=bool(inv_params["station_correction"]),
         zero_trace=bool(inv_params["zero_trace"]),
