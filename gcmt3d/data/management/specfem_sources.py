@@ -275,15 +275,15 @@ class SpecfemSources(object):
 
             self._write_quakeml(src, dst)
 
+            # Print info if verbose flag is True
+            logger.verbose("%s has been written." % dst)
+
             # Replace STATIONS FILE
             station_source = os.path.join(self.station_dir, "STATIONS")
             logger.verbose("Replacing STATIONS in %s using: %s"
                            % (cmtsim_outdir, station_source))
             replace_file(station_source, os.path.join(cmtsim_outdir,
                                                       "STATIONS"))
-
-            # Print info if verbose flag is True
-            logger.verbose("%s has been written." % dst)
 
             # Create new CMT solution
             new_cmt = deepcopy(self.cmt)
