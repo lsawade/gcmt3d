@@ -206,10 +206,8 @@ def convert_traces(cmt_file_db, param_path, task_counter):
     # Load Parameters
     dbparams = read_yaml_file(databaseparam_path)
 
-    # Earthquake specific database parameters: Dir and Cid
-    Cdir, Cid = os.path.dirname(cmt_file_db)
-
     # File and directory
+    cid = get_cmt_id(cmt_file_db)
     cmt_dir = os.path.dirname(cmt_file_db)
     sim_dir = os.path.join(cmt_dir, "CMT_SIMs")
 
@@ -247,14 +245,14 @@ def convert_traces(cmt_file_db, param_path, task_counter):
         c_task.arguments = arguments
 
         # In the future maybe to database dir as a total log?
-        c_task.stdout = os.path.join("%s" % Cdir, "logs",
+        c_task.stdout = os.path.join("%s" % cmt_dir, "logs",
                                           "stdout.pipeline_%s.task_%s.%s"
-                                          % (Cid, str(task_counter).zfill(4),
+                                          % (cid, str(task_counter).zfill(4),
                                              c_task.name))
 
-        c_task.stderr = os.path.join("%s" % Cdir, "logs",
+        c_task.stderr = os.path.join("%s" % cid, "logs",
                                           "stderr.pipeline_%s.task_%s.%s"
-                                          % (Cid, str(task_counter).zfill(4),
+                                          % (cid, str(task_counter).zfill(4),
                                              c_task.name))
 
         # Increase Task counter
