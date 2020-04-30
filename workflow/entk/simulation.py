@@ -281,14 +281,14 @@ def convert_traces(cmt_file_db, param_path, task_counter):
     c_task.arguments = arguments
 
     # In the future maybe to database dir as a total log?
-    c_task.stdout = os.path.join("%s" % Cdir, "logs",
+    c_task.stdout = os.path.join("%s" % cmt_dir, "logs",
                                  "stdout.pipeline_%s.task_%s.%s"
-                                 % (Cid, str(task_counter).zfill(4),
+                                 % (cid, str(task_counter).zfill(4),
                                     c_task.name))
 
-    c_task.stderr = os.path.join("%s" % Cdir, "logs",
+    c_task.stderr = os.path.join("%s" % cmt_dir, "logs",
                                  "stderr.pipeline_%s.task_%s.%s"
-                                 % (Cid, str(task_counter).zfill(4),
+                                 % (cid, str(task_counter).zfill(4),
                                     c_task.name))
 
     # Increase Task counter
