@@ -93,6 +93,7 @@ setup(
             'gridsearch = gcmt3d.bins.gridsearch:main',
             'process-asdf = gcmt3d.bins.process_asdf:main',
             'plot-section = gcmt3d.bins.plot_section:main',
+            'plot-event = gcmt3d.bins.plot_event:main',
             'request-data = gcmt3d.bins.request_data:main',
             'select-windows = gcmt3d.bins.window_selection_asdf:main',
             'write-sources = gcmt3d.bins.write_sources:main',

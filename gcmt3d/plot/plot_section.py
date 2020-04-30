@@ -17,13 +17,13 @@ Last Update: April 2020
 import os
 import json
 import logging
-from numpy import max, array, argsort, arange
+from numpy import max, array, argsort, arange, argmin, abs, zeros, nan, isnan
 from pyasdf import ASDFDataSet
 from obspy import Stream, Inventory
 from obspy.geodetics import gps2dist_azimuth, locations2degrees
 from matplotlib.pyplot import plot, xlabel, ylabel, xlim, ylim, title
 from matplotlib.pyplot import figure, axes, show, savefig, tight_layout
-
+from copy import copy
 from matplotlib.patches import Rectangle
 
 # Internal imports
@@ -57,7 +57,7 @@ def plot_windows_on_trace(ax, winlist, epi, smax, timefactor):
 
 
 def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
-                 timescale="min", scale=1.5, outputdir=None):
+                 timescale="min", scale=1.5, outputdir=None, bin=False):
     """ This function takes in and observed and a synthetic asdf file and
     a FLEXWIN sstyle json file to plot a seismic section, that
 
@@ -226,15 +226,19 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
     for _i, station in enumerate(codes):
         for key, channel in station.items():
             try:
-                # Add data
-                o[key]["data"].append(
-                    obsdst.select(network=channel[0], station=channel[1],
-                                  component=key)[0].data)
-
+                # Check if in stream
+                tmpobsd = obsdst.select(network=channel[0], station=channel[1],
+                                        component=key)[0].data
                 if synt_file_name is not None:
-                    s[key]["data"].append(
-                        syntst.select(network=channel[0], station=channel[1],
-                                      component=key)[0].data)
+                    tmpsynt = syntst.select(network=channel[0],
+                                            station=channel[1],
+                                            component=key)[0].data
+
+                # Add data
+                o[key]["data"].append(tmpobsd)
+                if synt_file_name is not None:
+                    s[key]["data"].append(tmpsynt)
+
                 # Add epicentral distance
                 o[key]["dist"].append(epic[_i])
 
@@ -259,6 +263,68 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
     logger.info("Number of traces for T: %d" % len(o["T"]["data"]))
     logger.info("Number of traces for Z: %d" % len(o["Z"]["data"]))
 
+    # -------------------------------------------------------------------------
+    if bin:
+        # Binning
+        epibin = arange(2.5, 182.5, 5)
+        nbin = len(epibin)
+        emptydata = zeros((nbin, npts))
+        emptycounts = zeros(nbin)
+
+        # Initialize dictionaries to simplify plotting later on
+        ob = {"R": {"data": copy(emptydata), "dist": epibin,
+                    "wins": [], "counts": copy(emptycounts)},
+              "T": {"data": copy(emptydata), "dist": epibin,
+                    "wins": [], "counts": copy(emptycounts)},
+              "Z": {"data": copy(emptydata), "dist": epibin,
+                    "wins": [], "counts": copy(emptycounts)}}
+
+        if synt_file_name is not None:
+            sb = {"R": {"data": copy(emptydata), "dist": epibin,
+                        "wins": [], "counts": copy(emptycounts)},
+                  "T": {"data": copy(emptydata), "dist": epibin,
+                        "wins": [], "counts": copy(emptycounts)},
+                  "Z": {"data": copy(emptydata), "dist": epibin,
+                        "wins": [], "counts": copy(emptycounts)}}
+
+        # Loop over components for binning
+        for comp, odict in o.items():
+            for _i, (obs, epi) in enumerate(zip(odict["data"], odict["dist"])):
+
+                odata = o[comp]["data"][_i]
+                odist = o[comp]["dist"][_i]
+                ind = argmin(abs(epibin - odist))
+                ob[comp]["data"][ind] += odata
+                ob[comp]["counts"][ind] += 1
+
+                if synt_file_name is not None:
+                    sdata = s[comp]["data"][_i]
+                    sdist = s[comp]["dist"][_i]
+                    ind = argmin(abs(epibin-sdist))
+                    sb[comp]["data"][ind] += sdata
+                    sb[comp]["counts"][ind] += 1
+
+                    # Plot windows
+                if window_file_name is not None:
+                    _wins = odict["wins"][_i]
+                    # Here combine windows.. maybe later
+
+        # Filter out empty bins/set to nan
+        for comp, odict in ob.items():
+            for _i, counts in enumerate(odict["counts"]):
+                if counts == 0:
+                    ob[comp]["data"][_i] = array([nan])
+
+                if synt_file_name is not None:
+                    sb[comp]["data"][_i] = array([nan])
+
+        # Reassing for plotting
+        o = ob
+        if synt_file_name is not None:
+            s = sb
+
+        scale = 2.45
+
     # --------------------------------------------------------------------------
     # Since all data is sorted nicely, let's plot stuff.
     # Loop over components to plot each
@@ -267,34 +333,37 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
 
     # Loop over components
     for comp, odict in o.items():
-        figure(figsize=(8, 12))
+        figure(figsize=(6, 9))
         ax = axes()
         for _i, (obs, epi) in enumerate(zip(odict["data"], odict["dist"])):
-            if synt_file_name is not None:
-                syn = s[comp]["data"][_i]
-                smax = max(abs(syn))
 
-                # Plot synthetic data if available
-                plot(scale * syn / smax + epi,
-                     t / timemap[timescale],
-                     "r", lw=0.5)
+            if isnan(obs[0]) is False:
 
-                # Get common max for both
-                commax = max([max(abs(scale * syn / smax)),
-                              max(abs(scale * obs / smax))])
-            else:
-                smax = max(abs(obs))
-                commax = smax
+                if synt_file_name is not None:
+                    syn = s[comp]["data"][_i]
+                    smax = max(abs(syn))
 
-            # Plot observed data
-            plot(scale * obs / smax + epi,
-                 t / timemap[timescale], "k", lw=0.5)
+                    # Plot synthetic data if available
+                    plot(scale * syn / smax + epi,
+                         t / timemap[timescale],
+                         "r", lw=0.5)
 
-            # Plot windows
-            if window_file_name is not None:
-                _wins = odict["wins"][_i]
-                plot_windows_on_trace(ax, _wins, epi, commax,
-                                      timemap[timescale])
+                    # Get common max for both
+                    commax = max([max(abs(scale * syn / smax)),
+                                  max(abs(scale * obs / smax))])
+                else:
+                    smax = max(abs(obs))
+                    commax = smax
+
+                # Plot observed data
+                plot(scale * obs / smax + epi,
+                     t / timemap[timescale], "k", lw=0.5)
+
+                # Plot windows
+                if window_file_name is not None:
+                    _wins = odict["wins"][_i]
+                    plot_windows_on_trace(ax, _wins, epi, commax,
+                                          timemap[timescale])
 
         # Put labels
         title("%s Component" % titlemap[comp], fontweight="bold")
@@ -312,7 +381,7 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
             else:
                 winsuffix = ""
             if synt_file_name is not None:
-                synsuffix = ".compare"
+                synsuffix = ".compares"
             else:
                 synsuffix = ""
 

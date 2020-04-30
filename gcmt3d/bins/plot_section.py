@@ -33,14 +33,19 @@ def main():
     parser.add_argument("-out", dest="outputdir", type=str or None,
                         required=False, default=None,
                         help="Figure output directory")
+    parser.add_argument("-bin", dest="bin", action='store_true',
+                        required=False, default=False,
+                        help="Figure output directory")
 
     args = parser.parse_args()
     obsdfile = args.observed
     syntfile = args.synthetic
     winfile = args.windows
     outputdir = args.outputdir
+    bin = args.bin
+
     plot_section(obsdfile, synt_file_name=syntfile, window_file_name=winfile,
-                 outputdir=outputdir)
+                 outputdir=outputdir, bin=bin)
 
 
 if __name__ == "__main__":

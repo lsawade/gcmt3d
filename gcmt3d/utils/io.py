@@ -153,7 +153,7 @@ def get_cmt_id(cmtfile):
     return cmtsource.eventname
 
 
-def load_asdf(filename: str):
+def load_asdf(filename: str, no_event=False):
     """Takes in a filename of an asdf file and outputs event, inventory,
     and stream with the traces. Note that this is only good for asdffiles
     with one set of traces event and stations since the function will get the
@@ -181,9 +181,16 @@ def load_asdf(filename: str):
         except Exception as e:
             logger.verbose(e)
 
-    ev = ds.events[0]
+    # Choose not to load an event from the asdf file (pycmt3d's event doesn't
+    # output an event...)
+    if not no_event:
+        ev = ds.events[0]
+        del ds
 
-    return ev, inv, st
+        return ev, inv, st
+    else:
+        del ds
+        return inv, st
 
 
 def flex_read_stations(filenames: str or list):

@@ -183,7 +183,7 @@ def plot_weighting(outdir=None):
     plt.xlabel("Period [s]")
 
     if outdir is not None:
-        plt.savefig(os.path.join(outdir, "waveweighting.png"), dpi=600)
+        plt.savefig(os.path.join(outdir, "waveweighting.pdf"))
     else:
         plt.show()
 
