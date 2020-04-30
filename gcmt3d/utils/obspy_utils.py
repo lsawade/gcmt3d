@@ -36,7 +36,7 @@ def get_event_location(event: Event):
     return origin.latitude, origin.longitude
 
 
-def get_moment_tensors(event: Event):
+def get_moment_tensor(event: Event):
     """Takes in an obspy Event and spits a focal mechanisms
     This is the fucking worst. I mean look at it. Just to
     get the moment tensor.

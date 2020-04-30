@@ -165,6 +165,10 @@ class PathCreator(object):
         p = ProcessParams(self.cmtsource.moment_magnitude,
                           self.cmtsource.depth_in_m)
         self.cmtconfigdict = p.determine_all()
+        for wave, paramdict in self.cmtconfigdict.items():
+            for param, values in paramdict.items():
+                logger.verbose("%s wave %s: %s"
+                               % (wave, param, values.__str__()))
         self.npar = npar
 
         # File locations

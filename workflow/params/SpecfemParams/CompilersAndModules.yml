@@ -1,8 +1,8 @@
 # Modules
-modulelist: [openmpi]
+modulelist:
+  - openmpi/gcc
+  - cudatoolkit/10.0
 
-# GPU setup
-gpu_module: cudatoolkit/10.0
 gpu_version: cuda8
 
 # C compiler

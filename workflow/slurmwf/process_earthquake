@@ -134,9 +134,9 @@ PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
 export OMP_NUM_THREADS=1
 
 # Get the different period bands as they will use the same asdf file
-BAND_LIST=\$(for path in \$(ls $PROCESS_PATHS); do echo \$(echo \$path | cut -d. -f2); done | sort | uniq)
-echo \$BAND_LIST
-for BAND in \$BAND_LIST; do
+WAVE_LIST=(body surface mantle)
+echo \$WAVE_LIST
+for WAVE in \$WAVE_LIST; do
 
     for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
         if [[ \$PROCESS_PATH == *"\$BAND"* ]]; then
@@ -152,7 +152,7 @@ done
 echo " "
 echo "Done."
 echo " "
-echo " "   
+echo " "
 
 exit 0
 EOF

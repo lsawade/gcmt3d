@@ -21,7 +21,7 @@ default:
   "dlna_reference": 0.0
 
   # min cc coef
-  "cc_acceptance_level": 0.7
+  "cc_acceptance_level": 0.8
 
   # window signal-to-noise ratio
   "s2n_limit": 5.0
@@ -76,4 +76,4 @@ components:
 
   BHT:
     "min_surface_wave_velocity": 3.80
-    "max_surface_wave_velocity": 6
+    "max_surface_wave_velocity": 6.5

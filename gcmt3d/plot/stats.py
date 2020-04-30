@@ -632,9 +632,7 @@ class PlotStats(object):
                           bgcolor='w',
                           edgecolor='k', alpha=1,
                           xy=(lon, lat), width=10,
-                          size=10, nofill=False, zorder=-1,
-                          axes=ax,
-                          )
+                          size=10, nofill=False, zorder=-1)
 
                 ax.add_collection(b)
             except Exception as e:

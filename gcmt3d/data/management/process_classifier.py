@@ -228,7 +228,7 @@ class ProcessParams(object):
         else:
             self.surfacewave_weight = (7.5 - self.mw) / (7.5 - 6.5)
 
-        if self.depth > 300000:
+        if self.depth > 300000.0:
             self.surfacewave_weight = None
 
     def determine_mantlewave_weight(self):

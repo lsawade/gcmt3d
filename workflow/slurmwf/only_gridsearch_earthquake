@@ -84,21 +84,6 @@ conda activate gcmt3d
 module load openmpi/gcc
 module load cudatoolkit/10.0
 
-# Define the parameters
-CMT_LIST=(CMT CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
-
-######## Create Inversion Dictionaries ########
-echo "******** CREATE INVERSION DICTIONARIES****************"
-echo " "
-INV_DICT_LOG_FILE="$LOG_DIR/$CID.011.Create-Gridsearch-Dicts.STDOUT"
-echo "Processing logfile: \$INV_DICT_LOG_FILE"
-create-gridsearch-dicts -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
-echo " "
-echo "Done."
-echo " "
-echo " "
-
-
 ######## Inversion ########
 echo "******** INVERSION ***********************************"
 echo " "
