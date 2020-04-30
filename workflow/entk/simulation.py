@@ -152,9 +152,6 @@ def run_specfem(cmt_file_db, param_path, task_counter):
         for module in cm_dict["modulelist"]:
             sf_t.pre_exec.append("module load %s" % module)
 
-        if specfemspecs["GPU_MODE"] is True:
-            sf_t.pre_exec.append("module load %s" % cm_dict["gpu_module"])
-
         # Change directory to specfem directories
         sf_t.pre_exec.append(  # Change directory
             "cd %s" % os.path.join(simdir, at))
@@ -238,7 +235,9 @@ def convert_traces(cmt_file_db, param_path, task_counter):
         c_task = Task()
         c_task.name = at
 
-        c_task.pre_exec = [dbparams["conda-sh"] + " activate gcmt3d"]
+        c_task.pre_exec = [dbparams["anaconda"],
+                           dbparams["conda-sh"]]
+
         c_task.executable = "convert2asdf"
 
         arguments = ["-f", syn_path_file]
@@ -272,7 +271,9 @@ def convert_traces(cmt_file_db, param_path, task_counter):
     c_task = Task()
     c_task.name = "Observed"
 
-    c_task.pre_exec = [dbparams["conda-sh"] + " activate gcmt3d"]
+    c_task.pre_exec = [dbparams["anaconda"],
+                       dbparams["conda-sh"]]
+
     c_task.executable = "convert2asdf"
 
     arguments = ["-f", obs_path_file]
