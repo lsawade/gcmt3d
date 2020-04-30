@@ -62,7 +62,7 @@ def write_sources(cmt_file_db, param_path, task_counter):
     databaseparam_path = os.path.join(param_path,
                                       "Database/DatabaseParameters.yml")
     # Database parameters.
-    db_params = read_yaml_file(databaseparam_path)
+    dbparams = read_yaml_file(databaseparam_path)
 
     # Earthquake specific database parameters: Dir and Cid
     cdir = os.path.dirname(cmt_file_db)
@@ -74,15 +74,14 @@ def write_sources(cmt_file_db, param_path, task_counter):
 
     # Create Task for stage
     w_sources_t = Task()
-    w_sources_t.name = "Task-Sources"
+    w_sources_t.name = "And-Stations"
     w_sources.pre_exec = [
-        "module load anaconda3",
+        dbparams["anaconda"],
+        dbparams["conda-sh"]
     ]
-    w_sources_t.executable = db_params["bin-python"]
-    w_sources_t.arguments = ['-m', 'gcmt3d.bins.write_sources',
-                             '-f', cmt_file_db,
-                             '-p', param_path
-                             ]
+    w_sources_t.executable = "write-sources"
+    w_sources_t.arguments = ['-f', cmt_file_db,
+                             '-p', param_path]
 
     w_sources_t.cpu_reqs = {
             'processes': 1,

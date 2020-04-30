@@ -34,7 +34,7 @@ figure_mode: True
 # out in python 3 and I will be able to install both in one environment.
 
 # activate conda environment
-conda-sh: '/usr/licensed/anaconda3/2019.10/bin/conda'
+anaconda: 'module load anaconda3'
+conda-sh: '/usr/licensed/anaconda3/2019.10/bin/conda activate gcmt3d'
 
 # python location
-bin-python: '/home/lsawade/.conda/envs/gcmt3d/bin/python'
