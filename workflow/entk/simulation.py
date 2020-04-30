@@ -359,7 +359,7 @@ def workflow(cmtfilenames, param_path):
         # ---- Convert to ASDF ---------------------------------------------- #
 
         # Create conversion stage
-        conversion_stage, task_counter = convert_traces(cmt_file_db, param_path,
+        conversion_stage, task_counter = convert_traces(cmt_in_db, param_path,
                                                         task_counter)
 
         # Add stage to pipeline
