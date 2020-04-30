@@ -1,6 +1,6 @@
 # Database directory
 databasedir: "/scratch/gpfs/lsawade/database"
-backup_database: "/tigress/lsawade/database"
+entkdatabase: "/scratch/gpfs/lsawade/entkdatabase"
 
 # Number of parameters to invert for
 # 6: only the moment tensor
@@ -34,8 +34,7 @@ figure_mode: True
 # out in python 3 and I will be able to install both in one environment.
 
 # activate conda environment
-conda-activate: '/usr/licensed/anaconda3/2019.10/bin/conda activate gcmt3d'
-conda-deactivate: 'source /home/lsawade/.miniconda3/bin/activate'
+conda-sh: '/usr/licensed/anaconda3/2019.10/bin/conda'
 
 # python location
 bin-python: '/home/lsawade/.conda/envs/gcmt3d/bin/python'

@@ -5,12 +5,9 @@
 from __future__ import nested_scopes, generators, division, absolute_import, \
     with_statement, print_function
 import os
-import sys
 import yaml
 import logging
 import argparse
-import subprocess
-from shlex import split
 
 
 # Internal imports
@@ -57,7 +54,7 @@ def workflow(cmtfilenames, param_path):
 
         # Earthquake specific database parameters: Dir and Cid
         cmt_file_db = get_location_in_database(_cmtfile,
-                                               db_params["databasedir"])
+                                               db_params["entkdatabase"])
 
         # # Download the data from the headnode before running the pipeline
         data_request(cmt_file_db, param_path)
