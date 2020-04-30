@@ -39,9 +39,6 @@ os.environ["RADICAL_ENTK_VERBOSE"] = "DEBUG"
 hostname = os.environ.get("RMQ_HOSTNAME", "localhost")
 port = int(os.environ.get("RMQ_PORT", 5672))
 
-PRE_EXECS = ["module load anaconda3",
-             "conda activate gcmt3d"]
-
 # DEFINES WHETHER THE HEADNODE IS AVAILABLE FOR DOWNLOAD FROM WITHIN AN ENTK
 # WORFLOW
 HEADNODE_AVAILABLE = False
