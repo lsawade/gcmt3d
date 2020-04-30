@@ -67,7 +67,7 @@ module load anaconda
 conda activate gcmt3d
 
 # Create database structure
-create-entry -f $CMTSOLUTION -p $PARAMETER_PATH
+create-entry -f $CMTSOLUTION -d DATABASE_DIR -p $PARAMETER_PATH
 
 # Download data
 request-data -f $CIN_DB -p $PARAMETER_PATH

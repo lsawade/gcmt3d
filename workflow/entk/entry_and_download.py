@@ -50,7 +50,7 @@ def workflow(cmtfilenames, param_path):
         logger.verbose("Creating Entry for Event: %s" % get_cmt_id(_cmtfile))
 
         # Create Entry
-        create_entry(_cmtfile, param_path)
+        create_entry(_cmtfile, param_path, db_params["entkdatabase"])
 
         # Earthquake specific database parameters: Dir and Cid
         cmt_file_db = get_location_in_database(_cmtfile,
