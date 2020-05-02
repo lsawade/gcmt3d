@@ -79,7 +79,9 @@ def write_sources(cmt_file_db, param_path, task_counter):
         dbparams["anaconda"],
         dbparams["conda-sh"]
     ]
-    w_sources_t.executable = "write-sources"
+    print("writetask")
+    print(w_sources.pre_exec)
+    w_sources_t.executable = ["write-sources"]
     w_sources_t.arguments = ['-f', cmt_file_db,
                              '-p', param_path]
 
@@ -141,7 +143,7 @@ def run_specfem(cmt_file_db, param_path, task_counter):
     runSF3d = Stage()
     runSF3d.name = "Simulation"
 
-    for at in attr:
+    for at in attr[:2]:
         sf_t = Task()
         sf_t.name = "run-" + at
 
@@ -155,8 +157,9 @@ def run_specfem(cmt_file_db, param_path, task_counter):
         # Change directory to specfem directories
         sf_t.pre_exec.append(  # Change directory
             "cd %s" % os.path.join(simdir, at))
-
-        sf_t.executable = "./bin/xspecfem3D"  # Assigned executable
+        print("simtask:", at)
+        print(sf_t.pre_exec)
+        sf_t.executable = ["./bin/xspecfem3D"]  # Assigned executable
 
         # Resource assignment
         sf_t.cpu_reqs = {'processes': 6, 'process_type': 'MPI',
@@ -224,7 +227,8 @@ def convert_traces(cmt_file_db, param_path, task_counter):
     logger.verbose("Converting synthetic traces to ASDF ... ")
     logger.verbose(" ")
 
-    for _i, at in enumerate(attr[:dbparams["npar"] + 1]):
+    # for _i, at in enumerate(attr[:dbparams["npar"] + 1]):
+    for _i, at in enumerate(attr[:2]):
 
         # Path file
         syn_path_file = os.path.join(sim_dir, at, at + ".yml")
@@ -235,8 +239,9 @@ def convert_traces(cmt_file_db, param_path, task_counter):
 
         c_task.pre_exec = [dbparams["anaconda"],
                            dbparams["conda-sh"]]
-
-        c_task.executable = "convert2asdf"
+        print("ctask:", at)
+        print(c_task.pre_exec)
+        c_task.executable = ["convert2asdf"]
 
         arguments = ["-f", syn_path_file]
         if logger.getEffectiveLevel() < logging.INFO:
@@ -395,11 +400,13 @@ def workflow(cmtfilenames, param_path):
     # resource is "local.localhost" to execute locally
     # Define which resources to get depending on how specfem is run!
 
+    hour = 3600
     res_dict = {
         'resource': 'princeton.traverse',
+        'project': 'geo',
         'schema': 'local',
-        'walltime': int(2*1.5*3600),
-        'cpus': int(4*30),
+        'walltime': int(0.6*hour),
+        'cpus': int(2*6*4),
         'gpus': 12
     }
 
