@@ -79,13 +79,16 @@ def test_classifier_class():
 
     assert {'body': {'filter': [150.0, 100.0, 60.0, 50.0],
                      'relative_endtime': 3600.0,
-                     'weight': 1.0},
+                     'weight': 1.0,
+                     'velocity': False},
             'mantle': {'filter': [350.0, 300.0, 150.0, 125.0],
                        'relative_endtime': 16200.0,
-                       'weight': 1.0},
+                       'weight': 1.0,
+                       'velocity': False},
             'surface': {'filter': [150.0, 100.0, 60.0, 50.0],
                         'relative_endtime': 7200.0,
-                        'weight': 1.0}
+                        'weight': 1.0,
+                        'velocity': False}
             } == pdict
 
     # Sample magnitude and depth
@@ -104,7 +107,8 @@ def test_classifier_class():
     assert {'mantle': {'filter': [375.0, 327.77777777777777,
                                   186.11111111111111, 162.5],
                        'relative_endtime': 16200.0,
-                       'weight': 1.0}
+                       'weight': 1.0,
+                       'velocity': False}
             } == pdict
 
     # Sample magnitude and depth
@@ -122,7 +126,8 @@ def test_classifier_class():
     assert {'mantle': {'filter': [400.0, 355.55555555555554,
                                   222.22222222222223, 200.0],
                        'relative_endtime': 16200.0,
-                       'weight': 1.0}
+                       'weight': 1.0,
+                       'velocity': False}
             } == pdict
 
     # Sample magnitude and depth
@@ -139,10 +144,12 @@ def test_classifier_class():
 
     assert {'body': {'filter': [150.0, 100.0, 50.0, 40.0],
                      'relative_endtime': 3600.0,
-                     'weight': 1.0},
+                     'weight': 1.0,
+                     'velocity': True},
             'surface': {'filter': [150.0, 100.0, 60.0, 50.0],
                         'relative_endtime': 7200.0,
-                        'weight': 1.0}
+                        'weight': 1.0,
+                        'velocity': True}
             } == pdict
 
 

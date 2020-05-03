@@ -29,14 +29,6 @@ from gcmt3d.data.management.create_process_paths\
     import create_windowing_dictionary
 from gcmt3d.data.management.create_process_paths import PathCreator
 from gcmt3d.data.management.skeleton import DataBaseSkeleton
-# from gcmt3d.data.management.create_process_paths import create_process_path_syn
-# from gcmt3d.data.management.create_process_paths import create_process_path_obs
-# from gcmt3d.data.management.create_process_paths import create_window_path
-# from gcmt3d.data.management.create_process_paths import get_processing_list
-# from gcmt3d.data.management.create_process_paths import get_windowing_list
-# from gcmt3d.data.management.inversion_dicts \
-#     import create_full_inversion_dict_list
-# from gcmt3d.data.management.inversion_dicts import write_inversion_dicts
 
 
 attr = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp", "CMT_tp",
@@ -538,6 +530,7 @@ class TestCreatePaths(unittest.TestCase):
             window_file = os.path.join(windir, "body.windows.json")
 
             # load inversion dict
+            print(os.path.join(invdir, "cmt3d.body.inv_dict.yml"))
             invdict = read_yaml_file(os.path.join(invdir,
                                                   "cmt3d.body.inv_dict.yml"))
 

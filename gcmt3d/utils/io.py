@@ -69,7 +69,7 @@ def write_yaml_file(d, filename, **kwargs):
 
 def read_yaml_file(filename):
     with open(filename, "rb") as fh:
-        return yaml.load(fh, Loader=yaml.FullLoader)
+        return yaml.load(fh, Loader=yaml.Loader)
 
 
 def smart_read_yaml(yaml_file, mpi_mode=True, comm=None):
