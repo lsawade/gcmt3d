@@ -599,6 +599,8 @@ class PathCreator(object):
 
             window_file = os.path.join(windir, wave + ".windows.json")
 
+            # print("velocity:", self.cmtconfigdict[wave]["velocity"])
+            # print("type:", type(self.cmtconfigdict[wave]["velocity"]))
             paramdict = {"asdf_dict": asdf_dict,
                          "window_file": window_file,
                          "weight": self.cmtconfigdict[wave]["weight"],

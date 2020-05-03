@@ -116,7 +116,7 @@ class ProcessParams(object):
         self.mantle_relative_endtime = 4.5 * 3600.0
 
         # Whether to use velocity as a measurement.
-        self.velocity = mw < 5.5
+        self.velocity = bool(mw < 5.5)
 
     def determine_all(self):
         """Main class method. Would have called it a __call__
