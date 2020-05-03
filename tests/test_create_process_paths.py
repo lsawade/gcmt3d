@@ -536,6 +536,8 @@ class TestCreatePaths(unittest.TestCase):
 
             self.assertTrue(invdict["asdf_dict"] == asdf_dict)
             self.assertTrue(invdict["window_file"] == window_file)
+            self.assertTrue(invdict["weight"] == 1.0)
+            self.assertTrue(invdict["velocity"] == True)
 
     def test_PathCreator_invdict_g3d(self):
         """Test the inversion dictionary creation"""
@@ -588,7 +590,8 @@ class TestCreatePaths(unittest.TestCase):
             print(window_file)
             self.assertTrue(invdict["asdf_dict"] == asdf_dict)
             self.assertTrue(invdict["window_file"] == window_file)
-
+            self.assertTrue(invdict["weight"] == 1.0)
+            self.assertTrue(invdict["velocity"] == True)
 
 
 

@@ -654,7 +654,10 @@ class PathCreator(object):
             window_file = os.path.join(windir, wave + ".windows.json")
 
             paramdict = {"asdf_dict": asdf_dict,
-                         "window_file": window_file}
+                         "window_file": window_file,
+                         "weight": self.cmtconfigdict[wave]["weight"],
+                         "velocity": self.cmtconfigdict[wave]["velocity"]
+                         }
 
             filename = os.path.join(self.invdir, "g3d." + wave
                                     + ".inv_dict.yml")
