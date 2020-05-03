@@ -138,7 +138,7 @@ class ProcessParams(object):
 
         if self.bodywave_weight is not None \
                 and self.bodywave_weight != 0.0:
-            outdict["body"] = {"weight": self.bodywave_weight,
+            outdict["body"] = {"weight": float(self.bodywave_weight),
                                "filter": self.bodywave_filter,
                                "relative_endtime":
                                    self.body_relative_endtime,
@@ -146,7 +146,7 @@ class ProcessParams(object):
 
         if self.surfacewave_weight is not None \
                 and self.surfacewave_weight != 0.0:
-            outdict["surface"] = {"weight": self.surfacewave_weight,
+            outdict["surface"] = {"weight": float(self.surfacewave_weight),
                                   "filter": self.surfacewave_filter,
                                   "relative_endtime":
                                       self.surface_relative_endtime,
@@ -154,7 +154,7 @@ class ProcessParams(object):
 
         if self.mantlewave_weight is not None \
                 and self.mantlewave_weight != 0.0:
-            outdict["mantle"] = {"weight": self.mantlewave_weight,
+            outdict["mantle"] = {"weight": float(self.mantlewave_weight),
                                  "filter": self.mantlewave_filter,
                                  "relative_endtime":
                                      self.mantle_relative_endtime,
