@@ -122,6 +122,7 @@ def gradient(cmt_file_db, param_path):
         # input synthetics are pycmt3d's output synthetics.
         dcon.add_measurements_from_asdf(window_file, asdf_dict,
                                         wave_weight=wave_weight,
+                                        wave_type=wave,
                                         velocity=velocity,
                                         only_observed=velocity)
 
