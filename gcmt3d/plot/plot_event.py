@@ -555,8 +555,6 @@ class PlotEventSummary():
         else:
             plt.show()
 
-
-
     def plot_stationdist(self, wave, comp):
         """ Plots the distribution of stations for a wave and a component
         Args:

@@ -15,9 +15,7 @@ Last Update: January 2020
 """
 
 import argparse
-from obspy import read_events
 from ..plot.plot_event import PlotEventSummary
-from ..utils.io import load_asdf
 
 
 def main():
@@ -40,7 +38,6 @@ def main():
     # Plot event summary
     P = PlotEventSummary.from_JSON(cmt3d_json, g3d_json=g3d_json)
     P.plot_summary(outputfilename=outputfilename)
-
 
 
 if __name__ == "__main__":
