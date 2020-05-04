@@ -139,7 +139,7 @@ echo \$WAVE_LIST
 for WAVE in \$WAVE_LIST; do
 
     for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
-        if [[ \$PROCESS_PATH == *"\$BAND"* ]]; then
+        if [[ \$PROCESS_PATH == *"\$WAVE"* ]]; then
             PROCESS_PATH_FILE="$PROCESS_PATHS/\$PROCESS_PATH"
             echo "Processing yml: \$PROCESS_PATH_FILE"
             PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"

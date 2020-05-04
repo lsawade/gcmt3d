@@ -158,9 +158,12 @@ echo "Done."
 echo " "
 echo " "
 
-
-## AFTER CONVERSION CMTSIM directories could be deleted since
-## all data is in asdf format then
+echo "Clearing out the CMT simulation directory . . ."
+rm -rf $CMT_SIM_DIR
+echo " "
+echo "Done."
+echo " "
+echo " "
 
 
 ######## Create Process Paths ########
@@ -185,7 +188,7 @@ echo \$WAVE_LIST
 for WAVE in \$WAVE_LIST; do
 
     for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
-        if [[ \$PROCESS_PATH == *"\$BAND"* ]]; then
+        if [[ \$PROCESS_PATH == *"\$WAVE"* ]]; then
             PROCESS_PATH_FILE="$PROCESS_PATHS/\$PROCESS_PATH"
             echo "Processing yml: \$PROCESS_PATH_FILE"
             PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
@@ -232,19 +235,13 @@ echo "Done."
 echo " "
 echo " "
 
-
-
 ######## Inversion ########
-echo "******** INVERSION ***********************************"
+echo "******** GRIDSEARCH ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
 echo "Gridsearch logfile: \$INVERSION_LOG_FILE"
 # Grid search
 gridsearch -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
-
-# Plot full summary
-plot-summary -c $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -o $INVERSION_OUTPUT_DIR/full_summary.pdf
-
 echo " "
 echo "Done."
 echo " "

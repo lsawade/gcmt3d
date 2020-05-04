@@ -17,9 +17,11 @@ Last Update: April 2020
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
+from obspy.geodetics.base import gps2dist_azimuth
 from matplotlib import cm
 from matplotlib import colors
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from ..source import CMTSource
 
 
 params = {
@@ -163,3 +165,130 @@ def set_mpl_params_section():
         # 'mathtext.fontset': 'cm',
     }
     matplotlib.rcParams.update(params)
+
+
+def plot_bounds():
+    ax = plt.gca()
+    lw = 1.0
+    ax.plot([0, 1], [0.0, 0.0], color='black', lw=lw,
+            transform=ax.transAxes, clip_on=False)
+    ax.plot([0, 1], [1.0, 1.0], color='black', lw=lw,
+            transform=ax.transAxes, clip_on=False)
+    ax.plot([0, 0], [0.0, 1.0], color='black', lw=lw,
+            transform=ax.transAxes, clip_on=False)
+    ax.plot([1, 1], [0.0, 1.0], color='black', lw=lw,
+            transform=ax.transAxes, clip_on=False)
+
+
+def plot_bottomline(lw=0.5):
+    ax = plt.gca()
+    ax.plot([0.1, 0.9], [0.0, 0.0], color='black', lw=lw,
+            transform=ax.transAxes, clip_on=False)
+    ax.plot([0, 1], [1.0, 1.0], color='black', lw=lw,
+            transform=ax.transAxes, clip_on=False)
+    ax.plot([0, 0], [0.0, 1.0], color='black', lw=lw,
+            transform=ax.transAxes, clip_on=False)
+    ax.plot([1, 1], [0.0, 1.0], color='black', lw=lw,
+            transform=ax.transAxes, clip_on=False)
+
+
+def plot_topline(lw=0.5):
+    ax = plt.gca()
+    ax.plot([0.1, 0.9], [0.0, 0.0], color='black', lw=lw,
+            transform=ax.transAxes, clip_on=False)
+
+
+def get_new_locations(lat1, lon1, lat2, lon2, padding):
+    """ Get new plodding locations
+
+    :param lat1: Old cmt lat
+    :param lon1: Old cmt lon
+    :param lat2: New cmt lat
+    :param lon2: New cmt lon
+    :param az: azimuth
+    :param padding: padding
+    :return: newlat1, newlon1, newlat2, newlon2
+    """
+
+    # Get aziumth
+    _, az, _ = gps2dist_azimuth(lat1, lon1,
+                                lat2, lon2)
+
+    # length of corner placement:
+    dx = 1.2 * padding
+
+    if 0 <= az < 90:
+        newlat1 = lat1 - dx
+        newlon1 = lon1 - dx
+        newlat2 = lat1 + dx
+        newlon2 = lon1 + dx
+
+    elif 90 <= az < 180:
+        newlat1 = lat1 - dx
+        newlon1 = lon1 + dx
+        newlat2 = lat1 + dx
+        newlon2 = lon1 - dx
+
+    elif 180 <= az < 270:
+        newlat1 = lat1 + dx
+        newlon1 = lon1 + dx
+        newlat2 = lat1 - dx
+        newlon2 = lon1 - dx
+
+    else:
+        newlat1 = lat1 + dx
+        newlon1 = lon1 - dx
+        newlat2 = lat1 - dx
+        newlon2 = lon1 + dx
+
+    return newlat1, newlon1, newlat2, newlon2
+
+
+def plot_beachballs(oldcmt: CMTSource, newcmt: CMTSource,
+                    minlon, maxlon, minlat, maxlat, padding):
+    """Plots beachballs onto a map using their relative location"""
+
+    ax = plt.gca()
+
+    # Beachball width
+    width_beach = min((maxlon + 2 * padding - minlon) / (5 * padding),
+                      (maxlat + 2 * padding - minlat) / (5 * padding))
+
+    # Get CMT location
+    cmt_lat = oldcmt.latitude
+    cmt_lon = oldcmt.longitude
+
+    # Get new location
+    new_cmt_lat = newcmt.latitude
+    new_cmt_lon = newcmt.longitude
+
+    # Correct plotting locations
+    oldlat, oldlon, newlat, newlon, = \
+        get_new_locations(cmt_lat, cmt_lon,
+                          new_cmt_lat, new_cmt_lon,
+                          padding)
+
+    # Plot points
+    markersize = 7.5
+    ax.plot(cmt_lon, cmt_lat, "ko", zorder=200, markeredgecolor='k',
+            markerfacecolor='w', markersize=markersize)
+    ax.plot(new_cmt_lon, new_cmt_lat, "ko", zorder=200, markeredgecolor='k',
+            markerfacecolor='w', markersize=markersize)
+
+    # Plot lines
+    ax.plot([cmt_lon, oldlon], [cmt_lat, oldlat], "k", zorder=199)
+    ax.plot([new_cmt_lon, newlon], [new_cmt_lat, newlat], "k", zorder=199)
+
+    # Old CMT
+    ax = plt.gca()
+    focmecs = oldcmt.tensor
+    bb = beach(focmecs, xy=(oldlon, oldlat), facecolor=(0.2, 0.2, 0.9),
+               width=width_beach, linewidth=1, alpha=1.0, zorder=250)
+    ax.add_collection(bb)
+
+    # New CMT
+    new_focmecs = newcmt.tensor
+    new_bb = beach(new_focmecs, facecolor=(0.9, 0.2, 0.2),
+                   xy=(newlon, newlat), width=width_beach,
+                   linewidth=1, alpha=1.0, zorder=250)
+    ax.add_collection(new_bb)
