@@ -40,6 +40,7 @@ modify_logger(logger)
 # Set Rcparams for the section plot
 set_mpl_params_section()
 
+
 class LowerThresholdRobinson(cartopy.crs.Robinson):
     @property
     def threshold(self):
@@ -50,6 +51,7 @@ class LowerThresholdPlateCarree(cartopy.crs.PlateCarree):
     @property
     def threshold(self):
         return 0.1
+
 
 def plot_bounds():
     ax = plt.gca()
@@ -225,7 +227,6 @@ class PlotEventSummary():
     """Gets the either the pycmt3d json or both the pycmt3d and the gridsearch
     summary json. """
 
-
     def __init__(self, cmt3d: dict, g3d: dict = None):
         """The function takes in a summary dictionaries and plots info
         accordingly
@@ -262,7 +263,6 @@ class PlotEventSummary():
         )
         self.robinson = cartopy.crs.Robinson(central_longitude=self.olon)
 
-
     @classmethod
     def from_JSON(self, cmt3d_json: str, g3d_json: str = None):
         """The function takes in a summary json files and creates the class
@@ -292,10 +292,9 @@ class PlotEventSummary():
         """Plots the table that shows the CMT3D and the G3D stuff"""
         ocmt = CMTSource.from_dictionary(self.cmt3d["oldcmt"])
         newcmt = CMTSource.from_dictionary(self.cmt3d["newcmt"])
-        if self.g3d is not None:
-            g3dcmt = CMTSource.from_dictionary(self.g3d["newcmt"])
 
-        sta_lat, sta_lon = extract_stations_from_traces(self.cmt3d["wave_dict"])
+        sta_lat, sta_lon = extract_stations_from_traces(
+            self.cmt3d["wave_dict"])
         nwins = len(sta_lat)
         sta_lat, sta_lon = unique_locations(sta_lat, sta_lon)
         nsta = len(sta_lat)
@@ -308,14 +307,10 @@ class PlotEventSummary():
                 std_over_mean[_i] = par_std[_i] / np.abs(par_mean[_i])
             else:
                 std_over_mean[_i] = 0.0
-        fontsize = 9
-        incre = 0.06
-        pos = 1.06
         # Moment Tensors
         format1 = "%15.4e  %15.4e  %15.4e  %15.4e  %10.2f%%\n"
         # CMT/HDR
-        format2 = r"%10.3f s  %13.3f s  " \
-                  "%13.3f s  %13.3f s  %13.2f%%\n"
+        # format2 = "%10.3f s  %13.3f s  %13.3f s  %13.3f s  %13.2f%%\n"
         # Depth
         format3 = "%10.3f km  %12.3f km  %12.3f km  %12.3f km  %12.2f%%\n"
         # LatLon
@@ -334,9 +329,10 @@ class PlotEventSummary():
         text += "Station Correction: %5s    Norm_by_energy: %7s" \
                 "    Norm_by_category: %9s\n" \
                 % (self.cmt3d["config"]["station_correction"],
-                   self.cmt3d["config"]["weight_config"]["normalize_by_energy"],
-                   self.cmt3d["config"] \
-                       ["weight_config"]["normalize_by_category"])
+                   self.cmt3d["config"]["weight_config"]
+                   ["normalize_by_energy"],
+                   self.cmt3d["config"]
+                   ["weight_config"]["normalize_by_category"])
 
         energy_change = (newcmt.M0 - ocmt.M0) / ocmt.M0
         text += "Inversion Damping: %6.3f    Energy Change: %7.2f%%" \
@@ -359,7 +355,7 @@ class PlotEventSummary():
                                     par_std[2], std_over_mean[2] * 100)
 
         text += "Mrt:" + format1 % (ocmt.m_rt, newcmt.m_rt, par_mean[3],
-                                   par_std[3], std_over_mean[3] * 100)
+                                    par_std[3], std_over_mean[3] * 100)
         text += "Mrp:" + format1 % (ocmt.m_rp, newcmt.m_rp, par_mean[4],
                                     par_std[4], std_over_mean[4] * 100)
         text += "Mtp:" + format1 % (ocmt.m_tp, newcmt.m_tp, par_mean[5],
@@ -369,12 +365,14 @@ class PlotEventSummary():
                                     par_mean[6] / 1000, par_std[6] / 1000,
                                     std_over_mean[6] * 100)
         text += "LAT:" + format4 % (ocmt.latitude, newcmt.latitude,
-            par_mean[8], par_std[8], std_over_mean[8] * 100)
+                                    par_mean[8], par_std[8],
+                                    std_over_mean[8] * 100)
 
         text += "LON:" + format4 % (ocmt.longitude, newcmt.longitude,
-            par_mean[7], par_std[7], std_over_mean[7] * 100)
+                                    par_mean[7], par_std[7],
+                                    std_over_mean[7] * 100)
 
-        fontsize=9
+        fontsize = 9
         plt.text(0.01, 0.95, text, fontsize=fontsize, fontweight="normal",
                  fontfamily="monospace", transform=ax.transAxes,
                  horizontalalignment="left", verticalalignment="top",
@@ -413,7 +411,7 @@ class PlotEventSummary():
             gbootstrapmean[0] * ocmt.M0, gbootstrapstd[0] * ocmt.M0,
             gbootstrapstd[0] / gbootstrapmean[0] * 100)
 
-        fontsize=9
+        fontsize = 9
         plt.text(0.01, 0.05, text, fontsize=fontsize, fontweight="normal",
                  fontfamily="monospace", transform=ax.transAxes,
                  horizontalalignment="left", verticalalignment="bottom",
@@ -478,14 +476,13 @@ class PlotEventSummary():
                 zorder=100)
         ax.axis('off')
 
-
     def plot_cost(self):
         """Plots graph of the misfit reduction."""
 
         ax = plt.gca()
 
         mincost_array = np.array(self.g3d["G"]["mincost_array"])
-        maxcost_array= np.array(self.g3d["G"]["maxcost_array"])
+        maxcost_array = np.array(self.g3d["G"]["maxcost_array"])
         meancost_array = np.array(self.g3d["G"]["meancost_array"])
         stdcost_array = np.array(self.g3d["G"]["stdcost_array"])
 
@@ -513,8 +510,8 @@ class PlotEventSummary():
     def plot_summary(self, outputfilename=None):
         """The """
 
-        fig = plt.figure(figsize=(10, 9), facecolor='w', edgecolor='k',
-                         tight_layout=True)
+        plt.figure(figsize=(10, 9), facecolor='w', edgecolor='k',
+                   tight_layout=True)
 
         nwave = len(self.cmt3d["wave_dict"])
 
@@ -657,7 +654,6 @@ class PlotEventSummary():
 
 
 if __name__ == "__main__":
-
 
     cmt3d_json = "/Users/lucassawade/inversion_test/9703873.9p_ZT.stats.json"
     g3d_json = "/Users/lucassawade/inversion_test/9703873.grad.stats.json"
