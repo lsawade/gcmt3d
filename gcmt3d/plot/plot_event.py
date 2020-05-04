@@ -522,8 +522,9 @@ class PlotEventSummary():
         self.plot_title()
         self.plot_description()
 
-        plt.subplot(g[3, -1])
-        self.plot_cost()
+        if self.g3d is not None:
+            plt.subplot(g[3, -1])
+            self.plot_cost()
 
         plt.subplot(g[1:3, :3])
         self.plot_table()

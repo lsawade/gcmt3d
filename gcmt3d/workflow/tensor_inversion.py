@@ -124,6 +124,7 @@ def invert(cmt_file_db, param_path):
 
         dcon.add_measurements_from_asdf(window_file, asdf_dict,
                                         wave_weight=wave_weight,
+                                        wave_type=wave,
                                         velocity=velocity)
 
         logger.info("  _____________________________________________________")

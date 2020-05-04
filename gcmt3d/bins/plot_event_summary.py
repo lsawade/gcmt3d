@@ -38,7 +38,7 @@ def main():
     outputfilename = args.outfile
 
     # Plot event summary
-    P = PlotEventSummary(cmt3d=cmt3d_json, g3d=g3d_json)
+    P = PlotEventSummary.from_JSON(cmt3d_json, g3d_json=g3d_json)
     P.plot_summary(outputfilename=outputfilename)
 
 
