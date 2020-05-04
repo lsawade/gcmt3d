@@ -16,7 +16,7 @@ import logging
 from glob import glob
 import os
 import numpy as np
-from pycmt3d.source import CMTSource
+from ..source import CMTSource
 from ..plot.stats import PlotStats
 from ..utils.io import load_json
 from ..log_util import modify_logger
