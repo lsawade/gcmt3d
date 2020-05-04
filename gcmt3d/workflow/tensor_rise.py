@@ -97,6 +97,8 @@ def gradient(cmt_file_db, param_path):
         inv_dict = read_yaml_file(inv_dict_file)
         asdf_dict = inv_dict["asdf_dict"]
         window_file = inv_dict["window_file"]
+        velocity = inv_dict["velocity"]
+        wave_weight = inv_dict["weight"]
 
         # Adding measurements
         # Print Inversion parameters:
@@ -112,7 +114,14 @@ def gradient(cmt_file_db, param_path):
         for key, value in asdf_dict.items():
             logger.info("     " + key + ": " + value)
 
-        dcon.add_measurements_from_asdf(window_file, asdf_dict)
+        # If the synthetics have been converted to velocity in cmt3d
+        # their output will also be in velocity. This means that here,
+        # only the observed need to be converted to velocity since the
+        # input synthetics are pycmt3d's output synthetics.
+        dcon.add_measurements_from_asdf(window_file, asdf_dict,
+                                        wave_weight=wave_weight,
+                                        velocity=velocity,
+                                        only_observed=velocity)
 
         logger.info("  _____________________________________________________")
         logger.info("  ... ")

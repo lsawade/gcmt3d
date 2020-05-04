@@ -103,6 +103,8 @@ def invert(cmt_file_db, param_path):
         inv_dict = read_yaml_file(inv_dict_file)
         asdf_dict = inv_dict["asdf_dict"]
         window_file = inv_dict["window_file"]
+        velocity = inv_dict["velocity"]
+        wave_weight = inv_dict["weight"]
 
         # Adding measurements
         # Print Inversion parameters:
@@ -117,8 +119,12 @@ def invert(cmt_file_db, param_path):
         logger.info("  ASDF files:")
         for key, value in asdf_dict.items():
             logger.info("     " + key + ": " + value)
+        logger.info("  Weight: %r" % wave_weight)
+        logger.info("  Velocity: %r" % velocity)
 
-        dcon.add_measurements_from_asdf(window_file, asdf_dict)
+        dcon.add_measurements_from_asdf(window_file, asdf_dict,
+                                        wave_weight=wave_weight,
+                                        velocity=velocity)
 
         logger.info("  _____________________________________________________")
         logger.info("  ... ")
