@@ -100,59 +100,59 @@ srun -N1 -n1 create-path-files -f $CIN_DB -p $PARAMETER_PATH > \$CPP_LOG_FILE
 echo " "
 
 ######### CONVERT TRACES ########
-#echo "******** CONVERT TRACES ******************************"
-#echo " "
-#
-#CONV_LOG=$LOG_DIR/$CID.005.Converting-to-ASDF
-#
-## Synthetic data
-#for CMT in "\${CMT_LIST[@]}"; do
-#    CONV_PATH_FILE=$CMT_SIM_DIR/\$CMT/\$CMT.yml
-#    echo "Conversion yml: \$CONV_PATH_FILE"
-#    CONV_LOG_FILE=\$CONV_LOG.\$CMT.STDOUT
-#    echo "Conversion logfile: \$CONV_LOG_FILE"
-#    srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
-#done
-#
-## Observed data
-#CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
-#echo "Conversion yml: \$CONV_PATH_FILE"
-#CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
-#echo "Conversion logfile: \$CONV_LOG_FILE"
-#srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
-#wait
-#echo " "
-#echo "Done."
-#echo " "
-#echo " "
+echo "******** CONVERT TRACES ******************************"
+echo " "
+
+CONV_LOG=$LOG_DIR/$CID.005.Converting-to-ASDF
+
+# Synthetic data
+for CMT in "\${CMT_LIST[@]}"; do
+    CONV_PATH_FILE=$CMT_SIM_DIR/\$CMT/\$CMT.yml
+    echo "Conversion yml: \$CONV_PATH_FILE"
+    CONV_LOG_FILE=\$CONV_LOG.\$CMT.STDOUT
+    echo "Conversion logfile: \$CONV_LOG_FILE"
+    srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
+done
+
+# Observed data
+CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
+echo "Conversion yml: \$CONV_PATH_FILE"
+CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
+echo "Conversion logfile: \$CONV_LOG_FILE"
+srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
+wait
+echo " "
+echo "Done."
+echo " "
+echo " "
 
 ######### Process Traces ########
-#echo "******** PROCESS TRACES ******************************"
-#echo " "
-#PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
-#
-#export OMP_NUM_THREADS=1
-#
-## Get the different period bands as they will use the same asdf file
-#WAVE_LIST=(body surface mantle)
-#echo \$WAVE_LIST
-#for WAVE in \$WAVE_LIST; do
-#
-#    for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
-#        if [[ \$PROCESS_PATH == *"\$BAND"* ]]; then
-#            PROCESS_PATH_FILE="$PROCESS_PATHS/\$PROCESS_PATH"
-#            echo "Processing yml: \$PROCESS_PATH_FILE"
-#            PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
-#            echo "Processing logfile: \$PROC_LOG_FILE"
-#            srun -N1 -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
-#        fi
-#    done
-#    wait
-#done
-#echo " "
-#echo "Done."
-#echo " "
-#echo " "
+echo "******** PROCESS TRACES ******************************"
+echo " "
+PROCESS_LOG="$LOG_DIR/$CID.007.Process-Traces"
+
+export OMP_NUM_THREADS=1
+
+# Get the different period bands as they will use the same asdf file
+WAVE_LIST=(body surface mantle)
+echo \$WAVE_LIST
+for WAVE in \$WAVE_LIST; do
+
+    for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
+        if [[ \$PROCESS_PATH == *"\$BAND"* ]]; then
+            PROCESS_PATH_FILE="$PROCESS_PATHS/\$PROCESS_PATH"
+            echo "Processing yml: \$PROCESS_PATH_FILE"
+            PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
+            echo "Processing logfile: \$PROC_LOG_FILE"
+            srun -N1 -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
+        fi
+    done
+    wait
+done
+echo " "
+echo "Done."
+echo " "
+echo " "
 
 
 ######## Window Traces ########
@@ -186,19 +186,30 @@ echo "Done."
 echo " "
 echo " "
 
+######## Gridsearch ########
+echo "******** Gridsearch ***********************************"
+echo " "
+INVERSION_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
+echo "Gridsearch logfile: \$INVERSION_LOG_FILE"
+gridsearch -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+#plot-summary -c $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -o $INVERSION_OUTPUT_DIR/full_summary.pdf
+echo " "
+echo "Done."
+echo " "
+echo " "
 
-# # If inversion successful, clear out synthetic and processed data
-# for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
-# do 
-#     if [[ -e \$invfile ]]; then
-#         echo 'Looks like inversion was successful.'
-#         echo 'Removing files...'
-#         rm -rf $SEISMOGRAMS
-#         rm -rf $CMT_SIM_DIR
-#         rm -rf $STATION_DATA
-#         echo 'Done.'
-#     fi
-# done   
+## If inversion successful, clear out synthetic and processed data
+#for invfile in $INVERSION_OUTPUT_DIR/*.inv.pdf
+#do
+#    if [[ -e \$invfile ]]; then
+#        echo 'Looks like inversion was successful.'
+#        echo 'Removing files...'
+#        rm -rf $SEISMOGRAMS
+#        rm -rf $CMT_SIM_DIR
+#        rm -rf $STATION_DATA
+#        echo 'Done.'
+#    fi
+#done
 
 exit 0
 EOF
