@@ -378,7 +378,6 @@ class PlotEventSummary():
                  horizontalalignment="left", verticalalignment="top",
                  zorder=100
                  )
-        plot_bounds()
         plt.axis('off')
 
     def plot_g3d_table(self):
@@ -416,7 +415,7 @@ class PlotEventSummary():
                  fontfamily="monospace", transform=ax.transAxes,
                  horizontalalignment="left", verticalalignment="bottom",
                  zorder=100)
-        plot_bounds()
+
         plt.axis('off')
 
     def plot_title(self):
@@ -430,7 +429,7 @@ class PlotEventSummary():
                 fontsize=fontsize, transform=ax.transAxes,
                 horizontalalignment="left", verticalalignment="top",
                 zorder=100)
-        plot_bounds()
+
         ax.axis('off')
 
     @staticmethod
@@ -521,15 +520,19 @@ class PlotEventSummary():
         plt.subplot(g[0, :3])
         self.plot_title()
         self.plot_description()
+        plot_bounds()
 
         if self.g3d is not None:
             plt.subplot(g[3, -1])
             self.plot_cost()
+            plot_bounds()
 
         plt.subplot(g[1:3, :3])
         self.plot_table()
+        plot_bounds()
         if self.g3d is not None:
             self.plot_g3d_table()
+
 
         #
         # plt.subplot(g[1:2, :2], projection=self.robinson)
@@ -627,7 +630,7 @@ class PlotEventSummary():
                           pad=3))
 
     @staticmethod
-    def plot_stations(lat, lon):
+    def plot_stations(lat, lon, markersize=3):
         """
         Args:
             lat: latitudes
@@ -637,7 +640,7 @@ class PlotEventSummary():
         """
         geo = cartopy.crs.Geodetic()
         plt.plot(lon, lat, "v", markerfacecolor=(0.7, 0.15, 0.15),
-                 markeredgecolor='k', markersize=10, transform=geo,
+                 markeredgecolor='k', markersize=markersize, transform=geo,
                  zorder=15, clip_on=True)
 
     @staticmethod

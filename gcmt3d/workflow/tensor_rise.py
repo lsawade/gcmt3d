@@ -57,8 +57,10 @@ def gradient(cmt_file_db, param_path):
     # Get processing path from cmt_filename in database
     cmt_dir = os.path.dirname(os.path.abspath(cmt_file_db))
 
-    # Create cmt source:
-    cmtsource = CMTSource.from_CMTSOLUTION_file(cmt_file_db)
+    # Get inverted cmtsource
+    cmtsource = CMTSource.from_CMTSOLUTION_file(glob.glob(
+        os.path.join(cmt_dir, "inversion", "cmt3d", "*.inv"))[0]
+    )
 
     # Inversion dictionary directory
     inv_dict_dir = os.path.join(cmt_dir, "workflow_files", "inversion_dicts")
