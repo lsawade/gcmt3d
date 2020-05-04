@@ -546,7 +546,15 @@ class PlotEventSummary():
                 self.plot_window_distribution(wave, comp=comp)
                 plot_bounds()
 
-        plt.show()
+        # Make it smaller
+        plt.tight_layout()
+
+        if outputfilename is not None:
+            plt.savefig(outputfilename)
+        else:
+            plt.show()
+
+
 
     def plot_stationdist(self, wave, comp):
         """ Plots the distribution of stations for a wave and a component
