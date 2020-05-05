@@ -32,7 +32,7 @@ PROCESSED=$CDIR/seismograms/processed_seismograms # Processed dir
 SEISMOGRAMS=$CDIR/seismograms # Seismos
 STATION_DATA=$CDIR/station_data
 LOG_DIR=$CDIR/logs # Logging directory
-INVERSION_OUTPUT_DIR=$CDIR/inversion/inversion_output
+INVERSION_OUTPUT_DIR=$CDIR/inversion
 WINDOW_PATHS=$CDIR/workflow_files/path_files/window_paths
 
 
@@ -184,8 +184,8 @@ export OMP_NUM_THREADS=1
 
 # Get the different period bands as they will use the same asdf file
 WAVE_LIST=(body surface mantle)
-echo \$WAVE_LIST
-for WAVE in \$WAVE_LIST; do
+echo "\${WAVE_LIST[@]}"
+for WAVE in "\${WAVE_LIST[@]}"; do
 
     for PROCESS_PATH in \$(ls $PROCESS_PATHS); do
         if [[ \$PROCESS_PATH == *"\$WAVE"* ]]; then
@@ -242,10 +242,13 @@ INVERSION_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
 echo "Gridsearch logfile: \$INVERSION_LOG_FILE"
 # Grid search
 gridsearch -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+plot-event-summary $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -f $INVERSION_OUTPUT_DIR/full_summary.pdf
 echo " "
 echo "Done."
 echo " "
 echo " "
+
+
 
 exit 0
 EOF

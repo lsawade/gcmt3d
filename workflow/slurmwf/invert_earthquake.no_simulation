@@ -135,7 +135,6 @@ export OMP_NUM_THREADS=1
 
 # Get the different period bands as they will use the same asdf file
 WAVE_LIST=(body surface mantle)
-echo "HelloHello"
 echo "\${WAVE_LIST[@]}"
 for WAVE in "\${WAVE_LIST[@]}"; do
 
