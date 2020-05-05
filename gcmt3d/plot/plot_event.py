@@ -38,7 +38,7 @@ from .plot_util import plot_bottomline
 from .plot_util import plot_beachballs
 from ..log_util import modify_logger
 
-matplotlib.use('TKagg')
+matplotlib.use('agg')
 
 # Get logger
 logger = logging.getLogger(__name__)
