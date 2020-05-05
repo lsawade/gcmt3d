@@ -16,6 +16,7 @@ Last Update: April 2020
 # External imports
 import logging
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 from matplotlib.gridspec import GridSpec
@@ -24,6 +25,7 @@ from obspy.core.event.event import Event
 from obspy.imaging.beachball import beach
 from obspy.geodetics.base import gps2dist_azimuth
 import cartopy
+matplotlib.use('TKagg')
 
 # Internal imports
 from ..source import CMTSource
@@ -31,8 +33,9 @@ from ..utils.io import load_json
 from ..utils.obspy_utils import get_event_location
 from ..utils.obspy_utils import get_moment_tensor
 from ..utils.obspy_utils import get_station_locations
-from ..plot.plot_util import set_mpl_params_section
-from ..plot.plot_util import plot_bounds, plot_bottomline
+from ..plot.plot_util import set_mpl_params_summary
+from ..plot.plot_util import remove_topright
+from ..plot.plot_util import plot_bottomline
 from ..plot.plot_util import plot_beachballs
 from ..log_util import modify_logger
 
@@ -41,7 +44,7 @@ logger = logging.getLogger(__name__)
 modify_logger(logger)
 
 # Set Rcparams for the section plot
-set_mpl_params_section()
+set_mpl_params_summary()
 
 
 class LowerThresholdRobinson(cartopy.crs.Robinson):
@@ -124,12 +127,11 @@ def plot_map():
 
     # Set gridlines. NO LABELS HERE, there is a bug in the gridlines
     # function around 180deg
-    gl = ax.gridlines(crs=cartopy.crs.Geodetic(),
-                      draw_labels=False,
+    gl = ax.gridlines(draw_labels=False,
                       linewidth=1, color='lightgray', alpha=0.5,
                       linestyle='-', zorder=-1.5)
-    gl.xlabels_top = False
-    gl.ylabels_left = False
+    gl.top_labels = False
+    gl.left_labels = False
     gl.xlines = True
 
     # Add Coastline
@@ -211,8 +213,7 @@ def plot_event(event: Event, inv: Inventory, filename=None,
     else:
         plt.show()
 
-
-class PlotEventSummary():
+class PlotEventSummary(object):
     """Gets the either the pycmt3d json or both the pycmt3d and the gridsearch
     summary json. """
 
@@ -231,6 +232,11 @@ class PlotEventSummary():
         # Main dicts:
         self.cmt3d = cmt3d
         self.g3d = g3d
+
+        # Colors
+        self.cgcmt = (0.8, 0.2, 0.2)
+        self.cgcmt3d = (0.2, 0.2, 0.7)
+        self.cgcmt3dfix = (0.2, 0.2, 0.5)
 
         # Old location
         self.olat = self.cmt3d["oldcmt"]["latitude"]
@@ -251,6 +257,7 @@ class PlotEventSummary():
             central_longitude=self.olon, central_latitude=self.olat
         )
         self.robinson = cartopy.crs.Robinson(central_longitude=self.olon)
+        self.platecarree = cartopy.crs.PlateCarree()
 
     @classmethod
     def from_JSON(self, cmt3d_json: str, g3d_json: str = None):
@@ -275,7 +282,101 @@ class PlotEventSummary():
 
         return self(cmt3d, g3d=g3d)
 
-    def plot_table(self):
+    def plot_summary(self, outputfilename=None):
+        """The main method."""
+
+        # row count
+        nwave = len(self.cmt3d["wave_dict"])
+        size_add = 3 * nwave
+        slot_add = 3 * nwave
+        if self.g3d is not None:
+            size_add += 2
+            slot_add += 2
+
+        fig = plt.figure(figsize=(9, 5 + size_add),
+                         facecolor='w', edgecolor='k')
+
+
+        g = GridSpec(5 + slot_add, 4)
+
+        # Title
+        subspec1 = g[:5, :3].subgridspec(10, 1)
+        ax = plt.subplot(subspec1[0:3])
+        self.plot_title()
+        self.plot_description()
+        plot_bottomline()
+
+        if self.g3d is not None:
+            plt.subplot(subspec1[3:10])
+        else:
+            plt.subplot(subspec1[4:10])
+        self.plot_table()
+        plot_bottomline()
+
+        # Plot Beach boxes
+        cmt3d = CMTSource.from_dictionary(self.cmt3d["newcmt"])
+
+        # Plot Minimap
+        subspec = g[0:5, -1].subgridspec(2, 1)
+        plt.subplot(subspec[0], projection=self.platecarree)
+
+        self.plot_mini_map()
+        plot_bottomline()
+
+        if self.g3d is not None:
+            # Plot GCMT3D Fix box
+            plt.subplot(subspec[1])
+            g3d = CMTSource.from_dictionary(self.g3d["newcmt"])
+            self.plot_beach_box(g3d, title="GCMT3D",
+                                color=self.cgcmt3d)
+            plot_bottomline()
+            before, after = self.get_stats(self.cmt3d["stats"])
+            plt.subplot(g[5:7, 0])
+            self.plot_stats_histogram_one_entry(before, after, title="CMT3D")
+            remove_topright()
+
+            before, after = self.get_stats(self.g3d["stats"])
+            plt.subplot(g[5:7, 1])
+            self.plot_stats_histogram_one_entry(before, after, title="G3D")
+            remove_topright()
+
+            plt.subplot(g[5:7, 2])
+            self.plot_cost()
+            remove_topright()
+
+            start = 7
+        else:
+            # Plot GCMT3D beach box
+            plt.subplot(subspec[1])
+            self.plot_beach_box(cmt3d, title="GCMT3D", color=self.cgcmt3d)
+            plot_bottomline()
+
+            start = 5
+
+        # Plot wave distributions
+        for _i, wave in enumerate(self.cmt3d["wave_dict"].keys()):
+            for _j, comp in enumerate(
+                    self.cmt3d["wave_dict"][wave]["traces"].keys()):
+                plt.subplot(g[start + 3 * _i:start + 3 + 3 * _i, 2 * _j],
+                            projection=self.azi_equi)
+                self.plot_stationdist(wave, comp=comp)
+                # plot_bounds()
+
+                plt.subplot(g[start + 3 * _i:start + 3 + 3 * _i, 2 * _j - 1],
+                            polar=True)
+                self.plot_window_distribution(wave, comp=comp)
+                # plot_bounds()
+
+        # Make it fill out more of the figure
+        fig.subplots_adjust(left=0.05, right=0.95,
+                            bottom=0.05, top=0.95)
+
+        if outputfilename is not None:
+            plt.savefig(outputfilename)
+        else:
+            plt.show()
+
+    def plot_table(self, fontsize=8):
 
         ax = plt.gca()
         """Plots the table that shows the CMT3D and the G3D stuff"""
@@ -310,7 +411,7 @@ class PlotEventSummary():
                % self.cmt3d["config"]["envelope_coef"]
 
         text += "Number of Parameter: %4d    Zero-Trace: %11s" \
-                "    Double-couple: %12s \n" \
+                "    Double-couple: %12s\n" \
                 % (self.cmt3d["config"]["npar"],
                    self.cmt3d["config"]["zero_trace"],
                    self.cmt3d["config"]["double_couple"])
@@ -330,7 +431,7 @@ class PlotEventSummary():
                    self.cmt3d["var_reduction"] * 100)
 
         text += "-" * 32 + "   Summary Table   " + "-" * 32 + "\n"
-        text += "PAR      Global CMT          CMT3D          " \
+        text += "PAR     Global CMT       CMT3D             " \
                 "Bootstrap_Mean   Bootstrap_STD  STD/Mean\n"
 
         text += "Mrr:" + format1 % (ocmt.m_rr, newcmt.m_rr,
@@ -367,23 +468,28 @@ class PlotEventSummary():
             gbootstrapmean = self.g3d["G"]["bootstrap_mean"]
             gbootstrapstd = self.g3d["G"]["bootstrap_std"]
 
-            text += "\nGCMT3D (fix):\n"
+            text += "\nGCMT3D (fix):" + " " * 70 + "\n"
+            "%10.3f deg  %11.3f deg  %11.3f deg  %11.3f deg  %11.2f%%\n"
+            if gbootstrapmean[-1] == 0:
+                divt = 0
+            else:
+                divt = (ocmt.time_shift + gbootstrapstd[-1]) \
+                       / gbootstrapstd[-1]
 
             text += "CMT:" + format2 % (
                 ocmt.time_shift, g3dcmt.time_shift,
                 ocmt.time_shift + gbootstrapmean[-1],
-                gbootstrapstd[-1],
-                (ocmt.time_shift + gbootstrapmean[-1]) / gbootstrapstd[-1])
+                gbootstrapstd[-1], divt)
 
             text += "M0: " + format1 % (
                 ocmt.M0, newcmt.M0,
                 gbootstrapmean[0] * ocmt.M0, gbootstrapstd[0] * ocmt.M0,
                 gbootstrapstd[0] / gbootstrapmean[0] * 100)
 
-        fontsize = 9
-        plt.text(0.05, 0.5, text, fontsize=fontsize, fontweight="normal",
+        fontsize = fontsize
+        plt.text(0.5, 0.5, text, fontsize=fontsize, fontweight="normal",
                  fontfamily="monospace", transform=ax.transAxes,
-                 horizontalalignment="left", verticalalignment="center",
+                 horizontalalignment="center", verticalalignment="center",
                  zorder=100
                  )
         plt.axis('off')
@@ -395,9 +501,9 @@ class PlotEventSummary():
         region_tag = self.cmt3d["oldcmt"]["region_tag"]
         mw = CMTSource.from_dictionary(self.cmt3d["oldcmt"]).moment_magnitude
         # Put text about the wave and the component
-        fontsize = 12
+        fontsize = 11
         ax.text(0.01, 0.95, id + " - " + region_tag + ", Mw: %2.1f" % mw,
-                fontsize=fontsize, transform=ax.transAxes,
+                fontsize=fontsize, transform=ax.transAxes, fontweight='bold',
                 horizontalalignment="left", verticalalignment="top",
                 zorder=100)
 
@@ -439,7 +545,7 @@ class PlotEventSummary():
             g3dcmt = CMTSource.from_dictionary(self.g3d["newcmt"])
             txt += self.get_cmt_text_from_cmt(g3dcmt, "GCMT3D (fix)")
         # Put text about the wave and the component
-        fontsize = 10
+        fontsize = 8.5
         ax.text(0.025, 0.75, txt, fontsize=fontsize, fontweight="normal",
                 fontfamily="monospace", transform=ax.transAxes,
                 horizontalalignment="left", verticalalignment="top",
@@ -456,7 +562,8 @@ class PlotEventSummary():
         meancost_array = np.array(self.g3d["G"]["meancost_array"])
         stdcost_array = np.array(self.g3d["G"]["stdcost_array"])
 
-        x = np.arange(0, mincost_array.shape[0], 1)
+        x = np.arange(0, len(mincost_array), 1)
+
         ax.fill_between(x, mincost_array, maxcost_array,
                         color='lightgray', label="min/max")
         ax.fill_between(x, meancost_array - stdcost_array,
@@ -474,91 +581,23 @@ class PlotEventSummary():
         ax.plot(self.g3d["G"]["chi_list"], "r",
                 label=r"%s ($C_{min} = %.3f$)"
                       % (label, self.g3d["G"]["chi_list"][-1]))
-        plt.legend(prop={'size': 6}, fancybox=False, framealpha=1)
-        plt.yticks([])
+        plt.legend(prop={'size': 5}, fancybox=False, framealpha=1, loc=3)
+        # plt.yticks([])
         ax.set_ylim([0, 1])
 
-    def plot_summary(self, outputfilename=None):
-        """The """
-
-        fig = plt.figure(figsize=(9.5, 10.25), facecolor='w', edgecolor='k',
-                   tight_layout=True)
-
-        # row count
-        nwave = len(self.cmt3d["wave_dict"])
-
-        g = GridSpec(8 + 3*nwave, 4)
-
-        # Title
-        ax = plt.subplot(g[0:2, :3])
-        self.plot_title()
-        self.plot_description()
-        plot_bottomline()
-
-        # if self.g3d is not None:
-        #     plt.subplot(g[6:8, -1])
-        #     self.plot_cost()
-        #     # plot_bounds()
-        if self.g3d is not None:
-            plt.subplot(g[2:6, :3])
-        else:
-            plt.subplot(g[2:5, :3])
-        self.plot_table()
-        plot_bottomline()
-        # plot_bounds()
-
-        # Plot Beach boxes
-        gcmt = CMTSource.from_dictionary(self.cmt3d["oldcmt"])
-        cmt3d = CMTSource.from_dictionary(self.cmt3d["newcmt"])
-        # Plot Global-CMT beach box
-        plt.subplot(g[0:2, -1])
-        self.plot_beach_box(gcmt,
-                            title="Global-CMT")
-        plot_bottomline()
-        # Plot GCMT3D beach box
-        plt.subplot(g[2:4, -1])
-        self.plot_beach_box(cmt3d,
-                            title="GCMT3D", )
-        plot_bottomline()
-
-        if self.g3d is not None:
-            # Plot
-            plt.subplot(g[4:6, -1])
-            g3d = CMTSource.from_dictionary(self.g3d["newcmt"])
-            self.plot_beach_box(g3d, title="GCMT3D (fix)")
-            plot_bottomline()
-
-        # Plot wave distributions
-        for _i, wave in enumerate(self.cmt3d["wave_dict"].keys()):
-            for _j, comp in enumerate(
-                    self.cmt3d["wave_dict"][wave]["traces"].keys()):
-                plt.subplot(g[8 + _i:8 + _i + 3:, 2 * _j], projection=self.azi_equi)
-                self.plot_stationdist(wave, comp=comp)
-                # plot_bounds()
-
-                plt.subplot(g[8 + _i:8 + _i + 3, 2 * _j - 1], polar=True)
-                self.plot_window_distribution(wave, comp=comp)
-                # plot_bounds()
-
-        # Make it smaller
-        plt.tight_layout()
-
-        if outputfilename is not None:
-            plt.savefig(outputfilename)
-        else:
-            plt.show()
-
     def plot_beach_box(self, cmtsource, title=None, dmw=None, dz=None,
-                       dlat=None, dlon=None, dt=1.0):
+                       dlat=None, dlon=None, dt=1.0,
+                       color: str or tuple = 'k'):
         """Plots a beachball into """
         ax = plt.gca()
         ax.axis("off")
         ax.set_xlim((0, 1))
         ax.set_ylim((0, 1))
-        self.plot_beachball(cmtsource, width=180, x=0.66, y=0.6)
+        self.plot_beachball(cmtsource, width=80, x=0.66, y=0.6,
+                            color=color)
 
         if title is not None:
-            ax.text(0.05, 0.9, title, fontsize=10, transform=ax.transAxes,
+            ax.text(0.05, 0.9, title, fontsize=9, transform=ax.transAxes,
                     horizontalalignment="left", verticalalignment="center",
                     zorder=100)
 
@@ -587,12 +626,12 @@ class PlotEventSummary():
             textr = ""
             textr += "$\mathrm{t_{CMT}}$: %5.1f\n" % cmtsource.time_shift
 
-        ax.text(0.05, 0.05, textl[:-1], fontsize=8, transform=ax.transAxes,
+        ax.text(0.025, 0.025, textl[:-1], fontsize=7, transform=ax.transAxes,
                 fontfamily="monospace",
                 horizontalalignment="left", verticalalignment="bottom",
                 zorder=100)
 
-        ax.text(0.95, 0.05, textr[:-1], fontsize=8, transform=ax.transAxes,
+        ax.text(0.975, 0.025, textr[:-1], fontsize=7, transform=ax.transAxes,
                 fontfamily="monospace",
                 horizontalalignment="right", verticalalignment="bottom",
                 zorder=100)
@@ -600,6 +639,8 @@ class PlotEventSummary():
     def plot_mini_map(self):
 
         ax = plt.gca()
+        ax.frameon = False
+        ax.axis('off')
 
         # Load cmts
         oldcmt = CMTSource.from_dictionary(self.cmt3d["oldcmt"])
@@ -611,20 +652,17 @@ class PlotEventSummary():
 
         # Get stations
         sta_lat, sta_lon = unique_locations(
-            *extract_stations_from_traces(self.cmt3d["newcmt"]["wave_dict"]))
-        
+            *extract_stations_from_traces(self.cmt3d["wave_dict"]))
+
         padding = 1
         minlon = cmt_lon - padding
         maxlon = cmt_lon + padding
         minlat = cmt_lat - padding
         maxlat = cmt_lat + padding
 
-        # Updated parallels..
-        ax.set_xlim([minlon - padding, maxlon + padding])
-        ax.set_ylim([minlat - padding, maxlat + padding])
-        ax.frameon = True
-        ax.outline_patch.set_linewidth(0.75)
-
+        # Updated parallels
+        ax.set_extent([minlon - padding, maxlon + padding,
+                       minlat - padding, maxlat + padding])
         lon_tick = np.arange(np.floor(minlon) - padding,
                              np.ceil(maxlon) + 1.51 * padding,
                              padding / 2)
@@ -634,35 +672,75 @@ class PlotEventSummary():
 
         # Set gridlines. NO LABELS HERE, there is a bug in the gridlines
         # function around 180deg
-        gl = ax.gridlines(crs=self.geo, draw_labels=False,
+        gl = ax.gridlines(draw_labels=False,
                           linewidth=1, color='lightgray', alpha=0.5,
                           linestyle='-')
+        gl.top_labels = False
+        gl.bottom_labels = True
+        gl.left_labels = False
+        gl.right_labels = True
         gl.xlines = True
         gl.xlocator = mticker.FixedLocator(lon_tick)
         gl.ylocator = mticker.FixedLocator(lat_tick)
-        gl.xlabel_style = {"rotation": 45., "ha": "right"}
+        fontsize = 7
+        gl.xlabel_style = {"rotation": 45,
+                           "horizontalalignment": "right",
+                           "fontsize": fontsize,
+                           "weight": "bold"}
+        gl.ylabel_style = {"fontsize": fontsize,
+                           "weight": "bold"
+                           }
 
-        # ax.outline_patch.set_visible(False)
-
-        # Change fontsize
-        fontsize = 12
-        font_dict = {"fontsize": fontsize,
-                     "weight": "bold"}
-        ax.set_xticklabels(ax.get_xticklabels(), fontdict=font_dict)
-        ax.set_yticklabels(ax.get_yticklabels(), fontdict=font_dict)
-
-        # ax.add_feature(cartopy.feature.COASTLINE, lw=2,
-        ax.coastlines(color='black', lw=1, zorder=200)
+        # Add Coastline
+        ax.add_feature(cartopy.feature.LAND, zorder=-2, edgecolor='black',
+                       linewidth=0.5, facecolor=(0.9, 0.9, 0.9))
 
         # Plot stations
         ax.scatter(sta_lon, sta_lat, 30, color="r", marker="^",
-                   edgecolor="k", linewidth='0.4', zorder=201,
-                   transform=self.geo)
+                   edgecolor="k", linewidth='0.4', zorder=201)
 
         # Plot beachballs
-        plot_beachballs(oldcmt, newcmt,
+        plot_beachballs(oldcmt, self.cgcmt, newcmt, self.cgcmt3d,
                         minlon, maxlon, minlat, maxlat, padding)
 
+    @staticmethod
+    def plot_stats_histogram_one_entry(data_b, data_a, title=None,
+                                       num_bin=20):
+
+        ax = plt.gca()
+        ax_min = 0.0
+        ax_max = 0.5
+        binwidth = (ax_max - ax_min) / num_bin
+
+        # Stats
+        a_mean = np.mean(data_a)
+        a_std = np.std(data_a)
+        b_mean = np.mean(data_b)
+        b_std = np.std(data_b)
+
+        nb, _, _ = plt.hist(
+            data_b, bins=np.arange(ax_min, ax_max + binwidth / 2., binwidth),
+            facecolor='blue', alpha=0.3)
+        nb_max = np.max(nb)
+        plt.plot([b_mean, b_mean], [0, nb_max], "b--")
+        plt.plot([b_mean - b_std, b_mean + b_std],
+                 [nb_max / 2, nb_max / 2], "b--")
+        plt.xlim((ax_min, ax_max))
+        na, _, _ = plt.hist(
+            data_a, bins=np.arange(ax_min, ax_max + binwidth / 2., binwidth),
+            facecolor='green', alpha=0.5)
+        na_max = np.max(na)
+        plt.plot([a_mean, a_mean], [0, na_max], "g-")
+        plt.plot([a_mean - a_std, a_mean + a_std],
+                 [na_max / 2, na_max / 2], "g-")
+        plt.xlim((ax_min, ax_max))
+
+        if title is not None:
+            fontsize = 7
+            ax.text(0.95, 0.95, title,
+                    fontsize=fontsize, transform=ax.transAxes,
+                    horizontalalignment="right", verticalalignment="top",
+                    zorder=100)
 
     def plot_stationdist(self, wave, comp):
         """ Plots the distribution of stations for a wave and a component
@@ -686,12 +764,12 @@ class PlotEventSummary():
 
         ax.text(0.0, 1.075, text, fontsize=fontsize, transform=ax.transAxes,
                 horizontalalignment="left", verticalalignment="center",
-                zorder=100,
-                bbox=dict(facecolor='white', edgecolor='black',
+                zorder=200,
+                bbox=dict(facecolor='white', edgecolor=None, lw=0.0,
                           pad=3))
 
         self.plot_beachball(CMTSource.from_dictionary(self.cmt3d["oldcmt"]),
-                            width=50, x=0, y=0)
+                            width=25, x=0, y=0)
 
     def plot_window_distribution(self, wave, comp):
         """
@@ -738,12 +816,12 @@ class PlotEventSummary():
         text = "Wins: %d" % len(sta_azi)
         ax.text(0.0, 1.075, text, fontsize=fontsize, transform=ax.transAxes,
                 horizontalalignment="left", verticalalignment="center",
-                zorder=100,
-                bbox=dict(facecolor='white', edgecolor='black',
+                zorder=200,
+                bbox=dict(facecolor='white', edgecolor=None, lw=0,
                           pad=3))
 
         self.plot_beachball(CMTSource.from_dictionary(self.cmt3d["oldcmt"]),
-                            width=50, x=0, y=0)
+                            width=25, x=0, y=0)
 
     @staticmethod
     def plot_stations(lat, lon, markersize=3):
@@ -780,7 +858,7 @@ class PlotEventSummary():
 
     @staticmethod
     def plot_beachball(cmtsource: CMTSource, width=1, x=None, y=None,
-                       transform=cartopy.crs.Geodetic):
+                       transform=cartopy.crs.Geodetic, color='k'):
         ax = plt.gca()
         # Plot beachball
         # Transform the beach ball location to new location according to
@@ -788,11 +866,26 @@ class PlotEventSummary():
         if x is None or y is None:
             x, y = transform.transform_point(
                 cmtsource.longitude, cmtsource.latitude, cartopy.crs.Geodetic)
-        b = beach(cmtsource.tensor, linewidth=0.75, facecolor='k',
-                  bgcolor='w', edgecolor='k',
-                  alpha=1, xy=(x, y), width=width, size=2,
-                  nofill=False, zorder=100, axes=ax)
+        # b = beach(cmtsource.tensor, linewidth=0.75, facecolor=color,
+        #           bgcolor='w', edgecolor='k',
+        #           alpha=1, xy=(x, y), width=width,
+        #           nofill=, zorder=100, axes=ax)
+        b = beach(cmtsource.tensor, facecolor=color,
+              xy=(x, y), width=width, bgcolor='w', edgecolor='k',
+              linewidth=0.75, alpha=1.0, zorder=100, axes=ax)
         ax.add_collection(b)
+
+    @staticmethod
+    def get_stats(stats_dict, type="chi"):
+        before = []
+        after = []
+
+        for cat, misfit_dict in stats_dict.items():
+            before.extend(misfit_dict[type]["before"])
+            after.extend(misfit_dict[type]["after"])
+
+        return before, after
+
 
 
 if __name__ == "__main__":

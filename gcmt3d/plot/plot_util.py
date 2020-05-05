@@ -17,6 +17,7 @@ Last Update: April 2020
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
+from obspy.imaging.beachball import beach
 from obspy.geodetics.base import gps2dist_azimuth
 from matplotlib import cm
 from matplotlib import colors
@@ -159,12 +160,40 @@ def set_mpl_params_section():
         'ytick.major.left': True,  # draw x axis top major ticks
         'ytick.major.right': True,  # draw x axis bottom major ticks
         'ytick.minor.left': True,  # draw x axis top minor ticks
-        'ytick.minor.right': True,  # draw x axis bottom minor ticks
-        # 'text.usetex': True,
-        # 'font.family': 'STIXGeneral',
-        # 'mathtext.fontset': 'cm',
+        'ytick.minor.right': True,  # draw x axis bottom minor tick
     }
     matplotlib.rcParams.update(params)
+
+
+def set_mpl_params_summary():
+    params = {
+        'font.weight': 'bold',
+        'axes.labelweight': 'normal',
+        'axes.labelsize': 12,
+        'axes.titlesize': 14,
+        'axes.titleweight': "bold",
+        'axes.linewidth': 0.5,
+        'xtick.labelsize': 6,
+        'xtick.direction': 'in',
+        'xtick.top': True,  # draw label on the top
+        'xtick.bottom': True,  # draw label on the bottom
+        'xtick.minor.visible': False,
+        'xtick.major.top': False,  # draw x axis top major ticks
+        'xtick.major.bottom': True,  # draw x axis bottom major ticks
+        'xtick.minor.top': False,  # draw x axis top minor ticks
+        'xtick.minor.bottom': False,  # draw x axis bottom minor ticks
+        'ytick.labelsize': 6,
+        'ytick.direction': 'in',
+        'ytick.left': True,  # draw label on the top
+        'ytick.right': True,  # draw label on the bottom
+        'ytick.minor.visible': False,
+        'ytick.major.left': True,  # draw x axis top major ticks
+        'ytick.major.right': False,  # draw x axis bottom major ticks
+        'ytick.minor.left': False,  # draw x axis top minor ticks
+        'ytick.minor.right': False,  # draw x axis bottom minor ticks
+    }
+    matplotlib.rcParams.update(params)
+
 
 
 def plot_bounds():
@@ -244,7 +273,8 @@ def get_new_locations(lat1, lon1, lat2, lon2, padding):
     return newlat1, newlon1, newlat2, newlon2
 
 
-def plot_beachballs(oldcmt: CMTSource, newcmt: CMTSource,
+def plot_beachballs(oldcmt: CMTSource, ocolor: str or tuple,
+                    newcmt: CMTSource, ncolor: str or tuple,
                     minlon, maxlon, minlat, maxlat, padding):
     """Plots beachballs onto a map using their relative location"""
 
@@ -271,9 +301,9 @@ def plot_beachballs(oldcmt: CMTSource, newcmt: CMTSource,
     # Plot points
     markersize = 7.5
     ax.plot(cmt_lon, cmt_lat, "ko", zorder=200, markeredgecolor='k',
-            markerfacecolor='w', markersize=markersize)
+            markerfacecolor=ocolor, markersize=markersize)
     ax.plot(new_cmt_lon, new_cmt_lat, "ko", zorder=200, markeredgecolor='k',
-            markerfacecolor='w', markersize=markersize)
+            markerfacecolor=ncolor, markersize=markersize)
 
     # Plot lines
     ax.plot([cmt_lon, oldlon], [cmt_lat, oldlat], "k", zorder=199)
@@ -282,13 +312,13 @@ def plot_beachballs(oldcmt: CMTSource, newcmt: CMTSource,
     # Old CMT
     ax = plt.gca()
     focmecs = oldcmt.tensor
-    bb = beach(focmecs, xy=(oldlon, oldlat), facecolor=(0.2, 0.2, 0.9),
+    bb = beach(focmecs, xy=(oldlon, oldlat), facecolor=ocolor,
                width=width_beach, linewidth=1, alpha=1.0, zorder=250)
     ax.add_collection(bb)
 
     # New CMT
     new_focmecs = newcmt.tensor
-    new_bb = beach(new_focmecs, facecolor=(0.9, 0.2, 0.2),
+    new_bb = beach(new_focmecs, facecolor=ncolor,
                    xy=(newlon, newlat), width=width_beach,
                    linewidth=1, alpha=1.0, zorder=250)
     ax.add_collection(new_bb)
