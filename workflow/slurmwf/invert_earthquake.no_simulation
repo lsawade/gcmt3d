@@ -145,7 +145,7 @@ for WAVE in "\${WAVE_LIST[@]}"; do
             echo "Processing yml: \$PROCESS_PATH_FILE"
             PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
             echo "Processing logfile: \$PROC_LOG_FILE"
-            srun -N1 -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
+            srun -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
         fi
     done
     wait
