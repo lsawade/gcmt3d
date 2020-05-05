@@ -25,7 +25,6 @@ from obspy.core.event.event import Event
 from obspy.imaging.beachball import beach
 from obspy.geodetics.base import gps2dist_azimuth
 import cartopy
-matplotlib.use('TKagg')
 
 # Internal imports
 from ..source import CMTSource
@@ -33,11 +32,13 @@ from ..utils.io import load_json
 from ..utils.obspy_utils import get_event_location
 from ..utils.obspy_utils import get_moment_tensor
 from ..utils.obspy_utils import get_station_locations
-from ..plot.plot_util import set_mpl_params_summary
-from ..plot.plot_util import remove_topright
-from ..plot.plot_util import plot_bottomline
-from ..plot.plot_util import plot_beachballs
+from .plot_util import set_mpl_params_summary
+from .plot_util import remove_topright
+from .plot_util import plot_bottomline
+from .plot_util import plot_beachballs
 from ..log_util import modify_logger
+
+matplotlib.use('TKagg')
 
 # Get logger
 logger = logging.getLogger(__name__)
@@ -57,6 +58,7 @@ class LowerThresholdPlateCarree(cartopy.crs.PlateCarree):
     @property
     def threshold(self):
         return 0.1
+
 
 def unique_locations(latitude, longitude):
     """Returns to lists of corresponding latitude and longitude. But only
@@ -213,6 +215,7 @@ def plot_event(event: Event, inv: Inventory, filename=None,
     else:
         plt.show()
 
+
 class PlotEventSummary(object):
     """Gets the either the pycmt3d json or both the pycmt3d and the gridsearch
     summary json. """
@@ -296,12 +299,11 @@ class PlotEventSummary(object):
         fig = plt.figure(figsize=(9, 5 + size_add),
                          facecolor='w', edgecolor='k')
 
-
         g = GridSpec(5 + slot_add, 4)
 
         # Title
         subspec1 = g[:5, :3].subgridspec(10, 1)
-        ax = plt.subplot(subspec1[0:3])
+        plt.subplot(subspec1[0:3])
         self.plot_title()
         self.plot_description()
         plot_bottomline()
@@ -314,7 +316,7 @@ class PlotEventSummary(object):
         plot_bottomline()
 
         # Plot Beach boxes
-        cmt3d = CMTSource.from_dictionary(self.cmt3d["newcmt"])
+        cmt3d = CMTSource.from_dictionary(self.cmt3d["oldcmt"])
 
         # Plot Minimap
         subspec = g[0:5, -1].subgridspec(2, 1)
@@ -327,8 +329,14 @@ class PlotEventSummary(object):
             # Plot GCMT3D Fix box
             plt.subplot(subspec[1])
             g3d = CMTSource.from_dictionary(self.g3d["newcmt"])
-            self.plot_beach_box(g3d, title="GCMT3D",
-                                color=self.cgcmt3d)
+            self.plot_beach_box(
+                g3d, title="GCMT3D",
+                dmw=g3d.moment_magnitude - cmt3d.moment_magnitude,
+                dlat=g3d.latitude - cmt3d.latitude,
+                dlon=g3d.longitude - cmt3d.longitude,
+                dz=(g3d.depth_in_m - cmt3d.depth_in_m)/1000,
+                dt=(g3d.cmt_time - cmt3d.cmt_time),
+                color=self.cgcmt3d)
             plot_bottomline()
             before, after = self.get_stats(self.cmt3d["stats"])
             plt.subplot(g[5:7, 0])
@@ -348,7 +356,15 @@ class PlotEventSummary(object):
         else:
             # Plot GCMT3D beach box
             plt.subplot(subspec[1])
-            self.plot_beach_box(cmt3d, title="GCMT3D", color=self.cgcmt3d)
+            g3d = CMTSource.from_dictionary(self.cmt3d["newcmt"])
+            self.plot_beach_box(
+                g3d, title="GCMT3D",
+                dmw=g3d.moment_magnitude - cmt3d.moment_magnitude,
+                dlat=g3d.latitude - cmt3d.latitude,
+                dlon=g3d.longitude - cmt3d.longitude,
+                dz=(g3d.depth_in_m - cmt3d.depth_in_m) / 1000,
+                dt=(g3d.cmt_time - cmt3d.cmt_time),
+                color=self.cgcmt3d)
             plot_bottomline()
 
             start = 5
@@ -474,7 +490,7 @@ class PlotEventSummary(object):
                 divt = 0
             else:
                 divt = (ocmt.time_shift + gbootstrapstd[-1]) \
-                       / gbootstrapstd[-1]
+                    / gbootstrapstd[-1]
 
             text += "CMT:" + format2 % (
                 ocmt.time_shift, g3dcmt.time_shift,
@@ -606,15 +622,15 @@ class PlotEventSummary(object):
             textl = ""
             textr = ""
             if dmw is not None:
-                textl += "dMw: %4.1f\n" % dmw
+                textl += "dMw: %7.2f\n" % dmw
             if dz is not None:
-                textl += "dz:   %5.1f km\n" % dz
+                textl += "dz:  %7.2f km\n" % dz
             if dlat is not None:
-                textl += "dLat: %5.1f deg\n" % dlat
+                textl += "dLat:%7.2f deg\n" % dlat
             if dlon is not None:
-                textl += "dLon: %5.1f deg\n" % dlon
+                textl += "dLon:%7.2f deg\n" % dlon
             if dt is not None:
-                textl += "d$\mathrm{t_{CMT}}$: %5.1f deg\n" \
+                textl += "dTcmt:%6.2f s\n" \
                          % dt
 
         else:
@@ -624,7 +640,7 @@ class PlotEventSummary(object):
             textl += "Lat: %5.1f deg\n" % cmtsource.latitude
             textl += "Lon: %5.1f deg\n" % cmtsource.longitude
             textr = ""
-            textr += "$\mathrm{t_{CMT}}$: %5.1f\n" % cmtsource.time_shift
+            textr += r"$\mathrm{t_{CMT}}$: %5.1fs\n" % cmtsource.time_shift
 
         ax.text(0.025, 0.025, textl[:-1], fontsize=7, transform=ax.transAxes,
                 fontfamily="monospace",
@@ -807,7 +823,7 @@ class PlotEventSummary(object):
         ax.xaxis.set_ticklabels([])
         ax.yaxis.set_ticklabels([])
         ax.grid(True, zorder=-20)
-        ax.axis('off') # Turns everything off
+        ax.axis('off')
         ax.set_theta_zero_location('N')
         ax.set_theta_direction(-1)
 
@@ -871,8 +887,8 @@ class PlotEventSummary(object):
         #           alpha=1, xy=(x, y), width=width,
         #           nofill=, zorder=100, axes=ax)
         b = beach(cmtsource.tensor, facecolor=color,
-              xy=(x, y), width=width, bgcolor='w', edgecolor='k',
-              linewidth=0.75, alpha=1.0, zorder=100, axes=ax)
+                  xy=(x, y), width=width, bgcolor='w', edgecolor='k',
+                  linewidth=0.75, alpha=1.0, zorder=100, axes=ax)
         ax.add_collection(b)
 
     @staticmethod
@@ -885,7 +901,6 @@ class PlotEventSummary(object):
             after.extend(misfit_dict[type]["after"])
 
         return before, after
-
 
 
 if __name__ == "__main__":

@@ -195,7 +195,6 @@ def set_mpl_params_summary():
     matplotlib.rcParams.update(params)
 
 
-
 def plot_bounds():
     ax = plt.gca()
     lw = 1.0
