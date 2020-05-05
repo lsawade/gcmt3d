@@ -32,7 +32,7 @@ PROCESSED=$CDIR/seismograms/processed_seismograms # Processed dir
 SEISMOGRAMS=$CDIR/seismograms # Seismos
 STATION_DATA=$CDIR/station_data
 LOG_DIR=$CDIR/logs # Logging directory
-INVERSION_OUTPUT_DIR=$CDIR/inversion/inversion_output
+INVERSION_OUTPUT_DIR=$CDIR/inversion
 WINDOW_PATHS=$CDIR/workflow_files/path_files/window_paths
 
 echo
@@ -192,7 +192,7 @@ echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
 echo "Gridsearch logfile: \$INVERSION_LOG_FILE"
 gridsearch -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
-#plot-summary -c $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -o $INVERSION_OUTPUT_DIR/full_summary.pdf
+plot-event-summary $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -f $INVERSION_OUTPUT_DIR/full_summary.pdf
 echo " "
 echo "Done."
 echo " "
