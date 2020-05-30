@@ -91,8 +91,3 @@ def copy_data(synt_dir, obsd_dir, station_dir, cmt_file_in_db):
 
         logger.debug("Copying %s to %s" % (src, dest))
         copyfile(src, dest)
-
-
-
-
-

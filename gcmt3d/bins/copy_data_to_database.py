@@ -15,6 +15,7 @@ This is a script that will create a database entry given a cmt solution in the
 from gcmt3d.workflow.copy_data import copy_data
 import argparse
 
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -37,7 +38,6 @@ def main():
 
     # Run The copy command
     copy_data(args.synt, args.obsd, args.stations, args.filename)
-
 
 
 if __name__ == '__main__':

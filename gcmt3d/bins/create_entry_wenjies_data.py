@@ -15,6 +15,7 @@ This is a script that will create a database entry given a cmt solution in the
 from gcmt3d.workflow.create_database_entry import create_entry
 import argparse
 
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -31,7 +32,6 @@ def main():
 
     # Run
     create_entry(args.filename, args.database, args.param_path, specfem=False)
-
 
 
 if __name__ == '__main__':
