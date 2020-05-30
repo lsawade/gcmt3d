@@ -23,7 +23,6 @@ from matplotlib.gridspec import GridSpec
 from obspy import Inventory
 from obspy.core.event.event import Event
 from obspy.imaging.beachball import beach
-from obspy.geodetics.base import gps2dist_azimuth
 import cartopy
 
 # Internal imports
@@ -36,6 +35,8 @@ from .plot_util import set_mpl_params_summary
 from .plot_util import remove_topright
 from .plot_util import plot_bottomline
 from .plot_util import plot_beachballs
+from .plot_util import unique_locations, extract_stations_from_traces
+from .plot_util import extract_locations_from_comp, get_azimuth
 from ..log_util import modify_logger
 
 matplotlib.use('agg')
@@ -58,66 +59,6 @@ class LowerThresholdPlateCarree(cartopy.crs.PlateCarree):
     @property
     def threshold(self):
         return 0.1
-
-
-def unique_locations(latitude, longitude):
-    """Returns to lists of corresponding latitude and longitude. But only
-    unique entries"""
-
-    # Magic line
-    stations = list(set([(lat, lon) for lat, lon in zip(latitude, longitude)]))
-
-    # Lat list, Lon lisst
-    return [sta[0] for sta in stations], [sta[1] for sta in stations]
-
-
-def extract_locations_from_comp(complist: list):
-    """Collects latitudes and longitudes in form on number of
-    windows. if a trace has 3 windows the location will be added 3 times.
-    Later when plotting the scattered stations, use a set comprehension.
-
-    Argument:
-        complist: is a list of all traces on one component
-    """
-    lat = []
-    lon = []
-    for trace in complist:
-        for _i in range(trace["nwindows"]):
-            lat.append(trace["lat"])
-            lon.append(trace["lon"])
-
-    return lat, lon
-
-
-def extract_stations_from_traces(wave_dict):
-    """Get all stations"""
-    lat = []
-    lon = []
-
-    for wave in wave_dict.keys():
-        for comp, complist in wave_dict[wave]["traces"].items():
-            for trace in complist:
-                lat.append(trace["lat"])
-                lon.append(trace["lon"])
-
-    return lat, lon
-
-
-def get_azimuth(elat, elon, latitude, longitude):
-    """ computes the azimuth for multiple stations
-
-    Args:
-        elat: event latitude
-        elon: event longitude
-        latitude: station latitudes
-        lon: station longitudes
-    Returns:
-
-    """
-    azi = []
-    for lat, lon in zip(latitude, longitude):
-        azi.append(gps2dist_azimuth(elat, elon, lat, lon)[1])
-    return azi
 
 
 def plot_map():
@@ -211,7 +152,7 @@ def plot_event(event: Event, inv: Inventory, filename=None,
     plt.tight_layout()
 
     if filename is not None:
-        plt.savefig("")
+        plt.savefig(filename)
     else:
         plt.show()
 
@@ -484,7 +425,7 @@ class PlotEventSummary(object):
             gbootstrapmean = self.g3d["G"]["bootstrap_mean"]
             gbootstrapstd = self.g3d["G"]["bootstrap_std"]
 
-            text += "\nGCMT3D (fix):" + " " * 70 + "\n"
+            text += "\nGCMT3D+:" + " " * 75 + "\n"
             "%10.3f deg  %11.3f deg  %11.3f deg  %11.3f deg  %11.2f%%\n"
             if gbootstrapmean[-1] == 0:
                 divt = 0
@@ -559,7 +500,7 @@ class PlotEventSummary(object):
         txt += self.get_cmt_text_from_cmt(newcmt, "GCMT3D")
         if self.g3d is not None:
             g3dcmt = CMTSource.from_dictionary(self.g3d["newcmt"])
-            txt += self.get_cmt_text_from_cmt(g3dcmt, "GCMT3D (fix)")
+            txt += self.get_cmt_text_from_cmt(g3dcmt, "GCMT3D+")
         # Put text about the wave and the component
         fontsize = 8.5
         ax.text(0.025, 0.75, txt, fontsize=fontsize, fontweight="normal",
@@ -773,6 +714,11 @@ class PlotEventSummary(object):
         self.plot_stations(lat, lon)
         self.plot_paths(self.olat, self.olon, lat, lon)
 
+        # Plot event
+        plt.plot(0, 0, "o", markerfacecolor=(0.15, 0.15, 0.7),
+                 markeredgecolor='k', markersize=5,
+                 zorder=100)
+
         ax = plt.gca()
         # Put text about the wave and the component
         fontsize = 9
@@ -784,8 +730,8 @@ class PlotEventSummary(object):
                 bbox=dict(facecolor='white', edgecolor=None, lw=0.0,
                           pad=3))
 
-        self.plot_beachball(CMTSource.from_dictionary(self.cmt3d["oldcmt"]),
-                            width=25, x=0, y=0)
+        # self.plot_beachball(CMTSource.from_dictionary(self.cmt3d["oldcmt"]),
+        #                     width=25, x=0, y=0)
 
     def plot_window_distribution(self, wave, comp):
         """
@@ -836,8 +782,8 @@ class PlotEventSummary(object):
                 bbox=dict(facecolor='white', edgecolor=None, lw=0,
                           pad=3))
 
-        self.plot_beachball(CMTSource.from_dictionary(self.cmt3d["oldcmt"]),
-                            width=25, x=0, y=0)
+        # self.plot_beachball(CMTSource.from_dictionary(self.cmt3d["oldcmt"]),
+        #                     width=25, x=0, y=0)
 
     @staticmethod
     def plot_stations(lat, lon, markersize=3):

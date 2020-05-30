@@ -17,9 +17,10 @@ from glob import glob
 import os
 import numpy as np
 from ..source import CMTSource
-from ..plot.stats import PlotStats
+from ..plot.plot_stats import PlotStats
 from ..utils.io import load_json
 from ..log_util import modify_logger
+from ..plot.plot_event import extract_stations_from_traces, unique_locations
 
 logger = logging.getLogger(__name__)
 modify_logger(logger)
@@ -61,27 +62,28 @@ class Struct(object):
                 self.__dict__[k] = Struct(**v)
 
 
-def get_stats_json(filename):
+def get_stats_json(cmt3dfile, g3dfile):
     """Reads the stats json and outputs dictionary with
     all the necessary data
     """
-    d = load_json(os.path.abspath(filename))
-    data_container = {"sta_lon": np.array(d["sta_lon"]),
-                      "sta_lat": np.array(d["sta_lat"]),
-                      "nwindows": d["nwindows"],
-                      "nwin_on_trace": d["nwin_on_trace"]}
-    cmtsource = CMTSource.from_dictionary(d["oldcmt"])
-    new_cmtsource = CMTSource.from_dictionary(d["newcmt"])
-    config = Struct(**d["config"])
-    nregions = d["nregions"]
-    bootstrap_mean = np.array(d["bootstrap_mean"])
-    bootstrap_std = np.array(d["bootstrap_std"])
-    var_reduction = d["var_reduction"]
-    mode = d["mode"]
-    G = d["G"]
-    stats = d["stats"]
+    c = load_json(os.path.abspath(cmt3dfile))
+    g = load_json(os.path.abspath(g3dfile))
 
-    return (data_container, cmtsource, new_cmtsource,
+    sta_lat, sta_lon = extract_stations_from_traces(c["wave_dict"])
+    sta_lat, sta_lon = unique_locations(sta_lat, sta_lon)
+    station_list = [(lat, lon) for lat, lon in zip(sta_lat, sta_lon)]
+    cmtsource = CMTSource.from_dictionary(c["oldcmt"])
+    new_cmtsource = CMTSource.from_dictionary(g["newcmt"])
+    config = Struct(**c["config"])
+    nregions = c["nregions"]
+    bootstrap_mean = np.array(c["bootstrap_mean"])
+    bootstrap_std = np.array(c["bootstrap_std"])
+    var_reduction = c["var_reduction"] * g["var_reduction"]
+    mode = c["mode"]
+    G = g
+    stats = c["stats"]
+
+    return (station_list, cmtsource, new_cmtsource,
             config, nregions, bootstrap_mean,
             bootstrap_std, var_reduction, mode,
             G, stats)
@@ -133,14 +135,15 @@ class Statistics(object):
 
         good_stats = []
         for _i, (dcmt, id) in enumerate(zip(self.dCMT, self.ids)):
-            if dcmt[0] > 0.5 or dcmt[0] < -0.5 or \
-                    dcmt[7] > 20000 or dcmt[7] < -20000:
+            if dcmt[0] > 0.2 or dcmt[0] < -0.2 or \
+                    dcmt[7] > 15000 or dcmt[7] < -15000:
                 logger.info("ID: %s" % id)
                 logger.info("  M0_0: %e" % self.ocmt[_i, 0])
                 logger.info("  M0_1: %e" % self.ncmt[_i, 0])
                 logger.info("  dCMT: %f" % dcmt[0])
                 logger.info("  dz: %f" % dcmt[7])
-                logger.info("Removed C%s from matrix." % id)
+                # logger.info("Removed C%s from matrix." % id)
+                good_stats.append(_i)
             else:
                 good_stats.append(_i)
 
@@ -201,10 +204,14 @@ class Statistics(object):
         logger.info("Looking for earthquakes here: %s" % directory)
         # Get list of inversion files.
         if direct:
-            clist = glob(os.path.join(directory, "*.json"))
+            clist = glob(os.path.join(directory, 'g3d', "*.json"))
+            glist = glob(os.path.join(directory, 'cmt3d', "*.json"))
         else:
             clist = glob(os.path.join(directory, "C*",
-                                      "inversion", "inversion_output",
+                                      "inversion", "cmt3d",
+                                      "*.json"))
+            glist = glob(os.path.join(directory, "C*",
+                                      "inversion", "g3d",
                                       "*.json"))
 
         logger.info("Found all files.")
@@ -220,12 +227,14 @@ class Statistics(object):
         logger.info(" ")
 
         # Loop of files
-        for invdata in clist:
+        for cmt3d, g3d in zip(clist, glist):
 
+            logger.debug("CMT3D: %s -- G3D: %s" % (os.path.basename(cmt3d),
+                                                   os.path.basename(g3d)))
             try:
-                logger.info("  File: %s" % invdata)
+                logger.info("  File: %s" % cmt3d)
 
-                (data_container,
+                (sta_list,
                  cmtsource,
                  new_cmtsource,
                  config,
@@ -235,17 +244,13 @@ class Statistics(object):
                  var_reduction,
                  mode,
                  G,
-                 stats) = get_stats_json(invdata)
+                 stats) = get_stats_json(cmt3d, g3d)
 
                 # Append CMT files
                 old_cmts.append(cmtsource)
                 new_cmts.append(new_cmtsource)
                 stat_dicts.append(stats)
-
-                # stations
-                for lat, lon in zip(data_container["sta_lat"],
-                                    data_container["sta_lon"]):
-                    station_list.add((lat, lon))
+                station_list.update(set(sta_list))
 
             except Exception as e:
                 logging.warning(e)
@@ -279,8 +284,15 @@ class Statistics(object):
                        savedir=savedir)
 
         PS.plot_main_stats()
-        PS.plot_dM_dz()
-        PS.plot_dM_z()
+        PS.plot_dM_dz_oz()
+        PS.plot_dM_dz_nz()
+        PS.plot_dM_nz_dz()
+        PS.plot_dM_oz_dz()
+        PS.plot_dz_oz_dM()
+        PS.plot_dz_nz_dM()
+        PS.plot_dt_oz_dz()
+        PS.plot_dt_nz_dz()
+        PS.plot_z_z_dM()
         # PS.plot_changes()
         # PS.plot_xcorr_matrix()
         # PS.plot_xcorr_heat()
@@ -329,9 +341,9 @@ class Statistics(object):
                     # Add STD
                     for time in ['before', 'after']:
                         complete_dict[tag][measurement][time]["std"].append(
-                            ba_dict[time]["std"])
+                            np.std(ba_dict[time]))
                         complete_dict[tag][measurement][time]["mean"].append(
-                            ba_dict[time]["mean"])
+                            np.mean(ba_dict[time]))
 
         return complete_dict
 

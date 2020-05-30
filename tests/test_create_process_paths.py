@@ -19,6 +19,7 @@ import glob
 import pprint
 import unittest
 
+
 from gcmt3d.utils.io import read_yaml_file
 from gcmt3d.data.management.process_classifier import ProcessParams
 from gcmt3d.data.management.create_process_paths \
@@ -593,6 +594,114 @@ class TestCreatePaths(unittest.TestCase):
             self.assertTrue(invdict["weight"] == 1.0)
             self.assertTrue(invdict["velocity"] == True)
 
+    def test_create_syn_path_yaml(self):
+        """Testing the creation of the yaml file."""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+
+            # Cmtfile path
+            cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir)
+
+            # Create database
+            DB.create_all()
+
+            # Read the yaml_file which should be created in the CMT directory
+            windowbasedir = os.path.join(DATA_DIR, "params", "Window")
+            processbasedir = os.path.join(DATA_DIR, "params", "Process")
+
+            # CMT filename in database
+            cmt_in_db = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0] + ".cmt")
+
+            # Workflow directory
+            workflow_dir = os.path.join(DB.Cdirs[0], "workflow_files")
+            invdir = os.path.join(workflow_dir, "inversion_dicts")
+
+            # Trying the thing
+            p = PathCreator(cmt_in_db, windowbasedir, processbasedir)
+            p.write_all()
+
+            # Read the yaml_file which should be created in the CMT directory
+            yaml_file = os.path.join(DB.Cdirs[0], "workflow_files",
+                                     "path_files", "conversion_paths",
+                                     "CMT_rr.yml")
+
+            # Solution should be:
+            waveform_dir = os.path.join(DB.Cdirs[0], "CMT_SIMs", "CMT_rr",
+                                        "OUTPUT_FILES")
+            tag = 'syn'
+            filetype = 'sac'
+            output_file = os.path.join(DB.Cdirs[0], "seismograms", "syn",
+                                       "CMT_rr.h5")
+            quakeml_file = os.path.join(DB.Cdirs[0], "CMT_SIMs", "CMT_rr",
+                                        "OUTPUT_FILES", "Quake.xml")
+
+            d = read_yaml_file(yaml_file)
+
+            # Assessing correctness of yaml file
+            self.assertTrue(d["quakeml_file"] == quakeml_file)
+            self.assertTrue(d["tag"] == tag)
+            self.assertTrue(d["output_file"] == output_file)
+            self.assertTrue(d["filetype"] == filetype)
+            self.assertTrue(d["waveform_dir"] == waveform_dir)
+
+    def test_create_obs_path_yaml(self):
+        """Testing the creation of the yaml file."""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Cmtfile path
+            cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir)
+
+            # Create database
+            DB.create_all()
+
+            # Read the yaml_file which should be created in the CMT directory
+            windowbasedir = os.path.join(DATA_DIR, "params", "Window")
+            processbasedir = os.path.join(DATA_DIR, "params", "Process")
+
+            # CMT filename in database
+            cmt_in_db = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0] + ".cmt")
+
+            # Workflow directory
+            workflow_dir = os.path.join(DB.Cdirs[0], "workflow_files")
+            invdir = os.path.join(workflow_dir, "inversion_dicts")
+
+            # Trying the thing
+            p = PathCreator(cmt_in_db, windowbasedir, processbasedir)
+            p.write_all()
+
+            # Read the yaml_file which should be created in the CMT directory
+            yaml_file = os.path.join(DB.Cdirs[0], "workflow_files",
+                                     "path_files", "conversion_paths",
+                                     "observed.yml")
+
+            # Solution should be:
+            waveform_files = os.path.join(DB.Cdirs[0], "seismograms", "obs",
+                                          "*.mseed")
+            staxml = os.path.join(DB.Cdirs[0], "station_data", "*.xml")
+            tag = 'obs'
+            output_file = os.path.join(DB.Cdirs[0], "seismograms", "obs",
+                                       "raw_observed.h5")
+            quakeml_file = os.path.join(DB.Cdirs[0],
+                                        "C" + DB.Cids[0] + ".xml")
+
+            d = read_yaml_file(yaml_file)
+
+            # Assessing correctness of yaml file
+            self.assertTrue(d["quakeml_file"] == quakeml_file)
+            self.assertTrue(d["tag"] == tag)
+            self.assertTrue(d["output_file"] == output_file)
+            self.assertTrue(d["waveform_files"] == waveform_files)
+            self.assertTrue(d["staxml_files"] == staxml)
 
 
 

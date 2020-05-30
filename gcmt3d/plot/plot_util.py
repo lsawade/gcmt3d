@@ -13,7 +13,6 @@ Last Update: April 2020
 
 """
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
@@ -24,34 +23,9 @@ from matplotlib import colors
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 from ..source import CMTSource
 
-
-params = {
-    'font.weight': 'bold',
-    'axes.labelweight': 'bold',
-    'axes.labelsize': 9,
-    'xtick.labelsize': 7,
-    'xtick.direction': 'in',
-    'xtick.top': True,   # draw label on the top
-    'xtick.bottom': True,    # draw label on the bottom
-    'xtick.minor.visible': True,
-    'xtick.major.top': True,  # draw x axis top major ticks
-    'xtick.major.bottom': True,  # draw x axis bottom major ticks
-    'xtick.minor.top': True,  # draw x axis top minor ticks
-    'xtick.minor.bottom': True,  # draw x axis bottom minor ticks
-    'ytick.labelsize': 7,
-    'ytick.direction': 'in',
-    'ytick.left': True,  # draw label on the top
-    'ytick.right': True,  # draw label on the bottom
-    'ytick.minor.visible': True,
-    'ytick.major.left': True,  # draw x axis top major ticks
-    'ytick.major.right': True,  # draw x axis bottom major ticks
-    'ytick.minor.left': True,  # draw x axis top minor ticks
-    'ytick.minor.right': True,  # draw x axis bottom minor ticks
-    # 'text.usetex': True,
-    # 'font.family': 'STIXGeneral',
-    # 'mathtext.fontset': 'cm',
-}
-matplotlib.rcParams.update(params)
+# Colors for the optically less capable.
+COLORBLIND = ['#000000', '#ffffff', '#ff1e00', '#ffb49d',
+              '#22a8be', '#36fa0e', '#df0095']
 
 
 def remove_topright(ax=None):
@@ -140,10 +114,10 @@ def set_mpl_params_section():
     params = {
         'font.weight': 'bold',
         'axes.labelweight': 'bold',
-        'axes.labelsize': 12,
-        'axes.titlesize': 14,
+        'axes.labelsize': 15,
+        'axes.titlesize': 17,
         'axes.titleweight': "bold",
-        'xtick.labelsize': 10,
+        'xtick.labelsize': 13,
         'xtick.direction': 'in',
         'xtick.top': True,  # draw label on the top
         'xtick.bottom': True,  # draw label on the bottom
@@ -152,7 +126,7 @@ def set_mpl_params_section():
         'xtick.major.bottom': True,  # draw x axis bottom major ticks
         'xtick.minor.top': True,  # draw x axis top minor ticks
         'xtick.minor.bottom': True,  # draw x axis bottom minor ticks
-        'ytick.labelsize': 10,
+        'ytick.labelsize': 13,
         'ytick.direction': 'in',
         'ytick.left': True,  # draw label on the top
         'ytick.right': True,  # draw label on the bottom
@@ -161,6 +135,33 @@ def set_mpl_params_section():
         'ytick.major.right': True,  # draw x axis bottom major ticks
         'ytick.minor.left': True,  # draw x axis top minor ticks
         'ytick.minor.right': True,  # draw x axis bottom minor tick
+    }
+    matplotlib.rcParams.update(params)
+
+
+def set_mpl_params_stats():
+    params = {
+        'font.weight': 'bold',
+        'axes.labelweight': 'bold',
+        'axes.labelsize': 10,
+        'xtick.labelsize': 7,
+        'xtick.direction': 'in',
+        'xtick.top': True,  # draw label on the top
+        'xtick.bottom': True,  # draw label on the bottom
+        'xtick.minor.visible': True,
+        'xtick.major.top': True,  # draw x axis top major ticks
+        'xtick.major.bottom': True,  # draw x axis bottom major ticks
+        'xtick.minor.top': True,  # draw x axis top minor ticks
+        'xtick.minor.bottom': True,  # draw x axis bottom minor ticks
+        'ytick.labelsize': 7,
+        'ytick.direction': 'in',
+        'ytick.left': True,  # draw label on the top
+        'ytick.right': True,  # draw label on the bottom
+        'ytick.minor.visible': True,
+        'ytick.major.left': True,  # draw x axis top major ticks
+        'ytick.major.right': True,  # draw x axis bottom major ticks
+        'ytick.minor.left': True,  # draw x axis top minor ticks
+        'ytick.minor.right': True,  # draw x axis bottom minor ticks
     }
     matplotlib.rcParams.update(params)
 
@@ -321,3 +322,64 @@ def plot_beachballs(oldcmt: CMTSource, ocolor: str or tuple,
                    xy=(newlon, newlat), width=width_beach,
                    linewidth=1, alpha=1.0, zorder=250)
     ax.add_collection(new_bb)
+
+
+def unique_locations(latitude, longitude):
+    """Returns to lists of corresponding latitude and longitude. But only
+    unique entries"""
+
+    # Magic line
+    stations = list(set([(lat, lon) for lat, lon in zip(latitude, longitude)]))
+
+    # Lat list, Lon lisst
+    return [sta[0] for sta in stations], [sta[1] for sta in stations]
+
+
+def extract_locations_from_comp(complist: list):
+    """Collects latitudes and longitudes in form on number of
+    windows. if a trace has 3 windows the location will be added 3 times.
+    Later when plotting the scattered stations, use a set comprehension.
+
+    Argument:
+        complist: is a list of all traces on one component
+    """
+    lat = []
+    lon = []
+    for trace in complist:
+        for _i in range(trace["nwindows"]):
+            lat.append(trace["lat"])
+            lon.append(trace["lon"])
+
+    return lat, lon
+
+
+def extract_stations_from_traces(wave_dict):
+    """Get all stations"""
+    lat = []
+    lon = []
+
+    for wave in wave_dict.keys():
+        for comp, complist in wave_dict[wave]["traces"].items():
+            for trace in complist:
+                lat.append(trace["lat"])
+                lon.append(trace["lon"])
+
+    return lat, lon
+
+
+def get_azimuth(elat, elon, latitude, longitude):
+    """ computes the azimuth for multiple stations
+
+    Args:
+        elat: event latitude
+        elon: event longitude
+        latitude: station latitudes
+        lon: station longitudes
+    Returns:
+
+    """
+
+    azi = []
+    for lat, lon in zip(latitude, longitude):
+        azi.append(gps2dist_azimuth(elat, elon, lat, lon)[1])
+    return azi

@@ -15,8 +15,7 @@ import os
 from gcmt3d.data.management.skeleton import DataBaseSkeleton
 from gcmt3d.asdf.utils import smart_read_yaml, is_mpi_env
 
-
-def create_entry(cmt_filename, databasedir, param_path):
+def create_entry(cmt_filename, databasedir, param_path, specfem=True):
     # Define parameter directory
     databaseparam_path = os.path.join(param_path,
                                       "Database/DatabaseParameters.yml")
@@ -38,9 +37,14 @@ def create_entry(cmt_filename, databasedir, param_path):
         stations_file = None
 
     # Database Setup.
+    if specfem is False:
+        specfem_dir = None
+    else:
+        specfem_dir = specfemspecs["SPECFEM_DIR"]
+
     DB = DataBaseSkeleton(basedir=databasedir,
                           cmt_fn=cmt_filename,
-                          specfem_dir=specfemspecs["SPECFEM_DIR"],
+                          specfem_dir=specfem_dir,
                           stations_file=stations_file,
                           overwrite=dbparams['overwrite'])
 

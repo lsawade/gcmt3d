@@ -25,7 +25,7 @@ resample_flag: True
 sampling_rate: 0.5
 
 # taper
-taper_type: "hann"
+taper_type: "tukey"
 taper_percentage: 0.05
 
 # rotate flag

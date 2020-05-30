@@ -21,7 +21,6 @@ from distutils.dir_util import copy_tree
 from obspy import read_events
 from time import time
 from ...source import CMTSource
-from ...asdf.utils import write_yaml_file
 
 import logging
 from ...log_util import modify_logger
@@ -159,6 +158,11 @@ class DataBaseSkeleton(object):
 
         # Create CMTSource to extract the file name
         Cid = cmt.eventname
+
+        # Fix for Wenjie's files
+        if Cid[0] == "C":
+            Cid = Cid[1:]
+
         self.Cids.append(Cid)
 
         # Earthquake directory
@@ -249,6 +253,14 @@ class DataBaseSkeleton(object):
                 self._create_dir(pathfiles, True)
             else:
                 self._create_dir(pathfiles, False)
+
+            convpaths = os.path.join(pathfiles, "conversion_paths")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(convpaths, True)
+            else:
+                self._create_dir(convpaths, False)
 
             windowpaths = os.path.join(pathfiles, "window_paths")
 
@@ -448,14 +460,6 @@ class DataBaseSkeleton(object):
                         else:
                             self._copy_dir(src_path, dst_path, False)
 
-                    # Create the Path file for later usage of the ASDF
-                    # conversion
-                    if _subdir == "OUTPUT_FILES":
-                        logger.verbose("Writing YAML path file "
-                                       "from waveform dir "
-                                       "%s" % dst_path)
-                        self._create_syn_path_yaml(dst_path)
-
                 # Create symbolic link to destination folders
                 if not os.path.islink((os.path.join(cmt_der_path, "bin"))):
                     os.symlink(os.path.join(self.specfem_dir, "bin"),
@@ -501,12 +505,6 @@ class DataBaseSkeleton(object):
                 self._create_dir(obs_dir_path, True)
             else:
                 self._create_dir(obs_dir_path, False)
-
-            # write Observed path file
-            logger.verbose("Writing the YAML path file to %s" %
-                           os.path.join(obs_dir_path, "observed.yml"))
-
-            self._create_obs_path_yaml(self.Cids[_i], _Cdir)
 
             # Create the subdirectory for processing pathfiles
             process_dir_path = os.path.join(seismogram_dir, 'process_paths')
@@ -588,102 +586,6 @@ class DataBaseSkeleton(object):
             logger.verbose("Writing earthquake %s file to %s." % (source,
                                                                   destination))
             catalog.write(destination, format="QUAKEML")
-
-    def _create_syn_path_yaml(self, waveform_dir):
-        """ This function writes a yaml conversion path file for 1 Simulation
-        file. This file is later on need for the creation of ASDF files and the
-        processing involved ASDF files.
-
-        The function assumes that
-        * the QuakeML file is located in the OUTPUT_FILES directory with the
-          name `Quake.xml`
-        * The output directory name is the
-          `../database/C<id>/seismograms/syn/<attr>.h5
-
-        Args:
-              waveform_dir: path to OUTPUT_FILES
-
-        """
-
-        # File Type
-        filetype = "sac"
-
-        # Tag
-        tag = "syn"
-
-        # QuakeML file path
-        quakeml_file = os.path.join(waveform_dir, "Quake.xml")
-
-        # Outputfile
-        cmt_sim_dir = os.path.dirname(waveform_dir)
-        Cdir = os.path.dirname(os.path.dirname(cmt_sim_dir))
-        cmt_name = os.path.basename(cmt_sim_dir)
-        output_file = os.path.join(Cdir, "seismograms", "syn",
-                                   cmt_name + ".h5")
-
-        # Pathfile directory
-        yaml_file_path = os.path.join(cmt_sim_dir, cmt_name + ".yml")
-
-        # Create dictionary
-        logger.verbose("Writing path file %s." % yaml_file_path)
-
-        d = {"waveform_dir": waveform_dir,
-             "filetype": filetype,
-             "quakeml_file": quakeml_file,
-             "tag": tag,
-             "output_file": output_file}
-
-        # Writing the directory to file
-        write_yaml_file(d, yaml_file_path)
-
-    def _create_obs_path_yaml(self, Cid, Cdir):
-        """ This function writes a yaml path file for 1 Simulation file. This
-        file is later on need for the creation of ASDF files and the
-        processing involved ASDF files.
-
-        The function assumes that
-        * the QuakeML file is located in the main EQ directory with the
-          name `C<id>.xml`
-        * The output file name is the
-          `../database/C<id>/seismograms/obs/raw_observed.h5
-
-        Args:
-              waveform_dir: path to OUTPUT_FILES
-
-        """
-
-        # Tag
-        tag = "obs"
-
-        # Waveform file
-        waveform_files = os.path.join(Cdir, "seismograms", "obs",
-                                      "*.mseed")
-
-        # QuakeML file path
-        quakeml_file = os.path.join(Cdir, "C" + Cid + ".xml")
-
-        # Station file
-        staxml_file = os.path.join(Cdir, "station_data", "*.xml")
-
-        # Outputfile
-        output_file = os.path.join(Cdir, "seismograms",
-                                   "obs", "raw_observed.h5")
-
-        # Pathfile directory
-        yaml_file_path = os.path.join(Cdir, "seismograms",
-                                      "obs", "observed.yml")
-
-        # Create dictionary
-        logger.verbose("Writing path file %s." % yaml_file_path)
-
-        d = {"waveform_files": waveform_files,
-             "quakeml_file": quakeml_file,
-             "tag": tag,
-             "staxml_files": staxml_file,
-             "output_file": output_file}
-
-        # Writing the directory to file
-        write_yaml_file(d, yaml_file_path)
 
     def _create_dir(self, directory, ow):
         """Create subdirectory"""

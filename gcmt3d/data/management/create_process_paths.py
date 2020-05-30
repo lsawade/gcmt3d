@@ -45,6 +45,130 @@ PARMAP = {"CMT_rr": "Mrr",
           "CMT_hdr": "hdr"}
 
 
+def create_syn_path_yaml(cmt_filename):
+    """ This function writes a yaml conversion path file for 1 Simulation
+    file. This file is later on need for the creation of ASDF files and the
+    processing involved ASDF files.
+
+    The function assumes that
+    * the QuakeML file is located in the OUTPUT_FILES directory with the
+      name `Quake.xml`
+    * The output directory name is the
+      `../database/C<id>/seismograms/syn/<attr>.h5
+
+    Args:
+          waveform_dir: path to OUTPUT_FILES
+
+    """
+
+    # Get directory and name
+    cmt_dir = os.path.dirname(cmt_filename)
+    conversion_path_dir = os.path.join(cmt_dir, "workflow_files", "path_files",
+                                       "conversion_paths")
+
+    # Simulation directory
+    cmt_sim_dir = os.path.join(cmt_dir, "CMT_SIMs")
+
+    # Outputfile
+    if os.path.exists(cmt_sim_dir) is False:
+        logger.warning("Simulation directory doesnt exist. No conversion"
+                       "files were created.")
+
+        # Check whether created before and delete, so that now conversions are
+        # attempted
+        for _at in attr:
+            yaml_file_path = os.path.join(conversion_path_dir, _at + ".yml")
+            if os.path.exist(yaml_file_path):
+                os.remove(yaml_file_path)
+                logger.warning("Removed %s." % yaml_file_path)
+
+    for _at in attr:
+
+        waveform_dir = os.path.join(cmt_sim_dir, _at, "OUTPUT_FILES")
+
+        # File Type
+        filetype = "sac"
+        # Tag
+        tag = "syn"
+
+        # QuakeML file path
+        quakeml_file = os.path.join(waveform_dir, "Quake.xml")
+
+        # Output synthetic file
+        output_file = os.path.join(cmt_dir, "seismograms", "syn",
+                                   _at + ".h5")
+
+        # Pathfile directory
+        yaml_file_path = os.path.join(conversion_path_dir, _at + ".yml")
+
+        # Create dictionary
+        logger.verbose("Writing path file %s." % yaml_file_path)
+
+        d = {"waveform_dir": waveform_dir,
+             "filetype": filetype,
+             "quakeml_file": quakeml_file,
+             "tag": tag,
+             "output_file": output_file}
+
+        # Writing the directory to file
+        write_yaml_file(d, yaml_file_path)
+
+
+def create_obs_path_yaml(cmt_filename):
+    """ This function writes a yaml path file for 1 Simulation file. This
+    file is later on need for the creation of ASDF files and the
+    processing involved ASDF files.
+
+    The function assumes that
+    * the QuakeML file is located in the main EQ directory with the
+      name `C<id>.xml`
+    * The output file name is the
+      `../database/C<id>/seismograms/obs/raw_observed.h5
+
+    Args:
+          waveform_dir: path to OUTPUT_FILES
+
+    """
+
+    # Get directory and name
+    cmt_dir = os.path.dirname(cmt_filename)
+    cmt_name = os.path.basename(cmt_filename)[:-4]
+    conversion_path_dir = os.path.join(cmt_dir, "workflow_files",
+                                       "path_files", "conversion_paths")
+
+    # Tag
+    tag = "obs"
+
+    # Waveform file
+    waveform_files = os.path.join(cmt_dir, "seismograms", "obs",
+                                  "*.mseed")
+
+    # QuakeML file path
+    quakeml_file = os.path.join(cmt_dir, cmt_name + ".xml")
+
+    # Station file
+    staxml_file = os.path.join(cmt_dir, "station_data", "*.xml")
+
+    # Outputfile
+    output_file = os.path.join(cmt_dir, "seismograms",
+                               "obs", "raw_observed.h5")
+
+    # Pathfile directory
+    yaml_file_path = os.path.join(conversion_path_dir, "observed.yml")
+
+    # Create dictionary
+    logger.verbose("Writing path file %s." % yaml_file_path)
+
+    d = {"waveform_files": waveform_files,
+         "quakeml_file": quakeml_file,
+         "tag": tag,
+         "staxml_files": staxml_file,
+         "output_file": output_file}
+
+    # Writing the directory to file
+    write_yaml_file(d, yaml_file_path)
+
+
 def create_processing_dictionary(cmtparamdict, obsd_process_dict,
                                  synt_process_dict):
     """This function creates the processing file that contains the info on
@@ -252,6 +376,10 @@ class PathCreator(object):
 
         for outdict in writelist:
             self.write_param_file_dict(outdict)
+
+        # Write conversion files
+        create_obs_path_yaml(self.cmtfile)
+        create_syn_path_yaml(self.cmtfile)
 
     def create_process_parameter_struct(self):
         """Creates window parameter dictionaries and corresponding file names

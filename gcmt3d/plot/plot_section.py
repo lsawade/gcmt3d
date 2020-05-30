@@ -33,6 +33,7 @@ from ..log_util import modify_logger
 # Get logger
 logger = logging.getLogger(__name__)
 modify_logger(logger)
+logger.setLevel(logging.DEBUG)
 
 # Set Rcparams for the section plot
 set_mpl_params_section()
@@ -45,9 +46,8 @@ def plot_windows_on_trace(ax, winlist, epi, smax, timefactor):
         endtime = win["relative_endtime"] / timefactor
 
         # Define coordinates
-        halfmax = smax / 2
-        lowerleft = (epi - halfmax, starttime,)
-        width = smax
+        lowerleft = (epi - smax, starttime)
+        width = 2*smax
         height = endtime - starttime
 
         # Plot
@@ -160,7 +160,8 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
                     "%s.%s" % (network.code, station.code)]
 
             for channel in station:
-                codemap = {"N": "R", "E": "T", "Z": "Z", }
+                codemap = {"N": "R", "E": "T", "Z": "Z",
+                           "1": "R", "2": "T"}
 
                 if window_file_name is not None:
                     try:
@@ -337,7 +338,17 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
         ax = axes()
         for _i, (obs, epi) in enumerate(zip(odict["data"], odict["dist"])):
 
-            if isnan(obs[0]) is False:
+            if isnan(obs[0]) is not True:
+                omax = max(abs(obs))
+
+                # Plot windows
+                if window_file_name is not None:
+
+                    _wins = odict["wins"][_i]
+                    if len(_wins) == 0:
+                        continue
+                    plot_windows_on_trace(ax, _wins, epi, scale,
+                                          timemap[timescale])
 
                 if synt_file_name is not None:
                     syn = s[comp]["data"][_i]
@@ -348,22 +359,9 @@ def plot_section(obsd_file_name, synt_file_name=None, window_file_name=None,
                          t / timemap[timescale],
                          "r", lw=0.5)
 
-                    # Get common max for both
-                    commax = max([max(abs(scale * syn / smax)),
-                                  max(abs(scale * obs / smax))])
-                else:
-                    smax = max(abs(obs))
-                    commax = smax
-
                 # Plot observed data
-                plot(scale * obs / smax + epi,
+                plot(scale * obs / omax + epi,
                      t / timemap[timescale], "k", lw=0.5)
-
-                # Plot windows
-                if window_file_name is not None:
-                    _wins = odict["wins"][_i]
-                    plot_windows_on_trace(ax, _wins, epi, commax,
-                                          timemap[timescale])
 
         # Put labels
         title("%s Component" % titlemap[comp], fontweight="bold")
