@@ -80,6 +80,7 @@ setup(
             'convert2sac = gcmt3d.bins.convert_to_sac:main',
             'count-windows = gcmt3d.bins.count_overall_windows:main',
             'compute-stats = gcmt3d.bins.compute_stats:main',
+            'copy-data-to-database = gcmt3d.bins.copy_data_to_database:main',
             'create-entry = gcmt3d.bins.create_entry:main',
             'create-inversion-dicts = gcmt3d.bins.write_inversion_dicts:main',
             'create-gridsearch-dicts = gcmt3d.bins.write_grid_search_dicts:main',
