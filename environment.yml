@@ -1,16 +1,18 @@
-name: gcmt3d
 channels:
   - conda-forge
+  - defaults
 dependencies:
-  - python=3.7
-  - numpy<=1.16.4
-  - matplotlib
-  - cartopy
-  - mpi4py
-  - h5py
+  - python>=3.7
+  - geos
+  - pyproj>=2.6
+  - numpy>=1.18.4
+  - matplotlib>=3.2.1
+  - mpi4py=3.0.3
+  - h5py>=2.10.0
   - pip
   - pip:
-    - obspy
+    - obspy>=1.2.1
+    - cartopy>=0.18.0
     - pyyaml
     - sphinx
     - sphinx_rtd_theme
@@ -21,6 +23,3 @@ dependencies:
     - git+git://github.com/lsawade/pyasdf.git@devel
     - git+git://github.com/lsawade/spaceweight.git@master
     - git+git://github.com/lsawade/pycmt3d.git@devel
-
-
-
