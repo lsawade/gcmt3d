@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import matplotlib as mpl
-mpl.use('Agg')  # NOQA
 import argparse
 from gcmt3d.asdf.window import WindowASDF
 from gcmt3d.utils.io import smart_read_yaml
 import warnings
+mpl.use('Agg')  # NOQA
 
 warnings.filterwarnings("ignore", category=DeprecationWarning,
                         module=r'.*numerictypes')

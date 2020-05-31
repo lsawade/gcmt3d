@@ -82,6 +82,7 @@ setup(
             'compute-stats = gcmt3d.bins.compute_stats:main',
             'copy-data-to-database = gcmt3d.bins.copy_data_to_database:main',
             'create-entry = gcmt3d.bins.create_entry:main',
+            'create-entry-wj = gcmt3d.bins.create_entry_wenjie:main',
             'create-inversion-dicts = gcmt3d.bins.write_inversion_dicts:main',
             'create-gridsearch-dicts = gcmt3d.bins.write_grid_search_dicts:main',
             'create-path-files = gcmt3d.bins.create_path_files:main',
