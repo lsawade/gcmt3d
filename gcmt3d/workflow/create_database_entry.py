@@ -53,6 +53,6 @@ def create_entry(cmt_filename, databasedir, param_path, specfem=True):
     DB.create_all()
 
     # Return new earthquake location.
-    cmt_in_database = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0])
+    cmt_in_database = os.path.join(DB.Cdirs[0], DB.Cids[0])
 
     return cmt_in_database

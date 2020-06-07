@@ -159,14 +159,10 @@ class DataBaseSkeleton(object):
         # Create CMTSource to extract the file name
         Cid = cmt.eventname
 
-        # Fix for Wenjie's files
-        if Cid[0] == "C":
-            Cid = Cid[1:]
-
         self.Cids.append(Cid)
 
         # Earthquake directory
-        Cdir = os.path.join(self.basedir, "C" + Cid)
+        Cdir = os.path.join(self.basedir, Cid)
 
         # Create directory
         if self.ow in [0, 1] and type(self.ow) is not bool:
@@ -178,10 +174,10 @@ class DataBaseSkeleton(object):
         self.Cdirs.append(Cdir)
 
         # Create new CMT path
-        cmt_path = os.path.join(Cdir, "C" + Cid + ".cmt")
+        cmt_path = os.path.join(Cdir, Cid + ".cmt")
 
         # Create new CMT path
-        xml_path = os.path.join(Cdir, "C" + Cid + ".xml")
+        xml_path = os.path.join(Cdir, Cid + ".xml")
 
         # Copy the Earthquake file into the directory with C<ID>.cmt
         if self.ow in [0, 1] and type(self.ow) is not bool:

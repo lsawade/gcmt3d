@@ -116,7 +116,7 @@ class TestSkeleton(unittest.TestCase):
             Cid = cmt.eventname
 
             # Earthquake directory
-            Cdir = os.path.join(tmp_dir, "C" + Cid)
+            Cdir = os.path.join(tmp_dir, Cid)
 
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
@@ -127,7 +127,7 @@ class TestSkeleton(unittest.TestCase):
             DB.create_Cdirs()
 
             # check if new path exists
-            new_cmt_path = os.path.join(Cdir, "C" + Cid + ".cmt")
+            new_cmt_path = os.path.join(Cdir, Cid + ".cmt")
             self.assertTrue(os.path.exists(new_cmt_path) and os.path.isfile(
                 new_cmt_path))
             self.assertTrue(CMTSource.from_CMTSOLUTION_file(new_cmt_path)
@@ -153,8 +153,8 @@ class TestSkeleton(unittest.TestCase):
             Cid2 = cmt2.eventname
 
             # Earthquake directory
-            Cdir1 = os.path.join(tmp_dir, "C" + Cid1)
-            Cdir2 = os.path.join(tmp_dir, "C" + Cid2)
+            Cdir1 = os.path.join(tmp_dir, Cid1)
+            Cdir2 = os.path.join(tmp_dir, Cid2)
 
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,
@@ -166,8 +166,8 @@ class TestSkeleton(unittest.TestCase):
             DB.create_Cdirs()
 
             # check if new path exists
-            new_cmt_path1 = os.path.join(Cdir1, "C" + Cid1 + ".cmt")
-            new_cmt_path2 = os.path.join(Cdir2, "C" + Cid2 + ".cmt")
+            new_cmt_path1 = os.path.join(Cdir1, Cid1 + ".cmt")
+            new_cmt_path2 = os.path.join(Cdir2, Cid2 + ".cmt")
 
             self.assertTrue(os.path.exists(new_cmt_path1) and os.path.isfile(
                 new_cmt_path1))
@@ -255,7 +255,7 @@ class TestSkeleton(unittest.TestCase):
             Cid = cmt.eventname
 
             # Earthquake directory
-            Cdir = os.path.join(tmp_dir, "C" + Cid)
+            Cdir = os.path.join(tmp_dir, Cid)
 
             # Initialize database skeleton class
             DB = DataBaseSkeleton(basedir=tmp_dir,

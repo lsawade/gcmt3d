@@ -267,7 +267,7 @@ class TestCreatePaths(unittest.TestCase):
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
 
             # CMT filename in database
-            cmt_in_db = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0] + ".cmt")
+            cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
 
             # Workflow directory
             workflow_dir = os.path.join(DB.Cdirs[0], "workflow_files")
@@ -330,7 +330,7 @@ class TestCreatePaths(unittest.TestCase):
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
 
             # CMT filename in database
-            cmt_in_db = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0] + ".cmt")
+            cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
 
             # Workflow directory
             workflow_dir = os.path.join(DB.Cdirs[0], "workflow_files")
@@ -417,7 +417,7 @@ class TestCreatePaths(unittest.TestCase):
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
 
             # CMT filename in database
-            cmt_in_db = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0] + ".cmt")
+            cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
 
             # Workflow directory
             workflow_dir = os.path.join(DB.Cdirs[0], "workflow_files")
@@ -501,7 +501,7 @@ class TestCreatePaths(unittest.TestCase):
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
 
             # CMT filename in database
-            cmt_in_db = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0] + ".cmt")
+            cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
 
             # Workflow directory
             workflow_dir = os.path.join(DB.Cdirs[0], "workflow_files")
@@ -562,7 +562,7 @@ class TestCreatePaths(unittest.TestCase):
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
 
             # CMT filename in database
-            cmt_in_db = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0] + ".cmt")
+            cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
 
             # Workflow directory
             workflow_dir = os.path.join(DB.Cdirs[0], "workflow_files")
@@ -616,7 +616,7 @@ class TestCreatePaths(unittest.TestCase):
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
 
             # CMT filename in database
-            cmt_in_db = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0] + ".cmt")
+            cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
 
             # Workflow directory
             workflow_dir = os.path.join(DB.Cdirs[0], "workflow_files")
@@ -670,7 +670,7 @@ class TestCreatePaths(unittest.TestCase):
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
 
             # CMT filename in database
-            cmt_in_db = os.path.join(DB.Cdirs[0], "C" + DB.Cids[0] + ".cmt")
+            cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
 
             # Workflow directory
             workflow_dir = os.path.join(DB.Cdirs[0], "workflow_files")
@@ -693,7 +693,7 @@ class TestCreatePaths(unittest.TestCase):
             output_file = os.path.join(DB.Cdirs[0], "seismograms", "obs",
                                        "raw_observed.h5")
             quakeml_file = os.path.join(DB.Cdirs[0],
-                                        "C" + DB.Cids[0] + ".xml")
+                                        DB.Cids[0] + ".xml")
 
             d = read_yaml_file(yaml_file)
 
