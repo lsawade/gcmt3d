@@ -13,7 +13,7 @@ fi
 
 
 # STUFF TO BE SET PRIOR TO RUNNING ANYTHING
-GCMT3D='/home/lsawade/gcmt3d'
+GCMT3D='/home/lsawade/GCMT3D'
 WORKFLOW_DIR="$GCMT3D/workflow"
 PARAMETER_PATH="$WORKFLOW_DIR/params"
 SLURM_DIR="$WORKFLOW_DIR/slurmwf"
@@ -37,9 +37,9 @@ WINDOW_PATHS=$CDIR/workflow_files/path_files/window_paths
 PROCESS_PATHS=$CDIR/workflow_files/path_files/process_paths # Process Path
 CONVERSION_PATHS=$CDIR/workflow_files/path_files/conversion_paths
 INVERSION_DIRECTORY=/tigress/lsawade/source_inversion_II
-SYNTHETIC_FILES=$INVERSION_DIRECTORY/raw_synt/archive.440_events
-OBSERVED_FILES=$INVERSION_DIRECTORY/raw_obsd/download.1480/waveform
-STATION_FILES=$INVERSION_DIRECTORY/raw_obsd/download.1480/station
+SYNTHETIC_FILES=$INVERSION_DIRECTORY/raw_synt/archive.400_events
+OBSERVED_FILES=$INVERSION_DIRECTORY/raw_obsd/download/waveform
+STATION_FILES=$INVERSION_DIRECTORY/raw_obsd/download/station
 
 # MOVING FILES AROUND
 SUBMITTED=$INVERSION_DIRECTORY/submitted_cmts
@@ -74,7 +74,7 @@ echo
 
 # Activate conda environment
 module load anaconda
-conda activate gcmt3d_wenjie
+conda activate cmt3d
 
 # Create database structure
 ENTRY_LOG_FILE="$LOG_DIR/$CID.000.Create-Entry.txt"
@@ -114,7 +114,7 @@ module purge
 # Load anaconda and set environment
 module load anaconda3
 module load openmpi/gcc
-conda activate gcmt3d_wenjie
+conda activate cmt3d
 
 # Define the parameters
 CMT_LIST=(CMT CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
