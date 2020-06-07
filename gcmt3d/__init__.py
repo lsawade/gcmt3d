@@ -20,4 +20,4 @@ modify_logger(logger)
 50: logging.CRITICAL
 
 '''
-logger.setLevel(logging.VERBOSE)
+logger.setLevel(logging.DEBUG)

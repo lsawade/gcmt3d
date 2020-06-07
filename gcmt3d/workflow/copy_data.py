@@ -55,17 +55,22 @@ def copy_data(synt_dir, obsd_dir, station_dir, cmt_file_in_db):
 
     # Get CMT ID
     cmt_id = os.path.basename(cmt_file_in_db)[:-4]
-    cmt_dir = os.path.dir(cmt_file_in_db)
+    cmt_dir = os.path.dirname(os.path.abspath(cmt_file_in_db))
 
     # Observed data
-    raw_obsd = os.path.join(obsd_dir, cmt_id, "*")
-    raw_xml = os.path.join(station_dir, cmt_id, "*")
+    raw_obsd = os.path.join(os.path.abspath(obsd_dir), cmt_id, "*.mseed")
+    raw_xml = os.path.join(os.path.abspath(station_dir), cmt_id, "*.xml")
+    print(raw_obsd)
+    logger.verbose("Looking for data     here: %s" % raw_obsd)
+    logger.verbose("Looking for stations here: %s" % raw_xml)
+    if len(raw_obsd) < 2 or len(raw_xml) < 2:
+        raise ValueError("Not enough observed data")
 
     # Copying the station files
-    station_dir = os.path.join(cmt_dir, "station_data")
+    station_dir_in_db = os.path.join(cmt_dir, "station_data")
     logger.verbose("Copying station files ...")
     for station_file in glob(raw_xml):
-        dest = os.path.join(station_dir, os.path.basename(station_file))
+        dest = os.path.join(station_dir_in_db, os.path.basename(station_file))
         logger.debug("Copying %s to %s" % (station_file, dest))
         copyfile(station_file, dest)
 
@@ -81,9 +86,12 @@ def copy_data(synt_dir, obsd_dir, station_dir, cmt_file_in_db):
     synt_waveform_dir = os.path.join(cmt_dir, "seismograms", "syn")
     logger.verbose("Copying synthetic waveform files ...")
     for _at in attr:
-
+        if PARMAP[_at] == "":
+            suffix = ""
+        else:
+            suffix = "_" + PARMAP[_at]
         # Get source file
-        src = os.path.join(synt_dir, cmt_id + PARMAP[_at],
+        src = os.path.join(synt_dir, cmt_id + suffix,
                            "OUTPUT_FILES", "synthetic.h5")
 
         # Define destination

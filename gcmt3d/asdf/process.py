@@ -15,6 +15,14 @@ import inspect
 from functools import partial
 from ..signal.process import process_stream
 from .procbase import ProcASDFBase
+from copy import deepcopy
+
+
+def quick_fix(utc):
+    """resets the precision, so that the specfemoutput fits the CMT solution"""
+    t = deepcopy(utc)
+    t._set_microsecond(int(t.microsecond/10000)*10000)
+    return t
 
 
 def check_param_keywords(param):
@@ -44,24 +52,29 @@ def process_wrapper(stream, inv, param=None):
     :return:
     """
     param["inventory"] = inv
+    print("starttime wrapper:", param["starttime"])
     return process_stream(stream, **param)
 
 
 def update_param(event, param):
     """ update the param based on event information """
     origin = event.preferred_origin()
-    origin = event.preferred_origin()
     event_latitude = origin.latitude
     event_longitude = origin.longitude
     event_time = origin.time
 
+    time = quick_fix(event_time)
+    print("update:", time)
     # figure out interpolation parameter
-    param["starttime"] = event_time + param["relative_starttime"]
+    param["starttime"] = time + param["relative_starttime"]
+    print("starttime update:", param["starttime"])
     param.pop("relative_starttime")
-    param["endtime"] = event_time + param["relative_endtime"]
+    param["endtime"] = time + param["relative_endtime"]
     param.pop("relative_endtime")
     param["event_latitude"] = event_latitude
     param["event_longitude"] = event_longitude
+
+    return param
 
 
 class ProcASDF(ProcASDFBase):
@@ -102,7 +115,7 @@ class ProcASDF(ProcASDFBase):
         ds = self.load_asdf(input_asdf, mode='a')
 
         # update param based on event information
-        update_param(ds.events[0], param)
+        param = update_param(ds.events[0], param)
         # check final param to see if the keys are right
         check_param_keywords(param)
 

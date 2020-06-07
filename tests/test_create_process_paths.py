@@ -113,8 +113,8 @@ def test_create_process_dictionary():
                                    1.0 / 125.0]
     mantle_syntdict["pre_filt"] = [1.0 / 350.0, 1.0 / 300.0, 1.0 / 150.0,
                                    1.0 / 125.0]
-    mantle_obsddict["relative_endtime"] = 4.5 * 3600.0
-    mantle_syntdict["relative_endtime"] = 4.5 * 3600.0
+    mantle_obsddict["relative_endtime"] = 3.0 * 3600.0
+    mantle_syntdict["relative_endtime"] = 3.0 * 3600.0
 
     test_dict = {"body":
                      {"obsd": body_obsddict,
@@ -376,7 +376,7 @@ class TestCreatePaths(unittest.TestCase):
             # Solution should be:
             input_asdf = os.path.join(DB.Cdirs[0], "seismograms", "syn",
                                       "CMT_rr.h5")
-            input_tag = "syn"
+            input_tag = "synthetic"
             output_asdf = os.path.join(DB.Cdirs[0], "seismograms",
                                        "processed_seismograms",
                                        "body.synt.CMT_rr.h5")
@@ -386,6 +386,7 @@ class TestCreatePaths(unittest.TestCase):
                                               "body.synt.process.yml")
 
             d = read_yaml_file(process_file)
+            print(d["input_tag"])
 
             # Assessing correctness of yaml file
             self.assertTrue(d["input_asdf"] == input_asdf)
@@ -633,7 +634,7 @@ class TestCreatePaths(unittest.TestCase):
             # Solution should be:
             waveform_dir = os.path.join(DB.Cdirs[0], "CMT_SIMs", "CMT_rr",
                                         "OUTPUT_FILES")
-            tag = 'syn'
+            tag = 'synthetic'
             filetype = 'sac'
             output_file = os.path.join(DB.Cdirs[0], "seismograms", "syn",
                                        "CMT_rr.h5")

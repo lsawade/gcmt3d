@@ -7,9 +7,9 @@ write_new_cmt: True
 
 # Source Inversion Configuration for pycmt3d
 config:
-  dlocation: 0.03  # change in location  also mean
-  ddepth: 3.0      # change in depth mean
-  dmoment: 2.0e23  #
+  dlocation: 0.02  # change in location  also mean
+  ddepth: 2.0      # change in depth mean
+  dmoment: 1.0e23  #
   double_couple: False
   envelope_coef: 0.0
   zero_trace: True

@@ -113,7 +113,7 @@ class ProcessParams(object):
         # Record length
         self.body_relative_endtime = 1.0 * 3600.0
         self.surface_relative_endtime = 2.0 * 3600.0
-        self.mantle_relative_endtime = 4.5 * 3600.0
+        self.mantle_relative_endtime = 3 * 3600.0
 
         # Whether to use velocity as a measurement.
         self.velocity = bool(mw < 5.5)

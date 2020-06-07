@@ -62,7 +62,7 @@ def create_syn_path_yaml(cmt_filename):
     """
 
     # Get directory and name
-    cmt_dir = os.path.dirname(cmt_filename)
+    cmt_dir = os.path.dirname(os.path.abspath(cmt_filename))
     conversion_path_dir = os.path.join(cmt_dir, "workflow_files", "path_files",
                                        "conversion_paths")
 
@@ -78,9 +78,10 @@ def create_syn_path_yaml(cmt_filename):
         # attempted
         for _at in attr:
             yaml_file_path = os.path.join(conversion_path_dir, _at + ".yml")
-            if os.path.exist(yaml_file_path):
+            if os.path.exists(yaml_file_path):
                 os.remove(yaml_file_path)
                 logger.warning("Removed %s." % yaml_file_path)
+        return
 
     for _at in attr:
 
@@ -89,7 +90,7 @@ def create_syn_path_yaml(cmt_filename):
         # File Type
         filetype = "sac"
         # Tag
-        tag = "syn"
+        tag = "synthetic"
 
         # QuakeML file path
         quakeml_file = os.path.join(waveform_dir, "Quake.xml")
@@ -131,7 +132,7 @@ def create_obs_path_yaml(cmt_filename):
     """
 
     # Get directory and name
-    cmt_dir = os.path.dirname(cmt_filename)
+    cmt_dir = os.path.dirname(os.path.abspath(cmt_filename))
     cmt_name = os.path.basename(cmt_filename)[:-4]
     conversion_path_dir = os.path.join(cmt_dir, "workflow_files",
                                        "path_files", "conversion_paths")
@@ -269,7 +270,7 @@ def create_windowing_dictionary(cmtparamdict, windowconfigdict):
 class PathCreator(object):
 
     def __init__(self, cmt_in_db, windowbasedir, processbasedir, npar=9,
-                 figure_mode=True):
+                 specfem=False, figure_mode=True):
         """ Using the location of the CMTSOLUTION in the data base this
         class populates the dataase entry with path files that are need for the
         processing. it can also return the location of the full path list for
@@ -576,7 +577,7 @@ class PathCreator(object):
                     # Loop over CMT perturbations
                     for at in attr:
                         input_asdf = os.path.join(syndir, at + suffix)
-                        input_tag = "syn"
+                        input_tag = "synthetic"
                         output_asdf = os.path.join(procdir,
                                                    wave + "." + datatype + "."
                                                    + at + suffix)
