@@ -51,8 +51,7 @@ def process_wrapper(stream, inv, param=None):
     :param param:
     :return:
     """
-    param["inventory"] = inv
-    print("starttime wrapper:", param["starttime"])
+    param["inventory"] = inv    
     return process_stream(stream, **param)
 
 

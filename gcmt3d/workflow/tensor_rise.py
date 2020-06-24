@@ -39,10 +39,9 @@ def gradient(cmt_file_db):
     :param param_path:
     :return: Nothing, inversion results are written to file.
     """
-
     # Inversion Params
-    cmt_params = os.path.join(os.path.dirname(cmt_file_db, 
-                              "workflow_files","params")
+    cmt_params = os.path.join(os.path.dirname(cmt_file_db),
+                              "workflow_files", "params")
     inversionparam_path = os.path.join(cmt_params, "inversion_params",
                                        "GridsearchParams.yml")
     INV_params = read_yaml_file(inversionparam_path)

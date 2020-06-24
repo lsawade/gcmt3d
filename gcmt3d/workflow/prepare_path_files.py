@@ -20,7 +20,7 @@ import os
 from gcmt3d import logger
 
 
-def make_paths(cmt_filename, param_path, conversion):
+def make_paths(cmt_filename, param_path, conversion, ddeg=None, dz=None):
 
     # Load database parameters
     databaseparam_path = os.path.join(param_path,
@@ -32,7 +32,9 @@ def make_paths(cmt_filename, param_path, conversion):
     # Create Processing path files observed
     process_dir = os.path.join(param_path, "Process")
     window_dir = os.path.join(param_path, "Window")
-    P = PathCreator(cmt_filename, window_dir, process_dir,
-                    conversion=conversion,
+    inv_dir = os.path.join(param_path, "CMTInversion")
+    P = PathCreator(cmt_filename, window_dir, process_dir, inv_dir,
+                    conversion=conversion, npar=dbparams["npar"],
+                    dlocation=ddeg, ddepth=dz,
                     figure_mode=dbparams["figure_mode"])
     P.write_all()

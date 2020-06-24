@@ -265,6 +265,7 @@ class TestCreatePaths(unittest.TestCase):
             # Read the yaml_file which should be created in the CMT directory
             windowbasedir = os.path.join(DATA_DIR, "params", "Window")
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
+            invbasedir = os.path.join(DATA_DIR, "params", "CMTInversion")
 
             # CMT filename in database
             cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
@@ -277,8 +278,12 @@ class TestCreatePaths(unittest.TestCase):
                                       "process_params")
             windowparams = os.path.join(workflow_dir, "params",
                                         "window_params")
+            invparams = os.path.join(workflow_dir, "params",
+                                     "inversion_params")
+                                     
             # Trying the thing
-            p = PathCreator(cmt_in_db, windowbasedir, processbasedir)
+            p = PathCreator(cmt_in_db, windowbasedir, processbasedir,
+                            invbasedir)
             p.write_all()
 
             checklist = [os.path.join(procparams,
@@ -295,7 +300,13 @@ class TestCreatePaths(unittest.TestCase):
                                       "surface.window.yml"),
                          os.path.join(procpaths, "body.obsd.process_path.yml"),
                          os.path.join(procpaths,
-                                      "surface.obsd.process_path.yml")
+                                      "surface.obsd.process_path.yml"),
+                         os.path.join(invparams,
+                                      "InversionParams.yml"),
+                         os.path.join(invparams, 
+                                      "GridsearchParams.yml"),
+                         os.path.join(invparams, 
+                                      "WeightParams.yml")
                          ]
 
             for at in attr:
@@ -328,6 +339,7 @@ class TestCreatePaths(unittest.TestCase):
             # Read the yaml_file which should be created in the CMT directory
             windowbasedir = os.path.join(DATA_DIR, "params", "Window")
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
+            invbasedir = os.path.join(DATA_DIR, "params", "CMTInversion")
 
             # CMT filename in database
             cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
@@ -341,7 +353,8 @@ class TestCreatePaths(unittest.TestCase):
             windowparams = os.path.join(workflow_dir, "params",
                                         "window_params")
             # Trying the thing
-            p = PathCreator(cmt_in_db, windowbasedir, processbasedir)
+            p = PathCreator(cmt_in_db, windowbasedir, processbasedir,
+                            invbasedir)
             p.write_all()
 
             # Now that the files are checked for existence, we can check the
@@ -415,6 +428,7 @@ class TestCreatePaths(unittest.TestCase):
             # Read the yaml_file which should be created in the CMT directory
             windowbasedir = os.path.join(DATA_DIR, "params", "Window")
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
+            invbasedir = os.path.join(DATA_DIR, "params", "CMTInversion")
 
             # CMT filename in database
             cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
@@ -426,7 +440,8 @@ class TestCreatePaths(unittest.TestCase):
             windowparams = os.path.join(workflow_dir, "params",
                                         "window_params")
             # Trying the thing
-            p = PathCreator(cmt_in_db, windowbasedir, processbasedir)
+            p = PathCreator(cmt_in_db, windowbasedir, processbasedir,
+                            invbasedir)
             p.write_all()
 
             # Try one window file
@@ -499,6 +514,7 @@ class TestCreatePaths(unittest.TestCase):
             # Read the yaml_file which should be created in the CMT directory
             windowbasedir = os.path.join(DATA_DIR, "params", "Window")
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
+            invbasedir = os.path.join(DATA_DIR, "params", "CMTInversion")
 
             # CMT filename in database
             cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
@@ -508,7 +524,8 @@ class TestCreatePaths(unittest.TestCase):
             invdir = os.path.join(workflow_dir, "inversion_dicts")
 
             # Trying the thing
-            p = PathCreator(cmt_in_db, windowbasedir, processbasedir)
+            p = PathCreator(cmt_in_db, windowbasedir, processbasedir,
+                            invbasedir)
             p.write_all()
 
             # Try one window file
@@ -560,6 +577,7 @@ class TestCreatePaths(unittest.TestCase):
             # Read the yaml_file which should be created in the CMT directory
             windowbasedir = os.path.join(DATA_DIR, "params", "Window")
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
+            invbasedir = os.path.join(DATA_DIR, "params", "CMTInversion")
 
             # CMT filename in database
             cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
@@ -569,7 +587,8 @@ class TestCreatePaths(unittest.TestCase):
             invdir = os.path.join(workflow_dir, "inversion_dicts")
 
             # Trying the thing
-            p = PathCreator(cmt_in_db, windowbasedir, processbasedir)
+            p = PathCreator(cmt_in_db, windowbasedir, processbasedir,
+                            invbasedir)
             p.write_all()
 
             # Try one window file
@@ -614,6 +633,7 @@ class TestCreatePaths(unittest.TestCase):
             # Read the yaml_file which should be created in the CMT directory
             windowbasedir = os.path.join(DATA_DIR, "params", "Window")
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
+            invbasedir = os.path.join(DATA_DIR, "params", "CMTInversion")
 
             # CMT filename in database
             cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
@@ -623,7 +643,8 @@ class TestCreatePaths(unittest.TestCase):
             invdir = os.path.join(workflow_dir, "inversion_dicts")
 
             # Trying the thing
-            p = PathCreator(cmt_in_db, windowbasedir, processbasedir)
+            p = PathCreator(cmt_in_db, windowbasedir, processbasedir,
+                            invbasedir)
             p.write_all()
 
             # Read the yaml_file which should be created in the CMT directory
@@ -650,6 +671,49 @@ class TestCreatePaths(unittest.TestCase):
             self.assertTrue(d["filetype"] == filetype)
             self.assertTrue(d["waveform_dir"] == waveform_dir)
 
+    def test_create_inv_param_yaml(self):
+        """Testing the creation of the yaml file."""
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Cmtfile path
+            cmtfile = os.path.join(DATA_DIR, "CMTSOLUTION")
+
+            # Initialize database skeleton class
+            DB = DataBaseSkeleton(basedir=tmp_dir,
+                                  cmt_fn=cmtfile,
+                                  specfem_dir=self.specfem_dir)
+
+            # Create database
+            DB.create_all()
+
+            # Read the yaml_file which should be created in the CMT directory
+            windowbasedir = os.path.join(DATA_DIR, "params", "Window")
+            processbasedir = os.path.join(DATA_DIR, "params", "Process")
+            invbasedir = os.path.join(DATA_DIR, "params", "CMTInversion")
+
+            # CMT filename in database
+            cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
+
+            # Workflow directory
+            workflow_dir = os.path.join(DB.Cdirs[0], "workflow_files")
+            invdir = os.path.join(workflow_dir, "inversion_dicts")
+
+            # Trying the thing
+            p = PathCreator(cmt_in_db, windowbasedir, processbasedir,
+                            invbasedir, ddepth=0.001, dlocation=1.0)
+            p.write_all()
+
+            # Read the yaml_file which should be created in the CMT directory
+            yaml_file = os.path.join(DB.Cdirs[0], "workflow_files",
+                                     "params", "inversion_params",
+                                     "InversionParams.yml")
+            d = read_yaml_file(yaml_file)
+
+            # Assessing correctness of yaml file
+            self.assertTrue(d["dlocation"] == 1.0)
+            self.assertTrue(d["ddepth"] == 0.001)
+            self.assertTrue(d["npar"] == 9)
+
     def test_create_obs_path_yaml(self):
         """Testing the creation of the yaml file."""
 
@@ -668,6 +732,7 @@ class TestCreatePaths(unittest.TestCase):
             # Read the yaml_file which should be created in the CMT directory
             windowbasedir = os.path.join(DATA_DIR, "params", "Window")
             processbasedir = os.path.join(DATA_DIR, "params", "Process")
+            invbasedir = os.path.join(DATA_DIR, "params", "CMTInversion")
 
             # CMT filename in database
             cmt_in_db = os.path.join(DB.Cdirs[0], DB.Cids[0] + ".cmt")
@@ -677,7 +742,8 @@ class TestCreatePaths(unittest.TestCase):
             invdir = os.path.join(workflow_dir, "inversion_dicts")
 
             # Trying the thing
-            p = PathCreator(cmt_in_db, windowbasedir, processbasedir)
+            p = PathCreator(cmt_in_db, windowbasedir, processbasedir,
+                            invbasedir)
             p.write_all()
 
             # Read the yaml_file which should be created in the CMT directory
@@ -703,6 +769,7 @@ class TestCreatePaths(unittest.TestCase):
             self.assertTrue(d["output_file"] == output_file)
             self.assertTrue(d["waveform_files"] == waveform_files)
             self.assertTrue(d["staxml_files"] == staxml)
+
 
 
 

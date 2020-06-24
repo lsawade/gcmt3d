@@ -45,8 +45,8 @@ def invert(cmt_file_db):
     """
 
     # Inversion Params
-    cmt_params = os.path.join(os.path.dirname(cmt_file_db), 
-                              "workflow_files","params")
+    cmt_params = os.path.join(os.path.dirname(cmt_file_db),
+                              "workflow_files", "params")
     inversionparam_path = os.path.join(cmt_params, "inversion_params",
                                        "InversionParams.yml")
     INV_params = read_yaml_file(inversionparam_path)
@@ -83,7 +83,7 @@ def invert(cmt_file_db):
     logger.info(" ")
 
     # Creating Data container
-    dcon = DataContainer(parlist=PARLIST[:DB_params["npar"]])
+    dcon = DataContainer(parlist=PARLIST[:INV_params["npar"]])
 
     for _i, inv_dict_file in enumerate(inv_dict_files):
 
@@ -146,7 +146,7 @@ def invert(cmt_file_db):
     inv_params = INV_params["config"]
 
     cmt3d_config = Config(
-        DB_params["npar"],
+        INV_params["npar"],
         dlocation=float(inv_params["dlocation"]),
         ddepth=float(inv_params["ddepth"]),
         dmoment=float(inv_params["dmoment"]),

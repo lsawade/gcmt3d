@@ -13,7 +13,7 @@ grad3d_config:
   use_new: True
   taper_type: "tukey"
   c1: 1e-4  # Wolfe conditions
-  c2: 0.0
+  c2: 0.9
   idt: 0.0
   ia: 1.
   nt: 20

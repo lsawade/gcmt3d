@@ -269,9 +269,9 @@ def create_windowing_dictionary(cmtparamdict, windowconfigdict):
 
 class PathCreator(object):
 
-    def __init__(self, cmt_in_db, windowbasedir, processbasedir, npar=9,
-                 conversion=True,
-                 specfem=False, figure_mode=True):
+    def __init__(self, cmt_in_db, windowbasedir, processbasedir, invbasedir,
+                 ddepth=None, dlocation=None, conversion=True,
+                 npar=9, specfem=False, figure_mode=True):
         """ Using the location of the CMTSOLUTION in the data base this
         class populates the dataase entry with path files that are need for the
         processing. it can also return the location of the full path list for
@@ -311,7 +311,9 @@ class PathCreator(object):
                                      "params")
         self.process_param_dir = os.path.join(self.paramdir, 'process_params')
         self.window_param_dir = os.path.join(self.paramdir, 'window_params')
-
+        self.inversion_param_dir = os.path.join(self.paramdir,
+                                                'inversion_params')
+        print(self.inversion_param_dir)
         # Inversion directory
         self.invdir = os.path.join(self.cmtdir, "workflow_files",
                                    "inversion_dicts")
@@ -330,6 +332,16 @@ class PathCreator(object):
             self.cmtconfigdict, self.obsd_base_procdict,
             self.synt_base_procdict)
 
+        # Inversion
+        self.ddepth = ddepth
+        self.dlocation = dlocation
+        self.inversion_param_dict = read_yaml_file(os.path.join(
+            invbasedir, "InversionParams.yml"))
+        self.gridsearch_param_dict = read_yaml_file(os.path.join(
+            invbasedir, "GridsearchParams.yml"))
+        self.weight_param_dict = read_yaml_file(os.path.join(
+            invbasedir, "WeightParams.yml"))
+
         # Dictionaries to be created
         self.windowparam_file_dict = None
         self.windowpath_file_dict = None
@@ -337,6 +349,9 @@ class PathCreator(object):
         self.processpath_file_dict = None
         self.cmt3d_invdicts = None
         self.g3d_invdicts = None
+        self.cmt3d_paramdict = None
+        self.g3d_paramdict = None
+        self.weight_paramdict = None
 
         # Miscellaneous
         self.figure_mode = figure_mode
@@ -348,6 +363,9 @@ class PathCreator(object):
         self.create_process_path_file_struct()
         self.create_create_inversion_structs()
         self.create_create_gridsearch_structs()
+        self.create_inversion_paramdict()
+        self.create_gridsearch_paramdict()
+        self.create_weight_paramdict()
 
     @property
     def windowpathlist(self):
@@ -385,6 +403,16 @@ class PathCreator(object):
         if self.conversion:
             create_obs_path_yaml(self.cmtfile)
             create_syn_path_yaml(self.cmtfile)
+
+        write_yaml_file(
+            self.cmt3d_paramdict,
+            os.path.join(self.inversion_param_dir, "InversionParams.yml"))
+        write_yaml_file(
+            self.g3d_paramdict,
+            os.path.join(self.inversion_param_dir, "GridsearchParams.yml"))
+        write_yaml_file(
+            self.weight_paramdict,
+            os.path.join(self.inversion_param_dir, "WeightParams.yml"))
 
     def create_process_parameter_struct(self):
         """Creates window parameter dictionaries and corresponding file names
@@ -799,6 +827,33 @@ class PathCreator(object):
             self.g3d_invdicts[wave + "3d"] = \
                 {"filename": filename,
                  "params": paramdict}
+
+    def create_inversion_paramdict(self):
+        """Reads the inversion parameter file
+        and replaces values if necessary."""
+
+        if self.dlocation is None and self.ddepth is None:
+            self.cmt3d_paramdict = self.inversion_param_dict
+        else:
+            if self.dlocation is not None:
+                self.inversion_param_dict["dlocation"] = self.dlocation
+            if self.ddepth is not None:
+                self.inversion_param_dict["ddepth"] = self.ddepth
+
+            self.cmt3d_paramdict = self.inversion_param_dict
+        self.cmt3d_paramdict["npar"] = self.npar
+
+    def create_gridsearch_paramdict(self):
+        """Reads the inversion parameter file
+        and replaces values if necessary."""
+
+        self.g3d_paramdict = self.inversion_param_dict
+
+    def create_weight_paramdict(self):
+        """Reads the inversion parameter file
+        and replaces values if necessary."""
+
+        self.weight_paramdict = self.inversion_param_dict
 
     @staticmethod
     def write_param_file_dict(paramfiledict):

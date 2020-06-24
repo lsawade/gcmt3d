@@ -1,0 +1,138 @@
+#!/bin/bash
+
+# Get earthquake path from input filepath
+CMTSOLUTION=$1
+
+if [ -z "$CMTSOLUTION" ]
+then
+      echo "No CMTSOLUTION INPUT is empty. Stopping. Choose earthquake"
+      exit 1
+else
+      echo "Inverting $(realpath $CMTSOLUTION)"
+fi
+
+
+# STUFF TO BE SET PRIOR TO RUNNING ANYTHING
+GCMT3D='/home/lsawade/gcmt3d'
+WORKFLOW_DIR="$GCMT3D/workflow"
+PARAMETER_PATH="$WORKFLOW_DIR/params"
+SLURM_DIR="$WORKFLOW_DIR/slurmwf"
+BIN_DIR="$WORKFLOW_DIR/bins"
+DATABASE_DIR='/tigress/lsawade/database_wenjie'
+
+# EARTHQUAKE PARAMETERS and Paths derived from the file
+# Getting database entry from CMTSOLUTION FILE
+CID=$(cat $CMTSOLUTION | head -2 | tail -1 | cut -d: -f2 | tr -d '[:space:]')
+CIN_DB="$DATABASE_DIR/$CID/$CID.cmt"
+CDIR=$(dirname $CIN_DB) # Earthquake Directory
+CMT_SIM_DIR=$CDIR/CMT_SIMs # Simulation directory
+
+# directory
+PROCESSED=$CDIR/seismograms/processed_seismograms # Processed dir
+SEISMOGRAMS=$CDIR/seismograms # Seismos
+STATION_DATA=$CDIR/station_data
+LOG_DIR=$CDIR/logs # Logging directory
+INVERSION_OUTPUT_DIR=$CDIR/inversion
+WINDOW_PATHS=$CDIR/workflow_files/path_files/window_paths
+PROCESS_PATHS=$CDIR/workflow_files/path_files/process_paths # Process Path
+CONVERSION_PATHS=$CDIR/workflow_files/path_files/conversion_paths
+INVERSION_DIRECTORY=/tigress/source_inversion_stage_II
+SYNTHETIC_FILES=$INVERSION_DIRECTORY/raw_synt/archive.440_events
+OBSERVED_FILES=$INVERSION_DIRECTORY/raw_obsd/download/waveform
+STATION_FILES=$INVERSION_DIRECTORY/raw_obsd/download/station
+
+
+echo
+echo "******** PACKAGE INFO ********************************"
+echo "GCMT3D Location:_________________ $GCMT3D"
+echo "Workflow Directory:______________ $WORKFLOW_DIR"
+echo "Slurmjob Directory:______________ $SLURM_DIR"
+echo "Bin directory (important):_______ $BIN_DIR" 
+echo
+echo
+
+echo "******** DATABASE INFO *******************************"
+echo "Database directory:______________ $DATABASE_DIR"
+echo
+echo
+
+echo "******** EARTHQUAKE INFO *****************************"
+echo "CMTSOLUTION:_____________________ $CMTSOLUTION"
+echo "Earthquake ID:___________________ $CID"
+echo "Earthquake Directory:____________ $CDIR"
+echo "Earthquake File in Database:_____ $CIN_DB"
+echo "Inversion Logging Directory:_____ $LOG_DIR"
+echo "Simulation Directory:____________ $CMT_SIM_DIR"
+echo "Process Path Directory:__________ $PROCESS_PATHS"
+echo "Window Path Directory:___________ $WINDOW_PATHS"
+echo "Inversion Directory:_____________ $INVERSION_DIRECTORY"
+echo
+echo
+
+# Activate conda environment
+module load anaconda
+conda activate gcmt3d_wenjie
+
+# # Create database structure
+# create-entry-wenjie -f $CMTSOLUTION -d $DATABASE_DIR -p $PARAMETER_PATH
+
+# CPP_LOG_FILE="$LOG_DIR/$CID.006.Create-Process-Paths.STDOUT"
+# echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
+# create-path-files -f $CIN_DB -p $PARAMETER_PATH > \$CPP_LOG_FILE
+# copy-data-to-database -f $CIN_DB -o $OBSERVED_DIR -sta $STATION_DIR \
+# 					  -s $SYNTHETIC_DIR
+
+
+# Start slurm script that does the whole shindig
+
+sbatch << EOF
+#!/bin/bash
+#SBATCH --job-name=invert_$CID
+# SBATCH --output=$LOG_DIR/$CID.out
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=30
+# SBATCH --gres=gpu:3
+#SBATCH --mem=100GB
+#SBATCH --time=01:00:00
+#SBATCH --reservation=test
+#SBATCH --mail-user=lsawade@princeton.edu
+#SBATCH --mail-type=END
+
+# #WHAT???????? #SBATCH --requeue 
+
+# Load the compilers and shit
+module purge
+
+# Load anaconda and set environment
+module load anaconda3
+module load openmpi/gcc
+conda activate gcmt3d_wenjie
+
+
+######## Inversion ########
+echo "******** INVERSION ***********************************"
+echo " "
+INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
+echo "Inversion logfile: \$INVERSION_LOG_FILE"
+inversion -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+echo " "
+echo "Done."
+echo " "
+echo " "
+
+######## Inversion ########
+echo "******** GRIDSEARCH ***********************************"
+echo " "
+INVERSION_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
+echo "Gridsearch logfile: \$INVERSION_LOG_FILE"
+# Grid search
+gridsearch -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+plot-event-summary $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -f $INVERSION_OUTPUT_DIR/full_summary.pdf
+echo " "
+echo "Done."
+echo " "
+echo " "
+
+
+exit 0
+EOF
