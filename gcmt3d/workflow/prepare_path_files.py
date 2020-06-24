@@ -33,5 +33,6 @@ def make_paths(cmt_filename, param_path):
     process_dir = os.path.join(param_path, "Process")
     window_dir = os.path.join(param_path, "Window")
     P = PathCreator(cmt_filename, window_dir, process_dir,
+                    npar=dbparams["npar"],
                     figure_mode=dbparams["figure_mode"])
     P.write_all()

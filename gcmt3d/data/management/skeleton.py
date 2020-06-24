@@ -298,6 +298,14 @@ class DataBaseSkeleton(object):
             else:
                 self._create_dir(processparams, False)
 
+            inversionparams = os.path.join(paramfiles, "inversion_params")
+
+            if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:
+                # Create new directory
+                self._create_dir(inversionparams, True)
+            else:
+                self._create_dir(inversionparams, False)
+
             invfiles = os.path.join(wf_dir, "inversion_dicts")
 
             if self.ow in [0, 1, 2, 3] and type(self.ow) is not bool:

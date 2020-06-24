@@ -185,7 +185,8 @@ class PlotStats(object):
         self.nbins = nbins
         self.dmbins = np.linspace(-0.5, 0.5 + 0.5 / self.nbins, self.nbins)
         self.ddegbins = np.linspace(-0.1, 0.1 + 0.1 / self.nbins, self.nbins)
-        self.dzbins = np.linspace(-25, 25 + 25 / self.nbins, self.nbins)
+        self.dzbins = np.linspace(-self.dd_absmax,
+                                  2 * self.dd_absmax / self.nbins, self.nbins)
         self.dtbins = np.linspace(-10, 10 + 10 / self.nbins, self.nbins)
 
         # Map characteristics

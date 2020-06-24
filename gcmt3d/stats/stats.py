@@ -203,16 +203,17 @@ class Statistics(object):
 
         logger.info("Looking for earthquakes here: %s" % directory)
         # Get list of inversion files.
-        if direct:
-            clist = glob(os.path.join(directory, 'g3d', "*.json"))
-            glist = glob(os.path.join(directory, 'cmt3d', "*.json"))
-        else:
-            clist = glob(os.path.join(directory, "C*",
-                                      "inversion", "cmt3d",
-                                      "*.json"))
-            glist = glob(os.path.join(directory, "C*",
-                                      "inversion", "g3d",
-                                      "*.json"))
+        clist = []
+        glist = []
+        for dir in directory:
+            if direct:
+                clist.extend(glob(os.path.join(dir, 'g3d', "*.json")))
+                glist.extend(glob(os.path.join(dir, 'cmt3d', "*.json")))
+            else:
+                clist.extend(glob(os.path.join(dir, "C*", "inversion",
+                                               "cmt3d", "*.json")))
+                glist.extend(glob(os.path.join(dir, "C*", "inversion",
+                                               "g3d", "*.json")))
 
         logger.info("Found all files.")
         logger.info(" ")
@@ -245,7 +246,12 @@ class Statistics(object):
                  mode,
                  G,
                  stats) = get_stats_json(cmt3d, g3d)
-
+                logger.debug("nd: %f -- od: %f -- dd: %f"
+                             % (new_cmtsource.depth_in_m,
+                                cmtsource.depth_in_m,
+                                new_cmtsource.depth_in_m
+                                - cmtsource.depth_in_m
+                                ))
                 # Append CMT files
                 old_cmts.append(cmtsource)
                 new_cmts.append(new_cmtsource)
