@@ -270,6 +270,7 @@ def create_windowing_dictionary(cmtparamdict, windowconfigdict):
 class PathCreator(object):
 
     def __init__(self, cmt_in_db, windowbasedir, processbasedir, npar=9,
+                 conversion=True,
                  specfem=False, figure_mode=True):
         """ Using the location of the CMTSOLUTION in the data base this
         class populates the dataase entry with path files that are need for the
@@ -281,6 +282,7 @@ class PathCreator(object):
             cmt_in_db: cmt solution in the database
             windowbasedir: window parameter directory
             processbasedir: process base directory
+            conversion: True
         """
 
         # CMT
@@ -295,6 +297,7 @@ class PathCreator(object):
                 logger.verbose("%s wave %s: %s"
                                % (wave, param, values.__str__()))
         self.npar = npar
+        self.conversion = conversion
 
         # File locations
         # Path directories
@@ -379,8 +382,9 @@ class PathCreator(object):
             self.write_param_file_dict(outdict)
 
         # Write conversion files
-        create_obs_path_yaml(self.cmtfile)
-        create_syn_path_yaml(self.cmtfile)
+        if self.conversion:
+            create_obs_path_yaml(self.cmtfile)
+            create_syn_path_yaml(self.cmtfile)
 
     def create_process_parameter_struct(self):
         """Creates window parameter dictionaries and corresponding file names

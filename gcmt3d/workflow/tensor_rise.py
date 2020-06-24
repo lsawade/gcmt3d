@@ -32,7 +32,7 @@ def read_yaml_file(filename):
         return yaml.load(fh, Loader=yaml.FullLoader)
 
 
-def gradient(cmt_file_db, param_path):
+def gradient(cmt_file_db):
     """Runs the actual inversion.
 
     :param cmt_file_db:
@@ -41,13 +41,15 @@ def gradient(cmt_file_db, param_path):
     """
 
     # Inversion Params
-    inversionparam_path = os.path.join(param_path,
-                                       "CMTInversion/GridsearchParams.yml")
+    cmt_params = os.path.join(os.path.dirname(cmt_file_db, 
+                              "workflow_files","params")
+    inversionparam_path = os.path.join(cmt_params, "inversion_params",
+                                       "GridsearchParams.yml")
     INV_params = read_yaml_file(inversionparam_path)
 
     # Weight Params
-    weightparam_path = os.path.join(param_path,
-                                    "CMTInversion/WeightParams.yml")
+    weightparam_path = os.path.join(cmt_params, "inversion_params", 
+                                    "WeightParams.yml")
     weight_params = read_yaml_file(weightparam_path)
 
     # Check if grid search should be performed from the parameters file

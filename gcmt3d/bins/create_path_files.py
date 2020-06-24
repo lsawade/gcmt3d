@@ -25,10 +25,12 @@ def main():
     parser.add_argument('-p', dest='param_path',
                         help='Path to param directory',
                         required=True, type=str)
+    parser.add_argument('-nc', dest='conversion', action='store_false',
+                        help='No conversion of observed data if used')
     args = parser.parse_args()
 
     # Run
-    make_paths(args.filename, args.param_path)
+    make_paths(args.filename, args.param_path, args.conversion)
 
 
 if __name__ == "__main__":

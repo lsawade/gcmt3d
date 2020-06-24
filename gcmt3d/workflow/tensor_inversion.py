@@ -36,7 +36,7 @@ def read_yaml_file(filename):
         return yaml.load(fh, Loader=yaml.FullLoader)
 
 
-def invert(cmt_file_db, param_path):
+def invert(cmt_file_db):
     """Runs the actual inversion.
 
     :param cmt_file_db:
@@ -44,19 +44,16 @@ def invert(cmt_file_db, param_path):
     :return: Nothing, inversion results are written to file.
     """
 
-    # Load Database Parameters
-    databaseparam_path = os.path.join(param_path,
-                                      "Database/DatabaseParameters.yml")
-    DB_params = read_yaml_file(databaseparam_path)
-
     # Inversion Params
-    inversionparam_path = os.path.join(param_path,
-                                       "CMTInversion/InversionParams.yml")
+    cmt_params = os.path.join(os.path.dirname(cmt_file_db), 
+                              "workflow_files","params")
+    inversionparam_path = os.path.join(cmt_params, "inversion_params",
+                                       "InversionParams.yml")
     INV_params = read_yaml_file(inversionparam_path)
 
     # Weight Params
-    weightparam_path = os.path.join(param_path,
-                                    "CMTInversion/WeightParams.yml")
+    weightparam_path = os.path.join(cmt_params, "inversion_params", 
+                                    "WeightParams.yml")
     weight_params = read_yaml_file(weightparam_path)
 
     # Get processing path from cmt_filename in database

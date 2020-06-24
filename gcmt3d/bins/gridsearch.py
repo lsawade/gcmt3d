@@ -21,11 +21,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', action='store', dest='cmt_file',
                         required=True, help="Path to CMT file in database")
-    parser.add_argument('-p', action='store', dest='param_path', required=True,
-                        help="Path to Parameter Directory")
     args = parser.parse_args()
 
-    gradient(args.cmt_file, args.param_path)
+    gradient(args.cmt_file)
 
 
 if __name__ == "__main__":
