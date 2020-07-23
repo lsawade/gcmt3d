@@ -86,8 +86,6 @@ CPP_LOG_FILE="$LOG_DIR/$CID.001.Create-Process-Paths.STDOUT"
 echo "Create Process Paths Logfile: $CPP_LOG_FILE"
 create-path-files -f $CIN_DB -p $PARAMETER_PATH > $CPP_LOG_FILE
 
-
-
 # MOVE CMT FILE TO SUBMISSION DIRECTORY
 mv $CMTSOLUTION $SUBMITTED/
 

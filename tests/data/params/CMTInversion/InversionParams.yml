@@ -1,0 +1,22 @@
+plot_new_synthetics: True
+summary_json: True
+summary_plot: True
+statistics_plot: True
+write_new_synt: True  # Must be true for subsequent gridsearch
+write_new_cmt: True
+
+# Source Inversion Configuration for pycmt3d
+config:
+  dlocation: 0.02  # change in location  also mean
+  ddepth: 2.0      # change in depth mean
+  dmoment: 1.0e23  #
+  double_couple: False
+  envelope_coef: 0.0
+  zero_trace: True
+  weight_data: True
+  station_correction: True
+  bootstrap: True
+  bootstrap_repeat: 300
+  bootstrap_subset_ratio: 0.6
+  taper_type: "tukey"
+  damping: 0.01 # One hundredth of the trace
