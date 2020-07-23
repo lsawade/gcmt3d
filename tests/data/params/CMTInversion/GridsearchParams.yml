@@ -1,0 +1,44 @@
+gridsearch: True
+plot_new_synthetics: True
+summary_json: True
+summary_plot: True
+statistics_plot: True
+write_new_synt: False
+write_new_cmt: True
+
+# Gradient method
+grad3d_config:
+  method: "gn"
+  weight_data: True
+  use_new: True
+  taper_type: "tukey"
+  c1: 1e-4  # Wolfe conditions
+  c2: 0.9
+  idt: 0.0
+  ia: 1.
+  nt: 20
+  nls: 10
+  crit: 0.1
+  precond: False
+  reg: False 
+  bootstrap: True
+  bootstrap_repeat: 25
+  bootstrap_subset_ratio: 0.6
+  parallel: True
+  mpi_env: True
+
+# Grid3D Configuration for pycmt3d
+grid3d_config:
+  origin_time_inv: True
+  time_start: -25
+  time_end: 25.0
+  dt_over_delta: 20
+  energy_inv: True
+  energy_start: 0.1
+  energy_end: 2.0
+  denergy: 0.2
+  energy_keys: None
+  energy_misfit_coef: None
+  weight_data: False
+  weight_config: None
+  taper_type: "tukey"

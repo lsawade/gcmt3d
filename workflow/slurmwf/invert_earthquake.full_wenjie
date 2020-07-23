@@ -13,7 +13,7 @@ fi
 
 
 # STUFF TO BE SET PRIOR TO RUNNING ANYTHING
-GCMT3D='/home/lsawade/GCMT3D'
+GCMT3D='/home/lsawade/gcmt3d'
 WORKFLOW_DIR="$GCMT3D/workflow"
 PARAMETER_PATH="$WORKFLOW_DIR/params"
 SLURM_DIR="$WORKFLOW_DIR/slurmwf"
@@ -85,8 +85,6 @@ create-entry-wj -f $CMTSOLUTION -d $DATABASE_DIR -p $PARAMETER_PATH
 CPP_LOG_FILE="$LOG_DIR/$CID.001.Create-Process-Paths.STDOUT"
 echo "Create Process Paths Logfile: $CPP_LOG_FILE"
 create-path-files -f $CIN_DB -p $PARAMETER_PATH > $CPP_LOG_FILE
-
-
 
 # MOVE CMT FILE TO SUBMISSION DIRECTORY
 mv $CMTSOLUTION $SUBMITTED/

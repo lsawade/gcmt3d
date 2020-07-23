@@ -847,7 +847,7 @@ class PathCreator(object):
         self.g3d_paramdict = self.inversion_param_dict
 
     def create_weight_paramdict(self):
-        """Reads the inversion parameter file
+        """Reads the inversion parameer file
         and replaces values if necessary."""
 
         self.weight_paramdict = self.inversion_param_dict
