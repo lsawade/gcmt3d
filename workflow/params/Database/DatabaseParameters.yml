@@ -1,5 +1,5 @@
 # Database directory
-databasedir: "/tigress/lsawade/database_wenjie"
+databasedir: "/tigress/lsawade/database_wenjie_2"
 entkdatabase: "/scratch/gpfs/lsawade/entkdatabase"
 
 # Number of parameters to invert for
