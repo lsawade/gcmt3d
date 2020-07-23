@@ -194,19 +194,19 @@ echo "******** INVERSION ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
 echo "Inversion logfile: \$INVERSION_LOG_FILE"
-inversion -f $CIN_DB -p $PARAMETER_PATH  2>&1 | tee \$INVERSION_LOG_FILE
+inversion -f $CIN_DB 2>&1 | tee \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "
 echo " "
 
-######## Inversion ########
+######## Gridsearch ########
 echo "******** GRIDSEARCH ***********************************"
 echo " "
-INVERSION_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
-echo "Gridsearch logfile: \$INVERSION_LOG_FILE"
+GRIDSEARCH_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
+echo "Gridsearch logfile: \$GRIDSEARCH_LOG_FILE"
 # Grid search
-gridsearch -f $CIN_DB -p $PARAMETER_PATH  2>&1 | tee \$INVERSION_LOG_FILE
+gridsearch -f $CIN_DB 2>&1 | tee \$GRIDSEARCH_LOG_FILE
 plot-event-summary $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -f $INVERSION_OUTPUT_DIR/full_summary.pdf
 echo " "
 echo "Done."
