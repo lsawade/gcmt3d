@@ -18,8 +18,7 @@ import os
 
 
 def test_flake8():
-    test_dir = os.path.dirname(os.path.abspath(inspect.getfile(
-        inspect.currentframe())))
+    test_dir = os.path.dirname(os.path.abspath(__file__))
     package_dir = os.path.join(os.path.dirname(test_dir), "gcmt3d")
 
     # Possibility to ignore some files and paths.

@@ -47,7 +47,7 @@ def gradient(cmt_file_db):
     INV_params = read_yaml_file(inversionparam_path)
 
     # Weight Params
-    weightparam_path = os.path.join(cmt_params, "inversion_params", 
+    weightparam_path = os.path.join(cmt_params, "inversion_params",
                                     "WeightParams.yml")
     weight_params = read_yaml_file(weightparam_path)
 

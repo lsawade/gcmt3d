@@ -79,7 +79,7 @@ conda activate gcmt3d_wenjie
 # Create database structure
 ENTRY_LOG_FILE="$LOG_DIR/$CID.000.Create-Entry.txt"
 echo "Create Entry Logfile: $ENTRY_LOG_FILE"
-create-entry-wj -f $CMTSOLUTION -d $DATABASE_DIR -p $PARAMETER_PATH
+create-entry-wj -f $CMTSOLUTION -d $DATABASE_DIR -p $PARAMETER_PATH > ENTRY_LOG_FILE
 
 # Create Path-files
 CPP_LOG_FILE="$LOG_DIR/$CID.001.Create-Process-Paths.STDOUT"
