@@ -42,6 +42,39 @@ def linear_func(p, x):
     m, c = p
     return m*x + c
 
+def rgb2rgba(rgb, alpha):
+    """Changes rgb tuple or list of rgbtuples 
+    to rgba tuple or list of rgba tuples.
+    
+    Args:
+    rgb: tuple or list of tuples or numpy.ndarray
+    RGB values
+    alpha: float or int
+    alpha value between 0 and 1
+
+    """
+
+    if (type(rgb) is tuple) or ((type(rgb) is np.ndarray) and (rgb.size is 3)):
+        rgba = (rgb[0], rgb[1], rgb[2], alpha)
+
+    else:
+        rgba = []
+        for _rgb in rgb:
+            if type(rgb[0]) is tuple:
+                rgba.append((rgb[0], rgb[1], rgb[2], alpha))
+            else:
+                rgba.append([rgb[0], rgb[1], rgb[2], alpha])
+
+        if type(rgb) is tuple:
+            rgba = tuple(rgba)
+        elif type(rgb) is np.ndarray:
+            rgba = np.array(rgba)
+        
+    return rgba
+
+                
+
+
 
 def fit_xy(x, y):
     # Create a model for fitting.
@@ -230,6 +263,7 @@ class PlotStats(object):
 
         cbar_dict = {"orientation": "horizontal",
                      "shrink": 0.5,
+                     "spacing": 'proportional',
                      "fraction": 0.025,
                      "pad": 0.025}
 
@@ -278,9 +312,13 @@ class PlotStats(object):
 
         # Depth vs. change in depth
         ax = fig.add_subplot(GS[2:3, 0])
-        plt.scatter(self.dCMT[:, 7], self.ocmt[:, 7],
-                    c=self.depth_cmap(self.depth_norm(self.ocmt[:, 7])),
-                    s=msize, marker='s', alpha=0.9)
+        plt.scatter(
+            self.dCMT[:, 7], self.ocmt[:, 7],
+            c=self.depth_cmap(self.depth_norm(self.ocmt[:, 7])),
+            s=msize, marker='o', alpha=0.5, edgecolors='none'
+            # markeredgecolor=rgb2rgba(self.depth_cmap(
+            #     self.depth_norm(self.ocmt[:, 7])), 0.5)
+                )
         plt.plot([0, 0], [0, np.max(self.ocmt[:, 7])],
                  "k--", lw=1.5)
         plt.ylim(([0, np.max(self.ocmt[:, 7])]))
@@ -520,7 +558,7 @@ class PlotStats(object):
             self.ocmt[:, 7], self.dCMT[:, 0] * 100, self.nbins,
             z=self.dCMT[:, 7], cmap=self.cmt_cmap, histc='grey',
             zmin=-self.dd_absmax, zmax=self.dd_absmax,
-            xlog=True)
+            xlog=False)
         ax_scatter.plot([1, 800], [0, 0], 'k', zorder=-1, lw=0.75)
         ax_scatter.set_xlabel(r"New Depth [km]")
         ax_scatter.set_ylabel(r"Scalar Moment Change [%]")
@@ -547,7 +585,7 @@ class PlotStats(object):
             self.ncmt[:, 7], self.dCMT[:, 0] * 100, self.nbins,
             z=self.dCMT[:, 7], cmap=self.cmt_cmap, histc='grey',
             zmin=-self.dd_absmax, zmax=self.dd_absmax,
-            xlog=True)
+            xlog=False)
         ax_scatter.plot([1, 800], [0, 0], 'k', zorder=-1, lw=0.75)
         ax_scatter.set_xlabel(r"New Depth [km]")
         ax_scatter.set_ylabel(r"Scalar Moment Change [%]")
@@ -574,7 +612,7 @@ class PlotStats(object):
             self.ocmt[:, 7], self.dCMT[:, -1], self.nbins,
             z=self.dCMT[:, 7], cmap=self.cmt_cmap, histc='grey',
             zmin=-self.dd_absmax, zmax=self.dd_absmax,
-            xlog=True)
+            xlog=False)
         ax_scatter.set_xlabel(r"Depth [km]")
         ax_scatter.set_ylabel(r"Centroid Time Change [s]")
         ax_scatter.plot([1, 800], [0, 0], 'k', zorder=-1, lw=0.75)
@@ -600,7 +638,7 @@ class PlotStats(object):
             self.ncmt[:, 7], self.dCMT[:, -1], self.nbins,
             z=self.dCMT[:, 7], cmap=self.cmt_cmap, histc='grey',
             zmin=-self.dd_absmax, zmax=self.dd_absmax,
-            xlog=True)
+            xlog=False)
         ax_scatter.set_xlabel(r"New Depth [km]")
         ax_scatter.set_ylabel(r"Centroid Time Change [s]")
         ax_scatter.plot([1, 800], [0, 0], 'k', zorder=-1, lw=0.75)
@@ -625,7 +663,7 @@ class PlotStats(object):
         ax_scatter, ax_histx, ax_histy, cax = self.plot_scatter_hist(
             self.ncmt[:, 7], self.dCMT[:, 7], self.nbins,
             z=self.dCMT[:, 0] * 100, cmap=matplotlib.cm.get_cmap("PiYG"),
-            histc='grey', zmin=-7.5, zmax=7.5, xlog=True)
+            histc='grey', zmin=-7.5, zmax=7.5, xlog=False)
         ax_scatter.plot([1, 800], [0, 0], 'k', zorder=-1, lw=0.75)
         ax_scatter.set_xlabel(r"New Depth [km]")
         ax_scatter.set_ylabel(r"Depth Change [km]")
@@ -651,7 +689,7 @@ class PlotStats(object):
         ax_scatter, ax_histx, ax_histy, cax = self.plot_scatter_hist(
             self.ocmt[:, 7], self.dCMT[:, 7], self.nbins,
             z=self.dCMT[:, 0] * 100, cmap=matplotlib.cm.get_cmap("PiYG"),
-            histc='grey', zmin=-7.5, zmax=7.5, xlog=True)
+            histc='grey', zmin=-7.5, zmax=7.5, xlog=False)
         ax_scatter.plot([1, 800], [0, 0], 'k', zorder=-1, lw=0.75)
         ax_scatter.set_xlabel(r"Old Depth [km]")
         ax_scatter.set_ylabel(r"Depth Change [km]")
@@ -1224,6 +1262,538 @@ class PlotStats(object):
         plt.savefig(os.path.join(self.savedir, "summary_table.pdf"))
         plt.close(fig)
 
+    
+class PlotCatalogStatistics(object):
+
+    def __init__(self, event, ocmt, ncmt, dcmt, xcorr_mat, mean_mat, mean_dabs,
+                 std_mat, stations, bounds, labels, dlabels, tags, factor,
+                 units, outdir="./", prefix: None or str = None,
+                 cmttime: bool = False, hdur: bool = False, nbins=40):
+
+        self.event = event
+        self.N = len(event)
+        self.ocmt = ocmt
+        self.ncmt = ncmt
+        self.dcmt = dcmt
+        self.xcorr_mat = xcorr_mat
+        self.mean_mat = mean_mat
+        self.mean_dabs = mean_dabs
+        self.std_mat = std_mat
+        self.stations = stations
+        self.bounds = bounds
+        self.factor = factor
+        self.labels = labels
+        self.dlabels = dlabels
+        self.tags = tags
+        self.units = units
+        self.prefix = prefix
+        self.outdir = outdir
+
+        # PLotting params
+        set_mpl_params_stats()
+
+        # Min max ddepth for cmt plotting
+        self.maxddepth = np.max(self.dcmt[:, 7])
+        self.minddepth = np.min(self.dcmt[:, 7])
+        self.dd_absmax = np.max(np.abs(
+            [np.quantile(np.min(self.dcmt[:, 7]), 0.30),
+             np.quantile(np.min(self.dcmt[:, 7]), 0.70)]))
+        self.maxdepth = np.max(self.ocmt[:, 7])
+        self.mindepth = np.min(self.ocmt[:, 7])
+
+        self.nbins = nbins
+        self.dmbins = np.linspace(-0.5, 0.5 + 0.5 / self.nbins, self.nbins)
+        self.ddegbins = np.linspace(-0.1, 0.1 + 0.1 / self.nbins, self.nbins)
+        self.dzbins = np.linspace(-self.dd_absmax,
+                                  2 * self.dd_absmax / self.nbins, self.nbins)
+        self.dtbins = np.linspace(-10, 10 + 10 / self.nbins, self.nbins)
+
+        # Map characteristics
+        self.cl = 180.0  # central_longitude
+        self.cmt_cmap = matplotlib.colors.ListedColormap(
+            [(0.9, 0.9, 0.9), (0.7, 0.7, 0.7), (0.5, 0.5, 0.5),
+             (0.3, 0.3, 0.3), (0.1, 0.1, 0.1)])
+        self.depth_cmap = matplotlib.colors.ListedColormap(
+            [(0.8, 0.2, 0.2), (0.2, 0.2, 0.8), '#63ABCE', '#63ABCE'])
+        self.depth_cmap = matplotlib.colors.ListedColormap(
+            [(1.0, 96.0/255.0, 0.0), (0.0, 1.0, 1.0), (0.35, 0.35, 0.35),
+             (0.35, 0.35, 0.35)])
+        self.depth_bounds = [0, 70, 300, 800]
+        self.depth_norm = matplotlib.colors.BoundaryNorm(self.depth_bounds,
+                                                         self.depth_cmap.N)
+
+        self.abc = 'abcdefghijklmnopqrstuvwxyz'
+
+    def plot_main_stats(self):
+        """Plots summary of the main statistics"""
+
+        # Create figure handle
+        fig = plt.figure(figsize=(11, 6))
+
+        # Create subplot layout
+        GS = GridSpec(3, 4)
+
+        cbar_dict = {"orientation": "horizontal",
+                     "shrink": 0.5,
+                     "spacing": 'proportional',
+                     "fraction": 0.025,
+                     "pad": 0.025}
+
+        # Create axis for map
+        ax = fig.add_subplot(GS[:2, :2],
+                             projection=PlateCarree(central_longitude=self.cl))
+        self.plot_map()
+        self.plot_cmts()
+        sm = matplotlib.cm.ScalarMappable(norm=self.depth_norm,
+                                          cmap=self.depth_cmap)
+        sm.set_array(self.depth_bounds)
+        sm.autoscale()
+        c = plt.colorbar(sm, ticks=self.depth_bounds, **cbar_dict)
+        c.set_label(r'Change in Depth [km]')
+        fontsize = 9
+        text_dict = {"fontsize": fontsize,
+                     "verticalalignment": 'top',
+                     "backgroundcolor": "white",
+                     "bbox": {"facecolor": 'white',
+                              "edgecolor": "black"},
+                     "zorder": 100}
+
+        ax.text(0.005, 0.995, "%d EQs" % self.N,
+                **text_dict, horizontalalignment='left',
+                transform=ax.transAxes)
+        self.print_figure_letter("a")
+
+        # Create axis for map
+        ax = fig.add_subplot(GS[:2, 2:],
+                             projection=PlateCarree(central_longitude=self.cl))
+        self.plot_map()
+        self.plot_stations()
+        # This is only done, so that both maps have the same aspect ratio
+        c = create_colorbar(vmin=0,
+                            vmax=800,
+                            cmap=self.depth_cmap,
+                            norm=self.depth_norm, **cbar_dict)
+        c.ax.set_visible(False)
+
+        ax.text(0.995, 0.995, "%d Stations" % len(self.stations),
+                **text_dict, horizontalalignment='right',
+                transform=ax.transAxes)
+        self.print_figure_letter("b")
+        # Change of parameter as function of depth
+        msize = 15
+
+        # Depth vs. change in depth
+        ax = fig.add_subplot(GS[2:3, 0])
+        plt.scatter(
+            self.dcmt[:, 7], self.ocmt[:, 7],
+            c=self.depth_cmap(self.depth_norm(self.ocmt[:, 7]/1000)),
+            s=msize, marker='o', alpha=0.5, edgecolors='none'
+            # markeredgecolor=rgb2rgba(self.depth_cmap(
+            #     self.depth_norm(self.ocmt[:, 7])), 0.5)
+                )
+        plt.plot([0, 0], [0, np.max(self.ocmt[:, 7])],
+                 "k--", lw=1.5)
+        plt.ylim(([0, np.max(self.ocmt[:, 7])]))
+        plt.xlim(([np.min(self.dcmt[:, 7]), np.max(self.dcmt[:, 7])]))
+        ax.invert_yaxis()
+        plt.xlabel("Depth Change [km]")
+        plt.ylabel("Depth [km]")
+        self.print_figure_letter("c")
+
+        fig.add_subplot(GS[2, 1])
+        self.plot_histogram(self.dcmt[:, 7], self.nbins)
+        remove_topright()
+        plt.xlabel("Depth Change [km]")
+        plt.ylabel("$N$", rotation=0, horizontalalignment='right')
+        self.print_figure_letter("d")
+
+        fig.add_subplot(GS[2, 2])
+        self.plot_histogram(self.dcmt[:, -1], self.nbins)
+        remove_topright()
+        plt.xlabel("Centroid Time Change [sec]")
+        plt.ylabel("$N$", rotation=0, horizontalalignment='right')
+        self.print_figure_letter("e")
+
+        fig.add_subplot(GS[2, 3])
+        self.plot_histogram(self.dcmt[:, 0]*100, self.nbins)
+        remove_topright()
+        plt.xlabel("Scalar Moment Change [%]")
+        plt.ylabel("$N$", rotation=0, horizontalalignment='right')
+        self.print_figure_letter("f")
+
+        # Finally plot shot
+        plt.tight_layout(pad=2, w_pad=2.5, h_pad=2.25)
+
+        filename = "main_stats.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
+
+    def print_figure_letter(self, letter, fontsize=14):
+        ax = plt.gca()
+
+        text_dict = {"fontsize": fontsize,
+                     "verticalalignment": 'bottom',
+                     "horizontalalignment": 'left',
+                     "bbox": {'facecolor': 'white',
+                              'alpha': 0.0}
+                     }
+        ax.text(0.0, 1.025, letter, **text_dict, transform=ax.transAxes)
+    
+    def print_figure_letter_inside(self, letter, fontsize=14):
+        ax = plt.gca()
+
+        text_dict = {"fontsize": fontsize,
+                     "verticalalignment": 'bottom',
+                     "horizontalalignment": 'left',
+                     "bbox": {'facecolor': 'white',
+                              'alpha': 0.0,
+                              'edgecolor': 'k'}
+                     }
+        ax.text(0.0125, 0.90, letter, **text_dict, transform=ax.transAxes)
+
+    def plot_map(self):
+
+        ax = plt.gca()
+        ax.set_global()
+        ax.frameon = True
+        ax.outline_patch.set_linewidth(1)
+
+        # Set gridlines. NO LABELS HERE, there is a bug in the gridlines
+        # function around 180deg
+        gl = ax.gridlines(crs=PlateCarree(central_longitude=180.0),
+                          draw_labels=False,
+                          linewidth=1, color='lightgray', alpha=0.5,
+                          linestyle='-', zorder=-1.5)
+        gl.top_labels = False
+        gl.left_labels = False
+        gl.xlines = True
+
+        # Add Coastline
+        ax.add_feature(cartopy.feature.LAND, zorder=-2, edgecolor='black',
+                       linewidth=0.5, facecolor=(0.9, 0.9, 0.9))
+
+    def plot_cmts(self):
+
+        ax = plt.gca()
+        for idx, (lon, lat, m) in enumerate(zip(self.ncmt[:, 9], self.ncmt[:, 8],
+                                                self.ncmt[:, 1:7])):
+            try:
+                # Longitude fix because cartopy is being shitty
+                if self.cl == 180.0:
+                    if lon <= 0:
+                        lon = lon + 180.0
+                    else:
+                        lon = lon - 180.0
+                b = beach(m, linewidth=0.25,
+                          facecolor=self.depth_cmap(self.depth_norm(
+                              self.ocmt[idx, 7]/1000
+                          )),
+                          bgcolor='w',
+                          edgecolor='k', alpha=1,
+                          xy=(lon, lat), width=10,
+                          size=10, nofill=False, zorder=-1)
+
+                ax.add_collection(b)
+            except Exception as e:
+                for line in e.__str__().splitlines():
+                    logger.error(line)
+
+    def plot_stations(self):
+        """Plots stations into a map
+        """
+
+        slat = [station[0] for station in self.stations]
+        # Weird fix because cartopy is weird
+        if self.cl == 180.0:
+            slon = [station[1] + self.cl if station[1] <= 0
+                    else station[1] - self.cl
+                    for station in self.stations]
+        else:
+            slon = [station[1] for station in self.stations]
+
+        ax = plt.gca()
+        ax.scatter(slon, slat, s=20, marker='v', c=((0.7, 0.2, 0.2),),
+                   edgecolors='k', linewidths=0.25, zorder=-1)
+
+    def plot_histogram(self, ddata, n_bins, facecolor=(0.7, 0.2, 0.2),
+                       alpha=1):
+        """Plots histogram of input data."""
+
+        # the histogram of the data
+        ax = plt.gca()
+        ax.hist(ddata, n_bins, facecolor=facecolor, alpha=alpha)
+
+    def plot_spatial_change(self):
+
+        for _i in range(10):
+            
+            fig = plt.figure(figsize=(8.0, 3.0))
+            ax = plt.subplot(111, projection=PlateCarree())
+
+            # Map
+            self.plot_map()
+
+            # Cmap
+            norm = matplotlib.colors.TwoSlopeNorm(vmin=self.bounds[_i][0],
+                                                  vmax=self.bounds[_i][1],
+                                                  vcenter=0.0)
+            # Data
+            self.plot_2d_histogram(ax, self.ncmt[:, 9], self.ncmt[:, 8],
+                                   data=self.factor[_i] * self.dcmt[:, _i],
+                                   cmap='coolwarm', norm=norm,
+                                   label=self.units[_i])
+
+            # Letters 
+            self.print_figure_letter_inside(self.dlabels[_i])
+            self.print_figure_letter(self.abc[_i] + ")")
+
+            # Saving
+            filename = f"space_{self.tags[_i]}.pdf"
+            if self.prefix is not None:
+                filename = self.prefix + "_" + filename
+            plt.savefig(os.path.join(self.outdir, filename))
+            plt.close()
+
+        # Figure and axes
+        fig = plt.figure(figsize=(8.0, 3.0))
+        ax = plt.subplot(111, projection=PlateCarree())
+
+        # Map
+        self.plot_map()
+
+        # Cmap
+        norm = matplotlib.colors.Normalize(vmin=0, vmax=360)
+
+        # Data
+        data = (np.pi/2 - np.arctan2(self.dcmt[:, 8],
+                                     self.dcmt[:, 9]))/np.pi*180 + 180
+        self.plot_2d_histogram(ax, self.ncmt[:, 9], self.ncmt[:, 8],
+                               data=data, cmap='twilight_shifted', norm=norm,
+                               label="deg")
+
+        # Letters 
+        self.print_figure_letter_inside("Angle")
+        self.print_figure_letter(self.abc[10] + ")")
+
+        # Saving
+        filename = "space_angle.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
+
+        # Figure and axes
+        fig = plt.figure(figsize=(8.0, 3.0))
+        ax = plt.subplot(111, projection=PlateCarree())
+
+        # Map
+        self.plot_map()
+
+        # Cmap
+        norm = matplotlib.colors.Normalize(vmin=0, vmax=20)
+
+        # Data
+        self.plot_2d_histogram(ax, self.ncmt[:, 9], self.ncmt[:, 8],
+                               data=None, norm=norm, label="#")
+
+        # Letters 
+        self.print_figure_letter_inside("Counts")
+        self.print_figure_letter(self.abc[11] + ")")
+
+        # Saving
+        filename = "space_counts.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
+
+    def plot_dM_dz(self):
+        """Creates Figure with histograms one the side for two
+        change in depth and change in scalar moment."""
+
+        # start with a rectangular Figure
+        fig = plt.figure(figsize=(4, 4))
+
+        ax_scatter, ax_histx, ax_histy = self.plot_scatter_hist(
+            self.dcmt[:, 7], self.dcmt[:, 0] * 100, self.nbins,
+            z=None)
+        ax_scatter.set_xlabel(r"Depth change [km]")
+        ax_scatter.set_ylabel(r"Scalar Moment Change [%]")
+        ax_scatter.plot([np.min(self.dcmt[:, 7]),
+                         np.max(self.dcmt[:, 7])],
+                        [0, 0], 'k', zorder=-1, lw=0.75)
+        ax_scatter.plot([0, 0], [np.min(self.dcmt[:, 0] * 100),
+                                 np.max(self.dcmt[:, 0] * 100)],
+                        'k', zorder=0.1, lw=0.75)
+
+        # Finally plot shot
+        filename = "dM_dz_nz.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
+        
+    @staticmethod
+    def plot_2d_histogram(ax, lon, lat, data=None, cmap=None, norm=None, alpha=None,
+                          label=None):
+
+        ax = plt.gca()
+
+        # Create binning
+        res = 4
+        binlon = np.linspace(-180, 180, int(1/res*181))
+        binlat = np.linspace(-90, 90, int(1/res*91))
+        counts, xx, yy = np.histogram2d(lon, lat, bins=(binlon, binlat))
+        if data is not None:
+            zz, _, _ = np.histogram2d(lon, lat, bins=(binlon, binlat),
+                                      weights=data)
+            # Workaround for zero count values tto not get an error.
+            # Where counts == 0, zi = 0, else zi = zz/counts
+            zi = np.zeros_like(zz)
+            zi[counts.astype(bool)] = zz[counts.astype(bool)]/counts[counts.astype(bool)]
+            zi = np.ma.masked_equal(zi, 0)
+            pl = ax.pcolormesh(xx, yy, zi.T, linewidth=0.0, cmap=cmap,
+                               norm=norm, alpha=None)
+        else:
+            zi = counts
+            zi = np.ma.masked_equal(zi, 0)
+            pl = ax.pcolormesh(xx, yy, zi.T, linewidth=0.0, cmap='magma',
+                               norm=norm, alpha=None)
+
+        cbar = plt.colorbar(pl, pad=0.01, aspect=25)
+        cbar.set_label(label, rotation=0)
+
+        return pl
+
+    @staticmethod
+    def plot_scatter_hist(x, y, nbins, z=None, cmap=None, histc='grey',
+                          zmin=None, zmax=None, norm=None, r=True,
+                          xlog=False, ylog=False):
+        """
+
+        :param x: Data type x-axis
+        :param y: Data type y-axis
+        :params nbins: number of bins
+        :param z: Data type to color xy datapoints. Default None. Datapoints in
+                  color of histogram.
+        :param cmap: name
+        :param zmin: Colorbar min
+        :param zmin: Colorbar max
+
+        :return:
+        """
+
+        # definitions for the axes
+        left, width = 0.125, 0.65
+        bottom, height = 0.125, 0.65
+        spacing = 0.000
+
+        # Create dimensions
+        rect_scatter = [left, bottom, width, height]
+        rect_histx = [left, bottom + height + spacing, width, 0.15]
+        rect_histy = [left + width + spacing, bottom, 0.15, height]
+
+        # Create Axes
+        ax_scatter = plt.axes(rect_scatter)
+        ax_scatter.tick_params(direction='in', top=True, right=True)
+        ax_histx = plt.axes(rect_histx)
+        ax_histx.tick_params(direction='in', labelbottom=False)
+        ax_histy = plt.axes(rect_histy)
+        ax_histy.tick_params(direction='in', labelleft=False)
+
+        cax = ax_scatter.inset_axes([0.05, 0.96, 0.25, 0.03],
+                                    zorder=100)
+
+        # scatterplot with color
+        if cmap is not None and z is not None:
+            # the scatter plot:
+            if zmin is not None:
+                vminz = zmin
+            else:
+                vminz = np.min(z)
+
+            if zmax is not None:
+                vmaxz = zmax
+            else:
+                vmaxz = np.max(z)
+
+            if norm is not None and cmap is not None:
+                ax_scatter.scatter(x, y, c=cmap(norm(z)),
+                                   s=20, marker='o', edgecolor='k',
+                                   linewidths=0.5)
+
+                # Colorbar
+                cbar_dict = {"orientation": "horizontal"}
+                plt.colorbar(matplotlib.cm.ScalarMappable(
+                    cmap=cmap, norm=norm),
+                    cax=cax, **cbar_dict)
+                cax.tick_params(left=False, right=False, bottom=True, top=True,
+                                labelleft=False, labelright=False,
+                                labeltop=False,
+                                labelbottom=True, which='both',
+                                labelsize=6)
+
+            else:
+                ax_scatter.scatter(x, y, c=get_color(z, vmin=vminz, vmax=vmaxz,
+                                                     cmap=cmap, norm=norm),
+                                   s=20, marker='o', edgecolor='k',
+                                   linewidths=0.5)
+
+                # Colorbar
+                cbar_dict = {"orientation": "horizontal"}
+                create_colorbar(vminz, vmaxz, cmap=cmap, cax=cax, **cbar_dict)
+                cax.tick_params(left=False, right=False, bottom=True, top=True,
+                                labelleft=False, labelright=False,
+                                labeltop=False, labelbottom=True, which='both',
+                                labelsize=6)
+
+        # scatterplot without color
+        else:
+            # the scatter plot:
+            ax_scatter.scatter(x, y, c=histc, s=15, marker='s')
+            cax = None
+
+        if r:
+            if xlog:
+                xfix = np.log10(x)
+            else:
+                xfix = x
+            if ylog:
+                yfix = np.log10(y)
+            else:
+                yfix = y
+            # Write out correlation coefficient in the top right
+            corr_coeff = np.corrcoef(xfix, yfix)
+            text_dict = {"fontsize": 6, "verticalalignment": 'top',
+                         "zorder": 100}
+            ax_scatter.text(0.97, 0.97, "R = %1.2f" % corr_coeff[0, 1],
+                            horizontalalignment='right', **text_dict,
+                            transform=ax_scatter.transAxes)
+
+        # now determine nice limits by hand:
+        ax_scatter.set_xlim((np.min(x), np.max(x)))
+        ax_scatter.set_ylim((np.min(y), np.max(y)))
+
+        # Histogram settings
+        binsx = np.linspace(np.min(x), np.max(x), nbins + 1)
+        binsy = np.linspace(np.min(y), np.max(y), nbins + 1)
+        ax_histx.hist(x, bins=binsx,
+                      color=histc, ec=None)
+        ax_histx.set_xlim(ax_scatter.get_xlim())
+        ax_histy.hist(y, bins=binsy, orientation='horizontal',
+                      color=histc, ec=None)
+        ax_histy.set_ylim(ax_scatter.get_ylim())
+
+        # Remove boundaries
+        remove_all(ax=ax_histx, bottom=True)
+        remove_all(ax=ax_histy, left=True)
+
+        if cax is not None:
+            return ax_scatter, ax_histx, ax_histy, cax
+        else:
+            return ax_scatter, ax_histx, ax_histy
 
 if __name__ == "__main__":
     pass

@@ -23,7 +23,7 @@ DATABASE_DIR='/tigress/lsawade/database_wenjie'
 # EARTHQUAKE PARAMETERS and Paths derived from the file
 # Getting database entry from CMTSOLUTION FILE
 CID=$(cat $CMTSOLUTION | head -2 | tail -1 | cut -d: -f2 | tr -d '[:space:]')
-CIN_DB="$DATABASE_DIR/$CID/$CID.cmt"
+CIN_DB=$(realpath $CMTSOLUTION)
 CDIR=$(dirname $CIN_DB) # Earthquake Directory
 CMT_SIM_DIR=$CDIR/CMT_SIMs # Simulation directory
 
@@ -87,7 +87,7 @@ conda activate gcmt3d_wenjie
 
 sbatch << EOF
 #!/bin/bash
-#SBATCH --job-name=invert_$CID
+#SBATCH --job-name=I_$CID
 # SBATCH --output=$LOG_DIR/$CID.out
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=30
@@ -108,30 +108,35 @@ module load anaconda3
 module load openmpi/gcc
 conda activate gcmt3d_wenjie
 
+# Create Path-files
+CPP_LOG_FILE=$LOG_DIR/$CID.001.Create-Process-Paths.STDOUT
+echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
+create-path-files -f $CIN_DB -p $PARAMETER_PATH > \$CPP_LOG_FILE
 
 ######## Inversion ########
 echo "******** INVERSION ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
 echo "Inversion logfile: \$INVERSION_LOG_FILE"
-inversion -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+inversion -f $CIN_DB 2>&1 | tee \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "
 echo " "
 
-######## Inversion ########
+######## Gridsearch ########
 echo "******** GRIDSEARCH ***********************************"
 echo " "
-INVERSION_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
-echo "Gridsearch logfile: \$INVERSION_LOG_FILE"
+GRIDSEARCH_LOG_FILE=$LOG_DIR/$CID.012.Gridsearch.STDOUT
+echo "Gridsearch logfile: \$GRIDSEARCH_LOG_FILE"
 # Grid search
-gridsearch -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+gridsearch -f $CIN_DB 2>&1 | tee \$GRIDSEARCH_LOG_FILE
 plot-event-summary $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -f $INVERSION_OUTPUT_DIR/full_summary.pdf
 echo " "
 echo "Done."
 echo " "
 echo " "
+
 
 
 exit 0

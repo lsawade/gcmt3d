@@ -117,6 +117,7 @@ def set_mpl_params_section():
         'axes.labelsize': 15,
         'axes.titlesize': 17,
         'axes.titleweight': "bold",
+        'axes.outline.linewidth': 2,
         'xtick.labelsize': 13,
         'xtick.direction': 'in',
         'xtick.top': True,  # draw label on the top
@@ -143,7 +144,8 @@ def set_mpl_params_stats():
     params = {
         'font.weight': 'bold',
         'axes.labelweight': 'bold',
-        'axes.labelsize': 10,
+        'axes.labelsize': 7,
+        'axes.linewidth': 1,
         'xtick.labelsize': 7,
         'xtick.direction': 'in',
         'xtick.top': True,  # draw label on the top

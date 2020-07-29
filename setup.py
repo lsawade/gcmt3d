@@ -76,6 +76,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'catalog = gcmt3d.bins.catalog:main',
             'convert2asdf = gcmt3d.bins.convert_to_asdf:main',
             'convert2sac = gcmt3d.bins.convert_to_sac:main',
             'count-windows = gcmt3d.bins.count_overall_windows:main',
@@ -95,8 +96,10 @@ setup(
             'gridsearch = gcmt3d.bins.gridsearch:main',
             'process-asdf = gcmt3d.bins.process_asdf:main',
             'plot-section = gcmt3d.bins.plot_section:main',
+            'plot-catalog-stats = gcmt3d.bins.plot_catalog:main',
             'plot-event = gcmt3d.bins.plot_event:main',
             'plot-event-summary = gcmt3d.bins.plot_event_summary:main',
+            'plot-stats = gcmt3d.bins.plot_stats:main',
             'request-data = gcmt3d.bins.request_data:main',
             'select-windows = gcmt3d.bins.window_selection_asdf:main',
             'write-sources = gcmt3d.bins.write_sources:main',

@@ -13,20 +13,20 @@ fi
 
 
 # STUFF TO BE SET PRIOR TO RUNNING ANYTHING
-GCMT3D='/home/lsawade/GCMT3D'
+GCMT3D='/home/lsawade/gcmt3d'
 WORKFLOW_DIR="$GCMT3D/workflow"
 PARAMETER_PATH="$WORKFLOW_DIR/params"
 SLURM_DIR="$WORKFLOW_DIR/slurmwf"
 BIN_DIR="$WORKFLOW_DIR/bins"
-DATABASE_DIR='/scratch/gpfs/lsawade/database'
+DATABASE_DIR='/tigress/lsawade/database_wenjie_2'
 
 # EARTHQUAKE PARAMETERS and Paths derived from the file
 # Getting database entry from CMTSOLUTION FILE
 CID=`cat $CMTSOLUTION | head -2 | tail -1 | cut -d: -f2 | tr -d '[:space:]'`
-CIN_DB="$DATABASE_DIR/C$CID/C$CID.cmt"
-CDIR=`dirname $CIN_DB` # Earthquake Directory
+CIN_DB="$DATABASE_DIR/$CID/$CID.cmt"
+CDIR=$(dirname $CIN_DB) # Earthquake Directory
 CMT_SIM_DIR=$CDIR/CMT_SIMs # Simulation directory
-PROCESS_PATHS=$CDIR/workflow_files/path_files/process_paths # Process Path
+
 # directory
 PROCESSED=$CDIR/seismograms/processed_seismograms # Processed dir
 SEISMOGRAMS=$CDIR/seismograms # Seismos
@@ -34,7 +34,17 @@ STATION_DATA=$CDIR/station_data
 LOG_DIR=$CDIR/logs # Logging directory
 INVERSION_OUTPUT_DIR=$CDIR/inversion
 WINDOW_PATHS=$CDIR/workflow_files/path_files/window_paths
+PROCESS_PATHS=$CDIR/workflow_files/path_files/process_paths # Process Path
+CONVERSION_PATHS=$CDIR/workflow_files/path_files/conversion_paths
+INVERSION_DIRECTORY=/tigress/lsawade/source_inversion_II
+SYNTHETIC_FILES=$INVERSION_DIRECTORY/raw_synt/archive.400_events
+OBSERVED_FILES=$INVERSION_DIRECTORY/raw_obsd/download/waveform
+STATION_FILES=$INVERSION_DIRECTORY/raw_obsd/download/station
 
+
+# MOVING FILES AROUND
+SUBMITTED=$INVERSION_DIRECTORY/submitted_cmts
+DONE=$INVERSION_DIRECTORY/done_cmts
 
 echo
 echo "******** PACKAGE INFO ********************************"
@@ -63,15 +73,26 @@ echo
 echo
 
 # Activate conda environment
-module load anaconda
-conda activate gcmt3d
+module load anaconda3
+conda activate gcmt3d_wenjie
 
 # Create database structure
-create-entry -f $CMTSOLUTION -d $DATABASE_DIR -p $PARAMETER_PATH
+ENTRY_LOG_FILE="$LOG_DIR/$CID.000.Create-Entry.txt"
+echo "Create Entry Logfile: $ENTRY_LOG_FILE"
+create-entry -f $CMTSOLUTION -d $DATABASE_DIR -p $PARAMETER_PATH > ENTRY_LOG_FILE
+
+
+# Create Path-files
+CPP_LOG_FILE="$LOG_DIR/$CID.001.Create-Process-Paths.STDOUT"
+echo "Create Process Paths Logfile: $CPP_LOG_FILE"
+create-path-files -f $CIN_DB -p $PARAMETER_PATH > $CPP_LOG_FILE
 
 # Download data
 request-data -f $CIN_DB -p $PARAMETER_PATH
 
+
+# MOVE CMT FILE TO SUBMISSION DIRECTORY
+# mv $CMTSOLUTION $SUBMITTED/
 # Start slurm script that does the whole shindig
 
 sbatch << EOF
@@ -94,7 +115,7 @@ module purge
 
 # Load anaconda and set environment
 module load anaconda3
-conda activate gcmt3d
+conda activate gcmt3d_wenjie
 
 module load openmpi/gcc
 module load cudatoolkit/10.0
@@ -137,41 +158,21 @@ echo " "
 
 CONV_LOG=$LOG_DIR/$CID.005.Converting-to-ASDF
 
-# Synthetic data
-for CMT in "\${CMT_LIST[@]}"; do
-    CONV_PATH_FILE=$CMT_SIM_DIR/\$CMT/\$CMT.yml
-    echo "Conversion yml: \$CONV_PATH_FILE"
-    CONV_LOG_FILE=\$CONV_LOG.\$CMT.STDOUT
-    echo "Conversion logfile: \$CONV_LOG_FILE"
-    srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE &
-done                                                   
-
+######## CONVERT TRACES ########
+echo "******** CONVERT TRACES ******************************"
+echo " "
 # Observed data
-CONV_PATH_FILE=$CDIR/seismograms/obs/observed.yml
-echo "Conversion yml: \$CONV_PATH_FILE"
-CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
-echo "Conversion logfile: \$CONV_LOG_FILE"
-srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE > \$CONV_LOG_FILE
-wait
+CONV_LOG=$LOG_DIR/$CID.005.Converting-to-ASDF
+for CONV_PATH_FILE in \$(ls $CONVERSION_PATHS); do
+
+    echo "Conversion yml: \$CONV_PATH_FILE"
+    echo "Conversion logfile: \$CONV_LOG"
+    srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE 2>&1 | tee \$CONV_LOG &
+
+done
 echo " "
 echo "Done."
 echo " "
-echo " "
-
-echo "Clearing out the CMT simulation directory . . ."
-rm -rf $CMT_SIM_DIR
-echo " "
-echo "Done."
-echo " "
-echo " "
-
-
-######## Create Process Paths ########
-echo "******** CREATE PROCESS PATHS ************************"
-echo " "
-CPP_LOG_FILE="$LOG_DIR/$CID.006.Create-Process-Paths.STDOUT"
-echo "Create Process Paths Logfile: \$CPP_LOG_FILE"
-srun -N1 -n1 create-path-files -f $CIN_DB -p $PARAMETER_PATH > \$CPP_LOG_FILE
 echo " "
 
 
@@ -193,7 +194,7 @@ for WAVE in "\${WAVE_LIST[@]}"; do
             echo "Processing yml: \$PROCESS_PATH_FILE"
             PROC_LOG_FILE="\$PROCESS_LOG.\$PROCESS_PATH.STDOUT"
             echo "Processing logfile: \$PROC_LOG_FILE"
-            srun -N1 -n1 process-asdf -f \$PROCESS_PATH_FILE > \$PROC_LOG_FILE &
+            srun -n1 process-asdf -f \$PROCESS_PATH_FILE 2>&1 | tee \$PROC_LOG_FILE &
         fi
     done
     wait
@@ -207,7 +208,7 @@ echo " "
 ######## Window Traces ########
 echo "******** WINDOW TRACES *******************************"
 echo " "
-# Do body and surface waves seperately since they access the same
+# Do body and surface waves separately since they access the same
 # asdf files
 # Body waves
 WINDOW_LOG="$LOG_DIR/$CID.008.Window-Traces"
@@ -216,7 +217,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
   echo "Windowing yml: \$WINDOW_PATH_FILE"
   WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
   echo "Windowing logfile: \$WIND_LOG_FILE"
-  srun -N1 -n25 select-windows -f \$WINDOW_PATH_FILE > \$WIND_LOG_FILE
+  srun -N1 -n25 select-windows -f \$WINDOW_PATH_FILE 2>&1 | tee \$WIND_LOG_FILE
 done
 wait
 echo " "
@@ -229,24 +230,36 @@ echo "******** INVERSION ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
 echo "Inversion logfile: \$INVERSION_LOG_FILE"
-inversion -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+inversion -f $CIN_DB 2>&1 | tee \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "
 echo " "
 
-######## Inversion ########
+
+######## Gridsearch ########
 echo "******** GRIDSEARCH ***********************************"
 echo " "
-INVERSION_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
-echo "Gridsearch logfile: \$INVERSION_LOG_FILE"
+GRIDSEARCH_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
+echo "Gridsearch logfile: \$GRIDSEARCH_LOG_FILE"
 # Grid search
-gridsearch -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+gridsearch -f $CIN_DB 2>&1 | tee \$GRIDSEARCH_LOG_FILE
 plot-event-summary $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -f $INVERSION_OUTPUT_DIR/full_summary.pdf
 echo " "
 echo "Done."
 echo " "
 echo " "
+
+######## Check whether succesfull, and if yes move to done dir #####
+
+# if [ -f $INVERSION_OUTPUT_DIR/full_summary.pdf ];
+# then
+#     # MOVE CMT FILE TO DONE DIRECTORY
+#     mv $SUBMITTED/\$(basename $CMTSOLUTION) $DONE/\$(basename $CMTSOLUTION)
+# fi
+# exit 0
+
+EOF
 
 
 

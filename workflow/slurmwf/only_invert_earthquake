@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get earthquake path from input filepath
-CMTSOLUTION=$1
+CMTSOLUTION=$(realpath $1)
 
 if [ -z "$CMTSOLUTION" ]
 then
@@ -13,30 +13,46 @@ fi
 
 
 # STUFF TO BE SET PRIOR TO RUNNING ANYTHING
-GCMT3D='/home/lsawade/GCMT3D'
+GCMT3D='/home/lsawade/gcmt3d'
 WORKFLOW_DIR="$GCMT3D/workflow"
 PARAMETER_PATH="$WORKFLOW_DIR/params"
 SLURM_DIR="$WORKFLOW_DIR/slurmwf"
-DATABASE_DIR='/scratch/gpfs/lsawade/database'
+BIN_DIR="$WORKFLOW_DIR/bins"
+DATABASE_DIR='/tigress/lsawade/database_wenjie'
 
 # EARTHQUAKE PARAMETERS and Paths derived from the file
 # Getting database entry from CMTSOLUTION FILE
-CID=`cat $CMTSOLUTION | head -2 | tail -1 | cut -d: -f2 | tr -d '[:space:]'`
-CIN_DB="$DATABASE_DIR/C$CID/C$CID.cmt"
-CDIR=`dirname $CIN_DB` # Earthquake Directory
+# EARTHQUAKE PARAMETERS and Paths derived from the file
+# Getting database entry from CMTSOLUTION FILE
+CID=$(cat $CMTSOLUTION | head -2 | tail -1 | cut -d: -f2 | tr -d '[:space:]')
+CIN_DB="$DATABASE_DIR/$CID/$CID.cmt"
+CDIR=$(dirname $CIN_DB) # Earthquake Directory
 CMT_SIM_DIR=$CDIR/CMT_SIMs # Simulation directory
-PROCESS_PATHS=$CDIR/seismograms/process_paths # Process Path directory
+
+# directory
 PROCESSED=$CDIR/seismograms/processed_seismograms # Processed dir
 SEISMOGRAMS=$CDIR/seismograms # Seismos
 STATION_DATA=$CDIR/station_data
 LOG_DIR=$CDIR/logs # Logging directory
-INVERSION_OUTPUT_DIR=$CDIR/inversion/inversion_output
-WINDOW_PATHS=$CDIR/window_data/window_paths
+INVERSION_OUTPUT_DIR=$CDIR/inversion
+WINDOW_PATHS=$CDIR/workflow_files/path_files/window_paths
+PROCESS_PATHS=$CDIR/workflow_files/path_files/process_paths # Process Path
+CONVERSION_PATHS=$CDIR/workflow_files/path_files/conversion_paths
+INVERSION_DIRECTORY=/tigress/lsawade/source_inversion_II
+SYNTHETIC_FILES=$INVERSION_DIRECTORY/raw_synt/archive.400_events
+OBSERVED_FILES=$INVERSION_DIRECTORY/raw_obsd/download/waveform
+STATION_FILES=$INVERSION_DIRECTORY/raw_obsd/download/station
+
+# MOVING FILES AROUND
+SUBMITTED=$INVERSION_DIRECTORY/submitted_cmts
+DONE=$INVERSION_DIRECTORY/done_cmts
+
 
 echo
 echo "******** PACKAGE INFO ********************************"
 echo "GCMT3D Location:_________________ $GCMT3D"
 echo "Workflow Directory:______________ $WORKFLOW_DIR"
+echo "Parameter Directory:_____________ $PARAMETER_PATH"
 echo "Slurmjob Directory:______________ $SLURM_DIR"
 echo "Bin directory (important):_______ $BIN_DIR" 
 echo
@@ -60,16 +76,26 @@ echo
 echo
 
 # Start slurm script that does the whole shindig
+module load anaconda3
+conda activate gcmt3d_wenjie
+
+ENTRY_LOG_FILE="$LOG_DIR/$CID.000.Create-Entry.txt"
+echo "Create Entry Logfile: $ENTRY_LOG_FILE"
+create-entry-wj -f $CMTSOLUTION -d $DATABASE_DIR -p $PARAMETER_PATH > $ENTRY_LOG_FILE
+
+
+# MOVE CMT FILE TO SUBMISSION DIRECTORY
+mv $CMTSOLUTION $SUBMITTED/
 
 sbatch << EOF
 #!/bin/bash
-#SBATCH --job-name=invert_C$CID
-#SBATCH --output=$LOG_DIR/C$CID.out
+#SBATCH --job-name=I_$CID
+#SBATCH --output=$LOG_DIR/$CID.out
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=30
 #SBATCH --mem=200GB
 #SBATCH --time=00:40:00
-#SBATCH --reservation=test
+#    SBATCH --reservation=test
 
 
 # #WHAT???????? #SBATCH --requeue 
@@ -79,24 +105,16 @@ module purge
 
 # Load anaconda and set environment
 module load anaconda3
-conda activate gcmt3d
+conda activate gcmt3d_wenjie
 
 module load openmpi/gcc
 module load cudatoolkit/10.0
 
-# Define the parameters
-CMT_LIST=(CMT CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
 
-######## Create Inversion Dictionaries ########
-echo "******** CREATE INVERSION DICTIONARIES****************"
-echo " "
-INV_DICT_LOG_FILE="$LOG_DIR/$CID.009.Create-Inversion-Dicts.STDOUT"
-echo "Processing logfile: \$INV_DICT_LOG_FILE"
-create-inversion-dicts -f $CIN_DB -p $PARAMETER_PATH  > \$INV_DICT_LOG_FILE
-echo " "
-echo "Done."
-echo " "
-echo " "
+# Create Path-files
+CPP_LOG_FILE="$LOG_DIR/$CID.001.Create-Process-Paths.STDOUT"
+echo "Create Process Paths Logfile: $CPP_LOG_FILE"
+create-path-files -f $CIN_DB -p $PARAMETER_PATH > \$CPP_LOG_FILE
 
 
 ######## Inversion ########
@@ -104,24 +122,32 @@ echo "******** INVERSION ***********************************"
 echo " "
 INVERSION_LOG_FILE="$LOG_DIR/$CID.010.Inversion.STDOUT"
 echo "Inversion logfile: \$INVERSION_LOG_FILE"
-inversion -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
+inversion -f $CIN_DB 2>&1 | tee \$INVERSION_LOG_FILE
 echo " "
 echo "Done."
 echo " "
 echo " "
-
 
 ######## Gridsearch ########
-echo "******** Gridsearch ***********************************"
+echo "******** GRIDSEARCH ***********************************"
 echo " "
-INVERSION_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
-echo "Gridsearch logfile: \$INVERSION_LOG_FILE"
-gridsearch -f $CIN_DB -p $PARAMETER_PATH  > \$INVERSION_LOG_FILE
-#plot-summary -c $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -o $INVERSION_OUTPUT_DIR/full_summary.pdf
+GRIDSEARCH_LOG_FILE="$LOG_DIR/$CID.012.Gridsearch.STDOUT"
+echo "Gridsearch logfile: \$GRIDSEARCH_LOG_FILE"
+# Grid search
+gridsearch -f $CIN_DB 2>&1 | tee \$GRIDSEARCH_LOG_FILE
+plot-event-summary $INVERSION_OUTPUT_DIR/cmt3d/*stats.json -g $INVERSION_OUTPUT_DIR/g3d/*stats.json -f $INVERSION_OUTPUT_DIR/full_summary.pdf
 echo " "
 echo "Done."
 echo " "
 echo " "
+
+######## Check whether succesfull, and if yes move to done dir #####
+
+if [ -f $INVERSION_OUTPUT_DIR/full_summary.pdf ];
+then
+    # MOVE CMT FILE TO DONE DIRECTORY
+    mv $SUBMITTED/\$(basename $CMTSOLUTION) $DONE/\$(basename $CMTSOLUTION)
+fi
 
 exit 0
 EOF

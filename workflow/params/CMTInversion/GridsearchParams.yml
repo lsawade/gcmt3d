@@ -1,5 +1,5 @@
 gridsearch: True
-plot_new_synthetics: True
+plot_new_synthetics: False
 summary_json: True
 summary_plot: True
 statistics_plot: True

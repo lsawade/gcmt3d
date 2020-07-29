@@ -14,28 +14,25 @@ directories.
 Last Update: January 2020
 """
 
-from gcmt3d.stats.stats import Statistics
+from gcmt3d.stats.stats import Catalog
 import argparse
 
 
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('dirname', help='Database directory', type=str,
+    parser.add_argument("-o", dest='ocmtfiles', help='old cmtfiles', type=str,
                         nargs="+")
-    parser.add_argument('-d', action="store_true", dest='direct',
-                        help='Direct directory')
+    parser.add_argument("-n", dest='ncmtfiles', help='new cmtfiles', type=str,
+                        nargs="+")
+    parser.add_argument("-s", dest='statfiles', help='station files', type=str,
+                        nargs="+")
     parser.add_argument('-f', dest='outfile', required=False, default='./',
                         help='Output file', type=str)
     args = parser.parse_args()
 
-    if type(args.dirname) == list:
-        dirs = args.dirname
-    else:
-        dirs = [args.dirname]
-
     # Load shit
-    ST = Statistics._from_dir(dirs, direct=args.direct)
+    ST = Catalog(args.ocmtfiles, args.ncmtfiles, args.statfiles)
 
     # Save it
     ST.save(args.outfile)

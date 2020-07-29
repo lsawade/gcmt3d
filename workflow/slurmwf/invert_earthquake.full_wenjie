@@ -87,7 +87,7 @@ echo "Create Process Paths Logfile: $CPP_LOG_FILE"
 create-path-files -f $CIN_DB -p $PARAMETER_PATH > $CPP_LOG_FILE
 
 # MOVE CMT FILE TO SUBMISSION DIRECTORY
-mv $CMTSOLUTION $SUBMITTED/
+cp $CMTSOLUTION $SUBMITTED/
 
 # Start slurm script that does the whole shindig
 
@@ -123,7 +123,7 @@ CMT_LIST=(CMT CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lo
 # echo "******** COPY DATA ******************************"
 # echo " "
 # COPY_LOG=$LOG_DIR/$CID.003.Copying-data-into-database
-copy-data-to-database -f $CIN_DB -o $OBSERVED_FILES -sta $STATION_FILES -s $SYNTHETIC_FILES 2>&1 | tee \$COPY_LOG # 
+# copy-data-to-database -f $CIN_DB -o $OBSERVED_FILES -sta $STATION_FILES -s $SYNTHETIC_FILES 2>&1 | tee \$COPY_LOG # 
 
 ######## CONVERT TRACES ########
 echo "******** CONVERT TRACES ******************************"
@@ -134,7 +134,7 @@ CONV_PATH_FILE=$CONVERSION_PATHS/observed.yml
 echo "Conversion yml: \$CONV_PATH_FILE"
 CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
 echo "Conversion logfile: \$CONV_LOG_FILE"
-srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE 2>&1 | tee \$CONV_LOG_FILE
+#srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE 2>&1 | tee \$CONV_LOG_FILE
 echo " "
 echo "Done."
 echo " "

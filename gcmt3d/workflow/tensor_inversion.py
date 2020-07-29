@@ -100,8 +100,8 @@ def invert(cmt_file_db):
         inv_dict = read_yaml_file(inv_dict_file)
         asdf_dict = inv_dict["asdf_dict"]
         window_file = inv_dict["window_file"]
-        velocity = inv_dict["velocity"]
-        wave_weight = inv_dict["weight"]
+        velocity = bool(inv_dict["velocity"])
+        wave_weight = float(inv_dict["weight"])
 
         # Adding measurements
         # Print Inversion parameters:
