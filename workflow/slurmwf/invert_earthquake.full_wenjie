@@ -13,12 +13,12 @@ fi
 
 
 # STUFF TO BE SET PRIOR TO RUNNING ANYTHING
-GCMT3D='/home/lsawade/gcmt3d'
+GCMT3D='/gpfs/alpine/geo111/proj-shared/lsawade/rhea_gcmt3d'
 WORKFLOW_DIR="$GCMT3D/workflow"
 PARAMETER_PATH="$WORKFLOW_DIR/params"
 SLURM_DIR="$WORKFLOW_DIR/slurmwf"
 BIN_DIR="$WORKFLOW_DIR/bins"
-DATABASE_DIR='/tigress/lsawade/database_wenjie_2'
+DATABASE_DIR='/gpfs/alpine/geo111/proj-shared/lsawade/database'
 
 # EARTHQUAKE PARAMETERS and Paths derived from the file
 # Getting database entry from CMTSOLUTION FILE
@@ -36,12 +36,14 @@ INVERSION_OUTPUT_DIR=$CDIR/inversion
 WINDOW_PATHS=$CDIR/workflow_files/path_files/window_paths
 PROCESS_PATHS=$CDIR/workflow_files/path_files/process_paths # Process Path
 CONVERSION_PATHS=$CDIR/workflow_files/path_files/conversion_paths
-INVERSION_DIRECTORY=/tigress/lsawade/source_inversion_II
-SYNTHETIC_FILES=$INVERSION_DIRECTORY/raw_synt/archive.400_events
-OBSERVED_FILES=$INVERSION_DIRECTORY/raw_obsd/download/waveform
-STATION_FILES=$INVERSION_DIRECTORY/raw_obsd/download/station
+
+SYNTHETIC_FILES=/gpfs/alpine/world-shared/geo111/lei/source_inversion/archive.500_events
+OBSERVED_DATA=/gpfs/alpine/geo111/proj-shared/wenjie/data/raw_obsd.500.M26_add.2
+OBSERVED_FILES=$OBSERVED_DATA/waveform
+STATION_FILES=$OBSERVED_DATA/station
 
 # MOVING FILES AROUND
+INVERSION_DIRECTORY=/gpfs/alpine/geo111/proj-shared/lsawade/submission_scripts
 SUBMITTED=$INVERSION_DIRECTORY/submitted_cmts
 DONE=$INVERSION_DIRECTORY/done_cmts
 
@@ -73,13 +75,11 @@ echo
 echo
 
 # Activate conda environment
-module load anaconda
-conda activate gcmt3d_wenjie
+source ~/anaconda3/bin/activate gcmt3d
+
 
 # Create database structure
-ENTRY_LOG_FILE="$LOG_DIR/$CID.000.Create-Entry.txt"
-echo "Create Entry Logfile: $ENTRY_LOG_FILE"
-create-entry-wj -f $CMTSOLUTION -d $DATABASE_DIR -p $PARAMETER_PATH > ENTRY_LOG_FILE
+create-entry-wj -f $CMTSOLUTION -d $DATABASE_DIR -p $PARAMETER_PATH
 
 # Create Path-files
 CPP_LOG_FILE="$LOG_DIR/$CID.001.Create-Process-Paths.STDOUT"
@@ -96,34 +96,29 @@ sbatch << EOF
 #SBATCH --job-name=invert_$CID
 #SBATCH --output=$LOG_DIR/$CID.out
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=30
 # SBATCH --gres=gpu:3
-#SBATCH --mem=100GB
-#SBATCH --time=01:00:00
+#SBATCH --mem=120GB
+#SBATCH --time=01:30:00
 # SBATCH --reservation=test
 #SBATCH --mail-user=lsawade@princeton.edu
 #SBATCH --mail-type=END
-
+#SBATCH --account=GEO111
 # #WHAT???????? #SBATCH --requeue 
 
 # Load the compilers and shit
-module purge
+module swap intel gcc/4.8.5
 
 # Load anaconda and set environment
-module load anaconda3
-module load openmpi/gcc
-conda activate gcmt3d_wenjie
+source ~/anaconda3/bin/activate gcmt3d
 
 # Define the parameters
 CMT_LIST=(CMT CMT_rr CMT_tt CMT_pp CMT_rt CMT_rp CMT_tp CMT_depth CMT_lat CMT_lon)
 
-
-
-# ######## COPY DATA ########
-# echo "******** COPY DATA ******************************"
-# echo " "
-# COPY_LOG=$LOG_DIR/$CID.003.Copying-data-into-database
-# copy-data-to-database -f $CIN_DB -o $OBSERVED_FILES -sta $STATION_FILES -s $SYNTHETIC_FILES 2>&1 | tee \$COPY_LOG # 
+######## COPY DATA ########
+echo "******** COPY DATA ******************************"
+echo " "
+COPY_LOG=$LOG_DIR/$CID.003.Copying-data-into-database
+copy-data-to-database -f $CIN_DB -o $OBSERVED_FILES -sta $STATION_FILES -s $SYNTHETIC_FILES 2>&1 | tee \$COPY_LOG
 
 ######## CONVERT TRACES ########
 echo "******** CONVERT TRACES ******************************"
@@ -134,7 +129,7 @@ CONV_PATH_FILE=$CONVERSION_PATHS/observed.yml
 echo "Conversion yml: \$CONV_PATH_FILE"
 CONV_LOG_FILE=\$CONV_LOG.observed.STDOUT
 echo "Conversion logfile: \$CONV_LOG_FILE"
-#srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE 2>&1 | tee \$CONV_LOG_FILE
+srun -N1 -n1 convert2asdf -f \$CONV_PATH_FILE 2>&1 | tee \$CONV_LOG_FILE
 echo " "
 echo "Done."
 echo " "
@@ -181,7 +176,7 @@ for WINDOW_PATH in \$(ls $WINDOW_PATHS); do
   echo "Windowing yml: \$WINDOW_PATH_FILE"
   WIND_LOG_FILE="\$WINDOW_LOG.\$WINDOW_PATH.STDOUT"
   echo "Windowing logfile: \$WIND_LOG_FILE"
-  srun -N1 -n25 select-windows -f \$WINDOW_PATH_FILE 2>&1 | tee \$WIND_LOG_FILE
+  srun -N1 -n14 select-windows -f \$WINDOW_PATH_FILE 2>&1 | tee \$WIND_LOG_FILE
 done
 wait
 echo " "
