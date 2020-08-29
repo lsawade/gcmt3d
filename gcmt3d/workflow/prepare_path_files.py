@@ -33,6 +33,7 @@ def make_paths(cmt_filename, param_path, conversion, ddeg=None, dz=None):
     process_dir = os.path.join(param_path, "Process")
     window_dir = os.path.join(param_path, "Window")
     inv_dir = os.path.join(param_path, "CMTInversion")
+    # CMT in database
     P = PathCreator(cmt_filename, window_dir, process_dir, inv_dir,
                     conversion=conversion, npar=dbparams["npar"],
                     dlocation=ddeg, ddepth=dz,

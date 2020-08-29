@@ -24,13 +24,14 @@ from obspy.imaging.beachball import beach
 import matplotlib
 from matplotlib import cm
 from matplotlib import colors
+from matplotlib.patches import Rectangle
 from scipy.odr import RealData, ODR, Model
 
 from .plot_util import remove_topright, remove_all
 from .plot_util import create_colorbar
 from .plot_util import get_color
 from .plot_util import set_mpl_params_stats
-
+from .plot_util import confidence_ellipse
 from ..log_util import modify_logger
 
 logger = logging.getLogger(__name__)
@@ -69,11 +70,25 @@ def rgb2rgba(rgb, alpha):
             rgba = tuple(rgba)
         elif type(rgb) is np.ndarray:
             rgba = np.array(rgba)
-        
+
     return rgba
 
-                
 
+def get_total_measurements(loglist):
+    """Get measurements per event"""
+
+    total_measurements = []
+    for _d in loglist:
+        if _d is None:
+            total_measurements.append(0)
+        else:
+            for _wave, _mdict in _d.items():
+                sub_total = 0
+                if _mdict is not None:
+                    sub_total += _mdict["overall"]["windows"]
+
+            total_measurements.append(sub_total)
+    return np.array(total_measurements)
 
 
 def fit_xy(x, y):
@@ -1261,13 +1276,14 @@ class PlotStats(object):
 
         plt.savefig(os.path.join(self.savedir, "summary_table.pdf"))
         plt.close(fig)
-
     
 class PlotCatalogStatistics(object):
 
-    def __init__(self, event, ocmt, ncmt, dcmt, xcorr_mat, mean_mat, mean_dabs,
+    def __init__(self, event, ocmt, ncmt, dcmt, xcorr_mat, angles,
+                 ocmtfiles, ncmtfiles, mean_mat, mean_dabs,
                  std_mat, stations, bounds, labels, dlabels, tags, factor,
-                 units, outdir="./", prefix: None or str = None,
+                 units, measurements=None, outdir="./", 
+                 prefix: None or str = None,
                  cmttime: bool = False, hdur: bool = False, nbins=40):
 
         self.event = event
@@ -1276,6 +1292,9 @@ class PlotCatalogStatistics(object):
         self.ncmt = ncmt
         self.dcmt = dcmt
         self.xcorr_mat = xcorr_mat
+        self.angles = angles
+        self.ocmtfiles = ocmtfiles
+        self.ncmtfiles = ncmtfiles
         self.mean_mat = mean_mat
         self.mean_dabs = mean_dabs
         self.std_mat = std_mat
@@ -1286,6 +1305,7 @@ class PlotCatalogStatistics(object):
         self.dlabels = dlabels
         self.tags = tags
         self.units = units
+        self.measurements = measurements
         self.prefix = prefix
         self.outdir = outdir
 
@@ -1314,9 +1334,10 @@ class PlotCatalogStatistics(object):
             [(0.9, 0.9, 0.9), (0.7, 0.7, 0.7), (0.5, 0.5, 0.5),
              (0.3, 0.3, 0.3), (0.1, 0.1, 0.1)])
         self.depth_cmap = matplotlib.colors.ListedColormap(
-            [(0.8, 0.2, 0.2), (0.2, 0.2, 0.8), '#63ABCE', '#63ABCE'])
-        self.depth_cmap = matplotlib.colors.ListedColormap(
             [(1.0, 96.0/255.0, 0.0), (0.0, 1.0, 1.0), (0.35, 0.35, 0.35),
+             (0.35, 0.35, 0.35)])
+        self.depth_cmap = matplotlib.colors.ListedColormap(
+            [(0.8, 0.2, 0.2), (0.2, 0.6, 0.8), (0.35, 0.35, 0.35),
              (0.35, 0.35, 0.35)])
         self.depth_bounds = [0, 70, 300, 800]
         self.depth_norm = matplotlib.colors.BoundaryNorm(self.depth_bounds,
@@ -1386,14 +1407,11 @@ class PlotCatalogStatistics(object):
         ax = fig.add_subplot(GS[2:3, 0])
         plt.scatter(
             self.dcmt[:, 7], self.ocmt[:, 7],
-            c=self.depth_cmap(self.depth_norm(self.ocmt[:, 7]/1000)),
-            s=msize, marker='o', alpha=0.5, edgecolors='none'
-            # markeredgecolor=rgb2rgba(self.depth_cmap(
-            #     self.depth_norm(self.ocmt[:, 7])), 0.5)
-                )
+            c=self.depth_cmap(self.depth_norm(self.ocmt[:, 7])),
+            s=msize, marker='o', alpha=0.5, edgecolors='none')
         plt.plot([0, 0], [0, np.max(self.ocmt[:, 7])],
                  "k--", lw=1.5)
-        plt.ylim(([0, np.max(self.ocmt[:, 7])]))
+        plt.ylim(([np.min(self.ocmt[:, 7]), np.max(self.ocmt[:, 7])]))
         plt.xlim(([np.min(self.dcmt[:, 7]), np.max(self.dcmt[:, 7])]))
         ax.invert_yaxis()
         plt.xlabel("Depth Change [km]")
@@ -1488,7 +1506,7 @@ class PlotCatalogStatistics(object):
                         lon = lon - 180.0
                 b = beach(m, linewidth=0.25,
                           facecolor=self.depth_cmap(self.depth_norm(
-                              self.ocmt[idx, 7]/1000
+                              self.ocmt[idx, 7]
                           )),
                           bgcolor='w',
                           edgecolor='k', alpha=1,
@@ -1518,12 +1536,58 @@ class PlotCatalogStatistics(object):
                    edgecolors='k', linewidths=0.25, zorder=-1)
 
     def plot_histogram(self, ddata, n_bins, facecolor=(0.7, 0.2, 0.2),
-                       alpha=1):
+                       alpha=1, chi=False):
         """Plots histogram of input data."""
 
         # the histogram of the data
         ax = plt.gca()
-        ax.hist(ddata, n_bins, facecolor=facecolor, alpha=alpha)
+        n, bins, _ = ax.hist(ddata, n_bins, facecolor=facecolor, alpha=alpha)
+        text_dict = {
+            "fontsize": 6,
+            "verticalalignment": 'top',
+            "horizontalalignment": 'right',
+            "transform": ax.transAxes,
+            "zorder": 100
+            }
+        ax.text(0.97, 0.97,
+                "$\mu$ = %1.2f\n"
+                "$\sigma$ = %1.2f" % (np.mean(ddata), np.std(ddata)),
+                **text_dict)
+
+        ci_norm = {
+            "80": 1.282,
+            "85": 1.440,
+            "90": 1.645,
+            "95": 1.960,
+            "99": 2.576,
+            "99.5": 2.807,
+            "99.9": 3.291
+        }
+        if chi:
+            Zval = ci_norm["90"]
+        else:
+            Zval = ci_norm["95"]
+
+        mean = np.mean(ddata)
+        pmfact = Zval * np.std(ddata)
+        CI = [mean - pmfact, mean + pmfact]
+        minbox = [np.min(bins), 0]
+        minwidth = (mean - pmfact) - minbox[0]
+        maxbox = [mean + pmfact, 0]
+        maxwidth = np.max(bins) - maxbox[0]
+        height = np.max(n)*1.05
+
+        boxdict = {
+            "facecolor": 'w',
+            "edgecolor": None,
+            "alpha": 0.5,
+        }
+        minR = Rectangle(minbox, minwidth, height, **boxdict)
+        maxR = Rectangle(maxbox, maxwidth, height, **boxdict)
+        ax.add_patch(minR)
+        ax.add_patch(maxR)
+
+        return CI
 
     def plot_spatial_change(self):
 
@@ -1616,9 +1680,10 @@ class PlotCatalogStatistics(object):
         # start with a rectangular Figure
         fig = plt.figure(figsize=(4, 4))
 
-        ax_scatter, ax_histx, ax_histy = self.plot_scatter_hist(
+        ax_scatter, ax_histx, ax_histy, cax = self.plot_scatter_hist(
             self.dcmt[:, 7], self.dcmt[:, 0] * 100, self.nbins,
-            z=None)
+            z=self.ocmt[:, 7], cmap=self.depth_cmap, histc='grey',
+            zmin=None, zmax=None, norm=self.depth_norm)
         ax_scatter.set_xlabel(r"Depth change [km]")
         ax_scatter.set_ylabel(r"Scalar Moment Change [%]")
         ax_scatter.plot([np.min(self.dcmt[:, 7]),
@@ -1668,9 +1733,10 @@ class PlotCatalogStatistics(object):
         return pl
 
     @staticmethod
-    def plot_scatter_hist(x, y, nbins, z=None, cmap=None, histc='grey',
+    def plot_scatter_hist(x, y, nbins, z=None, cmap=None,
+                          histc=((0.35, 0.35, 0.35),),
                           zmin=None, zmax=None, norm=None, r=True,
-                          xlog=False, ylog=False):
+                          xlog=False, ylog=False, ellipses=True):
         """
 
         :param x: Data type x-axis
@@ -1703,11 +1769,15 @@ class PlotCatalogStatistics(object):
         ax_histy = plt.axes(rect_histy)
         ax_histy.tick_params(direction='in', labelleft=False)
 
-        cax = ax_scatter.inset_axes([0.05, 0.96, 0.25, 0.03],
-                                    zorder=100)
+        
 
         # scatterplot with color
         if cmap is not None and z is not None:
+            
+            cax = ax_scatter.inset_axes([0.05, 0.96, 0.25, 0.03],
+                                        zorder=10000)
+
+            zpos = np.argsort(z)
             # the scatter plot:
             if zmin is not None:
                 vminz = zmin
@@ -1720,9 +1790,9 @@ class PlotCatalogStatistics(object):
                 vmaxz = np.max(z)
 
             if norm is not None and cmap is not None:
-                ax_scatter.scatter(x, y, c=cmap(norm(z)),
-                                   s=20, marker='o', edgecolor='k',
-                                   linewidths=0.5)
+                ax_scatter.scatter(x[zpos], y[zpos], c=cmap(norm(z[zpos])),
+                                   s=20, marker='o', edgecolor='none',
+                                   linewidths=0.5, alpha=0.25)
 
                 # Colorbar
                 cbar_dict = {"orientation": "horizontal"}
@@ -1736,10 +1806,12 @@ class PlotCatalogStatistics(object):
                                 labelsize=6)
 
             else:
-                ax_scatter.scatter(x, y, c=get_color(z, vmin=vminz, vmax=vmaxz,
-                                                     cmap=cmap, norm=norm),
-                                   s=20, marker='o', edgecolor='k',
-                                   linewidths=0.5)
+                ax_scatter.scatter(
+                    x[zpos], y[zpos],
+                    c=get_color(z[zpos], vmin=vminz, vmax=vmaxz,
+                                cmap=cmap, norm=norm),
+                    s=20, marker='o', edgecolor='none', linewidths=0.5, 
+                    alpha=0.25)
 
                 # Colorbar
                 cbar_dict = {"orientation": "horizontal"}
@@ -1752,7 +1824,8 @@ class PlotCatalogStatistics(object):
         # scatterplot without color
         else:
             # the scatter plot:
-            ax_scatter.scatter(x, y, c=histc, s=15, marker='s')
+            ax_scatter.scatter(x, y, c=histc, s=15, marker='o', alpha=0.25,
+                               edgecolor='none')
             cax = None
 
         if r:
@@ -1768,9 +1841,21 @@ class PlotCatalogStatistics(object):
             corr_coeff = np.corrcoef(xfix, yfix)
             text_dict = {"fontsize": 6, "verticalalignment": 'top',
                          "zorder": 100}
-            ax_scatter.text(0.97, 0.97, "R = %1.2f" % corr_coeff[0, 1],
+            ax_scatter.text(0.97, 0.97,
+                            "R = %1.2f \n"
+                            "$\mu_x$ = %1.2f \n"
+                            "$\mu_y$ = %1.2f" % (corr_coeff[0, 1], np.mean(x), np.mean(y)),
                             horizontalalignment='right', **text_dict,
                             transform=ax_scatter.transAxes)
+
+        if ellipses:
+            ls = ["-", "--", ":"]
+            for _i in np.arange(1, 4):
+                el = confidence_ellipse(
+                    x, y, ax_scatter, n_std=_i, label=r'$%d\sigma$' % _i,
+                    edgecolor='k', linestyle=ls[_i-1])
+                ax_scatter.add_patch(el)
+            ax_scatter.legend(loc='lower left', ncol=3)
 
         # now determine nice limits by hand:
         ax_scatter.set_xlim((np.min(x), np.max(x)))
@@ -1794,6 +1879,121 @@ class PlotCatalogStatistics(object):
             return ax_scatter, ax_histx, ax_histy, cax
         else:
             return ax_scatter, ax_histx, ax_histy
+
+    def selection_histograms(self):
+
+        # Create figure handle
+        fig = plt.figure(figsize=(9, 6))
+
+        # Create subplot layout
+        GS = GridSpec(2, 3)
+
+        # Create axis for map
+        ax = fig.add_subplot(GS[0, 0])
+        ci_angle = self.plot_histogram(self.angles/np.pi*180, self.nbins)
+        remove_topright()
+        plt.xlabel("Angular Change [$^\circ$]")
+        plt.ylabel("$N$", rotation=0, horizontalalignment='right')
+        self.print_figure_letter("a")
+
+        if self.measurements is not None:
+            fig.add_subplot(GS[0, 1])
+            total_measurements = get_total_measurements(self.measurements)
+            ci_measurements = self.plot_histogram(
+                total_measurements, self.nbins)
+            remove_topright()
+            plt.xlabel("# of windows")
+            plt.ylabel("$N$", rotation=0, horizontalalignment='right')
+            self.print_figure_letter("b")
+
+            measurement_select = np.where(200 < total_measurements)[0]
+
+        fig.add_subplot(GS[1, 0])
+        ci_depth = self.plot_histogram(self.dcmt[:, 7], self.nbins)
+        remove_topright()
+        plt.xlabel("Depth Change [km]")
+        plt.ylabel("$N$", rotation=0, horizontalalignment='right')
+        self.print_figure_letter("d")
+
+        fig.add_subplot(GS[1, 1])
+        ci_t0 = self.plot_histogram(self.dcmt[:, -1], self.nbins)
+        remove_topright()
+        plt.xlabel("Centroid Time Change [sec]")
+        plt.ylabel("$N$", rotation=0, horizontalalignment='right')
+        self.print_figure_letter("e")
+
+        fig.add_subplot(GS[1, 2])
+        ci_m0 = self.plot_histogram(self.dcmt[:, 0]*100, self.nbins)
+        remove_topright()
+        plt.xlabel("Scalar Moment Change [%]")
+        plt.ylabel("$N$", rotation=0, horizontalalignment='right')
+        self.print_figure_letter("f")
+
+        # SELECTION
+        m0_select = np.where(
+            ((ci_m0[0] < self.dcmt[:, 0]*100)
+             & (self.dcmt[:, 0]*100 < ci_m0[1])))[0]
+        t0_select = np.where(
+            ((ci_t0[0] < self.dcmt[:, -1])
+             & (self.dcmt[:, -1] < ci_t0[1])))[0]
+        z_select = np.where(
+            ((ci_depth[0] < self.dcmt[:, 7])
+             & (self.dcmt[:, 7] < ci_depth[1])))[0]
+        angle_select = np.where(
+            ((ci_angle[0] < self.angles/np.pi*180)
+             & (self.angles/np.pi*180 < ci_angle[1])))[0]
+
+        # Get intersection
+        m0_select = set([int(x) for x in m0_select])
+        t0_select = set([int(x) for x in t0_select])
+        z_select = set([int(x) for x in z_select])
+        angle_select = set([int(x) for x in angle_select])
+        measurement_select = set([int(x) for x in measurement_select])
+
+        selection = m0_select.intersection(t0_select, z_select, angle_select,
+                                           measurement_select)
+        selection = list(selection)
+        selection.sort()
+        print("{0:-^72}".format(" Header "))
+        print("Number of selected in each category")
+        print(f"M0_____________: {len(m0_select):=5}")
+        print(f"t0_____________: {len(t0_select):=5}")
+        print(f"z______________: {len(z_select):=5}")
+        print(f"angle__________: {len(angle_select):=5}")
+        print(f"# of meas______: {len(measurement_select):=5}")
+        print(" ")
+        print(f"Intersection___: {len(selection):=5}")
+        print(72 * "-")
+        print(" ")
+        print(f"\nM0 within confidence interval [{len(m0_select)}]:\n")
+        for m0_ind in m0_select:
+            print(os.path.abspath(self.ncmtfiles[m0_ind]))
+        print(f"\nt0 within confidence interval [{len(t0_select)}]:\n")
+        for t0_ind in t0_select:
+            print(os.path.abspath(self.ncmtfiles[t0_ind]))
+        print(f"\nDepth within confidence interval [{len(z_select)}]:\n")
+        for z_ind in z_select:
+            print(os.path.abspath(self.ncmtfiles[z_ind]))
+        print(f"\nAngle within confidence interval [{len(angle_select)}]:\n")
+        for angle_ind in angle_select:
+            print(os.path.abspath(self.ncmtfiles[angle_ind]))
+        print(f"\nAbove number of measurements [{len(measurement_select)}]:\n")
+        for measure_ind in measurement_select:
+            print(os.path.abspath(self.ncmtfiles[measure_ind]))
+
+        # Intersection
+        print(f"\nIntersection [{len(selection)}/{len(self.ncmtfiles)}]:\n")
+        for sel in selection:
+            print(os.path.abspath(self.ncmtfiles[sel]))
+
+        # Finally plot shot
+        plt.tight_layout(pad=2, w_pad=2.5, h_pad=2.25)
+
+        filename = "selection_histograms.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
 
 if __name__ == "__main__":
     pass

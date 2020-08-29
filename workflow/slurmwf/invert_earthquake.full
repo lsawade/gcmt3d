@@ -18,7 +18,7 @@ WORKFLOW_DIR="$GCMT3D/workflow"
 PARAMETER_PATH="$WORKFLOW_DIR/params"
 SLURM_DIR="$WORKFLOW_DIR/slurmwf"
 BIN_DIR="$WORKFLOW_DIR/bins"
-DATABASE_DIR='/tigress/lsawade/database_wenjie_2'
+DATABASE_DIR='/tigress/lsawade/database'
 
 # EARTHQUAKE PARAMETERS and Paths derived from the file
 # Getting database entry from CMTSOLUTION FILE
@@ -92,7 +92,7 @@ request-data -f $CIN_DB -p $PARAMETER_PATH
 
 
 # MOVE CMT FILE TO SUBMISSION DIRECTORY
-# mv $CMTSOLUTION $SUBMITTED/
+cp $CMTSOLUTION $SUBMITTED/
 # Start slurm script that does the whole shindig
 
 sbatch << EOF
@@ -252,12 +252,12 @@ echo " "
 
 ######## Check whether succesfull, and if yes move to done dir #####
 
-# if [ -f $INVERSION_OUTPUT_DIR/full_summary.pdf ];
-# then
-#     # MOVE CMT FILE TO DONE DIRECTORY
-#     mv $SUBMITTED/\$(basename $CMTSOLUTION) $DONE/\$(basename $CMTSOLUTION)
-# fi
-# exit 0
+if [ -f $INVERSION_OUTPUT_DIR/full_summary.pdf ];
+then
+    # MOVE CMT FILE TO DONE DIRECTORY
+    cp $SUBMITTED/\$(basename $CMTSOLUTION) $DONE/\$(basename $CMTSOLUTION)
+fi
+exit 0
 
 EOF
 

@@ -24,6 +24,7 @@ from ..source import CMTSource
 from ..plot.plot_stats import PlotStats, PlotCatalogStatistics
 from ..utils.io import load_json
 from ..log_util import modify_logger
+from ..window.utils import generate_log_content
 from ..plot.plot_event import extract_stations_from_traces, unique_locations
 
 logger = logging.getLogger(__name__)
@@ -66,6 +67,23 @@ class Struct(object):
                 self.__dict__[k] = Struct(**v)
 
 
+def get_measurements(cmtdir):
+
+    cdir = os.path.abspath(cmtdir)
+    files = glob(os.path.join(cdir, "window_data", "*.windows.json"))
+    measurementdict = {"mantle": None, "surface": None, "body": None}
+    for file in files:
+        logger.debug(f"Reading: {file}")
+        if "mantle" in file:
+            measurementdict["mantle"] = generate_log_content(load_json(file))
+        elif "surface" in file:
+            measurementdict["surface"] = generate_log_content(load_json(file))
+        elif "body" in file:
+            measurementdict["body"] = generate_log_content(load_json(file))
+
+    return measurementdict
+
+
 def get_stats_json(cmt3dfile, g3dfile, simple=False):
     """Reads the stats json and outputs dictionary with
     all the necessary data
@@ -99,7 +117,7 @@ def get_stats_json(cmt3dfile, g3dfile, simple=False):
 
 class Catalog(object):
 
-    def __init__(self, ocmtfiles, ncmtfiles, stationfiles):
+    def __init__(self, ocmtfiles, ncmtfiles, stationfiles, try_measurements=True):
 
         """Simple statistics between two 
 
@@ -110,13 +128,14 @@ class Catalog(object):
             [type]: [description]
         """
 
-        self.ocmtfiles = ocmtfiles
-        self.ncmtfiles = ncmtfiles
+        self.ocmtsrcfiles = ocmtfiles
+        self.ncmtsrcfiles = ncmtfiles
         self.stationfiles = stationfiles
 
         # To be populated
-        self.ocmtlist = []
-        self.ncmtlist = []
+        self.ocmtlist, self.ncmtlist = [], []
+        self.ocmtfiles, self.ncmtfiles = [], []
+        self.measurementdirs = []
         self.station_list = []
         self.get_cmtsourcelists()
         self.get_stationlist()
@@ -128,19 +147,36 @@ class Catalog(object):
     def get_cmtsourcelists(self):
 
         ocmts, ncmts = [], []
-        for _ocmt in self.ocmtfiles:
+        for _ocmt in self.ocmtsrcfiles:
             ocmts.append(CMTSource.from_CMTSOLUTION_file(_ocmt))
-        for _ncmt in self.ncmtfiles:
+        for _ncmt in self.ncmtsrcfiles:
             ncmts.append(CMTSource.from_CMTSOLUTION_file(_ncmt))
 
-        for _ocmt in ocmts:
+        for _ocmt, _ofile in zip(ocmts, self.ocmtsrcfiles):
             logger.debug(f"Event: {_ocmt.eventname} ...")
-            for _ncmt in ncmts:
+            for _ncmt, _nfile in zip(ncmts, self.ncmtsrcfiles):
                 # logger.debug(f"oid: {_ocmt.eventname}  nid: {_ncmt.eventname}")
                 if _ocmt.eventname == _ncmt.eventname:
 
                     self.ocmtlist.append(_ocmt)
+                    self.ocmtfiles.append(_ofile)
                     self.ncmtlist.append(_ncmt)
+                    self.ncmtfiles.append(_nfile)
+
+                    # Try to read measurement files.
+                    try:
+                        cmtdir = os.path.dirname(_ofile)
+                        measdir = get_measurements(cmtdir)
+                        atlist = [True if at is None else False
+                                  for key, at in measdir.items()]
+                        if all(atlist):
+                            self.measurementdirs.append(None)
+                            raise ValueError(f"No measurements for {_ofile}")
+                        else:
+                            self.measurementdirs.append(measdir)
+
+                    except Exception as e:
+                        logger.exception(e)
                     logger.debug(f"...  found partner event: {_ncmt.eventname}")
                     break
 
@@ -224,13 +260,16 @@ class CatalogStats(object):
         self.stations = np.array(self.cat.station_list)
         self.lat = self.stations[:, 0]
         self.lon = self.stations[:, 1]
+        self.measurements = np.array(self.cat.measurementdirs)
 
         good_stats = []
         counter = 0
         for _i, (dcmt, ncmt, id) in enumerate(zip(self.dcmt,
                                                   self.cat.ncmt,
                                                   self.cat.event)):
-            if (np.abs(dcmt[0]) > 0.5) or (np.abs(dcmt[7]) > 30) or (ncmt[7] < 0):
+            if (np.abs(dcmt[0]) > 0.5) \
+                    or (np.abs(dcmt[7]) > 30) \
+                    or (ncmt[7] < 0):
                 logger.info("ID: %s" % id)
                 logger.info("  M0_0: %e" % self.cat.ocmt[_i, 0])
                 logger.info("  M0_1: %e" % self.cat.ncmt[_i, 0])
@@ -248,10 +287,16 @@ class CatalogStats(object):
         logger.info(" ")
         # Fix outliers
         good_stats = np.array(good_stats)
-        self.ocmt = self.cat.ocmt[good_stats, :]
+        self.ocmtfiles = np.array(self.cat.ocmtfiles)[good_stats]
+        self.ncmtfiles = np.array(self.cat.ncmtfiles)[good_stats]
         self.event = np.array(self.cat.event)[good_stats]
+        self.ocmt = self.cat.ocmt[good_stats, :]
+        self.ocmt[:, 7] /= 1000
         self.ncmt = self.cat.ncmt[good_stats, :]
+        self.ncmt[:, 7] /= 1000
         self.dcmt = self.dcmt[good_stats, :]
+        self.measurements = self.measurements[good_stats]
+        
 
         # Compute Correlation Coefficients
         self.xcorr_mat = np.corrcoef(self.dcmt.T)
@@ -263,6 +308,12 @@ class CatalogStats(object):
         # Compute Standard deviation
         # Will throw warning for unchanged things.
         self.std_mat = np.std(self.dcmt, axis=0)
+
+        # Compute angle between Moment tensors
+        self.angles = np.arccos(
+            np.sum(self.ocmt[:, 1:7] * self.ncmt[:, 1:7], axis=1)
+            / (np.sqrt(np.sum(self.ocmt[:, 1:7] ** 2, axis=1))
+               * np.sqrt(np.sum(self.ncmt[:, 1:7] ** 2, axis=1))))
 
         # Labels for the stat plots
         self.labels = [r"$M_0$",
@@ -295,22 +346,25 @@ class CatalogStats(object):
 
         # Complete statistics
         ps = PlotCatalogStatistics(self.event, self.ocmt, self.ncmt, self.dcmt,
-                                   self.xcorr_mat, self.mean_mat, self.std_mat,
+                                   self.xcorr_mat, self.angles, self.ocmtfiles,
+                                   self.ncmtfiles, self.mean_mat, self.std_mat,
                                    self.mean_dabs, self.stations, self.bounds,
-                                   self.labels, self.dlabels, self.tags, 
+                                   self.labels, self.dlabels, self.tags,
                                    self.factor, self.units,
+                                   measurements=self.measurements,
                                    outdir=outdir, prefix=None,
                                    cmttime=cmttime, hdur=hdur)
-        ps.plot_main_stats()
-        ps.plot_spatial_change()
+        # ps.plot_main_stats()
+        # ps.plot_spatial_change()
         ps.plot_dM_dz()
-
+        ps.selection_histograms()
+        return
         # Subsets
         ind0_70 = np.where((0 <= self.ocmt[:, 7])
-                           & (self.ocmt[:, 7] <= 70000))[0]
-        ind70_300 = np.where((70000 < self.ocmt[:, 7])
-                             & (self.ocmt[:, 7] <= 300000))[0]
-        ind300_ = np.where(300000 < self.ocmt[:, 7])[0]
+                           & (self.ocmt[:, 7] <= 70))[0]
+        ind70_300 = np.where((70 < self.ocmt[:, 7])
+                             & (self.ocmt[:, 7] <= 300))[0]
+        ind300_ = np.where(300 < self.ocmt[:, 7])[0]
         subsets = (("lt70", ind0_70),
                    ("70_300", ind70_300),
                    ("gt300", ind300_))
@@ -319,7 +373,8 @@ class CatalogStats(object):
             ps = PlotCatalogStatistics(
                 self.event[_ind], self.ocmt[_ind, :],
                 self.ncmt[_ind, :], self.dcmt[_ind, :],
-                self.xcorr_mat, np.mean(self.dcmt[_ind, :], axis=0),
+                self.xcorr_mat, self.angles[_ind], self.ocmtfiles[_ind],
+                self.ncmtfiles[_ind], np.mean(self.dcmt[_ind, :], axis=0),
                 np.std(self.dcmt[_ind, :], axis=0),
                 np.mean(np.abs(self.dcmt[_ind, :]), axis=0), 
                 self.stations, self.bounds,
@@ -327,9 +382,10 @@ class CatalogStats(object):
                 self.factor, self.units,
                 outdir=outdir, prefix=_prefix,
                 cmttime=cmttime, hdur=hdur)
-            ps.plot_main_stats()
-            ps.plot_spatial_change()
+            # ps.plot_main_stats()
+            # ps.plot_spatial_change()
             ps.plot_dM_dz()
+            ps.selection_histograms()
 
 class Statistics(object):
     """Governs the statistics of multiple inversions"""
