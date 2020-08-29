@@ -21,7 +21,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-f', dest='filename',
-                        help='Path to CMTSOLUTION file',
+                        help='Path to CMTSOLUTION file in database',
                         required=True, type=str)
     parser.add_argument('-p', dest='param_path',
                         help='Path to param directory',

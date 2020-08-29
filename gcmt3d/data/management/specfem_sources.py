@@ -39,7 +39,7 @@ class SpecfemSources(object):
     and the stations
     '''
 
-    def __init__(self, cmt, cmt_dir, npar, dm=10.0*24, dx=2., ddeg=0.02,
+    def __init__(self, cmt, cmt_dir, npar, dm=10.0*24, dx=2000., ddeg=0.02,
                  hdur0=False, outdir=None, verbose=False):
         '''
         :param cmt: The original CMT source loaded using CMTSource

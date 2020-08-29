@@ -1,5 +1,5 @@
-# seconds, 1h = 3600s, 5h = 18000, mantle waves need 4.5h
-duration: 18500  # Remember to change simulation length if you change this
+# seconds, 1h = 3600s, 3h -> 11300, 5h -> 18500, mantle waves need 4.5h
+duration: 11300  # Remember to change simulation length if you change this
 
 # needs to be a list
 channels: ['BH*']
