@@ -1536,9 +1536,13 @@ class PlotCatalogStatistics(object):
                    edgecolors='k', linewidths=0.25, zorder=-1)
 
     def plot_histogram(self, ddata, n_bins, facecolor=(0.7, 0.2, 0.2),
-                       alpha=1, chi=False):
+                       alpha=1, chi=False, wmin=None):
         """Plots histogram of input data."""
 
+        if wmin is not None:
+            logger.info(f"Datamin: {np.min(ddata)}")
+            ddata = ddata[np.where(ddata >= wmin)]
+            logger.info(f"Datamin: {np.min(ddata)}")
         # the histogram of the data
         ax = plt.gca()
         n, bins, _ = ax.hist(ddata, n_bins, facecolor=facecolor, alpha=alpha)
@@ -1571,11 +1575,18 @@ class PlotCatalogStatistics(object):
         mean = np.mean(ddata)
         pmfact = Zval * np.std(ddata)
         CI = [mean - pmfact, mean + pmfact]
+        # if we are only concerned about the lowest values the more the better:
+        if wmin is not None:
+            CI[1] = np.max(ddata)
+            if CI[0] < wmin:
+                CI[0] = wmin
         minbox = [np.min(bins), 0]
-        minwidth = (mean - pmfact) - minbox[0]
-        maxbox = [mean + pmfact, 0]
+        minwidth = (CI[0]) - minbox[0]
+        maxbox = [CI[1], 0]
         maxwidth = np.max(bins) - maxbox[0]
         height = np.max(n)*1.05
+
+        
 
         boxdict = {
             "facecolor": 'w',
@@ -1900,13 +1911,14 @@ class PlotCatalogStatistics(object):
             fig.add_subplot(GS[0, 1])
             total_measurements = get_total_measurements(self.measurements)
             ci_measurements = self.plot_histogram(
-                total_measurements, self.nbins)
+                total_measurements, self.nbins, wmin=200)
+            logger.info(f"Measurement CI: {ci_measurements[0]}, {ci_measurements[1]}")
             remove_topright()
             plt.xlabel("# of windows")
             plt.ylabel("$N$", rotation=0, horizontalalignment='right')
             self.print_figure_letter("b")
 
-            measurement_select = np.where(200 < total_measurements)[0]
+            # measurement_select = np.where(200 < total_measurements)[0]
 
         fig.add_subplot(GS[1, 0])
         ci_depth = self.plot_histogram(self.dcmt[:, 7], self.nbins)
@@ -1942,6 +1954,9 @@ class PlotCatalogStatistics(object):
         angle_select = np.where(
             ((ci_angle[0] < self.angles/np.pi*180)
              & (self.angles/np.pi*180 < ci_angle[1])))[0]
+        measurement_select = np.where(
+            ((ci_measurements[0] < total_measurements)
+             & (total_measurements < ci_measurements[1])))[0]
 
         # Get intersection
         m0_select = set([int(x) for x in m0_select])
