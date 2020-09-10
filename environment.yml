@@ -9,6 +9,7 @@ dependencies:
   - matplotlib>=3.2.1
   - mpi4py=3.0.3
   - h5py>=2.10.0
+  - pyasdf
   - pip
   - pip:
     - obspy>=1.2.1
@@ -20,6 +21,5 @@ dependencies:
     - py
     - flake8
     - git+https://github.com/wjlei1990/pyflex@merge
-    - git+git://github.com/lsawade/pyasdf.git@devel
     - git+git://github.com/lsawade/spaceweight.git@master
     - git+git://github.com/lsawade/pycmt3d.git@devel
