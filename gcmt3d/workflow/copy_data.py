@@ -18,6 +18,7 @@ from glob import glob
 
 import logging
 from ..log_util import modify_logger
+from ..utils.io import read_yaml_file
 
 # Create logger
 logger = logging.getLogger(__name__)
@@ -41,7 +42,8 @@ PARMAP = {"CMT": "",
           "CMT_hdr": "hdr"}
 
 
-def copy_data(synt_dir, obsd_dir, station_dir, cmt_file_in_db):
+def copy_data(synt_dir, obsd_dir, station_dir, cmt_file_in_db,
+              paramdir=None):
     """
 
     Args:
@@ -58,18 +60,33 @@ def copy_data(synt_dir, obsd_dir, station_dir, cmt_file_in_db):
     cmt_dir = os.path.dirname(os.path.abspath(cmt_file_in_db))
 
     # Observed data
-    raw_obsd = os.path.join(os.path.abspath(obsd_dir), cmt_id, "*.mseed")
-    raw_xml = os.path.join(os.path.abspath(station_dir), cmt_id, "*.xml")
-    print(raw_obsd)
-    logger.verbose("Looking for data     here: %s" % raw_obsd)
-    logger.verbose("Looking for stations here: %s" % raw_xml)
+    if params is None:
+        raw_obsd = glob(os.path.join(os.path.abspath(obsd_dir), cmt_id, "*.mseed"))
+        raw_xml = glob(os.path.join(os.path.abspath(station_dir), cmt_id, "*.xml"))
+    else:
+        # Get networks
+        requestp = read_yaml_file(os.path.join(paramdir, "RequestParams","RequestParams.yml"))
+        networks = requestp["networks"].split(",")
+        raw_obsd = [
+            f
+            for net in networks
+            for f in glob(os.path.join(
+                os.path.abspath(obsd_dir), cmt_id, f"{net}*.mseed"))
+        ]
+        raw_xml = [
+            f
+            for net in networks
+            for f in glob(os.path.join(
+                os.path.abspath(obsd_dir), cmt_id, f"{net}*.xml"))
+        ]
+
     if len(raw_obsd) < 2 or len(raw_xml) < 2:
         raise ValueError("Not enough observed data")
 
     # Copying the station files
     station_dir_in_db = os.path.join(cmt_dir, "station_data")
     logger.verbose("Copying station files ...")
-    for station_file in glob(raw_xml):
+    for station_file in raw_xml:
         dest = os.path.join(station_dir_in_db, os.path.basename(station_file))
         logger.debug("Copying %s to %s" % (station_file, dest))
         copyfile(station_file, dest)
@@ -77,7 +94,7 @@ def copy_data(synt_dir, obsd_dir, station_dir, cmt_file_in_db):
     # Copying the observed files
     obsd_waveform_dir = os.path.join(cmt_dir, "seismograms", "obs")
     logger.verbose("Copying observed waveform files ...")
-    for waveform_file in glob(raw_obsd):
+    for waveform_file in raw_obsd:
         dest = os.path.join(obsd_waveform_dir, os.path.basename(waveform_file))
         logger.debug("Copying %s to %s" % (waveform_file, dest))
         copyfile(waveform_file, dest)

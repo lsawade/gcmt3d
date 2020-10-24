@@ -25,7 +25,7 @@ modify_logger(logger)
 # ------------------------------------------------------------------------------
 # Set default verbosity
 
-if os.environ.get("RADICAL_ENTK_VERBOSE") == None:
+if os.environ.get("RADICAL_ENTK_VERBOSE") is None:
     os.environ["RADICAL_ENTK_REPORT"] = "True"
 
 os.environ["RADICAL_VERBOSE"] = "DEBUG"
