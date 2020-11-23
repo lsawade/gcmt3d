@@ -24,3 +24,4 @@ core.*
 gcmt3d/workflow/slurmwf_dt
 CMT.held-out
 .mypy_cache
+*.txt
