@@ -26,17 +26,19 @@ from matplotlib import cm
 from matplotlib import colors
 from matplotlib.patches import Rectangle
 from scipy.odr import RealData, ODR, Model
+import lwsspy as lpy
 
 from .plot_util import remove_topright, remove_all
 from .plot_util import create_colorbar
 from .plot_util import get_color
 from .plot_util import set_mpl_params_stats
 from .plot_util import confidence_ellipse
+from .plot_util import figletter
 from ..log_util import modify_logger
 
 logger = logging.getLogger(__name__)
 modify_logger(logger)
-
+set_mpl_params_stats()
 
 # Define a function (quadratic in our case) to fit the data with.
 def linear_func(p, x):
@@ -265,7 +267,7 @@ class PlotStats(object):
                            r'{s_i^2}$ [dB]': "cc_amp",
                            r'$\frac{1}{2}\left|  d_i - s_i \right|^2$': "chi"}
 
-        set_mpl_params_stats()
+        # set_mpl_params_stats()
 
     def plot_main_stats(self):
         """Plots summary of the main statistics"""
@@ -1310,7 +1312,7 @@ class PlotCatalogStatistics(object):
         self.outdir = outdir
 
         # PLotting params
-        set_mpl_params_stats()
+        # set_mpl_params_stats()
 
         # Min max ddepth for cmt plotting
         self.maxddepth = np.max(self.dcmt[:, 7])
@@ -1343,7 +1345,8 @@ class PlotCatalogStatistics(object):
         self.depth_norm = matplotlib.colors.BoundaryNorm(self.depth_bounds,
                                                          self.depth_cmap.N)
 
-        self.abc = 'abcdefghijklmnopqrstuvwxyz'
+        self.lettergen = figletter()
+        self.figletter = lambda : next(f)
 
     def plot_main_stats(self):
         """Plots summary of the main statistics"""
@@ -1382,7 +1385,7 @@ class PlotCatalogStatistics(object):
         ax.text(0.005, 0.995, "%d EQs" % self.N,
                 **text_dict, horizontalalignment='left',
                 transform=ax.transAxes)
-        self.print_figure_letter("a")
+        self.print_figure_letter(self.figletter)
 
         # Create axis for map
         ax = fig.add_subplot(GS[:2, 2:],
@@ -1399,7 +1402,7 @@ class PlotCatalogStatistics(object):
         ax.text(0.995, 0.995, "%d Stations" % len(self.stations),
                 **text_dict, horizontalalignment='right',
                 transform=ax.transAxes)
-        self.print_figure_letter("b")
+        self.print_figure_letter(self.figletter)
         # Change of parameter as function of depth
         msize = 15
 
@@ -1416,28 +1419,28 @@ class PlotCatalogStatistics(object):
         ax.invert_yaxis()
         plt.xlabel("Depth Change [km]")
         plt.ylabel("Depth [km]")
-        self.print_figure_letter("c")
+        self.print_figure_letter(self.figletter)
 
         fig.add_subplot(GS[2, 1])
         self.plot_histogram(self.dcmt[:, 7], self.nbins)
         remove_topright()
         plt.xlabel("Depth Change [km]")
         plt.ylabel("$N$", rotation=0, horizontalalignment='right')
-        self.print_figure_letter("d")
+        self.print_figure_letter(self.figletter)
 
         fig.add_subplot(GS[2, 2])
         self.plot_histogram(self.dcmt[:, -1], self.nbins)
         remove_topright()
         plt.xlabel("Centroid Time Change [sec]")
         plt.ylabel("$N$", rotation=0, horizontalalignment='right')
-        self.print_figure_letter("e")
+        self.print_figure_letter(self.figletter)
 
         fig.add_subplot(GS[2, 3])
         self.plot_histogram(self.dcmt[:, 0]*100, self.nbins)
         remove_topright()
         plt.xlabel("Scalar Moment Change [%]")
         plt.ylabel("$N$", rotation=0, horizontalalignment='right')
-        self.print_figure_letter("f")
+        self.print_figure_letter(self.figletter)
 
         # Finally plot shot
         plt.tight_layout(pad=2, w_pad=2.5, h_pad=2.25)
@@ -1470,6 +1473,260 @@ class PlotCatalogStatistics(object):
                               'edgecolor': 'k'}
                      }
         ax.text(0.0125, 0.90, letter, **text_dict, transform=ax.transAxes)
+
+    def plot_topo_dM0(self):
+
+        # Reading Etopo
+        topo = lpy.read_etopo()
+
+        # finding topography values
+        cmt_topo = []
+        for (_lon, _lat) in zip(self.ncmt[:, 9], self.ncmt[:, 8]):
+            lonpos = np.argmin(np.abs(topo.longitude.values - _lon))
+            latpos = np.argmin(np.abs(topo.latitude.values - _lat))
+            cmt_topo.append(topo.bedrock[latpos, lonpos].values)
+        # return
+        cmt_topo = np.array(cmt_topo)
+
+        # start with a rectangular Figure
+        plt.figure(figsize=(4, 4))
+
+        ax_scatter, ax_histx, ax_histy, cax = self.plot_scatter_hist(
+            self.dcmt[:, 0] * 100, cmt_topo/1000, self.nbins,
+            z=self.ocmt[:, 7], cmap=self.depth_cmap, histc='grey',
+            zmin=None, zmax=None, norm=self.depth_norm)
+        ax_scatter.set_xlabel(r"Scalar Moment Change [%]")
+        ax_scatter.set_ylabel(r"Topography [km]")
+        ax_scatter.plot([np.min(np.min(self.dcmt[:, 0] * 100)),
+                         np.max(self.dcmt[:, 0] * 100)],
+                        [0, 0], 'k', zorder=-1, lw=0.75)
+        ax_scatter.plot([0, 0], [np.min(cmt_topo/1000),
+                                 np.max(cmt_topo/1000)],
+                        'k', zorder=0.1, lw=0.75)
+
+        # Finally plot shot
+        filename = "topo_dM0.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
+
+    def plot_topo_dz(self):
+
+        # Reading Etopo
+        topo = lpy.read_etopo()
+
+        # finding topography values
+        cmt_topo = []
+        for (_lon, _lat) in zip(self.ncmt[:, 9], self.ncmt[:, 8]):
+            lonpos = np.argmin(np.abs(topo.longitude.values - _lon))
+            latpos = np.argmin(np.abs(topo.latitude.values - _lat))
+            cmt_topo.append(topo.bedrock[latpos, lonpos].values)
+        # return
+        cmt_topo = np.array(cmt_topo)
+
+        # start with a rectangular Figure
+        plt.figure(figsize=(4, 4))
+
+        ax_scatter, ax_histx, ax_histy, cax = self.plot_scatter_hist(
+            self.dcmt[:, 7], cmt_topo/1000, self.nbins,
+            z=self.ocmt[:, 7], cmap=self.depth_cmap, histc='grey',
+            zmin=None, zmax=None, norm=self.depth_norm)
+        ax_scatter.set_xlabel(r"Change in Depth [km]")
+        ax_scatter.set_ylabel(r"Topography [km]")
+        ax_scatter.plot([np.min(self.dcmt[:, 7]),
+                         np.max(self.dcmt[:, 7])],
+                        [0, 0], 'k', zorder=-1, lw=0.75)
+        ax_scatter.plot([0, 0], [np.min(cmt_topo/1000),
+                                 np.max(cmt_topo/1000)],
+                        'k', zorder=0.1, lw=0.75)
+
+        # Finally plot shot
+        filename = "topo_dz.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
+    
+    def plot_crust_dM0(self):
+
+        # Reading Etopo
+        crust = lpy.read_litho()
+        bottom = 'lower_crust_bottom_depth'
+
+        # finding Moho Topography values
+        cmt_crust = []
+        for (_lon, _lat) in zip(self.ncmt[:, 9], self.ncmt[:, 8]):
+            lonpos = np.argmin(np.abs(crust.longitude.values - _lon))
+            latpos = np.argmin(np.abs(crust.latitude.values - _lat))
+            cmt_crust.append(getattr(crust, bottom)[latpos, lonpos].values)
+
+        # return
+        cmt_crust = np.array(cmt_crust)
+
+        # start with a rectangular Figure
+        plt.figure(figsize=(4, 4))
+
+        ax_scatter, ax_histx, ax_histy, cax = self.plot_scatter_hist(
+            self.dcmt[:, 0] * 100, cmt_crust, self.nbins,
+            z=self.ocmt[:, 7], cmap=self.depth_cmap, histc='grey',
+            zmin=None, zmax=None, norm=self.depth_norm)
+        ax_scatter.set_xlabel(r"Scalar Moment Change [%]")
+        ax_scatter.set_ylabel(r"Moho depth [km]")
+        ax_scatter.plot([np.min(np.min(self.dcmt[:, 0] * 100)),
+                         np.max(self.dcmt[:, 0] * 100)],
+                        [0, 0], 'k', zorder=-1, lw=0.75)
+        ax_scatter.plot([0, 0], [np.min(cmt_crust),
+                                 np.max(cmt_crust)],
+                        'k', zorder=0.1, lw=0.75)
+        ax_scatter.invert_yaxis()
+        ax_histy.set_ylim(ax_scatter.get_ylim())
+
+        # Finally plot shot
+        filename = "crust_dM0.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
+
+    def plot_crust_dz(self):
+
+        # Reading Etopo
+        crust = lpy.read_litho()
+        bottom = 'lower_crust_bottom_depth'
+
+        # finding Moho Topography values
+        cmt_crust = []
+        for (_lon, _lat) in zip(self.ncmt[:, 9], self.ncmt[:, 8]):
+            lonpos = np.argmin(np.abs(crust.longitude.values - _lon))
+            latpos = np.argmin(np.abs(crust.latitude.values - _lat))
+            cmt_crust.append(getattr(crust, bottom)[latpos, lonpos].values)
+
+        # return
+        cmt_crust = np.array(cmt_crust)
+
+        # start with a rectangular Figure
+        plt.figure(figsize=(4, 4))
+
+        ax_scatter, ax_histx, ax_histy, cax = self.plot_scatter_hist(
+            self.dcmt[:, 7], cmt_crust, self.nbins,
+            z=self.ocmt[:, 7], cmap=self.depth_cmap, histc='grey',
+            zmin=None, zmax=None, norm=self.depth_norm)
+        ax_scatter.set_xlabel(r"Change in Depth [km]")
+        ax_scatter.set_ylabel(r"Moho Depth [km]")
+        ax_scatter.plot([np.min(self.dcmt[:, 7]),
+                         np.max(self.dcmt[:, 7])],
+                        [0, 0], 'k', zorder=-1, lw=0.75)
+        ax_scatter.plot([0, 0], [np.min(cmt_crust),
+                                 np.max(cmt_crust)],
+                        'k', zorder=0.1, lw=0.75)
+        ax_scatter.invert_yaxis()
+        ax_histy.set_ylim(ax_scatter.get_ylim())
+
+        # Finally plot shot
+        filename = "crust_dz.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
+    
+    def plot_thick_dM0(self):
+
+        # Reading Etopo
+        topo = lpy.read_etopo()
+
+        # Reading Crust
+        crust = lpy.read_litho()
+        bottom = 'lower_crust_bottom_depth'
+
+        # finding Moho Topography values
+        cmt_crust = []
+        cmt_topo = []
+        for (_lon, _lat) in zip(self.ncmt[:, 9], self.ncmt[:, 8]):
+            clonpos = np.argmin(np.abs(crust.longitude.values - _lon))
+            clatpos = np.argmin(np.abs(crust.latitude.values - _lat))
+            cmt_crust.append(getattr(crust, bottom)[clatpos, clonpos].values)
+
+            tlonpos = np.argmin(np.abs(topo.longitude.values - _lon))
+            tlatpos = np.argmin(np.abs(topo.latitude.values - _lat))
+            cmt_topo.append(topo.bedrock[tlatpos, tlonpos].values)
+
+        # return
+        cmt_crust = np.array(cmt_crust)
+        cmt_topo = np.array(cmt_topo)
+        cmt_thickness = cmt_topo/1000 + cmt_crust
+
+        # start with a rectangular Figure
+        plt.figure(figsize=(4, 4))
+
+        ax_scatter, ax_histx, ax_histy, cax = self.plot_scatter_hist(
+            self.dcmt[:, 0] * 100, cmt_thickness, self.nbins,
+            z=self.ocmt[:, 7], cmap=self.depth_cmap, histc='grey',
+            zmin=None, zmax=None, norm=self.depth_norm)
+        ax_scatter.set_xlabel(r"Scalar Moment Change [%]")
+        ax_scatter.set_ylabel(r"Crustal Thickness [km]")
+        ax_scatter.plot([np.min(np.min(self.dcmt[:, 0] * 100)),
+                         np.max(self.dcmt[:, 0] * 100)],
+                        [0, 0], 'k', zorder=-1, lw=0.75)
+        ax_scatter.plot([0, 0], [np.min(cmt_thickness),
+                                 np.max(cmt_thickness)],
+                        'k', zorder=0.1, lw=0.75)
+
+        # Finally plot shot
+        filename = "thickness_dM0.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
+
+    def plot_thick_dz(self):
+
+        # Reading Etopo
+        topo = lpy.read_etopo()
+
+        # Reading Crust
+        crust = lpy.read_litho()
+        bottom = 'lower_crust_bottom_depth'
+
+        # finding Moho Topography values
+        cmt_crust = []
+        cmt_topo = []
+        for (_lon, _lat) in zip(self.ncmt[:, 9], self.ncmt[:, 8]):
+            clonpos = np.argmin(np.abs(crust.longitude.values - _lon))
+            clatpos = np.argmin(np.abs(crust.latitude.values - _lat))
+            cmt_crust.append(getattr(crust, bottom)[clatpos, clonpos].values)
+
+            tlonpos = np.argmin(np.abs(topo.longitude.values - _lon))
+            tlatpos = np.argmin(np.abs(topo.latitude.values - _lat))
+            cmt_topo.append(topo.bedrock[tlatpos, tlonpos].values)
+
+        # return
+        cmt_crust = np.array(cmt_crust)
+        cmt_topo = np.array(cmt_topo)
+        cmt_thickness = cmt_topo/1000 + cmt_crust
+
+        # start with a rectangular Figure
+        plt.figure(figsize=(4, 4))
+
+        ax_scatter, ax_histx, ax_histy, cax = self.plot_scatter_hist(
+            self.dcmt[:, 7], cmt_thickness, self.nbins,
+            z=self.ocmt[:, 7], cmap=self.depth_cmap, histc='grey',
+            zmin=None, zmax=None, norm=self.depth_norm)
+        ax_scatter.set_xlabel(r"Change in Depth [km]")
+        ax_scatter.set_ylabel(r"Crustal Thickness [km]")
+        ax_scatter.plot([np.min(self.dcmt[:, 7]),
+                         np.max(self.dcmt[:, 7])],
+                        [0, 0], 'k', zorder=-1, lw=0.75)
+        ax_scatter.plot([0, 0], [np.min(cmt_thickness),
+                                 np.max(cmt_thickness)],
+                        'k', zorder=0.1, lw=0.75)
+
+        # Finally plot shot
+        filename = "thickness_dz.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
 
     def plot_map(self):
 
@@ -1853,9 +2110,9 @@ class PlotCatalogStatistics(object):
             text_dict = {"fontsize": 6, "verticalalignment": 'top',
                          "zorder": 100}
             ax_scatter.text(0.97, 0.97,
-                            "R = %1.2f \n"
-                            "$\mu_x$ = %1.2f \n"
-                            "$\mu_y$ = %1.2f" % (corr_coeff[0, 1], np.mean(x), np.mean(y)),
+                            "R = %5.2f\n"
+                            "$\mu_x$ = %5.2f\n"
+                            "$\mu_y$ = %5.2f" % (corr_coeff[0, 1], np.mean(x), np.mean(y)),
                             horizontalalignment='right', **text_dict,
                             transform=ax_scatter.transAxes)
 
@@ -1871,6 +2128,9 @@ class PlotCatalogStatistics(object):
         # now determine nice limits by hand:
         ax_scatter.set_xlim((np.min(x), np.max(x)))
         ax_scatter.set_ylim((np.min(y), np.max(y)))
+
+        ax_scatter.xaxis.label.set_size('x-small')
+        ax_scatter.yaxis.label.set_size('x-small')
 
         # Histogram settings
         binsx = np.linspace(np.min(x), np.max(x), nbins + 1)
@@ -1917,6 +2177,9 @@ class PlotCatalogStatistics(object):
             plt.xlabel("# of windows")
             plt.ylabel("$N$", rotation=0, horizontalalignment='right')
             self.print_figure_letter("b")
+            measurement_select = np.where(
+                ((ci_measurements[0] < total_measurements)
+                 & (total_measurements < ci_measurements[1])))[0]
 
             # measurement_select = np.where(200 < total_measurements)[0]
 
@@ -1954,19 +2217,21 @@ class PlotCatalogStatistics(object):
         angle_select = np.where(
             ((ci_angle[0] < self.angles/np.pi*180)
              & (self.angles/np.pi*180 < ci_angle[1])))[0]
-        measurement_select = np.where(
-            ((ci_measurements[0] < total_measurements)
-             & (total_measurements < ci_measurements[1])))[0]
 
         # Get intersection
         m0_select = set([int(x) for x in m0_select])
         t0_select = set([int(x) for x in t0_select])
         z_select = set([int(x) for x in z_select])
         angle_select = set([int(x) for x in angle_select])
-        measurement_select = set([int(x) for x in measurement_select])
+        if self.measurements is not None:
+            measurement_select = set([int(x) for x in measurement_select])
 
-        selection = m0_select.intersection(t0_select, z_select, angle_select,
-                                           measurement_select)
+            selection = m0_select.intersection(t0_select, z_select, angle_select,
+                                               measurement_select)
+        else:
+            selection = m0_select.intersection(t0_select, z_select, angle_select)
+            measurement_select = ""
+            
         selection = list(selection)
         selection.sort()
         print("{0:-^72}".format(" Header "))
