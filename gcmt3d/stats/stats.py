@@ -352,13 +352,21 @@ class CatalogStats(object):
                                    self.labels, self.dlabels, self.tags,
                                    self.factor, self.units,
                                    measurements=self.measurements,
-                                   outdir=outdir, prefix=None,
+                                   outdir=outdir, prefix='all',
                                    cmttime=cmttime, hdur=hdur)
+        ps.plot_topo_dM0()
+        return
+        ps.plot_topo_dz()
+        ps.plot_crust_dM0()
+        ps.plot_crust_dz()
+        ps.plot_thick_dM0()
+        ps.plot_thick_dz()
+        
         # ps.plot_main_stats()
         # ps.plot_spatial_change()
-        ps.plot_dM_dz()
-        ps.selection_histograms()
-        return
+        # ps.plot_dM_dz()
+        # ps.selection_histograms()
+        # return
         # Subsets
         ind0_70 = np.where((0 <= self.ocmt[:, 7])
                            & (self.ocmt[:, 7] <= 70))[0]
@@ -382,10 +390,16 @@ class CatalogStats(object):
                 self.factor, self.units,
                 outdir=outdir, prefix=_prefix,
                 cmttime=cmttime, hdur=hdur)
+            ps.plot_topo_dM0()
+            ps.plot_topo_dz()
+            ps.plot_crust_dM0()
+            ps.plot_crust_dz()
+            ps.plot_thick_dM0()
+            ps.plot_thick_dz()
             # ps.plot_main_stats()
             # ps.plot_spatial_change()
-            ps.plot_dM_dz()
-            ps.selection_histograms()
+            # ps.plot_dM_dz()
+            # ps.selection_histograms()
 
 class Statistics(object):
     """Governs the statistics of multiple inversions"""

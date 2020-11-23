@@ -29,6 +29,9 @@ from ..source import CMTSource
 COLORBLIND = ['#000000', '#ffffff', '#ff1e00', '#ffb49d',
               '#22a8be', '#36fa0e', '#df0095']
 
+def figletter():
+    for i in 'abcdefghijklmnopqrstuvwxyz':
+        yield i
 
 def remove_topright(ax=None):
     """Removes top and right border and ticks from input axes."""
