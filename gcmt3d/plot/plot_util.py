@@ -115,100 +115,100 @@ def create_colorbar(vmin, vmax, cmap="seismic", norm=None, cax=None, **kwargs):
     return c
 
 
-def set_mpl_params_section():
-    params = {
-        'font.weight': 'bold',
-        'axes.labelweight': 'bold',
-        'axes.labelsize': 15,
-        'axes.titlesize': 17,
-        'axes.titleweight': "bold",
-        'axes.outline.linewidth': 2,
-        'xtick.labelsize': 13,
-        'xtick.direction': 'in',
-        'xtick.top': True,  # draw label on the top
-        'xtick.bottom': True,  # draw label on the bottom
-        'xtick.minor.visible': True,
-        'xtick.major.top': True,  # draw x axis top major ticks
-        'xtick.major.bottom': True,  # draw x axis bottom major ticks
-        'xtick.minor.top': True,  # draw x axis top minor ticks
-        'xtick.minor.bottom': True,  # draw x axis bottom minor ticks
-        'ytick.labelsize': 13,
-        'ytick.direction': 'in',
-        'ytick.left': True,  # draw label on the top
-        'ytick.right': True,  # draw label on the bottom
-        'ytick.minor.visible': True,
-        'ytick.major.left': True,  # draw x axis top major ticks
-        'ytick.major.right': True,  # draw x axis bottom major ticks
-        'ytick.minor.left': True,  # draw x axis top minor ticks
-        'ytick.minor.right': True,  # draw x axis bottom minor tick
-    }
-    matplotlib.rcParams.update(params)
+# def set_mpl_params_section():
+#     params = {
+#         'font.weight': 'bold',
+#         'axes.labelweight': 'bold',
+#         'axes.labelsize': 15,
+#         'axes.titlesize': 17,
+#         'axes.titleweight': "bold",
+#         'axes.outline.linewidth': 2,
+#         'xtick.labelsize': 13,
+#         'xtick.direction': 'in',
+#         'xtick.top': True,  # draw label on the top
+#         'xtick.bottom': True,  # draw label on the bottom
+#         'xtick.minor.visible': True,
+#         'xtick.major.top': True,  # draw x axis top major ticks
+#         'xtick.major.bottom': True,  # draw x axis bottom major ticks
+#         'xtick.minor.top': True,  # draw x axis top minor ticks
+#         'xtick.minor.bottom': True,  # draw x axis bottom minor ticks
+#         'ytick.labelsize': 13,
+#         'ytick.direction': 'in',
+#         'ytick.left': True,  # draw label on the top
+#         'ytick.right': True,  # draw label on the bottom
+#         'ytick.minor.visible': True,
+#         'ytick.major.left': True,  # draw x axis top major ticks
+#         'ytick.major.right': True,  # draw x axis bottom major ticks
+#         'ytick.minor.left': True,  # draw x axis top minor ticks
+#         'ytick.minor.right': True,  # draw x axis bottom minor tick
+#     }
+#     matplotlib.rcParams.update(params)
 
 
-def set_mpl_params_stats():
-    params = {
-        'font.weight': 'bold',
-        'axes.labelweight': 'bold',
-        'axes.labelsize': 7,
-        'axes.linewidth': 1,
-        'xtick.labelsize': 7,
-        'xtick.direction': 'in',
-        'xtick.top': True,  # draw label on the top
-        'xtick.bottom': True,  # draw label on the bottom
-        'xtick.minor.visible': True,
-        'xtick.major.top': True,  # draw x axis top major ticks
-        'xtick.major.bottom': True,  # draw x axis bottom major ticks
-        'xtick.minor.top': True,  # draw x axis top minor ticks
-        'xtick.minor.bottom': True,  # draw x axis bottom minor ticks
-        'ytick.labelsize': 7,
-        'ytick.direction': 'in',
-        'ytick.left': True,  # draw label on the top
-        'ytick.right': True,  # draw label on the bottom
-        'ytick.minor.visible': True,
-        'ytick.major.left': True,  # draw x axis top major ticks
-        'ytick.major.right': True,  # draw x axis bottom major ticks
-        'ytick.minor.left': True,  # draw x axis top minor ticks
-        'ytick.minor.right': True,  # draw x axis bottom minor ticks
-        'legend.fancybox': False,
-        'legend.frameon': False,
-        'legend.loc': 'upper left',
-        'legend.numpoints': 2,
-        'legend.fontsize': 7,
-        'legend.framealpha': 1,
-        'legend.scatterpoints': 3,
-        'legend.edgecolor': 'inherit'
-    }
-    matplotlib.rcParams.update(params)
+# def set_mpl_params_stats():
+#     params = {
+#         'font.weight': 'bold',
+#         'axes.labelweight': 'bold',
+#         'axes.labelsize': 7,
+#         'axes.linewidth': 1,
+#         'xtick.labelsize': 7,
+#         'xtick.direction': 'in',
+#         'xtick.top': True,  # draw label on the top
+#         'xtick.bottom': True,  # draw label on the bottom
+#         'xtick.minor.visible': True,
+#         'xtick.major.top': True,  # draw x axis top major ticks
+#         'xtick.major.bottom': True,  # draw x axis bottom major ticks
+#         'xtick.minor.top': True,  # draw x axis top minor ticks
+#         'xtick.minor.bottom': True,  # draw x axis bottom minor ticks
+#         'ytick.labelsize': 7,
+#         'ytick.direction': 'in',
+#         'ytick.left': True,  # draw label on the top
+#         'ytick.right': True,  # draw label on the bottom
+#         'ytick.minor.visible': True,
+#         'ytick.major.left': True,  # draw x axis top major ticks
+#         'ytick.major.right': True,  # draw x axis bottom major ticks
+#         'ytick.minor.left': True,  # draw x axis top minor ticks
+#         'ytick.minor.right': True,  # draw x axis bottom minor ticks
+#         'legend.fancybox': False,
+#         'legend.frameon': False,
+#         'legend.loc': 'upper left',
+#         'legend.numpoints': 2,
+#         'legend.fontsize': 7,
+#         'legend.framealpha': 1,
+#         'legend.scatterpoints': 3,
+#         'legend.edgecolor': 'inherit'
+#     }
+#     matplotlib.rcParams.update(params)
 
 
-def set_mpl_params_summary():
-    params = {
-        'font.weight': 'bold',
-        'axes.labelweight': 'normal',
-        'axes.labelsize': 12,
-        'axes.titlesize': 14,
-        'axes.titleweight': "bold",
-        'axes.linewidth': 0.5,
-        'xtick.labelsize': 6,
-        'xtick.direction': 'in',
-        'xtick.top': True,  # draw label on the top
-        'xtick.bottom': True,  # draw label on the bottom
-        'xtick.minor.visible': False,
-        'xtick.major.top': False,  # draw x axis top major ticks
-        'xtick.major.bottom': True,  # draw x axis bottom major ticks
-        'xtick.minor.top': False,  # draw x axis top minor ticks
-        'xtick.minor.bottom': False,  # draw x axis bottom minor ticks
-        'ytick.labelsize': 6,
-        'ytick.direction': 'in',
-        'ytick.left': True,  # draw label on the top
-        'ytick.right': True,  # draw label on the bottom
-        'ytick.minor.visible': False,
-        'ytick.major.left': True,  # draw x axis top major ticks
-        'ytick.major.right': False,  # draw x axis bottom major ticks
-        'ytick.minor.left': False,  # draw x axis top minor ticks
-        'ytick.minor.right': False,  # draw x axis bottom minor ticks
-    }
-    matplotlib.rcParams.update(params)
+# def set_mpl_params_summary():
+#     params = {
+#         'font.weight': 'bold',
+#         'axes.labelweight': 'normal',
+#         'axes.labelsize': 12,
+#         'axes.titlesize': 14,
+#         'axes.titleweight': "bold",
+#         'axes.linewidth': 0.5,
+#         'xtick.labelsize': 6,
+#         'xtick.direction': 'in',
+#         'xtick.top': True,  # draw label on the top
+#         'xtick.bottom': True,  # draw label on the bottom
+#         'xtick.minor.visible': False,
+#         'xtick.major.top': False,  # draw x axis top major ticks
+#         'xtick.major.bottom': True,  # draw x axis bottom major ticks
+#         'xtick.minor.top': False,  # draw x axis top minor ticks
+#         'xtick.minor.bottom': False,  # draw x axis bottom minor ticks
+#         'ytick.labelsize': 6,
+#         'ytick.direction': 'in',
+#         'ytick.left': True,  # draw label on the top
+#         'ytick.right': True,  # draw label on the bottom
+#         'ytick.minor.visible': False,
+#         'ytick.major.left': True,  # draw x axis top major ticks
+#         'ytick.major.right': False,  # draw x axis bottom major ticks
+#         'ytick.minor.left': False,  # draw x axis top minor ticks
+#         'ytick.minor.right': False,  # draw x axis bottom minor ticks
+#     }
+#     matplotlib.rcParams.update(params)
 
 
 def plot_bounds():
