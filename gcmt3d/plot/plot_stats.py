@@ -1351,6 +1351,7 @@ class PlotCatalogStatistics(object):
 
         self.lettergen = figletter()
         self.figletter = lambda: next(self.lettergen)
+        self.abc = 'abcdefghijklmopqrstuvw'
 
     def plot_main_stats(self):
         """Plots summary of the main statistics"""
