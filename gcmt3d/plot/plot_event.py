@@ -31,7 +31,7 @@ from ..utils.io import load_json
 from ..utils.obspy_utils import get_event_location
 from ..utils.obspy_utils import get_moment_tensor
 from ..utils.obspy_utils import get_station_locations
-from .plot_util import set_mpl_params_summary
+# from .plot_util import set_mpl_params_summary
 from .plot_util import remove_topright
 from .plot_util import plot_bottomline
 from .plot_util import plot_beachballs
@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 modify_logger(logger)
 
 # Set Rcparams for the section plot
-set_mpl_params_summary()
+# set_mpl_params_summary()
 
 
 class LowerThresholdRobinson(cartopy.crs.Robinson):

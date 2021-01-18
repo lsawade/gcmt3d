@@ -21,7 +21,7 @@ except ImportError:
     import pickle
 import numpy as np
 from ..source import CMTSource
-from ..plot.plot_stats import PlotStats, PlotCatalogStatistics
+from ..plot.plot_stats import PlotCatalogStatistics
 from ..utils.io import load_json
 from ..log_util import modify_logger
 from ..window.utils import generate_log_content
@@ -118,7 +118,6 @@ def get_stats_json(cmt3dfile, g3dfile, simple=False):
 class Catalog(object):
 
     def __init__(self, ocmtfiles, ncmtfiles, stationfiles, try_measurements=True):
-
         """Simple statistics between two 
 
         Raises:
@@ -177,7 +176,8 @@ class Catalog(object):
 
                     except Exception as e:
                         logger.exception(e)
-                    logger.debug(f"...  found partner event: {_ncmt.eventname}")
+                    logger.debug(
+                        f"...  found partner event: {_ncmt.eventname}")
                     break
 
     def get_stationlist(self):
@@ -187,7 +187,7 @@ class Catalog(object):
         for _sfile in self.stationfiles:
             for station in read_specfem_station_list(_sfile):
                 sta_lat.append(station[2])
-                sta_lon.append(station[3])          
+                sta_lon.append(station[3])
         sta_lat, sta_lon = unique_locations(sta_lat, sta_lon)
         self.station_list = [(lat, lon) for lat, lon in zip(sta_lat, sta_lon)]
 
@@ -234,6 +234,9 @@ class Catalog(object):
             event_id.append(cmt.eventname)
 
             # Populate CMT matrix
+            # Note that putting a UTCDatetime into a numpy array will return
+            # a second POSIX stamp which can later on be converted back into
+            # time.date -> float(UTCDateTime) = Posix time in seconds
             cmt_mat[_i, :] = np.array([cmt.M0, cmt.m_rr, cmt.m_tt, cmt.m_pp,
                                        cmt.m_rt,
                                        cmt.m_rp, cmt.m_tp, cmt.depth_in_m,
@@ -296,7 +299,6 @@ class CatalogStats(object):
         self.ncmt[:, 7] /= 1000
         self.dcmt = self.dcmt[good_stats, :]
         self.measurements = self.measurements[good_stats]
-        
 
         # Compute Correlation Coefficients
         self.xcorr_mat = np.corrcoef(self.dcmt.T)
@@ -323,12 +325,12 @@ class CatalogStats(object):
                        r"$z$", r"Lat", r"Lon",
                        r"$t_{CMT}$", r"$hdur$"]
         self.tags = [
-            "M_0", "M_rr", "M_tt", "M_pp", "M_rt", "M_rp", "M_tp", 
+            "M_0", "M_rr", "M_tt", "M_pp", "M_rt", "M_rp", "M_tp",
             "depth", "lat", "lon", "tcmt", "hdur"
-            ]
+        ]
         self.bounds = [
             [-10, 10], [-5, 5], [-10, 10], [-10, 10], [-10, 10], [-10, 10],
-            [-10, 10], [-7.5, 7.5], [-1e-2, 1e-2], [-1e-2, 1e-2], [-2.5, 2.5], 
+            [-10, 10], [-6.0, 6.0], [-1e-2, 1e-2], [-1e-2, 1e-2], [-2.5, 2.5],
             [-30, 30]
         ]
         self.factor = [100, 100, 100, 100, 100, 100, 100, 1, 1, 1, 1, 1]
@@ -354,15 +356,19 @@ class CatalogStats(object):
                                    measurements=self.measurements,
                                    outdir=outdir, prefix='all',
                                    cmttime=cmttime, hdur=hdur)
-        ps.plot_topo_dM0()
+        # ps.plot_topo_dM0()
+        # ps.plot_main_stats()
+        # ps.plot_mag_freq_comp()
+        # ps.plot_magnitude_comp()
+        ps.plot_spatial_change()
         return
+        ps.plot_thick_dM0()
         ps.plot_topo_dz()
         ps.plot_crust_dM0()
         ps.plot_crust_dz()
-        ps.plot_thick_dM0()
+
         ps.plot_thick_dz()
-        
-        # ps.plot_main_stats()
+
         # ps.plot_spatial_change()
         # ps.plot_dM_dz()
         # ps.selection_histograms()
@@ -384,9 +390,9 @@ class CatalogStats(object):
                 self.xcorr_mat, self.angles[_ind], self.ocmtfiles[_ind],
                 self.ncmtfiles[_ind], np.mean(self.dcmt[_ind, :], axis=0),
                 np.std(self.dcmt[_ind, :], axis=0),
-                np.mean(np.abs(self.dcmt[_ind, :]), axis=0), 
+                np.mean(np.abs(self.dcmt[_ind, :]), axis=0),
                 self.stations, self.bounds,
-                self.labels, self.dlabels, self.tags, 
+                self.labels, self.dlabels, self.tags,
                 self.factor, self.units,
                 outdir=outdir, prefix=_prefix,
                 cmttime=cmttime, hdur=hdur)
@@ -401,327 +407,328 @@ class CatalogStats(object):
             # ps.plot_dM_dz()
             # ps.selection_histograms()
 
-class Statistics(object):
-    """Governs the statistics of multiple inversions"""
 
-    def __init__(self, old_cmts, old_ids, new_cmts, new_ids, stations,
-                 npar=9, stat_dict: dict or None = None):
-        """ Initialize Statistics class
+# class Statistics(object):
+#     """Governs the statistics of multiple inversions"""
 
-        Args:
-        -----
-        old_cmts (numpy.ndarray): matrix with old CMT data
-        old_ids (list): List of event ids corresponding to matrix rows
-        new_cmts (numpy.ndarray): matrix with new CMT data
-        new_ids (list): List of event ids corresponding to matrix rows
-        stations: list of stations
-        npar: number of parameters to perform the analysis on
-        verbose: Set verbosity
+#     def __init__(self, old_cmts, old_ids, new_cmts, new_ids, stations,
+#                  npar=9, stat_dict: dict or None = None):
+#         """ Initialize Statistics class
 
-        Returns:
-        --------
-        Statistics class containing all necessary data and tools to perform
-        an analysis on the data.
+#         Args:
+#         -----
+#         old_cmts (numpy.ndarray): matrix with old CMT data
+#         old_ids (list): List of event ids corresponding to matrix rows
+#         new_cmts (numpy.ndarray): matrix with new CMT data
+#         new_ids (list): List of event ids corresponding to matrix rows
+#         stations: list of stations
+#         npar: number of parameters to perform the analysis on
+#         verbose: Set verbosity
 
-        The matrices below should have following columns:
-        -------------------------------------------------
-        M0, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, depth, lat, lon, CMT, t_shift, hdur
+#         Returns:
+#         --------
+#         Statistics class containing all necessary data and tools to perform
+#         an analysis on the data.
 
-        """
-        self.ocmt = old_cmts
-        self.oids = np.array(old_ids)
-        self.ncmt = new_cmts
-        self.nids = np.array(new_ids)
-        self.npar = npar
+#         The matrices below should have following columns:
+#         -------------------------------------------------
+#         M0, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, depth, lat, lon, CMT, t_shift, hdur
 
-        # Sanity check
-        if any([False for a, b in zip(self.oids, self.nids) if a == b]):
-            raise ValueError("Can only compare equal earthquakes.")
+#         """
+#         self.ocmt = old_cmts
+#         self.oids = np.array(old_ids)
+#         self.ncmt = new_cmts
+#         self.nids = np.array(new_ids)
+#         self.npar = npar
 
-        self.ids = self.nids
-        self.stations = stations
+#         # Sanity check
+#         if any([False for a, b in zip(self.oids, self.nids) if a == b]):
+#             raise ValueError("Can only compare equal earthquakes.")
 
-        # Compute difference/evolution
-        self.dCMT = self.ncmt - self.ocmt
-        self.dCMT[:, :7] /= self.ocmt[:, 0, None]
+#         self.ids = self.nids
+#         self.stations = stations
 
-        good_stats = []
-        counter = 0
-        for _i, (dcmt, ncmt, id) in enumerate(zip(self.dCMT, self.ncmt, self.ids)):
-            if (np.abs(dcmt[0]) > 0.5) or (np.abs(dcmt[7]) > 30000) or (ncmt[7] < 0):
-                logger.info("ID: %s" % id)
-                logger.info("  M0_0: %e" % self.ocmt[_i, 0])
-                logger.info("  M0_1: %e" % self.ncmt[_i, 0])
-                logger.info("  dCMT: %f" % dcmt[0])
-                logger.info("  dz: %f" % dcmt[7])
-                logger.info("  nz: %f" % ncmt[7])
-                logger.info("Removed C%s from matrix." % id)
-                # good_stats.append(_i)
-                counter += 1
-            else:
-                good_stats.append(_i)
-        logger.info(" ")
-        logger.info(f"    Removed {counter} CMTs from statistics"
-                    "due to being outliers.")
-        logger.info(" ")
-        # Fix outliers
-        good_stats = np.array(good_stats)
-        self.ocmt = self.ocmt[good_stats, :]
-        self.oids = self.oids[good_stats]
-        self.ncmt = self.ncmt[good_stats, :]
-        self.nids = self.nids[good_stats]
-        self.dCMT = self.dCMT[good_stats, :]
+#         # Compute difference/evolution
+#         self.dCMT = self.ncmt - self.ocmt
+#         self.dCMT[:, :7] /= self.ocmt[:, 0, None]
 
-        # Compute Correlation Coefficients
-        self.xcorr_mat = np.corrcoef(self.dCMT.T)
+#         good_stats = []
+#         counter = 0
+#         for _i, (dcmt, ncmt, id) in enumerate(zip(self.dCMT, self.ncmt, self.ids)):
+#             if (np.abs(dcmt[0]) > 0.5) or (np.abs(dcmt[7]) > 30000) or (ncmt[7] < 0):
+#                 logger.info("ID: %s" % id)
+#                 logger.info("  M0_0: %e" % self.ocmt[_i, 0])
+#                 logger.info("  M0_1: %e" % self.ncmt[_i, 0])
+#                 logger.info("  dCMT: %f" % dcmt[0])
+#                 logger.info("  dz: %f" % dcmt[7])
+#                 logger.info("  nz: %f" % ncmt[7])
+#                 logger.info("Removed C%s from matrix." % id)
+#                 # good_stats.append(_i)
+#                 counter += 1
+#             else:
+#                 good_stats.append(_i)
+#         logger.info(" ")
+#         logger.info(f"    Removed {counter} CMTs from statistics"
+#                     "due to being outliers.")
+#         logger.info(" ")
+#         # Fix outliers
+#         good_stats = np.array(good_stats)
+#         self.ocmt = self.ocmt[good_stats, :]
+#         self.oids = self.oids[good_stats]
+#         self.ncmt = self.ncmt[good_stats, :]
+#         self.nids = self.nids[good_stats]
+#         self.dCMT = self.dCMT[good_stats, :]
 
-        # Compute Mean
-        self.mean_mat = np.mean(self.dCMT, axis=0)
+#         # Compute Correlation Coefficients
+#         self.xcorr_mat = np.corrcoef(self.dCMT.T)
 
-        self.mean_dabs = np.mean(np.abs(self.dCMT), axis=0)
-        # print(self.mean_dabs)
+#         # Compute Mean
+#         self.mean_mat = np.mean(self.dCMT, axis=0)
 
-        # Compute Standard deviation
-        self.std_mat = np.std(self.dCMT, axis=0)
+#         self.mean_dabs = np.mean(np.abs(self.dCMT), axis=0)
+#         # print(self.mean_dabs)
 
-        # Create labels
-        self.labels = [r"$M_0$",
-                       r"$M_{rr}$", r"$M_{tt}$",
-                       r"$M_{pp}$", r"$M_{rt}$",
-                       r"$M_{rp}$", r"$M_{tp}$",
-                       r"$z$", r"Lat", r"Lon",
-                       r"$t_{CMT}$", r"$t_{shift}$", r"$hdur$"]
+#         # Compute Standard deviation
+#         self.std_mat = np.std(self.dCMT, axis=0)
 
-        self.dlabels = [r"$\delta M_0/M_0$",
-                        r"$\delta M_{rr}/M_0$", r"$\delta M_{tt}/M_0$",
-                        r"$\delta M_{pp}/M_0$", r"$\delta M_{rt}/M_0$",
-                        r"$\delta M_{rp}/M_0$", r"$\delta M_{tp}/M_0$",
-                        r"$\delta z$", r"$\delta$Lat", r"$\delta$Lon",
-                        r"$\delta t_{CMT}$", r"$\delta t_{shift}$",
-                        r"$\delta hdur$"]
+#         # Create labels
+#         self.labels = [r"$M_0$",
+#                        r"$M_{rr}$", r"$M_{tt}$",
+#                        r"$M_{pp}$", r"$M_{rt}$",
+#                        r"$M_{rp}$", r"$M_{tp}$",
+#                        r"$z$", r"Lat", r"Lon",
+#                        r"$t_{CMT}$", r"$t_{shift}$", r"$hdur$"]
 
-        self.stat_dict = stat_dict
+#         self.dlabels = [r"$\delta M_0/M_0$",
+#                         r"$\delta M_{rr}/M_0$", r"$\delta M_{tt}/M_0$",
+#                         r"$\delta M_{pp}/M_0$", r"$\delta M_{rt}/M_0$",
+#                         r"$\delta M_{rp}/M_0$", r"$\delta M_{tp}/M_0$",
+#                         r"$\delta z$", r"$\delta$Lat", r"$\delta$Lon",
+#                         r"$\delta t_{CMT}$", r"$\delta t_{shift}$",
+#                         r"$\delta hdur$"]
 
-    def save(self, filename):
-        """saves stats file."""
-        with open(filename, 'wb') as file:
-            pickle.dump(self, file, protocol=pickle.HIGHEST_PROTOCOL)
+#         self.stat_dict = stat_dict
 
-    @classmethod
-    def load(self, filename):
-        """Loads Stats file"""
-        with open(filename, 'rb') as file:
-            self = pickle.load(file)
-        return self
+#     def save(self, filename):
+#         """saves stats file."""
+#         with open(filename, 'wb') as file:
+#             pickle.dump(self, file, protocol=pickle.HIGHEST_PROTOCOL)
 
-    @classmethod
-    def _from_dir(self, directory, direct=False, npar=9):
-        """Load old and new inverted CMTSOLUTIONS into lists of CMTSources.
+#     @classmethod
+#     def load(self, filename):
+#         """Loads Stats file"""
+#         with open(filename, 'rb') as file:
+#             self = pickle.load(file)
+#         return self
 
-        Args:
-        -----
-            database_dir (string): database directory containing all the CMT
-                                    solutions
+#     @classmethod
+#     def _from_dir(self, directory, direct=False, npar=9):
+#         """Load old and new inverted CMTSOLUTIONS into lists of CMTSources.
 
-        Returns:
-        --------
-            tuple of two lists containing the original cmtsolution and its
-            corresponding inversion
+#         Args:
+#         -----
+#             database_dir (string): database directory containing all the CMT
+#                                     solutions
 
-        """
+#         Returns:
+#         --------
+#             tuple of two lists containing the original cmtsolution and its
+#             corresponding inversion
 
-        logger.info("Looking for earthquakes here: %s" % directory)
-        # Get list of inversion files.
-        clist = []
-        glist = []
-        for dir in directory:
-            if direct:
-                clist.extend(glob(os.path.join(dir, 'g3d', "*.json")))
-                glist.extend(glob(os.path.join(dir, 'cmt3d', "*.json")))
-            else:
-                clist.extend(glob(os.path.join(dir, "C*", "inversion",
-                                               "cmt3d", "*.json")))
-                glist.extend(glob(os.path.join(dir, "C*", "inversion",
-                                               "g3d", "*.json")))
+#         """
 
-        logger.info("Found all files.")
-        logger.info(" ")
+#         logger.info("Looking for earthquakes here: %s" % directory)
+#         # Get list of inversion files.
+#         clist = []
+#         glist = []
+#         for dir in directory:
+#             if direct:
+#                 clist.extend(glob(os.path.join(dir, 'g3d', "*.json")))
+#                 glist.extend(glob(os.path.join(dir, 'cmt3d', "*.json")))
+#             else:
+#                 clist.extend(glob(os.path.join(dir, "C*", "inversion",
+#                                                "cmt3d", "*.json")))
+#                 glist.extend(glob(os.path.join(dir, "C*", "inversion",
+#                                                "g3d", "*.json")))
 
-        # Old CMTs
-        old_cmts = []
-        new_cmts = []
-        stat_dicts = []
-        station_list = set()
+#         logger.info("Found all files.")
+#         logger.info(" ")
 
-        logger.info("Reading individual files ...")
-        logger.info(" ")
+#         # Old CMTs
+#         old_cmts = []
+#         new_cmts = []
+#         stat_dicts = []
+#         station_list = set()
 
-        # Loop of files
-        for cmt3d, g3d in zip(clist, glist):
+#         logger.info("Reading individual files ...")
+#         logger.info(" ")
 
-            logger.debug("CMT3D: %s -- G3D: %s" % (os.path.basename(cmt3d),
-                                                   os.path.basename(g3d)))
-            try:
-                logger.info("  File: %s" % cmt3d)
+#         # Loop of files
+#         for cmt3d, g3d in zip(clist, glist):
 
-                (sta_list,
-                 cmtsource,
-                 new_cmtsource,
-                 config,
-                 nregions,
-                 bootstrap_mean,
-                 bootstrap_std,
-                 var_reduction,
-                 mode,
-                 G,
-                 stats) = get_stats_json(cmt3d, g3d)
-                logger.debug("nd: %f -- od: %f -- dd: %f"
-                             % (new_cmtsource.depth_in_m,
-                                cmtsource.depth_in_m,
-                                new_cmtsource.depth_in_m
-                                - cmtsource.depth_in_m
-                                ))
-                # Append CMT files
-                old_cmts.append(cmtsource)
-                new_cmts.append(new_cmtsource)
-                stat_dicts.append(stats)
-                station_list.update(set(sta_list))
+#             logger.debug("CMT3D: %s -- G3D: %s" % (os.path.basename(cmt3d),
+#                                                    os.path.basename(g3d)))
+#             try:
+#                 logger.info("  File: %s" % cmt3d)
 
-            except Exception as e:
-                logging.warning(e)
+#                 (sta_list,
+#                  cmtsource,
+#                  new_cmtsource,
+#                  config,
+#                  nregions,
+#                  bootstrap_mean,
+#                  bootstrap_std,
+#                  var_reduction,
+#                  mode,
+#                  G,
+#                  stats) = get_stats_json(cmt3d, g3d)
+#                 logger.debug("nd: %f -- od: %f -- dd: %f"
+#                              % (new_cmtsource.depth_in_m,
+#                                 cmtsource.depth_in_m,
+#                                 new_cmtsource.depth_in_m
+#                                 - cmtsource.depth_in_m
+#                                 ))
+#                 # Append CMT files
+#                 old_cmts.append(cmtsource)
+#                 new_cmts.append(new_cmtsource)
+#                 stat_dicts.append(stats)
+#                 station_list.update(set(sta_list))
 
-        logger.info(" ")
-        logger.info("Done.")
-        logger.info(" ")
+#             except Exception as e:
+#                 logging.warning(e)
 
-        old_cmt_mat, old_ids = Statistics.create_cmt_matrix(old_cmts)
-        new_cmt_mat, new_ids = Statistics.create_cmt_matrix(new_cmts)
+#         logger.info(" ")
+#         logger.info("Done.")
+#         logger.info(" ")
 
-        complete_dict = self.compute_change(stat_dicts)
+#         old_cmt_mat, old_ids = Statistics.create_cmt_matrix(old_cmts)
+#         new_cmt_mat, new_ids = Statistics.create_cmt_matrix(new_cmts)
 
-        return self(old_cmt_mat, old_ids, new_cmt_mat, new_ids,
-                    list(station_list), npar=npar, stat_dict=complete_dict)
+#         complete_dict = self.compute_change(stat_dicts)
 
-    def plot_changes(self, savedir=None):
-        """This function plots and saves the plots with the statistics.
+#         return self(old_cmt_mat, old_ids, new_cmt_mat, new_ids,
+#                     list(station_list), npar=npar, stat_dict=complete_dict)
 
-        Args:
-            savedir (str, optional): Sets directory where to save the
-                                     plots. If None the plots will be
-                                     displayed. Defaults to None.
-        """
+#     def plot_changes(self, savedir=None):
+#         """This function plots and saves the plots with the statistics.
 
-        PS = PlotStats(ocmt=self.ocmt, ncmt=self.ncmt, dCMT=self.dCMT,
-                       xcorr_mat=self.xcorr_mat, mean_mat=self.mean_mat,
-                       std_mat=self.std_mat, stat_dict=self.stat_dict,
-                       labels=self.labels, dlabels=self.dlabels,
-                       stations=self.stations, npar=self.npar,
-                       savedir=savedir)
+#         Args:
+#             savedir (str, optional): Sets directory where to save the
+#                                      plots. If None the plots will be
+#                                      displayed. Defaults to None.
+#         """
 
-        PS.plot_main_stats()
-        PS.plot_dM_dz_oz()
-        PS.plot_dM_dz_nz()
-        PS.plot_dM_nz_dz()
-        PS.plot_dM_oz_dz()
-        PS.plot_dz_oz_dM()
-        PS.plot_dz_nz_dM()
-        PS.plot_dt_oz_dz()
-        PS.plot_dt_nz_dz()
-        PS.plot_z_z_dM()
-        # PS.plot_changes()
-        # PS.plot_xcorr_matrix()
-        # PS.plot_xcorr_heat()
-        # PS.plot_measurement_changes()
-        # PS.plot_mean_measurement_change_stats()
-        # PS.save_table()
+#         PS = PlotStats(ocmt=self.ocmt, ncmt=self.ncmt, dCMT=self.dCMT,
+#                        xcorr_mat=self.xcorr_mat, mean_mat=self.mean_mat,
+#                        std_mat=self.std_mat, stat_dict=self.stat_dict,
+#                        labels=self.labels, dlabels=self.dlabels,
+#                        stations=self.stations, npar=self.npar,
+#                        savedir=savedir)
 
-    @staticmethod
-    def get_PTI_from_cmts(cmt_mat):
-        """ Computes the Principal axes and components
-        and gets the Isotropic component
+#         PS.plot_main_stats()
+#         PS.plot_dM_dz_oz()
+#         PS.plot_dM_dz_nz()
+#         PS.plot_dM_nz_dz()
+#         PS.plot_dM_oz_dz()
+#         PS.plot_dz_oz_dM()
+#         PS.plot_dz_nz_dM()
+#         PS.plot_dt_oz_dz()
+#         PS.plot_dt_nz_dz()
+#         PS.plot_z_z_dM()
+#         # PS.plot_changes()
+#         # PS.plot_xcorr_matrix()
+#         # PS.plot_xcorr_heat()
+#         # PS.plot_measurement_changes()
+#         # PS.plot_mean_measurement_change_stats()
+#         # PS.save_table()
 
-        Args:
-            cmt_mat (numpy.ndarray): Matrix of of cmt solution.
-                                     Nx6
-        Returns: Nx3x3 matrix and
-        """
-        pass
+#     @staticmethod
+#     def get_PTI_from_cmts(cmt_mat):
+#         """ Computes the Principal axes and components
+#         and gets the Isotropic component
 
-        """  for cmt in cmt_mat:
-        m = np.array([cmt[0]]) """
+#         Args:
+#             cmt_mat (numpy.ndarray): Matrix of of cmt solution.
+#                                      Nx6
+#         Returns: Nx3x3 matrix and
+#         """
+#         pass
 
-    @staticmethod
-    def compute_change(stat_dicts: list):
-        """ Takes in the measurement statistics for and compiles them in
-        vectors.
+#         """  for cmt in cmt_mat:
+#         m = np.array([cmt[0]]) """
 
-        :param stat_dicts:
-        :return: tuple of dicts with before and after data
+#     @staticmethod
+#     def compute_change(stat_dicts: list):
+#         """ Takes in the measurement statistics for and compiles them in
+#         vectors.
 
-        """
+#         :param stat_dicts:
+#         :return: tuple of dicts with before and after data
 
-        complete_dict = dict()
+#         """
 
-        for _sdict in stat_dicts:
-            for tag, measurement_dict in _sdict.items():
-                if tag not in complete_dict.keys():
-                    complete_dict[tag] = dict()
+#         complete_dict = dict()
 
-                for measurement, ba_dict in measurement_dict.items():
-                    if measurement not in complete_dict[tag].keys():
-                        complete_dict[tag][measurement] = \
-                            {"before": {"std": [], "mean": []},
-                             "after": {"std": [], "mean": []}}
+#         for _sdict in stat_dicts:
+#             for tag, measurement_dict in _sdict.items():
+#                 if tag not in complete_dict.keys():
+#                     complete_dict[tag] = dict()
 
-                    # Add STD
-                    for time in ['before', 'after']:
-                        complete_dict[tag][measurement][time]["std"].append(
-                            np.std(ba_dict[time]))
-                        complete_dict[tag][measurement][time]["mean"].append(
-                            np.mean(ba_dict[time]))
+#                 for measurement, ba_dict in measurement_dict.items():
+#                     if measurement not in complete_dict[tag].keys():
+#                         complete_dict[tag][measurement] = \
+#                             {"before": {"std": [], "mean": []},
+#                              "after": {"std": [], "mean": []}}
 
-        return complete_dict
+#                     # Add STD
+#                     for time in ['before', 'after']:
+#                         complete_dict[tag][measurement][time]["std"].append(
+#                             np.std(ba_dict[time]))
+#                         complete_dict[tag][measurement][time]["mean"].append(
+#                             np.mean(ba_dict[time]))
 
-    @staticmethod
-    def create_cmt_matrix(cmt_source_list):
-        """Takes in list of CMT sources and transforms it into a
-        :class:`numpy.ndarray`
+#         return complete_dict
 
-        Args:
-        -----
-            CMT source list
+#     @staticmethod
+#     def create_cmt_matrix(cmt_source_list):
+#         """Takes in list of CMT sources and transforms it into a
+#         :class:`numpy.ndarray`
 
-        Returns:
-        --------
-            :class:`numpy.ndarray`
+#         Args:
+#         -----
+#             CMT source list
 
-        """
+#         Returns:
+#         --------
+#             :class:`numpy.ndarray`
 
-        # Number of Earthquakes
-        N = len(cmt_source_list)
+#         """
 
-        # Create empty array for the values
-        event_id = []
+#         # Number of Earthquakes
+#         N = len(cmt_source_list)
 
-        # Initialize empty matrix
-        cmt_mat = np.zeros((N, 13))
+#         # Create empty array for the values
+#         event_id = []
 
-        for _i, cmt in enumerate(cmt_source_list):
+#         # Initialize empty matrix
+#         cmt_mat = np.zeros((N, 13))
 
-            # Populate id list with ids
-            event_id.append(cmt.eventname)
+#         for _i, cmt in enumerate(cmt_source_list):
 
-            # Populate CMT matrix
-            cmt_mat[_i, :] = np.array([cmt.M0, cmt.m_rr, cmt.m_tt, cmt.m_pp,
-                                       cmt.m_rt,
-                                       cmt.m_rp, cmt.m_tp, cmt.depth_in_m,
-                                       cmt.latitude, cmt.longitude,
-                                       cmt.cmt_time,
-                                       cmt.half_duration,
-                                       cmt.time_shift,
-                                       ])
+#             # Populate id list with ids
+#             event_id.append(cmt.eventname)
 
-        return cmt_mat, event_id
+#             # Populate CMT matrix
+#             cmt_mat[_i, :] = np.array([cmt.M0, cmt.m_rr, cmt.m_tt, cmt.m_pp,
+#                                        cmt.m_rt,
+#                                        cmt.m_rp, cmt.m_tp, cmt.depth_in_m,
+#                                        cmt.latitude, cmt.longitude,
+#                                        cmt.cmt_time,
+#                                        cmt.half_duration,
+#                                        cmt.time_shift,
+#                                        ])
+
+#         return cmt_mat, event_id
 
 
 if __name__ == "__main__":
