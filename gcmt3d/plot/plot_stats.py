@@ -30,6 +30,7 @@ from obspy import UTCDateTime
 import matplotlib.dates as dates
 from matplotlib.patches import Rectangle
 from scipy.odr import RealData, ODR, Model
+import scipy as sp
 import lwsspy as lpy
 
 from .plot_util import remove_topright, remove_all
@@ -1754,24 +1755,7 @@ class PlotCatalogStatistics(object):
 
     def plot_map(self):
 
-        ax = plt.gca()
-        ax.set_global()
-        ax.frameon = True
-        ax.outline_patch.set_linewidth(1)
-
-        # Set gridlines. NO LABELS HERE, there is a bug in the gridlines
-        # function around 180deg
-        gl = ax.gridlines(crs=PlateCarree(central_longitude=180.0),
-                          draw_labels=False,
-                          linewidth=1, color='lightgray', alpha=0.5,
-                          linestyle='-', zorder=-1.5)
-        gl.top_labels = False
-        gl.left_labels = False
-        gl.xlines = True
-
-        # Add Coastline
-        ax.add_feature(cartopy.feature.LAND, zorder=-2, edgecolor='black',
-                       linewidth=0.5, facecolor=(0.9, 0.9, 0.9))
+        lpy.plot_map(labelstopright=False, labelsbottomleft=False)
 
     def plot_cmts(self):
 
@@ -1990,14 +1974,6 @@ class PlotCatalogStatistics(object):
         # Load the gcmt data
         x2, y2 = lpy.load_num_events()
 
-        # # Set bin dates
-        # def add_years(date: dt.datetime, years: int) -> dt.datetime:
-        #     try:
-        #         return date.replace(year=date.year + years)
-        #     except ValueError:
-        #         return date + (dt.datetime(date.year + years, 1, 1)
-        #                        - dt.datetime(date.year, 1, 1))
-
         # Create bin edges
         bine = [lpy.add_years(dt.datetime(year=1976, month=1, day=1), i)
                 for i in range(dt.datetime.now().year-1976+1)]
@@ -2037,42 +2013,128 @@ class PlotCatalogStatistics(object):
 
         # Interpolate the map
         # Creating a kdtree, and use it to interp
-        # SNN = lpy.SphericalNN(lat, lon)
-        # rad = SNN.interp(rad, llat, llon, no_weighting=True)
-        # val = SNN.interp(val, llat, llon, no_weighting=True)
-        # per = SNN.interp(per, llat, llon, no_weighting=True)
-        # dif = SNN.interp(dif, llat, llon, no_weighting=True)
-        # dis = SNN.interp(dis, llat, llon, no_weighting=True)
+        SNN = lpy.SphericalNN(self.ncmt[:, 8], self.ncmt[:, 9])
 
-        for _i in range(10):
+        # Create desired grid for plotting
+        res = 1
+        llon, llat = np.meshgrid(np.arange(-180.0, 180.0 + res, res),
+                                 np.arange(-90.0, 90.0 + res, res))
 
-            fig = plt.figure(figsize=(8.0, 3.0))
-            ax = plt.subplot(111, projection=PlateCarree())
+        fig = plt.figure(figsize=(11.0, 5.5))
 
-            # Map
-            self.plot_map()
+        ########### Mw ######################
+        ax = plt.subplot(221, projection=PlateCarree())
+        plt.subplots_adjust(bottom=0.05, top=0.95, left=0.01, right=0.95,
+                            wspace=0.1)
 
-            # Cmap
-            norm = matplotlib.colors.TwoSlopeNorm(vmin=self.bounds[_i][0],
-                                                  vmax=self.bounds[_i][1],
-                                                  vcenter=0.0)
-            # # Data
-            # self.plot_2d_histogram(ax, self.ncmt[:, 9], self.ncmt[:, 8],
-            #                        data=self.factor[_i] * self.dcmt[:, _i],
-            #                        cmap='coolwarm', norm=norm,
-            #                        label=self.units[_i])
+        # Map
+        self.plot_map()
 
-            # Letters
-            self.print_figure_letter_inside(self.dlabels[_i])
-            self.print_figure_letter(self.abc[_i] + ")")
+        # Cmap
+        norm = matplotlib.colors.Normalize(vmin=5.75, vmax=6.75)
+        val = SNN.interp(lpy.m0_2_mw(self.ncmt[:, 0]), llat, llon,
+                         maximum_distance=3.0, no_weighting=False,
+                         k=200)
 
-            # Saving
-            filename = f"space_{self.tags[_i]}.pdf"
-            if self.prefix is not None:
-                filename = self.prefix + "_" + filename
-            plt.savefig(os.path.join(self.outdir, filename))
-            plt.close()
+        pmesh = plt.pcolormesh(
+            llon, llat, lpy.smooth_nan_image(val, sigma=1.0, truncate=1.5),
+            transform=cartopy.crs.PlateCarree(),
+            cmap='magma_r', norm=norm, rasterized=True)
 
+        cbar = lpy.nice_colorbar(pmesh, fraction=0.05, pad=0.02)
+        cbar.set_label('$M_W$')
+
+        # Letters
+        self.print_figure_letter_inside('$M_W$')
+        self.print_figure_letter(self.abc[0] + ")")
+
+        ########### dM0/M0 ######################
+        ax = plt.subplot(222, projection=PlateCarree())
+
+        # Map
+        self.plot_map()
+
+        # Cmap
+        norm = matplotlib.colors.TwoSlopeNorm(vmin=self.bounds[0][0],
+                                              vmax=self.bounds[0][1],
+                                              vcenter=0.0)
+        val = SNN.interp(self.factor[0] * self.dcmt[:, 0], llat, llon,
+                         maximum_distance=3.0, no_weighting=False,
+                         k=200)
+
+        pmesh = plt.pcolormesh(
+            llon, llat, lpy.smooth_nan_image(val, sigma=1.0, truncate=1.5),
+            transform=cartopy.crs.PlateCarree(),
+            cmap='coolwarm', norm=norm, rasterized=True)
+
+        cbar = lpy.nice_colorbar(pmesh, fraction=0.05, pad=0.02)
+        cbar.set_label(self.units[0])
+
+        # Letters
+        self.print_figure_letter_inside(self.dlabels[0])
+        self.print_figure_letter(self.abc[1] + ")")
+
+        ########### Mw ######################
+        ax = plt.subplot(223, projection=PlateCarree())
+
+        # Map
+        self.plot_map()
+
+        # Cmap
+        norm = matplotlib.colors.Normalize(vmin=0, vmax=500)
+        val = SNN.interp(self.ncmt[:, 7], llat, llon,
+                         maximum_distance=3.0, no_weighting=False,
+                         k=200)
+
+        pmesh = plt.pcolormesh(
+            llon, llat, lpy.smooth_nan_image(val, sigma=1.0, truncate=1.5),
+            transform=cartopy.crs.PlateCarree(),
+            cmap='magma_r', norm=norm, rasterized=True)
+
+        cbar = lpy.nice_colorbar(pmesh, fraction=0.05, pad=0.02)
+        cbar.set_label(self.units[7])
+        cbar.ax.invert_yaxis()
+
+        # Letters
+        self.print_figure_letter_inside(self.labels[7])
+        self.print_figure_letter(self.abc[2] + ")")
+
+        ########### dM0/M0 ######################
+        ax = plt.subplot(224, projection=PlateCarree())
+
+        # Map
+        self.plot_map()
+
+        # Cmap
+        norm = matplotlib.colors.TwoSlopeNorm(vmin=self.bounds[7][0],
+                                              vmax=self.bounds[7][1],
+                                              vcenter=0.0)
+        val = SNN.interp(self.factor[7] * self.dcmt[:, 7], llat, llon,
+                         maximum_distance=3.0, no_weighting=False,
+                         k=200)
+
+        pmesh = plt.pcolormesh(
+            llon, llat, lpy.smooth_nan_image(val, sigma=1.0, truncate=1.5),
+            transform=cartopy.crs.PlateCarree(),
+            cmap='coolwarm', norm=norm, rasterized=True)
+
+        cbar = lpy.nice_colorbar(pmesh, fraction=0.05, pad=0.02)
+        cbar.set_label(self.units[7])
+
+        # Letters
+        self.print_figure_letter_inside(self.dlabels[7])
+        self.print_figure_letter(self.abc[3] + ")")
+
+        # Saving
+        filename = f"space_overview.pdf"
+        if self.prefix is not None:
+            filename = self.prefix + "_" + filename
+        plt.savefig(os.path.join(self.outdir, filename))
+        plt.close()
+
+        print("Done M0.")
+
+        return None
         # Figure and axes
         fig = plt.figure(figsize=(8.0, 3.0))
         ax = plt.subplot(111, projection=PlateCarree())

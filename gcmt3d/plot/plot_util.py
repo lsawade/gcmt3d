@@ -13,6 +13,8 @@ Last Update: April 2020
 
 """
 
+import scipy.ndimage
+import scipy as sp
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
