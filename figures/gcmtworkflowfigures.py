@@ -21,7 +21,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import matplotlib
-# import seaborn as sns
 import lwsspy as lpy
 from gcmt3d.plot.plot_util import remove_topright
 from gcmt3d.data.management.process_classifier import filter_scaling
@@ -56,7 +55,6 @@ def sac_cosine_taper(freqs, flimit):
     taper[c] = 0.5 * (1.0 + np.cos(np.pi * (freqs[c] - fl3) / (fl4 - fl3)))
 
     return taper
-
 
 def plot_tapers(ax=None, outdir=None):
     """Plots the weighting as a function of Period and magnitude."""
@@ -167,6 +165,7 @@ def plot_weighting(outdir=None):
         axins.plot(bodywavecorners[:, _i], mw, 'r', label=labelb)
         axins.plot(surfacewavecorners[:, _i], mw, 'b:', label=labels)
         axins.plot(mantlewavecorners[:, _i], mw, 'k', label=labelm)
+        
     plt.xlabel("Period [s]")
 
     # Set axes for the insett
@@ -193,3 +192,4 @@ if __name__ == "__main__":
     # plot_tapers(outdir=args.outdir)
 
     plot_weighting(outdir=args.outdir)
+

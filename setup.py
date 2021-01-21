@@ -55,7 +55,7 @@ setup(
     package_data={'gcmt3d': ['data/download/resources/Fetchdata',
                              'data/download/resources/stations.txt',
                              'data/management/STATIONS'],
-                  },
+    },
     install_requires=['numpy', 'matplotlib', 'flake8', 'obspy',
                       'PyYAML', 'pyflex', 'h5py', 'mpi4py', 'matplotlib',
                       'pyasdf', 'spaceweight', 'pycmt3d',
