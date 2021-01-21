@@ -279,7 +279,7 @@ class CatalogStats(object):
                 logger.info("  dCMT: %f" % dcmt[0])
                 logger.info("  dz: %f" % dcmt[7])
                 logger.info("  nz: %f" % ncmt[7])
-                logger.info("Removed C%s from matrix." % id)
+                logger.info("Removed %s from matrix." % id)
                 # good_stats.append(_i)
                 counter += 1
             else:

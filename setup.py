@@ -69,7 +69,7 @@ setup(
         ("License :: OSI Approved "
          ":: GNU General Public License v3 or later (GPLv3+)"),
     ],
-    #install_requires=parse_requirements("requirements.txt"),
+    # install_requires=parse_requirements("requirements.txt"),
     extras_require={
         "docs": ["sphinx", "sphinx_rtd_theme"],
         "tests": ["pytest", "py"]
@@ -100,8 +100,10 @@ setup(
             'plot-event = gcmt3d.bins.plot_event:main',
             'plot-event-summary = gcmt3d.bins.plot_event_summary:main',
             'plot-stats = gcmt3d.bins.plot_stats:main',
+            'plot-window-hist = gcmt3d.plot.plot_window_hist:bin',
+            'create-measurement-pickle = gcmt3d.plot.plot_window_hist:bin_create_measurement_pickle',
             'request-data = gcmt3d.bins.request_data:main',
             'select-windows = gcmt3d.bins.window_selection_asdf:main',
             'write-sources = gcmt3d.bins.write_sources:main',
-    ]}
+        ]}
 )
