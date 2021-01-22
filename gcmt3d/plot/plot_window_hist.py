@@ -134,9 +134,11 @@ def load_winfile_json(flexwin_file: str, inv: Inventory, event: CMTSource,
                                 np.ones(len(times)) * _max_cc)
 
                     except Exception as e:
-                        print(channel_id, e)
+                        if v:
+                            print(channel_id, e)
     except Exception as e:
-        print(e)
+        if v:
+            print(e)
 
     return measurement_dict
 
@@ -158,9 +160,6 @@ def load_stations(outputdir: str = "."):
     # Networks used in the Global CMT Project
     networks = ["AU", "CU", "G", "GE", "GT", "IC", "II", "IU", "MN", "US"]
     networksstring = ",".join(networks)
-
-    # number of legend columns
-    ncol = len(networks)
 
     # Define file
     xml_name = "gcmt3d_full_station.xml"
@@ -197,6 +196,7 @@ base_wtype_dict = dict(body=deepcopy(base_measure_dict),
 def create_measurement_pickle(databases: List[str], outputdir: str):
 
     # Load a standard inventory
+    lpy.print_section("Loading Obspy Inventory:")
     inv = load_stations(outputdir)
 
     filelists = dict(body=[], surface=[], mantle=[])
@@ -217,13 +217,14 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
                         T=deepcopy(base_wtype_dict),
                         Z=deepcopy(base_wtype_dict))
 
+    lpy.print_bar("Adding measurements:")
     # Populate the dictionary
     for _wtype, _filelist in filelists.items():
-        print(_wtype, _filelist)
+        lpy.print_action(f"Looping over {_wtype} files")
         # Load window file content
         for _file in _filelist:
+            lpy.print_action(f"Adding {_file} ...")
             # Get CMT file in database
-            print(_file)
             cmtdir = os.path.dirname(os.path.dirname(_file))
             cmtID = os.path.basename(cmtdir)
             cmtfile = os.path.join(cmtdir, cmtID + ".cmt")
@@ -236,19 +237,26 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
                     measurements[_channel][_wtype][_measure].extend(
                         _measurelist)
 
+    lpy.print_bar("Reading measurements done.")
+
     # Saving the whole thinng to a pickle.
     timestr = strftime("%Y%m%dT%H%M", localtime())
 
     # Create HDF5 Storage
     outfile = os.path.join(
         outputdir, f"window_measurements_{timestr}.h5")
+    lpy.print_section("Opening HDF5 file...")
     store = pd.HDFStore(outfile, 'w')
 
     # Create pandas dataframes from the measurements
     for _comp, _wtype_dict in measurements.items():
         for _wtype, _measuredict in _wtype_dict.items():
+
             # Create tag for hdf5
             tag = f"{_comp}/{_wtype}"
+
+            # Print
+            lpy.print_action(f"Saving {tag} to {outfile}")
 
             # Createt Dataframe for measurements
             df = pd.DataFrame.from_dict(_measure_dict)

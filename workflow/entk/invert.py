@@ -319,6 +319,11 @@ result.add_tasks(t)
 pipe.add_stages(result)
 
 
+# -----------------------------------------------------------------------------
+
+# Create a check that looks att changes between solutions.
+
+
 res_dict = {
     # 'resource': 'local.localhost',  
     'resource': 'princeton.traverse',
