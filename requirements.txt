@@ -6,6 +6,8 @@ PyYAML
 pyflex
 pytest
 h5py
+pandas
+tables
 git+git://github.com/wjlei1990/pyflex.git@merge
 git+git://github.com/lsawade/pyasdf.git@devel
 git+git://github.com/lsawade/spaceweight.git@master

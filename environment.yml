@@ -10,6 +10,8 @@ dependencies:
   - mpi4py=3.0.3
   - h5py>=2.10.0
   - pyasdf
+  - pandas
+  - tables
   - pip
   - pip:
     - obspy>=1.2.1

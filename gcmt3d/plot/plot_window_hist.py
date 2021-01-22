@@ -13,6 +13,7 @@ from obspy.geodetics.base import gps2dist_azimuth, kilometer2degrees
 from gcmt3d.source import CMTSource
 import matplotlib.pyplot as plt
 import pickle
+import pandas as pd
 
 lpy.updaterc()
 
@@ -193,7 +194,7 @@ base_wtype_dict = dict(body=deepcopy(base_measure_dict),
                        mantle=deepcopy(base_measure_dict))
 
 
-def create_measurement_pickle(databases: List[str], outputdir: str) -> dict:
+def create_measurement_pickle(databases: List[str], outputdir: str):
 
     # Load a standard inventory
     inv = load_stations(outputdir)
@@ -237,15 +238,29 @@ def create_measurement_pickle(databases: List[str], outputdir: str) -> dict:
 
     # Saving the whole thinng to a pickle.
     timestr = strftime("%Y%m%dT%H%M", localtime())
+
+    # Create HDF5 Storage
     outfile = os.path.join(
-        outputdir, f"window_measurements_{timestr}.pickle")
+        outputdir, f"window_measurements_{timestr}.h5")
+    store = pd.HDFStore(outfile, 'w')
 
-    with open(outfile, 'wb') as f:
-        pickle.dump(measurements, f)
+    # Create pandas dataframes from the measurements
+    for _comp, _wtype_dict in measurements.items():
+        for _wtype, _measuredict in _wtype_dict.items():
+            # Create tag for hdf5
+            tag = f"{_comp}/{_wtype}"
+
+            # Createt Dataframe for measurements
+            df = pd.DataFrame.from_dict(_measure_dict)
+
+            # Save the
+            store[tag] = df
+
+    store.close()
 
 
-def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.5,
-                     t_res: float = 15.0, minillum: int = 25,
+def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
+                     t_res: float = 15, minillum: int = 0,
                      illumdecay: int = 50, noplot: bool = False,
                      save: bool = False, fromhistfile: bool = True) -> None:
 
@@ -267,8 +282,8 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.5,
                                     mantle=deepcopy(base_hist_measure_dict))
 
     else:
-        with open(filename, 'rb') as f:
-            measurements = pickle.load(f)
+        # Load HDF5 file with measurements
+        store = pd.HDFStore(filename, 'r')
 
         # Define bin edges
         xbins = np.arange(0, 181, deg_res)
@@ -290,23 +305,28 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.5,
                      Z=deepcopy(base_hist_wtype_dict),
                      xbins=xbins, ybins=ybins)
 
+        print(store)
+
         for _channel in ["R", "T", "Z"]:
             for _wtype in ["body", "surface", "mantle"]:
+
                 # Count histogram
                 hists[_channel][_wtype]["counts"], _, _ = np.histogram2d(
-                    measurements[_channel][_wtype]["epics"],
-                    measurements[_channel][_wtype]["wins"],
+                    store[f"{_channel}/{_wtype}"]["epics"].to_numpy(),
+                    store[f"{_channel}/{_wtype}"]["wins"].to_numpy(),
                     bins=(xbins, ybins))
 
                 # Data histograms
                 dat_list = ["dlnAs", "cc_shifts", "max_ccs"]
                 for _dat in dat_list:
                     hists[_channel][_wtype][_dat], _, _ = np.histogram2d(
-                        measurements[_channel][_wtype]["epics"],
-                        measurements[_channel][_wtype]["wins"],
+                        store[f"{_channel}/{_wtype}"]["epics"].to_numpy(),
+                        store[f"{_channel}/{_wtype}"]["wins"].to_numpy(),
                         bins=(xbins, ybins),
-                        weights=measurements[_channel][_wtype][_dat])
+                        weights=store[f"{_channel}/{_wtype}"][_dat].to_numpy())
 
+        # Close HDF5
+        store.close()
         # Save histogram file if wanted.
         if save:
 
@@ -407,7 +427,7 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.5,
         alphas = np.zeros_like(mat)
         alphas[above_illumdecay] = (illumdecay - minillum)
         alphas[below_minillum] = 0
-        alphas[between] = mat[between] - (illumdecay - minillum)
+        alphas[between] = mat[between] - minillum
         alphas = alphas/(illumdecay - minillum)
 
         if r:
@@ -420,7 +440,8 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.5,
         print(np.min(alphaarray), np.max(alphaarray), np.mean(alphaarray),
               np.median(alphaarray))
 
-    alphas = get_illumination(hists_comb["counts"].T, minillum, illumdecay)
+    alphas = get_illumination(
+        hists_comb["counts"].T[::-1, :], minillum, illumdecay)
     alphas_r = get_illumination(hists_comb["counts"].T, minillum, illumdecay,
                                 r=True)
     xmin, xmax = np.min(hists["xbins"]), np.max(hists["xbins"])
@@ -441,9 +462,13 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.5,
     #                    zorder=-1)
     im1 = ax.imshow(hists_comb["counts"].T[::-1, :], cmap='afmhot_r',
                     interpolation='none', extent=extent, aspect='auto',
-                    alpha=alphas[::-1, :])
-    im2 = ax.imshow(alphamat[::-1, :, :], interpolation='none',
-                    extent=extent, zorder=0, aspect='auto')
+                    )  # alpha=alphas)
+    # im1 = ax.imshow(alphas, cmap='gray',
+    #                 interpolation='none', extent=extent, aspect='auto',
+    #                 )
+
+    # im2 = ax.imshow(alphamat[::-1, :, :], interpolation='none',
+    #                 extent=extent, zorder=0, aspect='auto')
 
     # pg = plt.pcolormesh(hists["xbins"], hists["ybins"] /
     #                     60, np.zeros_like(hists_comb["counts"].T),
@@ -530,7 +555,7 @@ def bin():
                         default=0.5, required=False,
                         help="Define histogram epicentral resolution.")
     parser.add_argument("-t", "--t_res", dest="t_res", type=float,
-                        default=15, required=False,
+                        default=2.0, required=False,
                         help="Define histogram time in seconds resolution.")
     parser.add_argument("-m", "--minillum", dest="minillum", type=int,
                         default=25, required=False,
