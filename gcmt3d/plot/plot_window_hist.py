@@ -223,7 +223,7 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
         lpy.print_action(f"Looping over {_wtype} files")
         # Load window file content
         for _file in _filelist:
-            lpy.print_action(f"Adding {_file} ...")
+            lpy.print_action(f"Adding {_file}")
             # Get CMT file in database
             cmtdir = os.path.dirname(os.path.dirname(_file))
             cmtID = os.path.basename(cmtdir)
@@ -262,7 +262,7 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
             df = pd.DataFrame.from_dict(_measure_dict)
 
             # Save the
-            store[tag] = df
+            store.put(tag, df, format='fixed')
 
     store.close()
 
