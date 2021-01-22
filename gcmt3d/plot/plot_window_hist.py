@@ -12,6 +12,7 @@ from obspy import read_inventory, Inventory, UTCDateTime
 from obspy.geodetics.base import gps2dist_azimuth, kilometer2degrees
 from gcmt3d.source import CMTSource
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import pickle
 import pandas as pd
 from pprint import pprint
@@ -321,6 +322,7 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
         for _channel in ["R", "T", "Z"]:
             for _wtype in ["body", "surface", "mantle"]:
 
+                lpy.print_action(f"Binning {_channel}/{_wtype}")
                 # Count histogram
                 hists[_channel][_wtype]["counts"], _, _ = np.histogram2d(
                     store[f"{_channel}/{_wtype}"]["epics"].to_numpy(),
@@ -459,8 +461,9 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
     ymin, ymax = np.min(hists["ybins"]), np.max(hists["ybins"])
     extent = [xmin, xmax, ymin/60, ymax/60]
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(4, 6))
     ax = plt.axes()
+    fig.subplots_adjust(left=0.15, right=0.85, top=0.9, bottom=0.0)
     # ax.set_facecolor((0.3, 0.3, 0.3))
     # pm = ax.pcolormesh(hists["xbins"], hists["ybins"] /
     #                    60, hists_comb["counts"].T, cmap='afmhot_r')
@@ -471,9 +474,12 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
     # pm = ax.pcolormesh(hists["xbins"], hists["ybins"] /
     #                    60, hists_comb["counts"].T, cmap='afmhot_r',
     #                    zorder=-1)
+    print(hists_comb["counts"].min(),)
     im1 = ax.imshow(hists_comb["counts"].T[::-1, :], cmap='afmhot_r',
                     interpolation='none', extent=extent, aspect='auto',
-                    )  # alpha=alphas)
+                    norm=colors.LogNorm(
+                        vmin=1,
+                        vmax=hists_comb["counts"].max()))  # alpha=alphas)
     # im1 = ax.imshow(alphas, cmap='gray',
     #                 interpolation='none', extent=extent, aspect='auto',
     #                 )
@@ -486,9 +492,10 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
     #                     color=(0.3, 0.3, 0.3))
     c = lpy.nice_colorbar(
         matplotlib.cm.ScalarMappable(cmap=im1.cmap, norm=im1.norm),
+        pad=0.025,
         orientation='horizontal', aspect=40)  # , ax=axes.ravel().tolist())
     plt.xlabel("$\\Delta$ [$^\\circ$]")
-    lpy.plot_label(ax, "Radial", location=1, box=False, dist=0.01)
+    # lpy.plot_label(ax, "Radial", location=1, box=False, dist=0.01)
     ax.xaxis.set_label_position('top')
     ax.tick_params(labelbottom=False, labeltop=True)
     plt.ylabel("Traveltime [min]")
@@ -565,7 +572,7 @@ def bin():
                         help="Flag to save npzfile with histograms",
                         default=False, required=False)
     parser.add_argument("-d", "--deg_res", dest="deg_res", type=float,
-                        default=0.5, required=False,
+                        default=1.0, required=False,
                         help="Define histogram epicentral resolution.")
     parser.add_argument("-t", "--t_res", dest="t_res", type=float,
                         default=2.0, required=False,
