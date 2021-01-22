@@ -454,7 +454,7 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
               np.median(alphaarray))
 
     alphas = get_illumination(
-        hists_comb["counts"].T[::-1, :], minillum, illumdecay)
+        hists_comb["counts"].T[::-1, :], 0, illumdecay)
     alphas_r = get_illumination(hists_comb["counts"].T, minillum, illumdecay,
                                 r=True)
     xmin, xmax = np.min(hists["xbins"]), np.max(hists["xbins"])
@@ -477,9 +477,7 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
     print(hists_comb["counts"].min(),)
     im1 = ax.imshow(hists_comb["counts"].T[::-1, :], cmap='afmhot_r',
                     interpolation='none', extent=extent, aspect='auto',
-                    norm=colors.LogNorm(
-                        vmin=1,
-                        vmax=hists_comb["counts"].max()))  # alpha=alphas)
+                    alpha=alphas)
     # im1 = ax.imshow(alphas, cmap='gray',
     #                 interpolation='none', extent=extent, aspect='auto',
     #                 )
