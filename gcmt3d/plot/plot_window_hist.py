@@ -196,7 +196,7 @@ base_wtype_dict = dict(body=deepcopy(base_measure_dict),
 def create_measurement_pickle(databases: List[str], outputdir: str):
 
     # Load a standard inventory
-    lpy.print_section("Loading Obspy Inventory:")
+    lpy.print_bar("Loading Obspy Inventory:")
     inv = load_stations(outputdir)
 
     filelists = dict(body=[], surface=[], mantle=[])
@@ -220,7 +220,7 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
     lpy.print_bar("Adding measurements:")
     # Populate the dictionary
     for _wtype, _filelist in filelists.items():
-        lpy.print_action(f"Looping over {_wtype} files")
+        lpy.print_section(f"Looping over {_wtype} files")
         # Load window file content
         for _file in _filelist:
             lpy.print_action(f"Adding {_file}")
@@ -237,7 +237,7 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
                     measurements[_channel][_wtype][_measure].extend(
                         _measurelist)
 
-    lpy.print_bar("Reading measurements done.")
+    lpy.print_section("Reading measurements done.")
 
     # Saving the whole thinng to a pickle.
     timestr = strftime("%Y%m%dT%H%M", localtime())
@@ -245,7 +245,7 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
     # Create HDF5 Storage
     outfile = os.path.join(
         outputdir, f"window_measurements_{timestr}.h5")
-    lpy.print_section("Opening HDF5 file...")
+    lpy.print_bar("Opening HDF5 file...")
     store = pd.HDFStore(outfile, 'w')
 
     # Create pandas dataframes from the measurements
