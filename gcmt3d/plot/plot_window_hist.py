@@ -14,7 +14,7 @@ from gcmt3d.source import CMTSource
 import matplotlib.pyplot as plt
 import pickle
 import pandas as pd
-
+from pprint import pprint
 lpy.updaterc()
 
 
@@ -234,6 +234,7 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
             # Add window file content to superdict
             for _channel, _measure_dict in mdict.items():
                 for _measure, _measurelist in _measure_dict.items():
+                    print(_channel, _wtype, _measure, len(_measurelist))
                     measurements[_channel][_wtype][_measure].extend(
                         _measurelist)
 
@@ -250,7 +251,7 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
 
     # Create pandas dataframes from the measurements
     for _comp, _wtype_dict in measurements.items():
-        for _wtype, _measuredict in _wtype_dict.items():
+        for _wtype in _wtype_dict.keys():
 
             # Create tag for hdf5
             tag = f"{_comp}/{_wtype}"
@@ -259,10 +260,12 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
             lpy.print_action(f"Saving {tag} to {outfile}")
 
             # Createt Dataframe for measurements
-            df = pd.DataFrame.from_dict(_measure_dict)
+            df = pd.DataFrame.from_dict(measurements[_comp][_wtype])
 
             # Save the
             store.put(tag, df, format='fixed')
+
+            del df
 
     store.close()
 
