@@ -489,6 +489,8 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
     ax.xaxis.set_label_position('top')
     ax.tick_params(labelbottom=False, labeltop=True)
     plt.ylabel("Traveltime [min]")
+
+    plt.savefig(os.path.join(outputdir, "window_hist.png"))
     # set_facealpha(pm, alphas)
     # set_facealpha(pm, alphas_r)
     # fig.canvas.draw()
