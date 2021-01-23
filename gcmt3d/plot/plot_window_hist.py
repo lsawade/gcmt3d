@@ -80,7 +80,7 @@ def load_winfile_json(flexwin_file: str, inv: Inventory, event: CMTSource,
                         win_time[_idx, 0] = _win["relative_starttime"]
                         win_time[_idx, 1] = _win["relative_endtime"]
                         dt[_idx] = _win["dt"]
-                        dlnA[_idx] = _win["dt"]
+                        dlnA[_idx] = _win["dlnA"]
                         cc_shift[_idx] = _win["cc_shift_in_seconds"]
                         max_cc[_idx] = _win["max_cc_value"]
 
@@ -238,7 +238,7 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
                     print(_channel, _wtype, _measure, len(_measurelist))
                     measurements[_channel][_wtype][_measure].extend(
                         _measurelist)
-
+                    
     lpy.print_section("Reading measurements done.")
 
     # Saving the whole thinng to a pickle.
@@ -323,6 +323,8 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
             for _wtype in ["body", "surface", "mantle"]:
 
                 lpy.print_action(f"Binning {_channel}/{_wtype}")
+
+                print()
                 # Count histogram
                 hists[_channel][_wtype]["counts"], _, _ = np.histogram2d(
                     store[f"{_channel}/{_wtype}"]["epics"].to_numpy(),
@@ -332,6 +334,8 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
                 # Data histograms
                 dat_list = ["dlnAs", "cc_shifts", "max_ccs"]
                 for _dat in dat_list:
+                    meanval = np.mean(store[f"{_channel}/{_wtype}"][_dat].to_numpy())
+                    print(f"{_dat} mean: {meanval}")
                     hists[_channel][_wtype][_dat], _, _ = np.histogram2d(
                         store[f"{_channel}/{_wtype}"]["epics"].to_numpy(),
                         store[f"{_channel}/{_wtype}"]["wins"].to_numpy(),
@@ -485,11 +489,11 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
 
 
 
-    boolcounts = hists_comb["counts"].astype(bool)
-    zz = np.zeros_like(hists_comb["counts"])
-    zz[boolcounts] = hists_comb["dlnAs"][boolcounts]/hists_comb["counts"][boolcounts]
+    boolcounts = hists["R"]["surface"]["counts"].astype(bool)
+    zz = np.zeros_like(hists_comb["dlnAs"])
+    zz[boolcounts] = hists["R"]["surface"]["dlnAs"][boolcounts]/hists["R"]["surface"]["counts"][boolcounts]
 
-    print("Hello", np.sum(hists_comb["dlnAs"] - hists_comb["counts"])/np.sum(hists_comb["counts"]))
+    print("Hello", np.sum(hists["R"]["surface"]["dlnAs"] - hists["R"]["surface"]["counts"])/np.sum(hists["R"]["surface"]["counts"]))
 
     fig = plt.figure(figsize=(4, 6))
     ax = plt.axes()
@@ -497,8 +501,7 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
     alphamat = 0.8 * np.ones((shape[1] - 1, shape[0] - 1, 4))
     alphamat[:, :, 3] = alphas_r
     print(hists_comb["counts"].min())
-    im1 = ax.imshow(zz.T[::-1,:], cmap='gray',
-                    interpolation='none', extent=extent, aspect='auto')
+    im1 = ax.imshow(hists["R"]["surface"]["counts"], cmap='gray', interpolation='none', extent=extent, aspect='auto')
     c = lpy.nice_colorbar(
         matplotlib.cm.ScalarMappable(cmap=im1.cmap, norm=im1.norm),
         pad=0.025,
