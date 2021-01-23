@@ -17,7 +17,7 @@ import pickle
 import pandas as pd
 from pprint import pprint
 lpy.updaterc()
-
+matplotlib.use("agg")
 
 def load_winfile_json(flexwin_file: str, inv: Inventory, event: CMTSource,
                       v: bool = False):
@@ -454,51 +454,62 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
               np.median(alphaarray))
 
     alphas = get_illumination(
-        hists_comb["counts"].T[::-1, :], 0, illumdecay)
+        hists_comb["counts"].T[::-1, :], 100, 200)
     alphas_r = get_illumination(hists_comb["counts"].T, minillum, illumdecay,
                                 r=True)
     xmin, xmax = np.min(hists["xbins"]), np.max(hists["xbins"])
     ymin, ymax = np.min(hists["ybins"]), np.max(hists["ybins"])
     extent = [xmin, xmax, ymin/60, ymax/60]
 
+
     fig = plt.figure(figsize=(4, 6))
     ax = plt.axes()
     fig.subplots_adjust(left=0.15, right=0.85, top=0.9, bottom=0.0)
-    # ax.set_facecolor((0.3, 0.3, 0.3))
-    # pm = ax.pcolormesh(hists["xbins"], hists["ybins"] /
-    #                    60, hists_comb["counts"].T, cmap='afmhot_r')
     alphamat = 0.8 * np.ones((shape[1] - 1, shape[0] - 1, 4))
     alphamat[:, :, 3] = alphas_r
-    # im1 = ax.imshow(hists_comb["counts"].T, cmap='afmhot_r',
-    #                 extent=extent, alpha=alphas)
-    # pm = ax.pcolormesh(hists["xbins"], hists["ybins"] /
-    #                    60, hists_comb["counts"].T, cmap='afmhot_r',
-    #                    zorder=-1)
     print(hists_comb["counts"].min(),)
     im1 = ax.imshow(hists_comb["counts"].T[::-1, :], cmap='afmhot_r',
                     interpolation='none', extent=extent, aspect='auto',
-                    alpha=alphas)
-    # im1 = ax.imshow(alphas, cmap='gray',
-    #                 interpolation='none', extent=extent, aspect='auto',
-    #                 )
-
-    # im2 = ax.imshow(alphamat[::-1, :, :], interpolation='none',
-    #                 extent=extent, zorder=0, aspect='auto')
-
-    # pg = plt.pcolormesh(hists["xbins"], hists["ybins"] /
-    #                     60, np.zeros_like(hists_comb["counts"].T),
-    #                     color=(0.3, 0.3, 0.3))
+                    alpha=alphas, norm=colors.LogNorm(vmin=200.0, vmax=hists_comb["counts"].max()))
     c = lpy.nice_colorbar(
         matplotlib.cm.ScalarMappable(cmap=im1.cmap, norm=im1.norm),
         pad=0.025,
         orientation='horizontal', aspect=40)  # , ax=axes.ravel().tolist())
     plt.xlabel("$\\Delta$ [$^\\circ$]")
-    # lpy.plot_label(ax, "Radial", location=1, box=False, dist=0.01)
     ax.xaxis.set_label_position('top')
     ax.tick_params(labelbottom=False, labeltop=True)
     plt.ylabel("Traveltime [min]")
 
     plt.savefig(os.path.join(outputdir, "window_hist.png"))
+
+
+
+
+    boolcounts = hists_comb["counts"].astype(bool)
+    zz = np.zeros_like(hists_comb["counts"])
+    zz[boolcounts] = hists_comb["dlnAs"][boolcounts]/hists_comb["counts"][boolcounts]
+
+    print("Hello", np.sum(hists_comb["dlnAs"] - hists_comb["counts"])/np.sum(hists_comb["counts"]))
+
+    fig = plt.figure(figsize=(4, 6))
+    ax = plt.axes()
+    fig.subplots_adjust(left=0.15, right=0.85, top=0.9, bottom=0.0)
+    alphamat = 0.8 * np.ones((shape[1] - 1, shape[0] - 1, 4))
+    alphamat[:, :, 3] = alphas_r
+    print(hists_comb["counts"].min())
+    im1 = ax.imshow(zz.T[::-1,:], cmap='gray',
+                    interpolation='none', extent=extent, aspect='auto')
+    c = lpy.nice_colorbar(
+        matplotlib.cm.ScalarMappable(cmap=im1.cmap, norm=im1.norm),
+        pad=0.025,
+        orientation='horizontal', aspect=40)  # , ax=axes.ravel().tolist())
+    plt.xlabel("$\\Delta$ [$^\\circ$]")
+    ax.xaxis.set_label_position('top')
+    ax.tick_params(labelbottom=False, labeltop=True)
+    plt.ylabel("Traveltime [min]")
+
+    plt.savefig(os.path.join(outputdir, "window_hist_dlna.png"))
+
     # set_facealpha(pm, alphas)
     # set_facealpha(pm, alphas_r)
     # fig.canvas.draw()
