@@ -17,10 +17,10 @@ import pickle
 import pandas as pd
 from pprint import pprint
 lpy.updaterc()
-matplotlib.use("agg")
+
 
 def load_winfile_json(flexwin_file: str, inv: Inventory, event: CMTSource,
-                      v: bool = False):
+                      simple: bool = False, v: bool = False, ):
     """Read the json format of window file and output epicentral distances and
     times
 
@@ -122,17 +122,28 @@ def load_winfile_json(flexwin_file: str, inv: Inventory, event: CMTSource,
                         # Summarize time values and distances
                         for _idx, (_dt, _dlnA, _cc_shift, _max_cc) in \
                                 enumerate(zip(dt, dlnA, cc_shift, max_cc)):
-                            times = np.arange(win_time[_idx, 0],
-                                              win_time[_idx, 1] + _dt, _dt).tolist()
-                            measurement_dict[channel]["wins"].extend(times)
-                            measurement_dict[channel]["epics"].extend(
-                                np.ones(len(times)) * epi)
-                            measurement_dict[channel]["dlnAs"].extend(
-                                np.ones(len(times)) * _dlnA)
-                            measurement_dict[channel]["cc_shifts"].extend(
-                                np.ones(len(times)) * _cc_shift)
-                            measurement_dict[channel]["max_ccs"].extend(
-                                np.ones(len(times)) * _max_cc)
+                            if simple:
+                                times = np.mean(win_time[_idx, :])
+                                measurement_dict[channel]["wins"].append(times)
+                                measurement_dict[channel]["epics"].append(epi)
+                                measurement_dict[channel]["dlnAs"].append(
+                                    _dlnA)
+                                measurement_dict[channel]["cc_shifts"].append(
+                                    _cc_shift)
+                                measurement_dict[channel]["max_ccs"].append(
+                                    _max_cc)
+                            else:
+                                times = np.arange(win_time[_idx, 0],
+                                                  win_time[_idx, 1] + _dt, _dt).tolist()
+                                measurement_dict[channel]["wins"].extend(times)
+                                measurement_dict[channel]["epics"].extend(
+                                    np.ones(len(times)) * epi)
+                                measurement_dict[channel]["dlnAs"].extend(
+                                    np.ones(len(times)) * _dlnA)
+                                measurement_dict[channel]["cc_shifts"].extend(
+                                    np.ones(len(times)) * _cc_shift)
+                                measurement_dict[channel]["max_ccs"].extend(
+                                    np.ones(len(times)) * _max_cc)
 
                     except Exception as e:
                         if v:
@@ -194,7 +205,8 @@ base_wtype_dict = dict(body=deepcopy(base_measure_dict),
                        mantle=deepcopy(base_measure_dict))
 
 
-def create_measurement_pickle(databases: List[str], outputdir: str):
+def create_measurement_pickle(databases: List[str], outputdir: str,
+                              simple: bool = True):
 
     # Load a standard inventory
     lpy.print_bar("Loading Obspy Inventory:")
@@ -230,7 +242,7 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
             cmtID = os.path.basename(cmtdir)
             cmtfile = os.path.join(cmtdir, cmtID + ".cmt")
             cmtsource = CMTSource.from_CMTSOLUTION_file(cmtfile)
-            mdict = load_winfile_json(_file, inv, cmtsource)
+            mdict = load_winfile_json(_file, inv, cmtsource, simple=simple)
 
             # Add window file content to superdict
             for _channel, _measure_dict in mdict.items():
@@ -238,15 +250,19 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
                     print(_channel, _wtype, _measure, len(_measurelist))
                     measurements[_channel][_wtype][_measure].extend(
                         _measurelist)
-                    
+
     lpy.print_section("Reading measurements done.")
 
-    # Saving the whole thinng to a pickle.
+    # Saving the whole thing to a pickle.
     timestr = strftime("%Y%m%dT%H%M", localtime())
 
     # Create HDF5 Storage
+    if simple:
+        post = "simple_"
+    else:
+        post = ""
     outfile = os.path.join(
-        outputdir, f"window_measurements_{timestr}.h5")
+        outputdir, f"window_measurements_{post}{timestr}.h5")
     lpy.print_bar("Opening HDF5 file...")
     store = pd.HDFStore(outfile, 'w')
 
@@ -258,7 +274,7 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
             tag = f"{_comp}/{_wtype}"
 
             # Print
-            lpy.print_action(f"Saving {tag} to {outfile}")
+            lpy.print_action(f"Saving {tag:9} to {outfile}")
 
             # Createt Dataframe for measurements
             df = pd.DataFrame.from_dict(measurements[_comp][_wtype])
@@ -271,10 +287,10 @@ def create_measurement_pickle(databases: List[str], outputdir: str):
     store.close()
 
 
-def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
-                     t_res: float = 15, minillum: int = 0,
-                     illumdecay: int = 50, noplot: bool = False,
-                     save: bool = False, fromhistfile: bool = True) -> None:
+def plot_window_hist_tdist(filename: str, outputdir: str, deg_res: float = 0.1,
+                           t_res: float = 15, minillum: int = 0,
+                           illumdecay: int = 50, noplot: bool = False,
+                           save: bool = False, fromhistfile: bool = True) -> None:
 
     if fromhistfile:
         with open(filename, 'rb') as f:
@@ -300,7 +316,7 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
         # Define bin edges
         xbins = np.arange(0, 181, deg_res)
         ybins = np.arange(0, 11800, t_res)
-        shape = (xbins.size, ybins.size)
+        shape = (xbins.size - 1, ybins.size - 1)
 
         # Empty dict for the histograms
         base_hist_measure_dict = dict(counts=np.ndarray(shape),
@@ -317,14 +333,12 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
                      Z=deepcopy(base_hist_wtype_dict),
                      xbins=xbins, ybins=ybins)
 
-        print(store)
-
+        # Compute histograms
         for _channel in ["R", "T", "Z"]:
             for _wtype in ["body", "surface", "mantle"]:
 
                 lpy.print_action(f"Binning {_channel}/{_wtype}")
 
-                print()
                 # Count histogram
                 hists[_channel][_wtype]["counts"], _, _ = np.histogram2d(
                     store[f"{_channel}/{_wtype}"]["epics"].to_numpy(),
@@ -334,14 +348,13 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
                 # Data histograms
                 dat_list = ["dlnAs", "cc_shifts", "max_ccs"]
                 for _dat in dat_list:
-                    meanval = np.mean(store[f"{_channel}/{_wtype}"][_dat].to_numpy())
-                    print(f"{_dat} mean: {meanval}")
+                    meanval = np.mean(
+                        store[f"{_channel}/{_wtype}"][_dat].to_numpy())
                     hists[_channel][_wtype][_dat], _, _ = np.histogram2d(
                         store[f"{_channel}/{_wtype}"]["epics"].to_numpy(),
                         store[f"{_channel}/{_wtype}"]["wins"].to_numpy(),
                         bins=(xbins, ybins),
                         weights=store[f"{_channel}/{_wtype}"][_dat].to_numpy())
-
         # Close HDF5
         store.close()
         # Save histogram file if wanted.
@@ -375,63 +388,35 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
         for _i, (_wtype, _wlabel) in enumerate(zip(wavetypes, wave_labels)):
             for _k, _measure in enumerate(
                     ["counts", "dlnAs", "cc_shifts", "max_ccs"]):
-                if _i == 0:
-                    hists_channel[_channel][_measure] = \
-                        hists[_channel][_wtype][_measure]
-                else:
-                    hists_channel[_channel][_measure] += \
-                        hists[_channel][_wtype][_measure]
-
-                if _j == 0:
-                    hists_wavetype[_wtype][_measure] = \
-                        hists[_channel][_wtype][_measure]
-                else:
-                    hists_wavetype[_wtype][_measure] += \
-                        hists[_channel][_wtype][_measure]
-
+                # Create combined histogram
                 if _i == 0 and _j == 0:
                     hists_comb[_measure] = \
-                        hists[_channel][_wtype][_measure]
+                        deepcopy(hists[_channel][_wtype][_measure])
                 else:
                     hists_comb[_measure] += \
                         hists[_channel][_wtype][_measure]
 
-    # # Ge boolean array about where we have data and where not
-    # boolcounts = hists[_channel][_wtype]["counts"].astype(bool)
-    # # Workaround for zero count values tto not get an error.
-    # # Where counts == 0, zi = 0, else zi = zz/counts
-    # zi = np.zeros_like(zz)
-    # zi[boolcounts] = zz[boolcounts] / \
-    #     hists[_channel][_wtype]["counts"][boolcounts]
-    # hists[_channel][_wtype][_dat] = np.ma.masked_equal(zi, 0)
+                # Create combined wavetypes histogram
+                if _i == 0:
+                    hists_channel[_channel][_measure] = \
+                        deepcopy(hists[_channel][_wtype][_measure])
+                else:
+                    hists_channel[_channel][_measure] += \
+                        hists[_channel][_wtype][_measure]
 
-    # # Populate the combined histograms
-    # # Data histograms
-    # dat_list = ["dlnAs", "cc_shifts", "max_ccs"]
+                # Create combined channels histogram
+                if _j == 0:
+                    hists_wavetype[_wtype][_measure] = \
+                        deepcopy(hists[_channel][_wtype][_measure])
+                else:
+                    hists_wavetype[_wtype][_measure] += \
+                        hists[_channel][_wtype][_measure]
 
-    # for _j, (_channel, _clabel) in enumerate(zip(channels, channel_labels)):
-
-    #     # Ge boolean array about where we have data and where not
-    #     boolcounts = hists_channel[_channel]["counts"].astype(bool)
-    #     # Workaround for zero count values tto not get an error.
-    #     # Where counts == 0, zi = 0, else zi = zz/counts
-    #     for _dat in dat_list:
-    #         zi = np.zeros(shape)
-    #         zi[boolcounts] = hists_channel[_channel][_dat][boolcounts] / \
-    #             hists_channel[_channel]["counts"][boolcounts]
-    #         hists_channel[_channel][_dat] = np.ma.masked_equal(zi, 0)
-
-    # for _i, (_wtype, _wlabel) in enumerate(zip(wavetypes, wave_labels)):
-
-    #     # Ge boolean array about where we have data and where not
-    #     boolcounts = hists_channel[_channel]["counts"].astype(bool)
-    #     # Workaround for zero count values tto not get an error.
-    #     # Where counts == 0, zi = 0, else zi = zz/counts
-    #     for _dat in dat_list:
-    #         zi = np.zeros(shape)
-    #         zi[boolcounts] = hists_channel[_channel][_dat][boolcounts] / \
-    #             hists_channel[_channel]["counts"][boolcounts]
-    #         hists_wavetype[_channel][_dat] = np.ma.masked_equal(zi, 0)
+                if _measure == "counts":
+                    print(f"{_channel} Counts mean:",
+                          hists_channel[_channel]["counts"].mean())
+                    print(f"{_wtype} Counts mean:",
+                          hists_wavetype[_wtype]["counts"].mean())
 
     def get_illumination(mat: np.ndarray, minillum: int = 25,
                          illumdecay: int = 50, r: bool = False):
@@ -453,107 +438,364 @@ def plot_window_hist(filename: str, outputdir: str, deg_res: float = 0.1,
             alphas[below_minillum] = 1.0
         return alphas
 
-    def set_facealpha(p, alphaarray):
-        print(np.min(alphaarray), np.max(alphaarray), np.mean(alphaarray),
-              np.median(alphaarray))
-
-    alphas = get_illumination(
-        hists_comb["counts"].T[::-1, :], 100, 200)
-    alphas_r = get_illumination(hists_comb["counts"].T, minillum, illumdecay,
-                                r=True)
+    # Print combined figures
+    # Get main info for plotting
     xmin, xmax = np.min(hists["xbins"]), np.max(hists["xbins"])
     ymin, ymax = np.min(hists["ybins"]), np.max(hists["ybins"])
     extent = [xmin, xmax, ymin/60, ymax/60]
 
+    combo_plot = False
+    if combo_plot:
+        alphas = get_illumination(
+            hists_comb["counts"].T[::-1, :], 100, 200)
 
-    fig = plt.figure(figsize=(4, 6))
-    ax = plt.axes()
-    fig.subplots_adjust(left=0.15, right=0.85, top=0.9, bottom=0.0)
-    alphamat = 0.8 * np.ones((shape[1] - 1, shape[0] - 1, 4))
-    alphamat[:, :, 3] = alphas_r
-    print(hists_comb["counts"].min(),)
-    im1 = ax.imshow(hists_comb["counts"].T[::-1, :], cmap='afmhot_r',
-                    interpolation='none', extent=extent, aspect='auto',
-                    alpha=alphas, norm=colors.LogNorm(vmin=200.0, vmax=hists_comb["counts"].max()))
-    c = lpy.nice_colorbar(
-        matplotlib.cm.ScalarMappable(cmap=im1.cmap, norm=im1.norm),
-        pad=0.025,
-        orientation='horizontal', aspect=40)  # , ax=axes.ravel().tolist())
-    plt.xlabel("$\\Delta$ [$^\\circ$]")
-    ax.xaxis.set_label_position('top')
-    ax.tick_params(labelbottom=False, labeltop=True)
-    plt.ylabel("Traveltime [min]")
+        # Divide sum by all other measurements
+        # Dataplotting dict
+        dpd = dict(
+            counts=dict(
+                cmap="gray_r", norm=colors.LogNorm(
+                    vmin=1000, vmax=hists_comb["counts"].max()),
+                label="Counts"),
+            dlnAs=dict(
+                cmap="seismic",
+                norm=lpy.MidpointNormalize(vmin=-0.5, vmax=0.5, midpoint=0.0),
+                label="dlnA"),
+            cc_shifts=dict(
+                cmap="seismic",
+                norm=lpy.MidpointNormalize(
+                    vmin=-12.5, vmax=12.5, midpoint=0.0),
+                label="CC-$\Delta$ t"),
+            max_ccs=dict(
+                cmap="gray_r",
+                norm=colors.Normalize(vmin=0.925, vmax=0.98),
+                label="Max. CrossCorr"),
+        )
+        fig = plt.figure(figsize=(10, 6))
+        spcount = 141
+        fig.subplots_adjust(left=0.15, right=0.85, top=0.9, bottom=0.0)
+        axes = []
+        boolcounts = hists_comb["counts"].astype(bool)
+        for _i, (_dat, _hist) in enumerate(hists_comb.items()):
 
-    plt.savefig(os.path.join(outputdir, "window_hist.png"))
+            # Define Data
+            if _dat == "counts":
+                zz = _hist
+            else:
+                zz = np.zeros_like(hists_comb[_dat])
+                zz[boolcounts] = hists_comb[_dat][boolcounts] / \
+                    hists_comb["counts"][boolcounts]
 
+            if _i == 0:
+                axes.append(plt.subplot(spcount))
+            else:
+                axes.append(plt.subplot(
+                    spcount + _i, sharey=axes[0], sharex=axes[0]))
+                axes[_i].tick_params(labelleft=False)
 
+            if _dat == "counts":
+                im1 = axes[_i].imshow(zz.T[::-1, :], cmap=dpd[_dat]['cmap'],
+                                      interpolation='none', extent=extent,
+                                      norm=dpd[_dat]['norm'], aspect='auto')
+                plt.ylabel("Traveltime [min]")
+            else:
+                im1 = axes[_i].imshow(zz.T[::-1, :], cmap=dpd[_dat]['cmap'],
+                                      interpolation='none', norm=dpd[_dat]['norm'],
+                                      extent=extent, aspect='auto', alpha=alphas)
 
+            lpy.plot_label(axes[_i],
+                           f"$\\mu$ = {zz[boolcounts].mean():>4.2f}\n"
+                           f"$\\sigma$ = {zz[boolcounts].std():>4.2f}\n",
+                           location=2, box=False,
+                           fontdict={"fontfamily": "monospace"},
+                           )
+            c = lpy.nice_colorbar(
+                matplotlib.cm.ScalarMappable(cmap=im1.cmap, norm=im1.norm),
+                pad=0.025,
+                orientation='horizontal', aspect=40)  # , ax=axes.ravel().tolist())
+            # Set labels
+            c.set_label(dpd[_dat]['label'])
 
-    boolcounts = hists["R"]["surface"]["counts"].astype(bool)
-    zz = np.zeros_like(hists_comb["dlnAs"])
-    zz[boolcounts] = hists["R"]["surface"]["dlnAs"][boolcounts]/hists["R"]["surface"]["counts"][boolcounts]
+            plt.xlabel("$\\Delta$ [$^\\circ$]")
 
-    print("Hello", np.sum(hists["R"]["surface"]["dlnAs"] - hists["R"]["surface"]["counts"])/np.sum(hists["R"]["surface"]["counts"]))
+            # Put xlabel on top
+            axes[_i].xaxis.set_label_position('top')
+            axes[_i].tick_params(labelbottom=False, labeltop=True)
 
-    fig = plt.figure(figsize=(4, 6))
-    ax = plt.axes()
-    fig.subplots_adjust(left=0.15, right=0.85, top=0.9, bottom=0.0)
-    alphamat = 0.8 * np.ones((shape[1] - 1, shape[0] - 1, 4))
-    alphamat[:, :, 3] = alphas_r
-    print(hists_comb["counts"].min())
-    im1 = ax.imshow(hists["R"]["surface"]["counts"], cmap='gray', interpolation='none', extent=extent, aspect='auto')
-    c = lpy.nice_colorbar(
-        matplotlib.cm.ScalarMappable(cmap=im1.cmap, norm=im1.norm),
-        pad=0.025,
-        orientation='horizontal', aspect=40)  # , ax=axes.ravel().tolist())
-    plt.xlabel("$\\Delta$ [$^\\circ$]")
-    ax.xaxis.set_label_position('top')
-    ax.tick_params(labelbottom=False, labeltop=True)
-    plt.ylabel("Traveltime [min]")
+    single_hists = True
+    if single_hists:
 
-    plt.savefig(os.path.join(outputdir, "window_hist_dlna.png"))
+        # Create plotting style dictionary
+        dpd = dict(
+            body=dict(
+                counts=dict(
+                    cmap="gray_r", norm=colors.LogNorm(
+                        vmin=100,
+                        vmax=hists_wavetype['body']["counts"].max()*0.75),
+                    label="Counts"),
+                dlnAs=dict(
+                    cmap="seismic",
+                    norm=lpy.MidpointNormalize(midpoint=0.0),
+                    label="dlnA"),
+                cc_shifts=dict(
+                    cmap="seismic",
+                    norm=lpy.MidpointNormalize(
+                        vmin=-12.5, vmax=12.5, midpoint=0.0),
+                    label="CC-$\\Delta$ t"),
+                max_ccs=dict(
+                    cmap="gray_r",
+                    norm=colors.Normalize(vmin=0.9, vmax=0.98),
+                    label="Max. CrossCorr")
+            ),
+            surface=dict(
+                counts=dict(
+                    cmap="gray_r", norm=colors.LogNorm(
+                        vmin=100,
+                        vmax=hists_wavetype['body']["counts"].max()*0.75),
+                    label="Counts"),
+                dlnAs=dict(
+                    cmap="seismic",
+                    norm=lpy.MidpointNormalize(midpoint=0.0),
+                    label="dlnA"),
+                cc_shifts=dict(
+                    cmap="seismic",
+                    norm=lpy.MidpointNormalize(
+                        vmin=-12.5, vmax=12.5, midpoint=0.0),
+                    label="CC-$\\Delta$ t"),
+                max_ccs=dict(
+                    cmap="gray_r",
+                    norm=colors.Normalize(vmin=0.9, vmax=0.98),
+                    label="Max. CrossCorr")
+            ),
+            mantle=dict(
+                counts=dict(
+                    cmap="gray_r", norm=colors.LogNorm(
+                        vmin=100,
+                        vmax=hists_wavetype['body']["counts"].max()*0.75),
+                    label="Counts"),
+                dlnAs=dict(
+                    cmap="seismic",
+                    norm=lpy.MidpointNormalize(midpoint=0.0),
+                    label="dlnA"),
+                cc_shifts=dict(
+                    cmap="seismic",
+                    norm=lpy.MidpointNormalize(
+                        vmin=-12.5, vmax=12.5, midpoint=0.0),
+                    label="CC-$\\Delta$ t"),
+                max_ccs=dict(
+                    cmap="gray_r",
+                    norm=colors.Normalize(vmin=0.9, vmax=0.98),
+                    label="Max. CrossCorr"))
+        )
 
-    # set_facealpha(pm, alphas)
-    # set_facealpha(pm, alphas_r)
-    # fig.canvas.draw()
-    # fc = pm.cmap(pm.norm(pm.get_array()))
-    # fc[:, 3] = alphas.flatten()
-    # print(fc)
-    # print(np.mean(fc, axis=0))
-    # pm.set_facecolor(fc)
-    # print(pm.get_facecolors())
+        for _dat in hists_wavetype["body"].keys():
+            for _wtype in hists["R"].keys():
 
-    # plt.show(block=False)
-    # # set_facealpha(pm, alphas)
-    # # set_facealpha(pg, alphas_r)
-    # fig.canvas.draw()
-    plt.show(block=True)
-    # nsp = 330
-    # axes = []
-    # # for _i, (_wtype, _wlabel) in enumerate(wavetypes, wave_labels):
-    #     subaxes = []
-    #     for _j, (_channel, _clabel) in enumerate(channels, channel_labels):
-    #         ax = plt.subplots(nsp + _i * 3 + _j)
-    #         subaxes.append(ax)
-    #     axes.append(subaxes)
+                fig = plt.figure(figsize=(9, 6))
+                fig.subplots_adjust(
+                    left=0.06, right=0.94, top=0.925, bottom=-0.05, wspace=0.2
+                )
+                spcount = 131
+                axes = []
+                for _i, (_channel) in enumerate(["R", "T", "Z"]):
+                    boolcounts = hists[_channel][_wtype]["counts"].astype(bool)
+                    alphas = get_illumination(
+                        hists[_channel][_wtype]["counts"].T[::-1, :], 25, 75)
 
-    # for _i, (_wtype, _wlabel) in enumerate(wavetypes, wave_labels):
-    #     for _j, (_channel, _clabel) in enumerate(channels, channel_labels):
+                    # Define Data
+                    if _dat == "counts":
+                        zz = hists[_channel][_wtype]["counts"]
+                    else:
+                        zz = np.zeros_like(hists[_channel][_wtype][_dat])
+                        zz[boolcounts] = \
+                            hists[_channel][_wtype][_dat][boolcounts] / \
+                            hists[_channel][_wtype]["counts"][boolcounts]
 
-    #     for _j, (_channel, _clabel) in enumerate(channels, channel_labels):
-    #         subaxes[_j][_j].pcolormesh(hists["xbins"], hists["ybins"] /
-    #             60, hists["R"]["surface"]["counts"].T, cmap='afmhot_r'))
-    #         c = lpy.nice_colorbar(pm, orientation = 'horizontal',
-    #                               aspect = 40, ax = axes.ravel().tolist())
-    #         plt.xlabel("$\\Delta$ [$^\\circ$]")
-    #         lpy.plot_label(ax, "Radial", location = 1,
-    #                        aspect = 0.5, box = False)
-    #         ax.xaxis.set_label_position('top')
-    #         ax.tick_params(labelbottom = False, labeltop = True)
-    #         plt.ylabel("Traveltime [min]")
-    #         plt.show()
+                    if _i == 0:
+                        axes.append(plt.subplot(spcount))
+                        plt.ylabel("Traveltime [min]")
+                    else:
+                        axes.append(plt.subplot(
+                            spcount + _i, sharey=axes[0], sharex=axes[0]))
+                        axes[_i].tick_params(labelleft=False)
+
+                    if _dat == "counts":
+                        im1 = axes[_i].imshow(
+                            zz.T[::-1, :], cmap=dpd[_wtype][_dat]['cmap'],
+                            interpolation='none', extent=extent,
+                            norm=dpd[_wtype][_dat]['norm'], aspect='auto',
+                            zorder=-10)
+                    else:
+                        im1 = axes[_i].imshow(
+                            zz.T[::-1, :], cmap=dpd[_wtype][_dat]['cmap'],
+                            interpolation='none', norm=dpd[_wtype][_dat]['norm'],
+                            extent=extent, aspect='auto', alpha=alphas,
+                            zorder=-10)
+
+                    # Plot traveltimes and fix limits
+                    if _wtype == "body":
+                        if _dat in ["dlnAs", "cc_shifts"]:
+                            cmap = 'Dark2'
+                        else:
+                            cmap = 'rainbow'
+                        axes[_i].set_ylim(0.0, 60.0)
+                        lpy.plot_traveltimes_ak135(
+                            ax=axes[_i], cmap=cmap,
+                            labelkwargs=dict(fontsize='small'))
+                    elif _wtype == "surface":
+                        axes[_i].set_ylim(0.0, 120.0)
+                    else:
+                        axes[_i].set_ylim(0.0, 180.0)
+
+                    mu = zz[boolcounts].mean()
+                    sig = zz[boolcounts].std()
+                    labint, ndec = lpy.get_stats_label_length(mu, sig, ndec=2)
+                    lpy.plot_label(axes[_i],
+                                   f"$\\mu$ = {mu:>{labint}.{ndec}f}\n"
+                                   f"$\\sigma$ = {sig:>{labint}.2f}",
+                                   location=4, box=False,
+                                   fontdict=dict(
+                                       fontfamily="monospace",
+                                       fontsize="small"))
+
+                    # Plot Type label
+                    if _wtype == "mantle":
+                        location = 2
+                    else:
+                        location = 1
+                    lpy.plot_label(
+                        axes[_i],
+                        f"{_wtype.capitalize()}\n{_channel.capitalize()}",
+                        location=location, box=False,
+                        fontdict=dict(fontsize="small"))
+
+                    # Plot colorbar
+                    c = lpy.nice_colorbar(
+                        matplotlib.cm.ScalarMappable(
+                            cmap=im1.cmap, norm=im1.norm),
+                        pad=0.025, orientation='horizontal', aspect=40)
+
+                    # Set labels
+                    c.set_label(dpd[_wtype][_dat]['label'])
+                    plt.xlabel("$\\Delta$ [$^\\circ$]")
+
+                    # Put xlabel on top
+                    axes[_i].xaxis.set_label_position('top')
+                    axes[_i].tick_params(labelbottom=False, labeltop=True)
+
+                    # Set rasterization zorder to rasteriz images for pdf output
+                    axes[_i].set_rasterization_zorder(-5)
+
+                outfile = os.path.join(
+                    outputdir, f"{_wtype}_{_dat}.pdf")
+                plt.savefig(outfile)
+
+    # plt.show(block=True)
 
     return None
+
+
+def plot_window_hist(filename: str, outputdir: str,
+                     fromhistfile: bool = True, save: bool = False) -> None:
+
+    if fromhistfile:
+        with open(filename, 'rb') as f:
+            hists = pickle.load(f)
+
+        # Define bin edges
+        xbins = hists['xbins']
+        ybins = hists['ybins']
+        shape = (xbins.size, ybins.size)
+
+        base_hist_measure_dict = dict(counts=np.ndarray(shape),
+                                      dlnAs=np.ndarray(shape),
+                                      cc_shifts=np.ndarray(shape),
+                                      max_ccs=np.ndarray(shape))
+        base_hist_wtype_dict = dict(body=deepcopy(base_hist_measure_dict),
+                                    surface=deepcopy(base_hist_measure_dict),
+                                    mantle=deepcopy(base_hist_measure_dict))
+
+    else:
+        # Load HDF5 file with measurements
+        store = pd.HDFStore(filename, 'r')
+
+        # Empty dict for the histograms
+        base_hist_measure_dict = dict(
+            dlnAs=dict(hist=None, edges=None, mean=None, std=None),
+            cc_shifts=dict(hist=None, edges=None, mean=None, std=None),
+            max_ccs=dict(hist=None, edges=None, mean=None, std=None)
+        )
+        base_hist_wtype_dict = dict(body=deepcopy(base_hist_measure_dict),
+                                    surface=deepcopy(base_hist_measure_dict),
+                                    mantle=deepcopy(base_hist_measure_dict))
+
+        # Empty hist
+        hists = dict(R=deepcopy(base_hist_wtype_dict),
+                     T=deepcopy(base_hist_wtype_dict),
+                     Z=deepcopy(base_hist_wtype_dict))
+
+        # Compute histograms
+        for _i, _channel in enumerate(["R", "T", "Z"]):
+            for _j, _wtype in enumerate(["body", "surface", "mantle"]):
+
+                lpy.print_action(f"Binning {_channel}/{_wtype}")
+
+                # Data histograms
+                dat_list = ["dlnAs", "cc_shifts", "max_ccs"]
+                for _dat in dat_list:
+                    data = store[f"{_channel}/{_wtype}"][_dat].to_numpy()
+                    hists[_channel][_wtype][_dat]["mean"] = data.mean()
+                    hists[_channel][_wtype][_dat]["std"] = data.std()
+                    hists[_channel][_wtype][_dat]["hist"], \
+                        hists[_channel][_wtype][_dat]["edges"] = \
+                        np.histogram(data, bins=50)
+
+        # Close HDF5
+        store.close()
+        # Save histogram file if wanted.
+        if save:
+
+            timestr = strftime("%Y%m%dT%H%M", localtime())
+            outfile = os.path.join(
+                outputdir, f"window_hists_comp_wtype{timestr}.pickle")
+            with open(outfile, 'wb') as f:
+                pickle.dump(hists, f)
+
+    # Data histograms
+    dat_list = ["dlnAs", "cc_shifts", "max_ccs"]
+    for _dat in dat_list:
+        plt.figure(figsize=(5, 5))
+        counter = 1
+        for _i, _channel in enumerate(["R", "T", "Z"]):
+            for _j, _wtype in enumerate(["body", "surface", "mantle"]):
+                ax = plt.subplot(3, 3, counter)
+                # Draw
+                mean = hists[_channel][_wtype][_dat]["mean"]
+                std = hists[_channel][_wtype][_dat]["std"]
+                bins = hists[_channel][_wtype][_dat]["edges"]
+                counts = hists[_channel][_wtype][_dat]["hist"]
+                centroids = (bins[1:] + bins[:-1]) / 2
+                counts_, bins_, _ = plt.hist(
+                    centroids, bins=len(counts),
+                    weights=counts, range=(np.min(bins), np.max(bins)),
+                    facecolor='gray', edgecolor='k', histtype='stepfilled')
+
+                # Plot channel/wave tyoe label
+                lpy.plot_label(ax, f"{_wtype}\n{_channel}",
+                               fontdict=dict(fontsize="small"))
+
+                # Plot stats label
+                labint, ndec = lpy.get_stats_label_length(mean, std, ndec=2)
+                lpy.plot_label(ax,
+                               f"$\\mu$ = {mean:>{labint}.{ndec}f}\n"
+                               f"$\\sigma$ = {std:>{labint}.2f}",
+                               location=4, box=False,
+                               fontdict=dict(
+                                   fontfamily="monospace",
+                                   fontsize="small"))
+
+                counter += 1
+
+    plt.show()
 
 
 def bin_create_measurement_pickle():
@@ -566,9 +808,13 @@ def bin_create_measurement_pickle():
     parser.add_argument("-o", dest="outputdir", default=".", type=str,
                         help="Directory to save the images to",
                         required=False)
+    parser.add_argument("-s", "--simple", dest="simple", action="store_true",
+                        help="Flag to create simple histogramfiles containing"
+                        "only the window centers.",
+                        default=False, required=False)
     args = parser.parse_args()
 
-    create_measurement_pickle(args.databaselocs, args.outputdir)
+    create_measurement_pickle(args.databaselocs, args.outputdir, args.simple)
 
 
 def bin():
@@ -603,8 +849,30 @@ def bin():
                         default=False, required=False)
     args = parser.parse_args()
 
+    plot_window_hist_tdist(args.filename, outputdir=args.outputdir,
+                           deg_res=args.deg_res, t_res=args.t_res,
+                           minillum=args.minillum, illumdecay=args.illumdecay,
+                           noplot=args.noplot, fromhistfile=args.fromhistfile,
+                           save=args.save)
+
+
+def bin_plot_hist():
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename", type=str,
+                        help="filename for either a measurement or histogram file")
+    parser.add_argument("-o", dest="outputdir", default=".", type=str,
+                        help="Directory to save the images to",
+                        required=False)
+    parser.add_argument("-s", "--save", dest="save", action="store_true",
+                        help="Flag to save npzfile with histograms",
+                        default=False, required=False)
+    parser.add_argument("-f", "--fromhistfile", dest="fromhistfile",
+                        help="Flag to load npzfile with histograms",
+                        action="store_true", default=False, required=False)
+    args = parser.parse_args()
+
     plot_window_hist(args.filename, outputdir=args.outputdir,
-                     deg_res=args.deg_res, t_res=args.t_res,
-                     minillum=args.minillum, illumdecay=args.illumdecay,
-                     noplot=args.noplot, fromhistfile=args.fromhistfile,
+                     fromhistfile=args.fromhistfile,
                      save=args.save)
