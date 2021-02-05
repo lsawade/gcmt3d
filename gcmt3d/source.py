@@ -19,6 +19,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import numpy as np
 from obspy import UTCDateTime, read_events
+from obspy.core.event import Event
 import warnings
 
 
@@ -27,6 +28,7 @@ class CMTSource(object):
     Class to handle a seismic moment tensor source including a source time
     function.
     """
+
     def __init__(self, origin_time=UTCDateTime(0),
                  pde_latitude=0.0, pde_longitude=0.0, mb=0.0, ms=0.0,
                  pde_depth_in_m=None, region_tag=None, eventname=None,
@@ -70,6 +72,38 @@ class CMTSource(object):
         self.m_rt = m_rt
         self.m_rp = m_rp
         self.m_tp = m_tp
+
+    @ property
+    def M0(self):
+        """
+        Scalar Moment M0 in Nm
+        """
+        return (self.m_rr ** 2 + self.m_tt ** 2 + self.m_pp ** 2
+                + 2 * self.m_rt ** 2 + 2 * self.m_rp ** 2
+                + 2 * self.m_tp ** 2) ** 0.5 * 0.5 ** 0.5
+
+    @ property
+    def moment_magnitude(self):
+        """
+        Moment magnitude M_w
+        """
+        return 2.0 / 3.0 * (np.log10(self.M0) - 7.0) - 6.0
+
+    @ property
+    def time_shift(self):
+        """
+        Time shift between cmtsolution and pdesolution
+        """
+        return self.cmt_time - self.origin_time
+
+    @ property
+    def tensor(self):
+        """
+        List of moment tensor components in r, theta, phi coordinates:
+        [m_rr, m_tt, m_pp, m_rt, m_rp, m_tp]
+        """
+        return np.array([self.m_rr, self.m_tt, self.m_pp, self.m_rt, self.m_rp,
+                         self.m_tp])
 
     @classmethod
     def from_CMTSOLUTION_file(cls, filename):
@@ -123,13 +157,19 @@ class CMTSource(object):
                    m_rp=m_rp, m_tp=m_tp)
 
     @classmethod
-    def from_quakeml_file(cls, filename):
+    def from_quakeml_file(cls, filename: str):
         """
         Initialiaze a source object from a quakeml file
         :param filename: path to a quakeml file
         """
         cat = read_events(filename)
         event = cat[0]
+
+        return cls.from_event(event)
+
+    @classmethod
+    def from_event(cls, event: Event):
+
         for origin in event.origins:
             if origin.origin_type == 'centroid':
                 cmtsolution = origin
@@ -185,7 +225,7 @@ class CMTSource(object):
                    m_rr=m_rr, m_tt=m_tt, m_pp=m_pp, m_rt=m_rt,
                    m_rp=m_rp, m_tp=m_tp)
 
-    @classmethod
+    @ classmethod
     def from_dictionary(cls, d):
         """
         Initialize a source object from a CMTSOLUTION file.
@@ -262,37 +302,6 @@ class CMTSource(object):
             f.write('Mrp:%19.6e\n' % self.m_rp)  # * 1e7,))
             f.write('Mtp:%19.6e\n' % self.m_tp)  # * 1e7,))
 
-    @property
-    def M0(self):
-        """
-        Scalar Moment M0 in Nm
-        """
-        return (self.m_rr ** 2 + self.m_tt ** 2 + self.m_pp ** 2
-                + 2 * self.m_rt ** 2 + 2 * self.m_rp ** 2
-                + 2 * self.m_tp ** 2) ** 0.5 * 0.5 ** 0.5
-
-    @property
-    def moment_magnitude(self):
-        """
-        Moment magnitude M_w
-        """
-        return 2.0 / 3.0 * (np.log10(self.M0) - 7.0) - 6.0
-
-    @property
-    def time_shift(self):
-        """
-        Time shift between cmtsolution and pdesolution
-        """
-        return self.cmt_time - self.origin_time
-
-    @property
-    def tensor(self):
-        """
-        List of moment tensor components in r, theta, phi coordinates:
-        [m_rr, m_tt, m_pp, m_rt, m_rp, m_tp]
-        """
-        return np.array([self.m_rr, self.m_tt, self.m_pp, self.m_rt, self.m_rp,
-                         self.m_tp])
 
     def __str__(self):
         return_str = 'CMT Source -- %s\n' % self.eventname

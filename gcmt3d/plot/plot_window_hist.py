@@ -596,7 +596,7 @@ def plot_window_hist_tdist(filename: str, outputdir: str, deg_res: float = 0.1,
                 )
                 spcount = 131
                 axes = []
-                for _i, (_channel) in enumerate(["R", "T", "Z"]):
+                for _i, (_channel) in enumerate(["Z", "R", "T"]):
                     boolcounts = hists[_channel][_wtype]["counts"].astype(bool)
                     alphas = get_illumination(
                         hists[_channel][_wtype]["counts"].T[::-1, :], 25, 75)
@@ -701,19 +701,6 @@ def plot_window_hist(filename: str, outputdir: str,
         with open(filename, 'rb') as f:
             hists = pickle.load(f)
 
-        # Define bin edges
-        xbins = hists['xbins']
-        ybins = hists['ybins']
-        shape = (xbins.size, ybins.size)
-
-        base_hist_measure_dict = dict(counts=np.ndarray(shape),
-                                      dlnAs=np.ndarray(shape),
-                                      cc_shifts=np.ndarray(shape),
-                                      max_ccs=np.ndarray(shape))
-        base_hist_wtype_dict = dict(body=deepcopy(base_hist_measure_dict),
-                                    surface=deepcopy(base_hist_measure_dict),
-                                    mantle=deepcopy(base_hist_measure_dict))
-
     else:
         # Load HDF5 file with measurements
         store = pd.HDFStore(filename, 'r')
@@ -745,9 +732,19 @@ def plot_window_hist(filename: str, outputdir: str,
                     data = store[f"{_channel}/{_wtype}"][_dat].to_numpy()
                     hists[_channel][_wtype][_dat]["mean"] = data.mean()
                     hists[_channel][_wtype][_dat]["std"] = data.std()
+                    if _dat == "cc_shifts":
+                        nbins = 25
+                        brange = [-25, 25]
+                    elif _dat == "dlnAs":
+                        nbins = 50
+                        brange = None
+                    else:
+                        nbins = 50
+                        brange = [0.85, 1.0]
+
                     hists[_channel][_wtype][_dat]["hist"], \
                         hists[_channel][_wtype][_dat]["edges"] = \
-                        np.histogram(data, bins=50)
+                        np.histogram(data, bins=nbins, range=brange)
 
         # Close HDF5
         store.close()
@@ -763,12 +760,21 @@ def plot_window_hist(filename: str, outputdir: str,
     # Data histograms
     dat_list = ["dlnAs", "cc_shifts", "max_ccs"]
     for _dat in dat_list:
-        plt.figure(figsize=(5, 5))
+        plt.figure(figsize=(8, 7))
+        plt.subplots_adjust(left=0.075, right=0.925,
+                            bottom=0.075, top=0.925, wspace=0.375, hspace=0.15)
+
         counter = 1
-        for _i, _channel in enumerate(["R", "T", "Z"]):
+        for _i, _channel in enumerate(["Z", "R", "T"]):
             for _j, _wtype in enumerate(["body", "surface", "mantle"]):
-                ax = plt.subplot(3, 3, counter)
-                # Draw
+
+                # Create axes
+                if counter == 1:
+                    ax = plt.subplot(3, 3, counter)
+                else:
+                    ax = plt.subplot(3, 3, counter, sharex=ax)
+
+                # Draw histogram using previously created histograms
                 mean = hists[_channel][_wtype][_dat]["mean"]
                 std = hists[_channel][_wtype][_dat]["std"]
                 bins = hists[_channel][_wtype][_dat]["edges"]
@@ -777,23 +783,54 @@ def plot_window_hist(filename: str, outputdir: str,
                 counts_, bins_, _ = plt.hist(
                     centroids, bins=len(counts),
                     weights=counts, range=(np.min(bins), np.max(bins)),
-                    facecolor='gray', edgecolor='k', histtype='stepfilled')
+                    facecolor=(0.8, 0.8, 0.8), edgecolor='k',
+                    histtype='stepfilled')
+
+                # Set limits
+                ax.set_ylim(0, np.max(counts) * 1.3)
+                ax.set_xlim(np.min(bins), np.max(bins))
+
+                # Plot vertical 0 line
+                ax.grid('on', linewidth=0.75)
+
+                # Plot label
+                if _i == 2:
+                    if _dat == "cc_shifts":
+                        ax.set_xlabel("CC-$\Delta t$")
+                    elif _dat == "dlnAs":
+                        ax.set_xlabel("dlnA")
+                    elif _dat == "max_ccs":
+                        ax.set_xlabel("Max CC")
+                else:
+                    ax.tick_params(labelbottom=False)
 
                 # Plot channel/wave tyoe label
-                lpy.plot_label(ax, f"{_wtype}\n{_channel}",
-                               fontdict=dict(fontsize="small"))
+                lpy.plot_label(ax, f"{_wtype.capitalize()}\n{_channel}",
+                               box=dict(
+                                   facecolor='w', edgecolor='none', pad=0.2,
+                                   alpha=0.66),
+                               fontdict=dict(fontsize="small"),
+                               )
 
                 # Plot stats label
                 labint, ndec = lpy.get_stats_label_length(mean, std, ndec=2)
                 lpy.plot_label(ax,
                                f"$\\mu$ = {mean:>{labint}.{ndec}f}\n"
                                f"$\\sigma$ = {std:>{labint}.2f}",
-                               location=4, box=False,
+                               location=2,
                                fontdict=dict(
                                    fontfamily="monospace",
-                                   fontsize="small"))
+                                   fontsize="small"),
+                               box=dict(
+                                   facecolor='w', edgecolor='none', pad=0.2,
+                                   alpha=0.66))
 
                 counter += 1
+
+        # Save plot
+        filename = f"window_hist_{_dat}.pdf"
+        outfile = os.path.join(outputdir, filename)
+        plt.savefig(outfile)
 
     plt.show()
 

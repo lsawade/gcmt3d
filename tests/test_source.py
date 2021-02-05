@@ -29,6 +29,11 @@ def cmt():
     return CMTSource.from_CMTSOLUTION_file(CMTFILE)
 
 
+@pytest.fixture
+def event():
+    return read_events(CMTFILE)[0]
+
+
 def test_from_CMTSOLUTION_file(cmt):
     origin_time = obspy.UTCDateTime(2001, 9, 9, 23, 59, 17.78)
     cmt_time = origin_time + 2.0
@@ -41,6 +46,20 @@ def test_from_CMTSOLUTION_file(cmt):
                   m_rr=1.0e22, m_tt=-1.0e22)
 
     assert cmt == cmt_true
+
+
+def test_from_event_file(event):
+    origin_time = obspy.UTCDateTime(2001, 9, 9, 23, 59, 17.78)
+    cmt_time = origin_time + 2.0
+    cmt_true = \
+        CMTSource(origin_time=origin_time,
+                  pde_latitude=34.0745, pde_longitude=-118.3792,
+                  pde_depth_in_m=6400, mb=4.2, ms=4.2, region_tag="SOUTHERN CALIFORNIA",
+                  eventname="9703873", cmt_time=cmt_time, half_duration=1.0,
+                  latitude=34.1745, longitude=-118.4792, depth_in_m=5400.0,
+                  m_rr=1.0e22, m_tt=-1.0e22)
+
+    assert CMTSource.from_event(event) == cmt_true
 
 
 def test_write_CMTSOLUTION_File(tmpdir, cmt):
