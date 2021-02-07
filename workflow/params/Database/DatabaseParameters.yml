@@ -3,6 +3,21 @@ databasedir: "/tigress/lsawade/database_wenjie_2"
 entkdatabase: "tigress/lsawade/entkdatabase"
 entkdatabase_bad: "/tigress/lsawade/entkdatabase_bad"
 
+#
+Stages:
+  Create: True
+  Download: True
+  Convert: False
+  Simulate: False
+  Process: False
+  Window: False
+  Invert: False
+  Gridsearch: False
+  Result: False
+
+
+
+
 # Number of parameters to invert for
 # 6: only the moment tensor
 # 7: Moment tensor and depth
