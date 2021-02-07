@@ -75,8 +75,6 @@ PROCESS_PATHS = f"{CDIR}/workflow_files/path_files/process_paths"
 CONVERSION_PATHS = f"{CDIR}/workflow_files/path_files/conversion_paths"
 
 
-print("hello")
-
 # Create a Pipeline object
 p = Pipeline()
 
