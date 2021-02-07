@@ -55,7 +55,7 @@ SPECFEM_PARAMS = read_yaml_file(os.path.join(
 
 
 # ################ EVENT INFORMATION #########################################
-cmtfile = os.path.join(SCRIPT_LOCATION, "sumatra.cmt")
+cmtfile = os.path.join(os.path.dirname(SCRIPT_LOCATION), "sumatra.cmt")
 # EARTHQUAKE PARAMETERS and Paths derived from the file
 # Getting database entry from CMTSOLUTION FILE
 cmtsource = CMTSource.from_CMTSOLUTION_file(cmtfile)
