@@ -123,8 +123,8 @@ t.name = 'DownloadTask'
 
 # If The compute node does have internet we can simply run the
 # download function 'request-data'
-print(RADICAL_DICT['COMPUTE_INTERNET'])
-if RADICAL_DICT['COMPUTE_INTERNET']:
+print(GCMT3D_PARAMS['COMPUTE_INTERNET'])
+if GCMT3D_PARAMS['COMPUTE_INTERNET']:
     t.pre_exec = [
         f"conda activate {CONDA_ENV}",
         "module load openmpi/gcc"
