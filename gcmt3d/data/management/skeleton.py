@@ -146,7 +146,7 @@ class DataBaseSkeleton(object):
     def create_Cdirs(self):
         """ If more than one earthquake exist with regex, call all of them"""
         for cmtfile in self.cmtfile_list:
-            
+
             logger.info(cmtfile)
             # Create directory
             self.create_1_Cdir(cmtfile)

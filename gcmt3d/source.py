@@ -302,7 +302,6 @@ class CMTSource(object):
             f.write('Mrp:%19.6e\n' % self.m_rp)  # * 1e7,))
             f.write('Mtp:%19.6e\n' % self.m_tp)  # * 1e7,))
 
-
     def __str__(self):
         return_str = 'CMT Source -- %s\n' % self.eventname
         return_str += 'origin time(pde): %s\n' % self.origin_time

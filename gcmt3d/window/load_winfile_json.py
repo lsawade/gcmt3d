@@ -110,7 +110,8 @@ def load_winfile_json(flexwin_file: str, inv: Union[Inventory, None] = None,
                             # Compute epicentral distance
                             epi = kilometer2degrees(gps2dist_azimuth(
                                 event.latitude, event.longitude,
-                                coords["latitude"], coords["longitude"])[0]/1000.0)
+                                coords["latitude"],
+                                coords["longitude"])[0]/1000.0)
 
                         except Exception as e:
                             if v:
@@ -140,7 +141,8 @@ def load_winfile_json(flexwin_file: str, inv: Union[Inventory, None] = None,
                                 _max_cc)
                         else:
                             times = np.arange(win_time[_idx, 0],
-                                              win_time[_idx, 1] + _dt, _dt).tolist()
+                                              win_time[_idx, 1]
+                                              + _dt, _dt).tolist()
                             measurement_dict[channel]["wins"].extend(times)
                             measurement_dict[channel]["epics"].extend(
                                 np.ones(len(times)) * epi)

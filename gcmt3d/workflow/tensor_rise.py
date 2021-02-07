@@ -62,9 +62,9 @@ def gradient(cmt_file_db):
     if (mpienv is False) or (mpi.rank == 0):
         # Inversion Params
         cmt_params = os.path.join(os.path.dirname(cmt_file_db),
-                                "workflow_files", "params")
+                                  "workflow_files", "params")
         inversionparam_path = os.path.join(cmt_params, "inversion_params",
-                                        "GridsearchParams.yml")
+                                           "GridsearchParams.yml")
         INV_params = read_yaml_file(inversionparam_path)
 
         # Weight Params
@@ -85,7 +85,8 @@ def gradient(cmt_file_db):
         )
 
         # Inversion dictionary directory
-        inv_dict_dir = os.path.join(cmt_dir, "workflow_files", "inversion_dicts")
+        inv_dict_dir = os.path.join(
+            cmt_dir, "workflow_files", "inversion_dicts")
 
         # Inversion dictionaries
         inv_dict_files = glob.glob(os.path.join(inv_dict_dir,
@@ -127,7 +128,8 @@ def gradient(cmt_file_db):
             # Adding measurements
             # Print Inversion parameters:
             logger.info("  Adding measurements to data container:")
-            logger.info("  _____________________________________________________")
+            logger.info(
+                "  _____________________________________________________")
             logger.info(" ")
 
             # Add measurements from ASDF file and windowfile
@@ -148,7 +150,8 @@ def gradient(cmt_file_db):
                                             velocity=velocity,
                                             only_observed=velocity)
 
-            logger.info("  _____________________________________________________")
+            logger.info(
+                "  _____________________________________________________")
             logger.info("  ... ")
             logger.info("  ")
             logger.info("  ... ")
@@ -185,7 +188,8 @@ def gradient(cmt_file_db):
             reg=bool(grad3d_params["reg"]),
             bootstrap=bool(grad3d_params["bootstrap"]),
             bootstrap_repeat=int(grad3d_params["bootstrap_repeat"]),
-            bootstrap_subset_ratio=float(grad3d_params["bootstrap_subset_ratio"]),
+            bootstrap_subset_ratio=float(
+                grad3d_params["bootstrap_subset_ratio"]),
             mpi_env=bool(grad3d_params["mpi_env"]),
             parallel=bool(grad3d_params["parallel"]))
 
@@ -198,7 +202,7 @@ def gradient(cmt_file_db):
         dcon = None
         cmtsource = None
         grad3d_config = None
-    
+
     if mpienv:
         grad3d_config = mpi.comm.bcast(grad3d_config, root=0)
     # Create Gradient3d class
@@ -229,7 +233,7 @@ def gradient(cmt_file_db):
 
         if bool(INV_params["plot_new_synthetics"]):
             g3d.plot_new_synt_seismograms(
-                outputdir=os.path.join(inv_out_dir, "waveform_plots"), 
+                outputdir=os.path.join(inv_out_dir, "waveform_plots"),
                 figure_format="pdf")
 
 

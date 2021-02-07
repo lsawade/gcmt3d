@@ -60,12 +60,15 @@ def copy_data(synt_dir, obsd_dir, station_dir, cmt_file_in_db,
     cmt_dir = os.path.dirname(os.path.abspath(cmt_file_in_db))
 
     # Observed data
-    if params is None:
-        raw_obsd = glob(os.path.join(os.path.abspath(obsd_dir), cmt_id, "*.mseed"))
-        raw_xml = glob(os.path.join(os.path.abspath(station_dir), cmt_id, "*.xml"))
+    if paramdir is None:
+        raw_obsd = glob(os.path.join(
+            os.path.abspath(obsd_dir), cmt_id, "*.mseed"))
+        raw_xml = glob(os.path.join(
+            os.path.abspath(station_dir), cmt_id, "*.xml"))
     else:
         # Get networks
-        requestp = read_yaml_file(os.path.join(paramdir, "RequestParams","RequestParams.yml"))
+        requestp = read_yaml_file(os.path.join(
+            paramdir, "RequestParams", "RequestParams.yml"))
         networks = requestp["networks"].split(",")
         raw_obsd = [
             f

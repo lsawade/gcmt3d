@@ -36,5 +36,6 @@ def main():
     # Plot stuff
     cs.plot_changes(outdir=args.outdir)
 
+
 if __name__ == "__main__":
     main()

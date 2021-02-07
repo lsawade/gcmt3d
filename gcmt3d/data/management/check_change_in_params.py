@@ -90,4 +90,5 @@ def bin():
 
     args = parser.parse_args()
 
-    print(check_change_in_params(args.cmtfile, args.new_cmtfile, args.paramdir))
+    print(check_change_in_params(args.cmtfile, args.new_cmtfile,
+                                 args.paramdir))

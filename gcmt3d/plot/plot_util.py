@@ -13,11 +13,8 @@ Last Update: April 2020
 
 """
 
-import scipy.ndimage
-import scipy as sp
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib
 from obspy.imaging.beachball import beach
 from obspy.geodetics.base import gps2dist_azimuth
 from matplotlib import cm
@@ -31,9 +28,11 @@ from ..source import CMTSource
 COLORBLIND = ['#000000', '#ffffff', '#ff1e00', '#ffb49d',
               '#22a8be', '#36fa0e', '#df0095']
 
+
 def figletter():
     for i in 'abcdefghijklmnopqrstuvwxyz':
         yield i
+
 
 def remove_topright(ax=None):
     """Removes top and right border and ticks from input axes."""

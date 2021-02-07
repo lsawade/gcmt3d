@@ -117,8 +117,9 @@ def get_stats_json(cmt3dfile, g3dfile, simple=False):
 
 class Catalog(object):
 
-    def __init__(self, ocmtfiles, ncmtfiles, stationfiles, try_measurements=True):
-        """Simple statistics between two 
+    def __init__(self, ocmtfiles, ncmtfiles, stationfiles,
+                 try_measurements=True):
+        """Simple statistics between two
 
         Raises:
             ValueError: [description]
@@ -154,7 +155,8 @@ class Catalog(object):
         for _ocmt, _ofile in zip(ocmts, self.ocmtsrcfiles):
             logger.debug(f"Event: {_ocmt.eventname} ...")
             for _ncmt, _nfile in zip(ncmts, self.ncmtsrcfiles):
-                # logger.debug(f"oid: {_ocmt.eventname}  nid: {_ncmt.eventname}")
+                # logger.debug(f"oid: {_ocmt.eventname}  "
+                #              f"nid: {_ncmt.eventname}")
                 if _ocmt.eventname == _ncmt.eventname:
 
                     self.ocmtlist.append(_ocmt)
@@ -454,8 +456,10 @@ class CatalogStats(object):
 
 #         good_stats = []
 #         counter = 0
-#         for _i, (dcmt, ncmt, id) in enumerate(zip(self.dCMT, self.ncmt, self.ids)):
-#             if (np.abs(dcmt[0]) > 0.5) or (np.abs(dcmt[7]) > 30000) or (ncmt[7] < 0):
+#         for _i, (dcmt, ncmt, id) \
+            # in enumerate(zip(self.dCMT, self.ncmt, self.ids)):
+#             if (np.abs(dcmt[0]) > 0.5) \
+            # or (np.abs(dcmt[7]) > 30000) or (ncmt[7] < 0):
 #                 logger.info("ID: %s" % id)
 #                 logger.info("  M0_0: %e" % self.ocmt[_i, 0])
 #                 logger.info("  M0_1: %e" % self.ncmt[_i, 0])
@@ -732,9 +736,9 @@ class CatalogStats(object):
 
 
 if __name__ == "__main__":
+    pass
+    # # Load shit
+    # database_dir = "/Users/lucassawade/straverse/database"
 
-    # Load shit
-    database_dir = "/Users/lucassawade/straverse/database"
-
-    ST = Statistics._from_dir(database_dir)
-    ST.plot_changes(savedir="/Users/lucassawade")
+    # ST = Statistics._from_dir(database_dir)
+    # ST.plot_changes(savedir="/Users/lucassawade")

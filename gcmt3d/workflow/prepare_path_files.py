@@ -39,4 +39,3 @@ def make_paths(cmt_filename, param_path, conversion, ddeg=None, dz=None):
                     dlocation=ddeg, ddepth=dz,
                     figure_mode=dbparams["figure_mode"])
     P.write_all()
-    

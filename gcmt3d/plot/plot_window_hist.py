@@ -1,7 +1,5 @@
 from typing import List
 import os
-import sys
-import json
 from copy import deepcopy
 import numpy as np
 import matplotlib
@@ -15,7 +13,6 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import pickle
 import pandas as pd
-from pprint import pprint
 lpy.updaterc()
 
 
@@ -155,7 +152,8 @@ def create_measurement_pickle(databases: List[str], outputdir: str,
 def plot_window_hist_tdist(filename: str, outputdir: str, deg_res: float = 0.1,
                            t_res: float = 15, minillum: int = 0,
                            illumdecay: int = 50, noplot: bool = False,
-                           save: bool = False, fromhistfile: bool = True) -> None:
+                           save: bool = False,
+                           fromhistfile: bool = True) -> None:
 
     if fromhistfile:
         with open(filename, 'rb') as f:
@@ -213,8 +211,6 @@ def plot_window_hist_tdist(filename: str, outputdir: str, deg_res: float = 0.1,
                 # Data histograms
                 dat_list = ["dlnAs", "cc_shifts", "max_ccs"]
                 for _dat in dat_list:
-                    meanval = np.mean(
-                        store[f"{_channel}/{_wtype}"][_dat].to_numpy())
                     hists[_channel][_wtype][_dat], _, _ = np.histogram2d(
                         store[f"{_channel}/{_wtype}"]["epics"].to_numpy(),
                         store[f"{_channel}/{_wtype}"]["wins"].to_numpy(),
@@ -242,7 +238,7 @@ def plot_window_hist_tdist(filename: str, outputdir: str, deg_res: float = 0.1,
     hists_comb = deepcopy(base_hist_measure_dict)
 
     # Labels components etc.
-    abc = 'abcdefghijklmnopqrstuvwxyz'
+    # abc = 'abcdefghijklmnopqrstuvwxyz'
     wavetypes = ['body', 'surface', 'mantle']
     wave_labels = [wave.capitalize() for wave in wavetypes]
     channels = ['R', 'T', 'Z']
@@ -329,7 +325,7 @@ def plot_window_hist_tdist(filename: str, outputdir: str, deg_res: float = 0.1,
                 cmap="seismic",
                 norm=lpy.MidpointNormalize(
                     vmin=-12.5, vmax=12.5, midpoint=0.0),
-                label="CC-$\Delta$ t"),
+                label="CC-$\\Delta$ t"),
             max_ccs=dict(
                 cmap="gray_r",
                 norm=colors.Normalize(vmin=0.925, vmax=0.98),
@@ -363,9 +359,10 @@ def plot_window_hist_tdist(filename: str, outputdir: str, deg_res: float = 0.1,
                                       norm=dpd[_dat]['norm'], aspect='auto')
                 plt.ylabel("Traveltime [min]")
             else:
-                im1 = axes[_i].imshow(zz.T[::-1, :], cmap=dpd[_dat]['cmap'],
-                                      interpolation='none', norm=dpd[_dat]['norm'],
-                                      extent=extent, aspect='auto', alpha=alphas)
+                im1 = axes[_i].imshow(
+                    zz.T[::-1, :], cmap=dpd[_dat]['cmap'],
+                    interpolation='none', norm=dpd[_dat]['norm'],
+                    extent=extent, aspect='auto', alpha=alphas)
 
             lpy.plot_label(axes[_i],
                            f"$\\mu$ = {zz[boolcounts].mean():>4.2f}\n"
@@ -375,8 +372,8 @@ def plot_window_hist_tdist(filename: str, outputdir: str, deg_res: float = 0.1,
                            )
             c = lpy.nice_colorbar(
                 matplotlib.cm.ScalarMappable(cmap=im1.cmap, norm=im1.norm),
-                pad=0.025,
-                orientation='horizontal', aspect=40)  # , ax=axes.ravel().tolist())
+                pad=0.025, orientation='horizontal', aspect=40)
+
             # Set labels
             c.set_label(dpd[_dat]['label'])
 
@@ -492,7 +489,8 @@ def plot_window_hist_tdist(filename: str, outputdir: str, deg_res: float = 0.1,
                     else:
                         im1 = axes[_i].imshow(
                             zz.T[::-1, :], cmap=dpd[_wtype][_dat]['cmap'],
-                            interpolation='none', norm=dpd[_wtype][_dat]['norm'],
+                            interpolation='none',
+                            norm=dpd[_wtype][_dat]['norm'],
                             extent=extent, aspect='auto', alpha=alphas,
                             zorder=-10)
 
@@ -547,7 +545,8 @@ def plot_window_hist_tdist(filename: str, outputdir: str, deg_res: float = 0.1,
                     axes[_i].xaxis.set_label_position('top')
                     axes[_i].tick_params(labelbottom=False, labeltop=True)
 
-                    # Set rasterization zorder to rasteriz images for pdf output
+                    # Set rasterization zorder to rasteriz images for pdf
+                    # output
                     axes[_i].set_rasterization_zorder(-5)
 
                 outfile = os.path.join(
@@ -661,7 +660,7 @@ def plot_window_hist(filename: str, outputdir: str,
                 # Plot label
                 if _i == 2:
                     if _dat == "cc_shifts":
-                        ax.set_xlabel("CC-$\Delta t$")
+                        ax.set_xlabel("CC-$\\Delta t$")
                     elif _dat == "dlnAs":
                         ax.set_xlabel("dlnA")
                     elif _dat == "max_ccs":
@@ -706,7 +705,8 @@ def bin_create_measurement_pickle():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("databaselocs", nargs="+", type=str,
-                        help="Input format: plot-window-hist path/to/database path/to/database")
+                        help="Input format: plot-window-hist path/to/database "
+                        "path/to/database")
     parser.add_argument("-o", dest="outputdir", default=".", type=str,
                         help="Directory to save the images to",
                         required=False)
@@ -724,7 +724,8 @@ def bin():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", type=str,
-                        help="filename for either a measurement or histogram file")
+                        help="filename for either a measurement or "
+                        "histogram file")
     parser.add_argument("-o", dest="outputdir", default=".", type=str,
                         help="Directory to save the images to",
                         required=False)
@@ -763,7 +764,8 @@ def bin_plot_hist():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", type=str,
-                        help="filename for either a measurement or histogram file")
+                        help="filename for either a measurement or "
+                        "histogram file")
     parser.add_argument("-o", dest="outputdir", default=".", type=str,
                         help="Directory to save the images to",
                         required=False)

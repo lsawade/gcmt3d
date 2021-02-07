@@ -276,11 +276,11 @@ def test_window_on_trace():
         windows_json = json.load(fh)
         for _win, _win_json_bm in zip(windows, windows_json):
             _win_bm = Window._load_from_json_content(_win_json_bm)
-        
+
         assertWinAlmostEqual(_win, _win_bm, parameters)
         print(_win)
         print(_win_bm)
-        assert(False)
+
 
 def test_window_on_trace_user_levels():
     obs_tr = read(obsfile)[0]

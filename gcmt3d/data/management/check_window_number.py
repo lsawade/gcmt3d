@@ -53,6 +53,7 @@ def bin():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("eventdir", type=str,
-                        help="filename for either a measurement or histogram file")
+                        help="filename for either a "
+                             "measurement or histogram file")
     args = parser.parse_args()
     print(check_number_of_windows(args.eventdir))

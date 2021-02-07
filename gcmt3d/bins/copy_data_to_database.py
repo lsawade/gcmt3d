@@ -34,9 +34,10 @@ def main():
                         help='Path to directory containing the downloaded\n'
                              'station files.',
                         required=True, type=str)
-    parser.add_argument('-p', dest='paramdir',                                                                                                                                                                                                    
-                        help='Path to paramdir if the networks are to be considered.',                                                                                                                                                        
-                        required=False, type=str, default=None)  
+    parser.add_argument('-p', dest='paramdir',
+                        help='Path to paramdir if the networks '
+                        'are to be considered.',
+                        required=False, type=str, default=None)
     args = parser.parse_args()
 
     # Run The copy command
