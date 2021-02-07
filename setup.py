@@ -77,6 +77,8 @@ setup(
     entry_points={
         'console_scripts': [
             'catalog = gcmt3d.bins.catalog:main',
+            'check-number-of-windows = gcmt3d.data.management.check_window_number:bin',
+            'check-change-in-parameters = gcmt3d.data.management.check_change_in_params:bin',
             'convert2asdf = gcmt3d.bins.convert_to_asdf:main',
             'convert2sac = gcmt3d.bins.convert_to_sac:main',
             'count-windows = gcmt3d.bins.count_overall_windows:main',

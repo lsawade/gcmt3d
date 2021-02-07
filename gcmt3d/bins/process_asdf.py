@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-
+import os
 from gcmt3d.asdf.process import ProcASDF
 from gcmt3d.utils.io import smart_read_yaml
 import warnings
@@ -38,8 +38,11 @@ def main():
     else:
         params_file = args.params_file
 
-    proc = ProcASDF(args.path_file, params_file, verbose=args.verbose)
-    proc.smart_run()
+    if os.path.exists(args.path_file):
+        proc = ProcASDF(args.path_file, params_file, verbose=args.verbose)
+        proc.smart_run()
+    else:
+        print("Path file not found.")
 
 
 if __name__ == '__main__':

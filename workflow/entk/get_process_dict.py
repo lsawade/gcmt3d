@@ -1,5 +1,4 @@
 import os.path as p
-from glob import glob
 from copy import deepcopy
 
 
@@ -30,9 +29,19 @@ def get_process_dict(process_path_dir: str):
     process_dict = {}
 
     for _wave in wave_list:
-        process_list = glob(p.join(process_path_dir, '*' + _wave + '*'))
+        process_list = []
 
-        if len(process_list) != 0:
-            process_dict[_wave] = deepcopy(process_list)
+        for _file in ['observed', 'CMT',
+                      'CMT_rr', 'CMT_tt', 'CMT_pp', 'CMT_rt', 'CMT_rp', 'CMT_tp',
+                      'CMT_lat', 'CMT_lon', 'CMT_depth']:
+            if _file == "observed":
+                prefix = f"{_wave}.obsd"
+            else:
+                prefix = f"{_wave}.synt.{_file}"
+
+            process_list.append(
+                p.join(process_path_dir, f"{prefix}.process_path.yml"))
+
+        process_dict[_wave] = deepcopy(process_list)
 
     return process_dict

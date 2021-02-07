@@ -9,47 +9,47 @@ from radical.entk import Pipeline, Stage, Task, AppManager
 # import traceback
 # import sys
 from source import CMTSource
-from gcmt3d.workflow.create_database_entry import create_entry
-from gcmt3d.workflow.prepare_path_files import make_paths
 from get_conversion_list import get_conversion_list
 from get_process_dict import get_process_dict
 from get_window_list import get_window_list
-
 from read_yaml import read_yaml_file
 
-mainparams = read_yaml_file(p.join(p.dirname(p.abspath(__file__)), "entk.yml"))
+################ EnTK Parameters to be set and read #########################
+ENTK_PARAMS = read_yaml_file(
+    os.path.join(
+        os.path.dirname(
+            os.path.abspath(__file__)), "entk.yml"))
 
-radical_dict = mainparams["RADICAL"]
+RADICAL_DICT = ENTK_PARAMS["RADICAL"]
+RADICAL_DICT["RADICAL_PILOT_DBURL"] = \
+    (f"mongodb://{RADICAL_DICT['RMQ_USERNAME']}:"
+     f"{RADICAL_DICT['RMQ_PASSWORD']}@129.114.17.185/specfm")
 
-radical_dict["RADICAL_PILOT_DBURL"] = \
-    (f"mongodb://{radical_dict['RMQ_USERNAME']}:"
-     f"{radical_dict['RMQ_PASSWORD']}@129.114.17.185/specfm")
-
-for var, val in radical_dict.items():
+for var, val in RADICAL_DICT.items():
     os.environ[var] = val
 
-hostname = radical_dict["RMQ_HOSTNAME"]
-port = int(radical_dict["RMQ_PORT"])
-password = radical_dict["RMQ_PASSWORD"]
-username = radical_dict["RMQ_USERNAME"]
 
-database_dict = mainparams["DATABASE"]
+hostname = RADICAL_DICT["RMQ_HOSTNAME"]
+port = int(RADICAL_DICT["RMQ_PORT"])
+password = RADICAL_DICT["RMQ_PASSWORD"]
+username = RADICAL_DICT["RMQ_USERNAME"]
 
-# Specfem
-specfem = database_dict["SPECFEM"]
-
-# GCMT3D
-GCMT3D = database_dict["GCMT3D"]
-WORKFLOW_DIR = f"{GCMT3D}/workflow"
-PARAMETER_PATH = f"{WORKFLOW_DIR}/params"
-SLURM_DIR = f"{WORKFLOW_DIR}/slurmwf"
-BIN_DIR = f"{WORKFLOW_DIR}/bins"
+################ GCMT3D Parameters to be set and read #######################
+GCMT3D_PARAMS = ENTK_PARAMS["GCMT3D"]
+GCMT3D_DIR = GCMT3D_PARAMS["GCMT3D"]
+WORKFLOW_DIR = os.path.join(GCMT3D_DIR, 'workflow')
+DOWNLOAD_SH = os.path.join(WORKFLOW_DIR, "entk", "ssh-request-data.sh")
+PARAMETER_PATH = GCMT3D_PARAMS["PARAMS"]
+CONDA_ENV = GCMT3D_PARAMS["ENVIRONMENT"]
 
 # DATABASE
-DATABASE_DIR = database_dict['DIR']
+DATABASE_PARAMS = read_yaml_file(os.path.join(
+    PARAMETER_PATH, "Database", "DatabaseParameters.yml"))
+DATABASE_DIR = DATABASE_PARAMS['entkdatabase']
+DATABASE_DISCARD_DIR = DATABASE_PARAMS['entkdatabase_bad']
 
 
-cmtfile = "/tigress/lsawade/source_inversion_II/events/CMT.perturb.440/C200605061826B"
+cmtfile = "/tigress/lsawade/database/C200605061826B"
 # EARTHQUAKE PARAMETERS and Paths derived from the file
 # Getting database entry from CMTSOLUTION FILE
 cmtsource = CMTSource.from_CMTSOLUTION_file(cmtfile)
@@ -68,12 +68,11 @@ WINDOW_PATHS = f"{CDIR}/workflow_files/path_files/window_paths"
 PROCESS_PATHS = f"{CDIR}/workflow_files/path_files/process_paths"
 CONVERSION_PATHS = f"{CDIR}/workflow_files/path_files/conversion_paths"
 
-SYNTHETIC_FILES = database_dict["SYNTHETIC"]
-OBSERVED_DATA = database_dict["OBSERVED"]
-OBSERVED_FILES = f"{OBSERVED_DATA}/waveform"
-STATION_FILES = f"{OBSERVED_DATA}/station"
+# SYNTHETIC_FILES = database_dict["SYNTHETIC"]
+# OBSERVED_DATA = database_dict["OBSERVED"]
+# OBSERVED_FILES = f"{OBSERVED_DATA}/waveform"
+# STATION_FILES = f"{OBSERVED_DATA}/station"
 
-ANACONDA = database_dict["ENVIRONMENT"]
 
 # Sorting things (not so important right now)
 # INVERSION_DIRECTORY = "/gpfs/alpine/geo111/proj-shared/lsawade/submission_scripts"
@@ -89,79 +88,107 @@ ANACONDA = database_dict["ENVIRONMENT"]
 # Create a Pipeline object
 pipe = Pipeline()
 
-# -----------------------------------------------------------------------------
-# # Create a Stage object
-# download = Stage()
+# Create Entry ####################################################
+s = Stage()
+s.name = 'CreateEntryStage'
 
-# # Create a Task object
-# t = Task()
-# t.name = 'Download'  # Assign a name to the task (optional, do not use ',' or '_')
-# t.pre_exec = [
-#     # Load the compilers and shit
-#     "module purge",
-#     # Load anaconda and set environment
-#     "module load anaconda3",
-#     f"conda activate {ANACONDA}",
-#     "module load openmpi/gcc"
-#     ]
-# t.executable = 'request-data'   # Assign executable to the task
-# t.arguments = ['-f', CIN_DB, '-p', PARAMETER_PATH]  # Assign arguments for the task executable
-# t.download_output_data = ['STDOUT', 'STDERR']
-# t.cpu_reqs = {'processes': 1, 'process_type': 'MPI',
-#               'threads_per_process': 1, 'thread_type': 'OpenMP'}
-# t.download_output_data = ['STDOUT', 'STDERR']
-# # Add Task to the Stage
-# download.add_tasks(t)
-
-# # Add Stage to the Pipeline
-# pipe.add_stages(download)
-
-# -----------------------------------------------------------------------------
 # Create a Task object
-# Create a Stage object
-copydata = Stage()
-
 t = Task()
-t.name = 'Copy-Data'  # Assign a name to the task (optional, do not use ',' or '_')
-t.pre_exec = [
-    # Load the compilers and shit
-    "module purge",
-    # Load anaconda and set environment
-    "module load anaconda3",
-    f"conda activate {ANACONDA}",
-    "module load openmpi/gcc"
-    ]
-t.executable = 'copy-data-to-database'   # Assign executable to the task
-t.arguments = ['-f', CIN_DB,
-               '-o', OBSERVED_FILES,
-               '-sta', STATION_FILES,
-               '-s', SYNTHETIC_FILES]  # Assign arguments for the task executable
-t.download_output_data = ['STDOUT', 'STDERR']
-t.cpu_reqs = {'processes': 1, 'process_type': 'MPI',
-              'threads_per_process': 1, 'thread_type': 'OpenMP'}
-t.download_output_data = ['STDOUT', 'STDERR']
-# Add Task to the Stage
-copydata.add_tasks(t)
+# Assign a name to the task (optional, do not use ',' or '_')
+t.name = 'CreateEntryTask'
 
-# Add Stage to the Pipeline
-pipe.add_stages(copydata)
+t.pre_exec = [
+    f"conda activate {CONDA_ENV}",
+]
+t.executable = 'create-entry'
+t.arguments = ["-f", f"{CIN_DB}",
+               "-d", f"{DATABASE_DIR}",
+               "-p", f"{PARAMETER_PATH}"]
+t.download_output_data = ['STDOUT', 'STDERR']
+t.cpu_reqs = {
+    'cpu_processes': 1,
+    'cpu_process_type': None,
+    'cpu_threads': 1,
+    'cpu_thread_type': None
+}
+
+
+def create_postfunc():
+    with open(f"{CDIR}/STATUS", 'w') as f:
+        f.write("CREATED")
+
+
+s.post_exec = create_postfunc
+
+# Add Task to Stage and Stage to the Pipeline
+s.add_tasks(t)
+p.add_stages(s)
+
+# Download ########################################################
+s = Stage()
+s.name = 'DownloadStage'
+
+# Create a Task object
+t = Task()
+# Assign a name to the task (optional, do not use ',' or '_')
+t.name = 'DownloadTask'
+
+# If The compute node does have internet we can simply run the
+# download function 'request-data'
+if GCMT3D_PARAMS['GCMT3D']['COMPUTE_INTERNET']:
+    t.pre_exec = [
+        f"conda activate {CONDA_ENV}",
+        "module load openmpi/gcc"
+    ]
+    t.executable = 'request-data'
+    t.arguments = ["-f", f"{CIN_DB}", "-p", f"{PARAMETER_PATH}"]
+    t.download_output_data = ['STDOUT', 'STDERR']
+    t.cpu_reqs = {
+        'cpu_processes': 1,
+        'cpu_process_type': None,
+        'cpu_threads': 1,
+        'cpu_thread_type': None
+    }
+# else we have to setup a workaround script to login into the login node
+# and download from there
+else:
+    t.executable = '/usr/bin/ssh'
+    t.arguments = ["lsawade@traverse.princeton.edu",
+                   f"'bash -l {DOWNLOAD_SH} {CIN_DB} {PARAMETER_PATH}'"]
+    t.download_output_data = ['STDOUT', 'STDERR']
+    t.cpu_reqs = {
+        'cpu_processes': 1,
+        'cpu_process_type': None,
+        'cpu_threads': 1,
+        'cpu_thread_type': None
+    }
+
+
+def download_postfunc():
+    with open(f"{CDIR}/STATUS", 'w') as f:
+        f.write("DATA_DOWNLOADED")
+
+
+s.post_exec = download_postfunc
+
+# Add Task to Stage and Stage to the Pipeline
+s.add_tasks(t)
+p.add_stages(s)
 
 # -----------------------------------------------------------------------------
 
-conversion_stage = Stage()
-conversion_stage.name = f"Conversion"
+s = Stage()
+s.name = f"Conversion"
 for pathfile in get_conversion_list(CONVERSION_PATHS):
-    convname = p.basename(pathfile).split(".")[0].capitalize().replace("_", "-")
+    convname = p.basename(pathfile).split(
+        ".")[0].capitalize().replace("_", "-")
     t = Task()
-    t.name = f'{convname}'  # Assign a name to the task (optional, do not use ',' or '_')
+    # Assign a name to the task (optional, do not use ',' or '_')
+    t.name = f'{convname}'
     t.pre_exec = [
-        # Load the compilers and shit
-        "module purge",
-        # Load anaconda and set environment
-        "module load anaconda3",
-        f"conda activate {ANACONDA}",
+        f"conda activate {CONDA_ENV}",
         "module load openmpi/gcc"
-        ]
+    ]
     t.executable = 'convert2asdf'   # Assign executable to the task
     t.arguments = ['-f', pathfile]  # Assign arguments for the task executable
     t.download_output_data = ['STDOUT', 'STDERR']
@@ -169,58 +196,71 @@ for pathfile in get_conversion_list(CONVERSION_PATHS):
                   'threads_per_process': 1, 'thread_type': 'OpenMP'}
     t.download_output_data = ['STDOUT', 'STDERR']
     # Add Task to the Stage
-    conversion_stage.add_tasks(t)
+    s.add_tasks(t)
 
-    pipe.add_stages(conversion_stage)
+
+def conversion_postfunc():
+    with open(f"{CDIR}/STATUS", 'w') as f:
+        f.write("DATA_CONVERTED")
+
+
+s.post_exec = conversion_postfunc
+
+p.add_stages(s)
+
 
 # -----------------------------------------------------------------------------
 
 for _wave, process_list in get_process_dict(PROCESS_PATHS).items():
 
-    process_stage = Stage()
-    process_stage.name = f"Process-{_wave}"
+    s = Stage()
+    s.name = f"Process{_wave.capitalize()}"
 
     counter = 0
     for pathfile in process_list:
         t = Task()
-        t.name = f'{counter:0>10}'  # Assign a name to the task (optional, do not use ',' or '_')
+        # Assign a name to the task (optional, do not use ',' or '_')
+        t.name = f'{counter:0>10}'
         t.pre_exec = [
-            # Load the compilers and shit
-            "module purge",
-            # Load anaconda and set environment
-            "module load anaconda3",
-            f"conda activate {ANACONDA}",
+            f"conda activate {CONDA_ENV}",
             "module load openmpi/gcc"
-            ]
+        ]
         t.executable = 'process-asdf'   # Assign executable to the task
-        t.arguments = ['-f', pathfile]  # Assign arguments for the task executable
+        # Assign arguments for the task executable
+        t.arguments = ['-f', pathfile]
         t.download_output_data = ['STDOUT', 'STDERR']
         t.cpu_reqs = {'processes': 1, 'process_type': 'MPI',
                       'threads_per_process': 1, 'thread_type': 'OpenMP'}
         t.download_output_data = ['STDOUT', 'STDERR']
         # Add Task to the Stage
-        process_stage.add_tasks(t)
+        s.add_tasks(t)
         counter += 1
 
-    pipe.add_stages(process_stage)
+    def process_postfunc():
+        with open(f"{CDIR}/STATUS", 'w') as f:
+            f.write(f"{_wave.upper()}_PROCESSED")
+
+    s.post_exec = process_postfunc
+    pipe.add_stages(s)
 
 
 # -----------------------------------------------------------------------------
 
-window_stage = Stage()
-window_stage.name = f"Windowing"
+s = Stage()
+s.name = f"Windowing"
 for pathfile in get_window_list(WINDOW_PATHS):
     wave = p.basename(pathfile).split(".")[0].capitalize()
     t = Task()
-    t.name = f'{wave}'  # Assign a name to the task (optional, do not use ',' or '_')
+    # Assign a name to the task (optional, do not use ',' or '_')
+    t.name = f'{wave}'
     t.pre_exec = [
         # Load the compilers and shit
         "module purge",
         # Load anaconda and set environment
         "module load anaconda3",
-        f"conda activate {ANACONDA}",
+        f"conda activate {CONDA_ENV}",
         "module load openmpi/gcc"
-        ]
+    ]
     t.executable = 'select-windows'   # Assign executable to the task
     t.arguments = ['-f', pathfile]  # Assign arguments for the task executable
     t.download_output_data = ['STDOUT', 'STDERR']
@@ -228,26 +268,30 @@ for pathfile in get_window_list(WINDOW_PATHS):
                   'threads_per_process': 1, 'thread_type': 'OpenMP'}
     t.download_output_data = ['STDOUT', 'STDERR']
     # Add Task to the Stage
-    window_stage.add_tasks(t)
+    s.add_tasks(t)
 
-    pipe.add_stages(window_stage)
+
+def win_postfunc():
+    with open(f"{CDIR}/STATUS", 'w') as f:
+        f.write(f"{_wave.upper()}_WINDOWED")
+
+
+s.post_exec = win_postfunc
+
+pipe.add_stages(s)
 
 # -----------------------------------------------------------------------------
 
 # # Create a Stage object
-cmt3d = Stage()
+s = Stage()
 
 # Create a Task object
 t = Task()
 t.name = 'cmt3d'  # Assign a name to the task (optional, do not use ',' or '_')
 t.pre_exec = [
-    # Load the compilers and shit
-    "module purge",
-    # Load anaconda and set environment
-    "module load anaconda3",
-    f"conda activate {ANACONDA}",
+    f"conda activate {CONDA_ENV}",
     "module load openmpi/gcc"
-    ]
+]
 t.executable = 'inversion'   # Assign executable to the task
 t.arguments = ['-f', CIN_DB]  # Assign arguments for the task executable
 t.download_output_data = ['STDOUT', 'STDERR']
@@ -255,55 +299,64 @@ t.cpu_reqs = {'processes': 1, 'process_type': 'MPI',
               'threads_per_process': 1, 'thread_type': 'OpenMP'}
 t.download_output_data = ['STDOUT', 'STDERR']
 # Add Task to the Stage
-cmt3d.add_tasks(t)
+s.add_tasks(t)
+
+
+def cmt3d_postfunc():
+    with open(f"{CDIR}/STATUS", 'w') as f:
+        f.write("INVERTED")
+
+
+s.post_exec = cmt3d_postfunc
 
 # Add Stage to the Pipeline
-pipe.add_stages(cmt3d)
+pipe.add_stages(s)
 
 # -----------------------------------------------------------------------------
 
 # Create a Stage object
-g3d = Stage()
+s = Stage()
 
 # Create a Task object
 t = Task()
 t.name = 'g3d'  # Assign a name to the task (optional, do not use ',' or '_')
 t.pre_exec = [
-    # Load the compilers and shit
-    "module purge",
-    # Load anaconda and set environment
-    "module load anaconda3",
-    f"conda activate {ANACONDA}",
+    f"conda activate {CONDA_ENV}",
     "module load openmpi/gcc"
-    ]
+]
 t.executable = 'gridsearch'   # Assign executable to the task
 t.arguments = ['-f', CIN_DB]  # Assign arguments for the task executable
 t.download_output_data = ['STDOUT', 'STDERR']
-t.cpu_reqs = {'processes': 25, 'process_type': 'MPI',
-              'threads_per_process': 1, 'thread_type': 'OpenMP'}
+t.cpu_reqs = {'cpu_processes': 25, 'cpu_process_type': 'MPI',
+              'cpu_threads': 1, 'cpu_thread_type': 'OpenMP'}
 t.download_output_data = ['STDOUT', 'STDERR']
 # Add Task to the Stage
-g3d.add_tasks(t)
+s.add_tasks(t)
+
+
+def g3d_postfunc():
+    with open(f"{CDIR}/STATUS", 'w') as f:
+        f.write("GRIDSEARCHED")
+
+
+s.post_exec = g3d_postfunc
 
 # Add Stage to the Pipeline
-pipe.add_stages(g3d)
+pipe.add_stages(s)
 
 # -----------------------------------------------------------------------------
 
 # Create a Stage object
-result = Stage()
+s = Stage()
 
 # Create a Task object
 t = Task()
-t.name = 'plotting'  # Assign a name to the task (optional, do not use ',' or '_')
+# Assign a name to the task (optional, do not use ',' or '_')
+t.name = 'plotting'
 t.pre_exec = [
-    # Load the compilers and shit
-    "module purge",
-    # Load anaconda and set environment
-    "module load anaconda3",
-    f"conda activate {ANACONDA}",
+    f"conda activate {CONDA_ENV}",
     "module load openmpi/gcc"
-    ]
+]
 t.executable = 'plot-event-summary'   # Assign executable to the task
 t.arguments = [f"{INVERSION_OUTPUT_DIR}/cmt3d/*stats.json",
                "-g", f"{INVERSION_OUTPUT_DIR}/g3d/*stats.json",
@@ -313,10 +366,18 @@ t.cpu_reqs = {'processes': 1, 'process_type': 'MPI',
               'threads_per_process': 1, 'thread_type': 'OpenMP'}
 t.download_output_data = ['STDOUT', 'STDERR']
 # Add Task to the Stage
-result.add_tasks(t)
+s.add_tasks(t)
+
+
+def result_postfunc():
+    with open(f"{CDIR}/STATUS", 'w') as f:
+        f.write("FINISHED")
+
+
+s.post_exec = g3d_postfunc
 
 # Add Stage to the Pipeline
-pipe.add_stages(result)
+pipe.add_stages(s)
 
 
 # -----------------------------------------------------------------------------
@@ -325,7 +386,7 @@ pipe.add_stages(result)
 
 
 res_dict = {
-    # 'resource': 'local.localhost',  
+    # 'resource': 'local.localhost',
     'resource': 'princeton.traverse',
     'project_id': 'test',
     'schema': 'local',

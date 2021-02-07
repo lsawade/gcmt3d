@@ -1,5 +1,4 @@
 import os.path as p
-from glob import glob
 
 
 def get_window_list(window_path_dir: str):
@@ -16,6 +15,9 @@ def get_window_list(window_path_dir: str):
     """
 
     # Create empty dictionary
-    window_list = glob(p.join(window_path_dir, '*'))
+    window_list = []
+
+    for _wave in ["body", "surface", "mantle"]:
+        window_list.append(p.join(window_path_dir, f"{_wave}.window.yml"))
 
     return window_list

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import os
 from gcmt3d.asdf.convert import ConvertASDF
 
 
@@ -15,8 +16,11 @@ def main():
                         help="status bar flag")
     args = parser.parse_args()
 
-    converter = ConvertASDF(args.path_file, args.verbose, args.status_bar)
-    converter.run()
+    if os.path.exists(args.path_file):
+        converter = ConvertASDF(args.path_file, args.verbose, args.status_bar)
+        converter.run()
+    else:
+        print("Path file does not exists.")
 
 
 if __name__ == '__main__':

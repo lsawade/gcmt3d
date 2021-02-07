@@ -1,5 +1,4 @@
 import os.path as p
-from glob import glob
 
 
 def get_conversion_list(conversion_path_dir: str):
@@ -16,6 +15,10 @@ def get_conversion_list(conversion_path_dir: str):
     """
 
     # Create empty dictionary
-    conversion_list = glob(p.join(conversion_path_dir, '*'))
+    conversion_list = []
+    for _file in ['observed', 'CMT',
+                  'CMT_rr', 'CMT_tt', 'CMT_pp', 'CMT_rt', 'CMT_rp', 'CMT_tp',
+                  'CMT_lat', 'CMT_lon', 'CMT_depth']:
+        conversion_list.append(p.join(conversion_path_dir, _file + ".yml"))
 
     return conversion_list

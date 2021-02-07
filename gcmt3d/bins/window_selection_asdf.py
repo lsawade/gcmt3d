@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import matplotlib as mpl
+import os
 import argparse
 from gcmt3d.asdf.window import WindowASDF
 from gcmt3d.utils.io import smart_read_yaml
@@ -39,9 +40,12 @@ def main():
     else:
         params_file = args.params_file
 
-    proc = WindowASDF(args.path_file, params_file,
-                      verbose=args.verbose)
-    proc.smart_run()
+    if os.path.exists(args.path_file):
+        proc = WindowASDF(args.path_file, params_file,
+                          verbose=args.verbose)
+        proc.smart_run()
+    else:
+        print("Path file not found")
 
 
 if __name__ == '__main__':

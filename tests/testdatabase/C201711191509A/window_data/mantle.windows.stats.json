@@ -1,0 +1,13 @@
+{
+  "component": {},
+  "instrument_merge_flag": true,
+  "obsd_tag": "mantle",
+  "overall": {
+    "stations": 0,
+    "stations_with_windows": 0,
+    "traces": 0,
+    "traces_with_windows": 0,
+    "windows": 0
+  },
+  "synt_tag": "mantle_cmt"
+}

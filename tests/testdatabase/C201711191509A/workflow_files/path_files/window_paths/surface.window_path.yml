@@ -1,0 +1,8 @@
+figure_dir: /scratch/gpfs/lsawade/database/C201711191509A/window_data/surface_wave_plots
+figure_mode: true
+obsd_asdf: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.obsd.h5
+obsd_tag: surface
+output_file: /scratch/gpfs/lsawade/database/C201711191509A/window_data/surface.windows.json
+synt_asdf: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT.h5
+synt_tag: surface_cmt
+window_param_file: /scratch/gpfs/lsawade/database/C201711191509A/workflow_files/params/window_params/surface.window.yml

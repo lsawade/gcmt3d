@@ -1,0 +1,5 @@
+input_asdf: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/syn/CMT_pp.h5
+input_tag: syn
+output_asdf: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/mantle.synt.CMT_pp.h5
+output_tag: mantle_cmt_pp
+process_param_file: /scratch/gpfs/lsawade/database/C201711191509A/workflow_files/params/process_params/mantle.synt.process.yml

@@ -1,0 +1,47 @@
+
+databasedir: "/tigress/lsawade/database_wenjie_2"
+entkdatabase: "tigress/lsawade/entkdatabase"
+entkdaatbase_bad: "/tigress/lsawade/entkdatabase_bad"
+
+# Number of parameters to invert for
+# 6: only the moment tensor
+# 7: Moment tensor and depth
+# 9: Moment tensor, depth and location (This way around since the location
+#    doesnt really change)
+npar: 9
+
+# Chose verbose output
+verbose: True
+
+# Overwriting the database? Here I have to implement what should be overwritten
+# Not yet implemented, but will be in the future:
+# 0: Everything will be overwritten including the database
+# 1: Earthquake directories will be overwritten
+# 2: CMT simulations and downloaded seismograms will be overwritten.
+# 3: Only simulations will be overwritten.
+# False: Nothing will be overwritten.
+overwrite: False
+
+# Status bar for ASDF operations
+status_bar: False
+
+# When windowing traces create figures?
+figure_mode: True
+
+####### EnTK parameters
+# This will be obsolete (hopefully) by the end of this year as EnTK will roll
+# out in python 3 and I will be able to install both in one environment.
+
+# activate conda environment
+anaconda: 'module load anaconda3'
+conda-sh: '/usr/licensed/anaconda3/2019.10/bin/conda activate gcmt3d_wenjie'
+
+# max change in parameters
+# Otherwise the inversion is put into bad bin!
+outliers:
+  dM0: 0.5
+  dz: 25.0 
+  dlat: 1.0
+  dlon: 1.0
+  dangle: 10.0
+  dtensor: 0.5

@@ -1,0 +1,15 @@
+filter_flag: true
+pre_filt:
+- 0.002857142857142857
+- 0.0033333333333333335
+- 0.006666666666666667
+- 0.008
+relative_endtime: 16200.0
+relative_starttime: 0
+remove_response_flag: false
+resample_flag: true
+rotate_flag: true
+sampling_rate: 0.5
+sanity_check: false
+taper_percentage: 0.05
+taper_type: hann

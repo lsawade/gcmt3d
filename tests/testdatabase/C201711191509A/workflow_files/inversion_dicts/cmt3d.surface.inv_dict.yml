@@ -1,0 +1,15 @@
+asdf_dict:
+  Mpp: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT_pp.h5
+  Mrp: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT_rp.h5
+  Mrr: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT_rr.h5
+  Mrt: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT_rt.h5
+  Mtp: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT_tp.h5
+  Mtt: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT_tt.h5
+  dep: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT_depth.h5
+  lat: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT_lat.h5
+  lon: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT_lon.h5
+  obsd: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.obsd.h5
+  synt: /scratch/gpfs/lsawade/database/C201711191509A/seismograms/processed_seismograms/surface.synt.CMT.h5
+velocity: false
+weight: 0.8799361330115971
+window_file: /scratch/gpfs/lsawade/database/C201711191509A/window_data/surface.windows.json

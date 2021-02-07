@@ -1,6 +1,7 @@
 # Database directory
 databasedir: "/tigress/lsawade/database_wenjie_2"
-entkdatabase: "/scratch/gpfs/lsawade/entkdatabase"
+entkdatabase: "tigress/lsawade/entkdatabase"
+entkdatabase_bad: "/tigress/lsawade/entkdatabase_bad"
 
 # Number of parameters to invert for
 # 6: only the moment tensor
@@ -27,14 +28,20 @@ status_bar: False
 # When windowing traces create figures?
 figure_mode: True
 
-
-
 ####### EnTK parameters
 # This will be obsolete (hopefully) by the end of this year as EnTK will roll
 # out in python 3 and I will be able to install both in one environment.
 
 # activate conda environment
 anaconda: 'module load anaconda3'
-conda-sh: '/usr/licensed/anaconda3/2019.10/bin/conda activate gcmt3d'
+conda-sh: '/usr/licensed/anaconda3/2019.10/bin/conda activate gcmt3d_wenjie'
 
-# python location
+# max change in parameters
+# Otherwise the inversion is put into bad bin!
+outliers:
+  dM0: 0.5
+  dz: 25.0 
+  dlat: 1.0
+  dlon: 1.0
+  dangle: 10.0
+  dtensor: 0.5
