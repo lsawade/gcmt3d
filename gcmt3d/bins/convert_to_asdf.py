@@ -20,7 +20,7 @@ def main():
         converter = ConvertASDF(args.path_file, args.verbose, args.status_bar)
         converter.run()
     else:
-        print("Path file does not exists.")
+        print(f"Path file '{args.path_file}' does not exists.")
 
 
 if __name__ == '__main__':

@@ -45,7 +45,7 @@ def main():
                           verbose=args.verbose)
         proc.smart_run()
     else:
-        print("Path file not found")
+        print(f"Path file '{args.path_file}' does not exists.")
 
 
 if __name__ == '__main__':
