@@ -4,7 +4,6 @@
 from __future__ import nested_scopes, generators, division, absolute_import, \
     with_statement, print_function
 import os
-import os.path as p
 from radical.entk import Pipeline, Stage, Task, AppManager
 # import traceback
 # import sys
@@ -14,7 +13,9 @@ from get_process_dict import get_process_dict
 from get_window_list import get_window_list
 from read_yaml import read_yaml_file
 
-################ EnTK Parameters to be set and read #########################
+SCRIPT_LOCATION = os.path.abspath(__file__)
+
+# ############### EnTK Parameters to be set and read #########################
 ENTK_PARAMS = read_yaml_file(
     os.path.join(
         os.path.dirname(
@@ -34,7 +35,7 @@ port = int(RADICAL_DICT["RMQ_PORT"])
 password = RADICAL_DICT["RMQ_PASSWORD"]
 username = RADICAL_DICT["RMQ_USERNAME"]
 
-################ GCMT3D Parameters to be set and read #######################
+# ############### GCMT3D Parameters to be set and read #######################
 GCMT3D_PARAMS = ENTK_PARAMS["GCMT3D"]
 GCMT3D_DIR = GCMT3D_PARAMS["GCMT3D"]
 WORKFLOW_DIR = os.path.join(GCMT3D_DIR, 'workflow')
@@ -48,14 +49,19 @@ DATABASE_PARAMS = read_yaml_file(os.path.join(
 DATABASE_DIR = DATABASE_PARAMS['entkdatabase']
 DATABASE_DISCARD_DIR = DATABASE_PARAMS['entkdatabase_bad']
 
+# SPECFEM
+SPECFEM_PARAMS = read_yaml_file(os.path.join(
+    PARAMETER_PATH, "SpecfemParams", "SpecfemParams.yml"))
 
-cmtfile = "/tigress/lsawade/database/C200605061826B"
+
+# ################ EVENT INFORMATION #########################################
+cmtfile = os.path.join(SCRIPT_LOCATION, "sumatra.cmt")
 # EARTHQUAKE PARAMETERS and Paths derived from the file
 # Getting database entry from CMTSOLUTION FILE
 cmtsource = CMTSource.from_CMTSOLUTION_file(cmtfile)
 CID = cmtsource.eventname
 CIN_DB = f"{DATABASE_DIR}/{CID}/{CID}.cmt"
-CDIR = p.dirname(CIN_DB)            # Earthquake Directory
+CDIR = os.path.dirname(CIN_DB)            # Earthquake Directory
 CMT_SIM_DIR = f"{CDIR}/CMT_SIMs"      # Simulation directory
 
 # directory
@@ -68,25 +74,9 @@ WINDOW_PATHS = f"{CDIR}/workflow_files/path_files/window_paths"
 PROCESS_PATHS = f"{CDIR}/workflow_files/path_files/process_paths"
 CONVERSION_PATHS = f"{CDIR}/workflow_files/path_files/conversion_paths"
 
-# SYNTHETIC_FILES = database_dict["SYNTHETIC"]
-# OBSERVED_DATA = database_dict["OBSERVED"]
-# OBSERVED_FILES = f"{OBSERVED_DATA}/waveform"
-# STATION_FILES = f"{OBSERVED_DATA}/station"
-
-
-# Sorting things (not so important right now)
-# INVERSION_DIRECTORY = "/gpfs/alpine/geo111/proj-shared/lsawade/submission_scripts"
-# SUBMITTED = f"{INVERSION_DIRECTORY}/submitted_cmts"
-# DONE = f"{INVERSION_DIRECTORY}/done_cmts"
-
-# Create Entry
-# create_entry(cmtfile, DATABASE_DIR, PARAMETER_PATH, specfem=False)
-
-# Create Paths
-# make_paths(CIN_DB, PARAMETER_PATH, conversion=True)
 
 # Create a Pipeline object
-pipe = Pipeline()
+p = Pipeline()
 
 # Create Entry ####################################################
 s = Stage()
@@ -94,7 +84,6 @@ s.name = 'CreateEntryStage'
 
 # Create a Task object
 t = Task()
-# Assign a name to the task (optional, do not use ',' or '_')
 t.name = 'CreateEntryTask'
 
 t.pre_exec = [
@@ -130,7 +119,6 @@ s.name = 'DownloadStage'
 
 # Create a Task object
 t = Task()
-# Assign a name to the task (optional, do not use ',' or '_')
 t.name = 'DownloadTask'
 
 # If The compute node does have internet we can simply run the
@@ -175,10 +163,10 @@ s.post_exec = download_postfunc
 s.add_tasks(t)
 p.add_stages(s)
 
-# -----------------------------------------------------------------------------
+# Conversion ########################################################
 
 s = Stage()
-s.name = f"Conversion"
+s.name = "Conversion"
 for pathfile in get_conversion_list(CONVERSION_PATHS):
     convname = p.basename(pathfile).split(
         ".")[0].capitalize().replace("_", "-")
@@ -209,7 +197,64 @@ s.post_exec = conversion_postfunc
 p.add_stages(s)
 
 
-# -----------------------------------------------------------------------------
+# Simulation ########################################################
+
+
+CMT_LIST = ["CMT", "CMT_rr", "CMT_tt", "CMT_pp", "CMT_rt", "CMT_rp", "CMT_tp",
+            "CMT_depth", "CMT_lat", "CMT_lon"]
+
+s = Stage()
+s.name = 'SimulationStage'
+
+for _cmt in CMT_LIST:
+
+    # Create Task
+    t = Task()
+    t.name = f"SIMULATION.{_cmt}"
+    tdir = os.path.join(CMT_SIM_DIR, _cmt)
+    t.pre_exec = [
+        # Load necessary modules
+        'module load openmpi/gcc',
+        'module load cudatoolkit/11.0',
+
+        # Change to your specfem run directory
+        # f'rm -rf {tdir}',
+        # f'mkdir {tdir}',
+        f'cd {tdir}',
+
+        # # Create data structure in place
+        # f'ln -s {SPECFEM_PARAMS["SPECFEM_DIR"]}/bin .',
+        # f'ln -s {SPECFEM_PARAMS["SPECFEM_DIR"]}/DATABASES_MPI .',
+        # f'cp -r {SPECFEM_PARAMS["SPECFEM_DIR"]}/OUTPUT_FILES .',
+        # 'mkdir DATA',
+        # f'cp {SPECFEM_PARAMS["SPECFEM_DIR"]}/DATA/CMTSOLUTION ./DATA/',
+        # f'cp {SPECFEM_PARAMS["SPECFEM_DIR"]}/DATA/STATIONS ./DATA/',
+        # f'cp {SPECFEM_PARAMS["SPECFEM_DIR"]}/DATA/Par_file ./DATA/'
+    ]
+    t.executable = './bin/xspecfem3D'
+    t.cpu_reqs = {
+        'cpu_processes': SPECFEM_PARAMS["tasks"], 'cpu_process_type': 'MPI',
+        'cpu_threads': 1, 'cpu_thread_type': 'OpenMP'}
+    t.gpu_reqs = {
+        'gpu_processes': 1, 'gpu_process_type': 'MPI',
+        'gpu_threads': 1, 'gpu_thread_type': 'CUDA'}
+    t.download_output_data = ['STDOUT', 'STDERR']
+
+    # Add task to stage
+    s.add_tasks(t)
+
+
+def simulation_postfunc():
+    with open(f"{CDIR}/STATUS", 'w') as f:
+        f.write(f"{_wave.upper()}_PROCESSED")
+
+
+s.post_exec = simulation_postfunc
+
+p.add_stages(s)
+
+
+# Processing ########################################################
 
 for _wave, process_list in get_process_dict(PROCESS_PATHS).items():
 
@@ -241,13 +286,13 @@ for _wave, process_list in get_process_dict(PROCESS_PATHS).items():
             f.write(f"{_wave.upper()}_PROCESSED")
 
     s.post_exec = process_postfunc
-    pipe.add_stages(s)
+    p.add_stages(s)
 
 
-# -----------------------------------------------------------------------------
+# Windowing ########################################################
 
 s = Stage()
-s.name = f"Windowing"
+s.name = "Windowing"
 for pathfile in get_window_list(WINDOW_PATHS):
     wave = p.basename(pathfile).split(".")[0].capitalize()
     t = Task()
@@ -278,9 +323,9 @@ def win_postfunc():
 
 s.post_exec = win_postfunc
 
-pipe.add_stages(s)
+p.add_stages(s)
 
-# -----------------------------------------------------------------------------
+# Inversion ########################################################
 
 # # Create a Stage object
 s = Stage()
@@ -310,9 +355,9 @@ def cmt3d_postfunc():
 s.post_exec = cmt3d_postfunc
 
 # Add Stage to the Pipeline
-pipe.add_stages(s)
+p.add_stages(s)
 
-# -----------------------------------------------------------------------------
+# GRIDSEARCH ########################################################
 
 # Create a Stage object
 s = Stage()
@@ -342,9 +387,9 @@ def g3d_postfunc():
 s.post_exec = g3d_postfunc
 
 # Add Stage to the Pipeline
-pipe.add_stages(s)
+p.add_stages(s)
 
-# -----------------------------------------------------------------------------
+# Results ########################################################
 
 # Create a Stage object
 s = Stage()
@@ -377,7 +422,7 @@ def result_postfunc():
 s.post_exec = g3d_postfunc
 
 # Add Stage to the Pipeline
-pipe.add_stages(s)
+p.add_stages(s)
 
 
 # -----------------------------------------------------------------------------
@@ -392,11 +437,11 @@ res_dict = {
     'schema': 'local',
     'walltime': 45,
     'cpus': 32 * 1,
-    # 'gpus': 4 * 1,
+    'gpus': 4 * 1,
 }
 
 appman = AppManager(hostname=hostname, port=port, resubmit_failed=False,
                     username=username, password=password)
 appman.resource_desc = res_dict
-appman.workflow = set([pipe])
+appman.workflow = set([p])
 appman.run()
