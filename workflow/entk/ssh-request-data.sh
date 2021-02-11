@@ -1,4 +1,4 @@
 #!/bin/bash
-module load anaconda3
-conda activate gcmt3d_wenjie
+module load $4
+conda activate $3
 request-data -f $1 -p $2

@@ -41,6 +41,7 @@ GCMT3D_DIR = GCMT3D_PARAMS["GCMT3D"]
 WORKFLOW_DIR = os.path.join(GCMT3D_DIR, 'workflow')
 DOWNLOAD_SH = os.path.join(WORKFLOW_DIR, "entk", "ssh-request-data.sh")
 PARAMETER_PATH = GCMT3D_PARAMS["PARAMS"]
+ANACONDA_MOD = GCMT3D_PARAMS["ANACONDA_MOD"]
 CONDA_ENV = GCMT3D_PARAMS["ENVIRONMENT"]
 CONDA_PATH = GCMT3D_PARAMS["ANACONDA"]
 CONDA_BIN_PATH = f"{GCMT3D_PARAMS['ANACONDA']}/bin"
@@ -72,6 +73,8 @@ CIN_DB = f"{DATABASE_DIR}/{CID}/{CID}.cmt"
 CDIR = os.path.dirname(CIN_DB)            # Earthquake Directory
 CMT_SIM_DIR = f"{CDIR}/CMT_SIMs"      # Simulation directory
 
+print(CID, CIN_DB, CDIR, CMT_SIM_DIR)
+
 # directory
 PROCESSED = f"{CDIR}/seismograms/processed_seismograms"
 SEISMOGRAMS = f"{CDIR}/seismograms"
@@ -96,7 +99,7 @@ if STAGES["Create"]:
     t.name = 'CreateEntryTask'
 
     t.pre_exec = [
-        "module load anaconda3",
+        f"module load {ANACONDA_MOD}",
         f"source {CONDA_CONDA_SH}",
         f"conda activate {CONDA_ENV}",
     ]
@@ -104,7 +107,6 @@ if STAGES["Create"]:
     t.arguments = ["-f", f"{CIN_DB}",
                    "-d", f"{DATABASE_DIR}",
                    "-p", f"{PARAMETER_PATH}"]
-    t.download_output_data = ['STDOUT', 'STDERR']
     t.cpu_reqs = {
         'cpu_processes': 1,
         'cpu_process_type': None,
@@ -124,6 +126,45 @@ if STAGES["Create"]:
     s.add_tasks(t)
     p.add_stages(s)
 
+
+# Create Entry ####################################################
+if STAGES["Paths"]:
+    s = Stage()
+    s.name = 'CreatePathfilesStage'
+
+    # Create a Task object
+    t = Task()
+    t.name = 'CreatePathfilesTask'
+
+    t.pre_exec = [
+        f"module load {ANACONDA_MOD}",
+        f"source {CONDA_CONDA_SH}",
+        f"conda activate {CONDA_ENV}",
+    ]
+    t.executable = 'create-path-files'
+    t.arguments = ["-f", f"{CIN_DB}",
+                   "-p", f"{PARAMETER_PATH}"]
+    t.cpu_reqs = {
+        'cpu_processes': 1,
+        'cpu_process_type': None,
+        'cpu_threads': 1,
+        'cpu_thread_type': None
+    }
+
+
+    def create_postfunc():
+        with open(f"{CDIR}/STATUS", 'w') as f:
+            f.write("CREATEDPATHS")
+
+
+    s.post_exec = create_postfunc
+
+    # Add Task to Stage and Stage to the Pipeline
+    s.add_tasks(t)
+    p.add_stages(s)
+
+
+    
 # Download ########################################################
 if STAGES["Download"]:
     
@@ -139,14 +180,12 @@ if STAGES["Download"]:
     print(GCMT3D_PARAMS['COMPUTE_INTERNET'])
     if GCMT3D_PARAMS['COMPUTE_INTERNET']:
         t.pre_exec = [
-            "module load anaconda3",
-            CONDA_CONDA,
+            f"module load {ANACONDA_MOD}",
+            f"source {CONDA_CONDA_SH}",
             f"conda activate {CONDA_ENV}",
-            "module load openmpi/gcc"
         ]
         t.executable = 'request-data'
         t.arguments = ["-f", f"{CIN_DB}", "-p", f"{PARAMETER_PATH}"]
-        t.download_output_data = ['STDOUT', 'STDERR']
         t.cpu_reqs = {
             'cpu_processes': 1,
             'cpu_process_type': None,
@@ -158,8 +197,7 @@ if STAGES["Download"]:
     else:
         t.executable = '/usr/bin/ssh'
         t.arguments = ["lsawade@traverse.princeton.edu",
-                       f"'bash -l {DOWNLOAD_SH} {CIN_DB} {PARAMETER_PATH}'"]
-        t.download_output_data = ['STDOUT', 'STDERR']
+                       f"'bash -l {DOWNLOAD_SH} {CIN_DB} {PARAMETER_PATH} {CONDA_ENV} {ANACONDA_MOD}'"]
         t.cpu_reqs = {
             'cpu_processes': 1,
             'cpu_process_type': None,
@@ -180,39 +218,41 @@ if STAGES["Download"]:
     p.add_stages(s)
 
 
-# Conversion ########################################################
+# Write Sources #####################################################
 
-if STAGES["Convert"]:
-
+if STAGES["Sources"]:
     s = Stage()
-    s.name = "Conversion"
-    for pathfile in get_conversion_list(CONVERSION_PATHS):
-        convname = os.path.basename(pathfile).split(
-            ".")[0].capitalize().replace("_", "-")
-        t = Task()
-        # Assign a name to the task (optional, do not use ',' or '_')
-        t.name = f'{convname}'
-        t.pre_exec = [
-            f"conda activate {CONDA_ENV}",
-            "module load openmpi/gcc"
-        ]
-        t.executable = 'convert2asdf'   # Assign executable to the task
-        t.arguments = ['-f', pathfile]  # Assign arguments for the task executable
-        t.download_output_data = ['STDOUT', 'STDERR']
-        t.cpu_reqs = {'cpu_processes': 1, 'cpu_process_type': 'MPI',
-                      'cpu_threads': 1, 'cpu_thread_type': 'OpenMP'}
-        t.download_output_data = ['STDOUT', 'STDERR']
-        # Add Task to the Stage
-        s.add_tasks(t)
+    s.name = 'WriteSourcesStage'
+
+    # Create a Task object
+    t = Task()
+    t.name = 'WriteSourcesTask'
+
+    t.pre_exec = [
+        f"module load {ANACONDA_MOD}",
+        f"source {CONDA_CONDA_SH}",
+        f"conda activate {CONDA_ENV}",
+    ]
+    t.executable = 'write-sources'
+    t.arguments = ["-f", f"{CIN_DB}",
+                   "-p", f"{PARAMETER_PATH}"]
+    t.cpu_reqs = {
+        'cpu_processes': 1,
+        'cpu_process_type': None,
+        'cpu_threads': 1,
+        'cpu_thread_type': None
+    }
 
 
-    def conversion_postfunc():
+    def create_postfunc():
         with open(f"{CDIR}/STATUS", 'w') as f:
-            f.write("DATA_CONVERTED")
+            f.write("SOURCES")
 
 
-    s.post_exec = conversion_postfunc
+    s.post_exec = create_postfunc
 
+    # Add Task to Stage and Stage to the Pipeline
+    s.add_tasks(t)
     p.add_stages(s)
 
 
@@ -253,12 +293,11 @@ if STAGES["Simulate"]:
         ]
         t.executable = './bin/xspecfem3D'
         t.cpu_reqs = {
-            'cpu_processes': SPECFEM_PARAMS["tasks"], 'cpu_process_type': 'MPI',
+            'cpu_processes': 1, 'cpu_process_type': 'MPI',
             'cpu_threads': 1, 'cpu_thread_type': 'OpenMP'}
         t.gpu_reqs = {
             'gpu_processes': 1, 'gpu_process_type': 'MPI',
             'gpu_threads': 1, 'gpu_thread_type': 'CUDA'}
-        t.download_output_data = ['STDOUT', 'STDERR']
 
         # Add task to stage
         s.add_tasks(t)
@@ -266,13 +305,49 @@ if STAGES["Simulate"]:
 
     def simulation_postfunc():
         with open(f"{CDIR}/STATUS", 'w') as f:
-            f.write(f"{_wave.upper()}_PROCESSED")
+            f.write(f"SIMULATED")
 
 
     s.post_exec = simulation_postfunc
 
     p.add_stages(s)
 
+
+# Conversion ########################################################
+
+if STAGES["Convert"]:
+
+    s = Stage()
+    s.name = "Conversion"
+    for pathfile in get_conversion_list(CONVERSION_PATHS):
+        convname = os.path.basename(pathfile).split(
+            ".")[0].capitalize().replace("_", ".")
+        t = Task()
+        # Assign a name to the task (optional, do not use ',' or '_')
+        t.name = f'{convname}'
+        t.pre_exec = [
+            "module load openmpi/gcc",
+            f"module load {ANACONDA_MOD}",
+            f"source {CONDA_CONDA_SH}",
+            f"conda activate {CONDA_ENV}",
+        ]
+        t.executable = 'convert2asdf'   # Assign executable to the task
+        t.arguments = ['-f', pathfile]  # Assign arguments for the task executable
+        t.cpu_reqs = {'cpu_processes': 1, 'cpu_process_type': 'MPI',
+                      'cpu_threads': 15, 'cpu_thread_type': 'OpenMP'}
+
+        # Add Task to the Stage
+        s.add_tasks(t)
+
+
+    def conversion_postfunc():
+        with open(f"{CDIR}/STATUS", 'w') as f:
+            f.write("DATA_CONVERTED")
+
+
+    s.post_exec = conversion_postfunc
+
+    p.add_stages(s)
 
 # Processing ########################################################
 
@@ -295,10 +370,9 @@ if STAGES["Process"]:
             t.executable = 'process-asdf'   # Assign executable to the task
             # Assign arguments for the task executable
             t.arguments = ['-f', pathfile]
-            t.download_output_data = ['STDOUT', 'STDERR']
             t.cpu_reqs = {'cpu_processes': 1, 'cpu_process_type': 'MPI',
                           'cpu_threads': 1, 'cpu_thread_type': 'OpenMP'}
-            t.download_output_data = ['STDOUT', 'STDERR']
+
             # Add Task to the Stage
             s.add_tasks(t)
             counter += 1
@@ -332,10 +406,9 @@ if STAGES["Window"]:
         ]
         t.executable = 'select-windows'   # Assign executable to the task
         t.arguments = ['-f', pathfile]  # Assign arguments for the task executable
-        t.download_output_data = ['STDOUT', 'STDERR']
         t.cpu_reqs = {'cpu_processes': 14, 'cpu_process_type': 'MPI',
                       'cpu_threads': 1, 'cpu_thread_type': 'OpenMP'}
-        t.download_output_data = ['STDOUT', 'STDERR']
+
         # Add Task to the Stage
         s.add_tasks(t)
 
@@ -365,10 +438,9 @@ if STAGES["Invert"]:
     ]
     t.executable = 'inversion'   # Assign executable to the task
     t.arguments = ['-f', CIN_DB]  # Assign arguments for the task executable
-    t.download_output_data = ['STDOUT', 'STDERR']
     t.cpu_reqs = {'processes': 1, 'process_type': 'MPI',
                   'threads_per_process': 1, 'thread_type': 'OpenMP'}
-    t.download_output_data = ['STDOUT', 'STDERR']
+
     # Add Task to the Stage
     s.add_tasks(t)
 
@@ -398,10 +470,9 @@ if STAGES["Gridsearch"]:
     ]
     t.executable = 'gridsearch'   # Assign executable to the task
     t.arguments = ['-f', CIN_DB]  # Assign arguments for the task executable
-    t.download_output_data = ['STDOUT', 'STDERR']
     t.cpu_reqs = {'cpu_processes': 25, 'cpu_process_type': 'MPI',
                   'cpu_threads': 1, 'cpu_thread_type': 'OpenMP'}
-    t.download_output_data = ['STDOUT', 'STDERR']
+    
     # Add Task to the Stage
     s.add_tasks(t)
 
@@ -435,10 +506,9 @@ if STAGES["Result"]:
     t.arguments = [f"{INVERSION_OUTPUT_DIR}/cmt3d/*stats.json",
                    "-g", f"{INVERSION_OUTPUT_DIR}/g3d/*stats.json",
                    "-f", f"{INVERSION_OUTPUT_DIR}/full_summary.pdf"]
-    t.download_output_data = ['STDOUT', 'STDERR']
     t.cpu_reqs = {'processes': 1, 'process_type': 'MPI',
                   'threads_per_process': 1, 'thread_type': 'OpenMP'}
-    t.download_output_data = ['STDOUT', 'STDERR']
+
     # Add Task to the Stage
     s.add_tasks(t)
 
@@ -458,16 +528,15 @@ if STAGES["Result"]:
 
 # Create a check that looks att changes between solutions.
 
-
 res_dict = {
     # 'resource': 'local.localhost',
     'resource': 'princeton.traverse',
   # 'project_id': 'test',
     'job_name' : 'cmtinversion',
     'schema': 'local',
-    'walltime': 10, #2 * 60,
-    'cpus': 5, #30 * 3,
-    'gpus': 1 #6 * 2,
+    'walltime': 30, #2 * 60,
+    'cpus': 30 * 1,
+    'gpus': 1, #6 * 2,
 }
 
 appman = AppManager(hostname=hostname, port=port, resubmit_failed=False,

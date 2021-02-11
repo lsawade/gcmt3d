@@ -1,14 +1,16 @@
-# Database directory
+ # Database directory
 databasedir: "/tigress/lsawade/database_wenjie_2"
-entkdatabase: "tigress/lsawade/entkdatabase"
+entkdatabase: "/tigress/lsawade/entkdatabase"
 entkdatabase_bad: "/tigress/lsawade/entkdatabase_bad"
 
 #
 Stages:
-  Create: True
-  Download: True
+  Create: False
+  Paths: False
+  Download: False
+  Sources: True
+  Simulate: True
   Convert: False
-  Simulate: False
   Process: False
   Window: False
   Invert: False
